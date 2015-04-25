@@ -1,4 +1,5 @@
 Use http://www.w3.org/TR/IndexedDB/#dfn-steps-for-asynchronously-executing-a-request more explicitly rather than fireEvent ad hoc stuff now
+- probably related to the 2 failing tests which expect error in request object, not thrown
 
 remove fireEvent, just build them manually? Or http://www.w3.org/TR/IndexedDB/#dfn-steps-for-asynchronously-executing-a-request
 
