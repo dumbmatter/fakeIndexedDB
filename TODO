@@ -6,7 +6,6 @@ TRICKY THINGS TO FIGURE OUT (and test) ASAP:
 - transaction abort/rollback
 - indexes
 - ranges
-- cmp
 - cursors
 
 http://www.w3.org/TR/IndexedDB/

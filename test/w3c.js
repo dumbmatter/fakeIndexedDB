@@ -1,6 +1,7 @@
 var assert = require('assert');
 var indexedDB = require('..');
 var FDBOpenDBRequest = require('../lib/FDBOpenDBRequest');
+var FDBRequest = require('../lib/FDBRequest');
 var FDBTransaction = require('../lib/FDBTransaction');
 var InvalidAccessError = require('../lib/errors/InvalidAccessError');
 var InvalidStateError = require('../lib/errors/InvalidStateError');
@@ -214,6 +215,75 @@ describe('W3C Web Platform Tests', function () {
                     done();
                 };
             };
+        });
+    });
+    describe('Keys', function () {
+        // key_valid
+        it('Valid key', function (done) {
+            var numChecks = 0;
+            var numDone = 0;
+
+            function valid_key(desc, key) {
+                numChecks += 1;
+
+                var db;
+                var open_rq = createdb(done);
+
+                open_rq.onupgradeneeded = function(e) {
+                    db = e.target.result;
+
+                    store = db.createObjectStore("store");
+                    assert(store.add('value', key) instanceof FDBRequest);
+
+                    store2 = db.createObjectStore("store2", { keyPath: ["x", "keypath"] });
+                    assert(store2.add({ x: 'v', keypath: key }) instanceof FDBRequest);
+                };
+                open_rq.onsuccess = function(e) {
+                    var rq = db.transaction("store")
+                               .objectStore("store")
+                               .get(key)
+                    rq.onsuccess = function(e) {
+                        assert.equal(e.target.result, 'value')
+                        var rq = db.transaction("store2")
+                                   .objectStore("store2")
+                                   .get(['v', key])
+                        rq.onsuccess = function(e) {
+                            assert.deepEqual(e.target.result, { x: 'v', keypath: key })
+                            numDone += 1;
+                            if (numDone === numChecks) {
+                                done();
+                            }
+                        };
+                    };
+                }
+            }
+
+            // Date
+            valid_key( 'new Date()'    , new Date() );
+            valid_key( 'new Date(0)'   , new Date(0) );
+
+            // Array
+            valid_key( '[]'            , [] );
+            valid_key( 'new Array()'   , new Array() );
+
+            valid_key( '["undefined"]' , ['undefined'] );
+
+            // Float
+            valid_key( 'Infinity'      , Infinity );
+            valid_key( '-Infinity'     , -Infinity );
+            valid_key( '0'             , 0 );
+            valid_key( '1.5'           , 1.5 );
+            valid_key( '3e38'          , 3e38 );
+            valid_key( '3e-38'         , 3e38 );
+
+            // String
+            valid_key( '"foo"'         , "foo" );
+            valid_key( '"\\n"'         , "\n" );
+            valid_key( '""'            , "" );
+            valid_key( '"\\""'         , "\"" );
+            valid_key( '"\\u1234"'     , "\u1234" );
+            valid_key( '"\\u0000"'     , "\u0000" );
+            valid_key( '"NaN"'         , "NaN" );
         });
     });
 });
