@@ -4,6 +4,7 @@ default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveer
 
 TRICKY THINGS TO FIGURE OUT (and test) ASAP:
 - transaction abort/rollback
+  - also include key generator state somehow
 - indexes
 - ranges
 - cursors
