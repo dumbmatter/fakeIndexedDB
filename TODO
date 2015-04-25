@@ -1,14 +1,12 @@
-special cmp functions needed soon
-
 remove fireEvent, just build them manually? Or http://www.w3.org/TR/IndexedDB/#dfn-steps-for-asynchronously-executing-a-request
 
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
 
-_ for internal properties
-
 TRICKY THINGS TO FIGURE OUT (and test) ASAP:
 - transaction abort/rollback
 - indexes
+- ranges
+- cmp
 - cursors
 
 http://www.w3.org/TR/IndexedDB/
