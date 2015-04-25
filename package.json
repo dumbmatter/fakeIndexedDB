@@ -9,7 +9,8 @@
   "author": "Jeremy Scheff <jdscheff@gmail.com> (http://dumbmatter.com/)",
   "license": "Apache-2.0",
   "dependencies": {
-    "structured-clone": "^0.2.2"
+    "structured-clone": "^0.2.2",
+    "traverse": "^0.6.6"
   },
   "devDependencies": {
     "mocha": "^2.2.4"

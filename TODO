@@ -17,6 +17,8 @@ transactions
 - event interaction with transaction: http://www.w3.org/TR/IndexedDB/#dfn-fire-a-success-event
 
 convert tests from web-platform-tests and delete as i go
+- missing:
+  - test of aborted transaction rollback
 
 asyncify
 - currently using setImmediate for transaction resolution and process.nextTick for queueing everything else

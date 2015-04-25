@@ -3,6 +3,7 @@ var indexedDB = require('..');
 var FDBOpenDBRequest = require('../lib/FDBOpenDBRequest');
 var FDBRequest = require('../lib/FDBRequest');
 var FDBTransaction = require('../lib/FDBTransaction');
+var DataError = require('../lib/errors/DataError');
 var InvalidAccessError = require('../lib/errors/InvalidAccessError');
 var InvalidStateError = require('../lib/errors/InvalidStateError');
 var NotFoundError = require('../lib/errors/NotFoundError');
@@ -97,6 +98,7 @@ describe('W3C Web Platform Tests', function () {
             };
         });
     });
+
     describe('IDBTransaction', function () {
         // idbtransaction
         it('(no name)', function (done) {
@@ -217,7 +219,128 @@ describe('W3C Web Platform Tests', function () {
             };
         });
     });
-    describe('Keys', function () {
+
+    describe('Key validity', function () {
+        // key_invalid
+        it('Invalid key', function (done) {
+            var numChecks = 0;
+            var numDone = 0;
+
+            /*function is_cloneable(o) {
+                try {
+                    self.postMessage(o, '*');
+                    return true;
+                } catch (ex) {
+                    return false;
+                }
+            }*/
+
+            function invalid_key(desc, key) {
+                numChecks += 1;
+
+                var open_rq = createdb(done);
+                var objStore, objStore2;
+
+                // set the current test, and run it
+                open_rq.onupgradeneeded = function(e) {
+                    objStore = e.target.result.createObjectStore("store");
+                    assert.throws(function() {
+                        objStore.add("value", key);
+                    }, DataError, desc);
+
+                    /*if (is_cloneable(key)) {
+                        objStore2 = e.target.result.createObjectStore("store2", { keyPath: ["x", "keypath"] });
+                        assert.throws(function() {
+                            objStore2.add({ x: "value", keypath: key });
+                        }, DataError, desc);
+                    }*/
+                    
+                    numDone += 1;
+                    if (numDone === numChecks) {
+                        done();
+                    }
+                };
+                open_rq.onsuccess = function () {};
+            }
+
+            var fake_array = {
+                length      : 0,
+                constructor : Array
+            };
+
+            var ArrayClone = function(){};
+            ArrayClone.prototype = Array;
+            var ArrayClone_instance = new ArrayClone();
+
+            // booleans
+            invalid_key( 'true'  , true );
+            invalid_key( 'false' , false );
+
+            // null/NaN/undefined
+            invalid_key( 'null'      , null );
+            invalid_key( 'NaN'       , NaN );
+            invalid_key( 'undefined' , undefined );
+            invalid_key( 'undefined2');
+
+            // functions
+            invalid_key( 'function() {}', function(){} );
+
+            // objects
+            invalid_key( '{}'                           , {} );
+            invalid_key( '{ obj: 1 }'                   , { obj: 1 });
+            invalid_key( 'Math'                         , Math );
+            //invalid_key( 'window'                       , window );
+            invalid_key( '{length:0,constructor:Array}' , fake_array );
+            invalid_key( 'Array clone’s instance'       , ArrayClone_instance );
+            invalid_key( 'Array (object)'               , Array );
+            invalid_key( 'String (object)'              , String );
+            invalid_key( 'new String()'                 , new String() );
+            invalid_key( 'new Number()'                 , new Number() );
+            invalid_key( 'new Boolean()'                , new Boolean() );
+
+            // arrays
+            invalid_key( '[{}]'                     , [{}] );
+            invalid_key( '[[], [], [], [[ Date ]]]' , [ [], [], [], [[ Date ]] ] );
+            invalid_key( '[undefined]'              , [undefined] );
+            invalid_key( '[,1]'                     , [,1] );
+            //invalid_key( 'document.getElements'
+            //            +'ByTagName("script")'      , document.getElementsByTagName("script") );
+
+            //  dates
+            invalid_key( 'new Date(NaN)'      , new Date(NaN) );
+            invalid_key( 'new Date(Infinity)' , new Date(Infinity) );
+
+            // regexes
+            invalid_key( '/foo/'        , /foo/ );
+            invalid_key( 'new RegExp()' , new RegExp() );
+
+            var sparse = [];
+            sparse[10] = "hei";
+            invalid_key('sparse array', sparse);
+
+            var sparse2 = [];
+            sparse2[0]  = 1;
+            sparse2[""] = 2;
+            sparse2[2]  = 3;
+            invalid_key('sparse array 2', sparse2);
+
+            invalid_key('[[1], [3], [7], [[ sparse array ]]]', [ [1], [3], [7], [[ sparse2 ]] ]);
+
+            // sparse3
+            invalid_key( '[1,2,3,,]', [1,2,3,,] );
+
+            var recursive = [];
+            recursive.push(recursive);
+            invalid_key('array directly contains self', recursive);
+
+            var recursive2 = [];
+            recursive2.push([recursive2]);
+            invalid_key('array indirectly contains self', recursive2);
+
+            var recursive3 = [recursive];
+            invalid_key('array member contains self', recursive3);
+        });
+
         // key_valid
         it('Valid key', function (done) {
             var numChecks = 0;
@@ -228,6 +351,7 @@ describe('W3C Web Platform Tests', function () {
 
                 var db;
                 var open_rq = createdb(done);
+                var store, store2;
 
                 open_rq.onupgradeneeded = function(e) {
                     db = e.target.result;
