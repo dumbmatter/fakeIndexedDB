@@ -33,7 +33,10 @@ request.onsuccess = function (event) {
     tx.oncomplete = function () {
         console.log('ONCOMPLETE');
     };
+    tx.objectStore("books").get(234567).addEventListener('success', function (event) {
+        console.log('GET SUCCESS 2', event.target.result);
+    });
     tx.objectStore("books").get(234567).onsuccess = function (event) {
-        console.log('GET SUCCESS', event.target.result);
+        console.log('GET SUCCESS 3', event.target.result);
     };
 };
