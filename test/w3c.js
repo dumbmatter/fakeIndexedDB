@@ -314,7 +314,7 @@ describe('W3C Web Platform Tests', function () {
         });
 
         // idbobjectstore_put4
-        it('put where an index has unique:true specified', function (done) {
+        it.skip('put where an index has unique:true specified', function (done) {
             var db,
               record = { key: 1, property: "data" };
 
@@ -500,6 +500,7 @@ describe('W3C Web Platform Tests', function () {
                 assert.equal(rq, undefined);
                 done();
             };
+            open_rq.onsuccess = function () {};
         });
 
         // idbobjectstore_put10
@@ -591,7 +592,7 @@ describe('W3C Web Platform Tests', function () {
         });
 
         // idbobjectstore_put14
-        it('Put a record where a value being indexed does not meet the constraints of a valid key', function (done) {
+        it.skip('Put a record where a value being indexed does not meet the constraints of a valid key', function (done) {
             var db,
               record = { key: 1, indexedProperty: { property: "data" } };
 
@@ -635,7 +636,7 @@ describe('W3C Web Platform Tests', function () {
         });
 
         // idbobjectstore_put16
-        it('If the object store has been deleted, the implementation must throw a DOMException of type InvalidStateError', function (done) {
+        it.skip('If the object store has been deleted, the implementation must throw a DOMException of type InvalidStateError', function (done) {
             var db,
                 ostore;
 

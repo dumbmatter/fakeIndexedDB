@@ -1,3 +1,5 @@
+Use http://www.w3.org/TR/IndexedDB/#dfn-steps-for-asynchronously-executing-a-request more explicitly rather than fireEvent ad hoc stuff now
+
 remove fireEvent, just build them manually? Or http://www.w3.org/TR/IndexedDB/#dfn-steps-for-asynchronously-executing-a-request
 
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
@@ -8,7 +10,6 @@ TRICKY THINGS TO FIGURE OUT (and test) ASAP:
 - indexes
 - ranges
 - cursors
-- http://www.w3.org/TR/IndexedDB/#dfn-steps-for-asynchronously-executing-a-request
 
 http://www.w3.org/TR/IndexedDB/
 
