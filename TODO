@@ -8,6 +8,7 @@ TRICKY THINGS TO FIGURE OUT (and test) ASAP:
 - indexes
 - ranges
 - cursors
+- http://www.w3.org/TR/IndexedDB/#dfn-steps-for-asynchronously-executing-a-request
 
 http://www.w3.org/TR/IndexedDB/
 
@@ -28,3 +29,5 @@ indexes
 - research how to store data
 - or maybe use something like https://github.com/louischatriot/nedb to actually store data
 - initially, just don't. sort/filter as needed
+
+"return this" needed at bottom of functions?

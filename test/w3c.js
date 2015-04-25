@@ -606,7 +606,7 @@ describe('W3C Web Platform Tests', function () {
 
                 rq = objStore.put(record);
 
-                assert(rq instanceof IDBRequest);
+                assert(rq instanceof FDBRequest);
                 rq.onsuccess = function() {
                     done();
                 }
