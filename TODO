@@ -1,0 +1,22 @@
+TRICKY THINGS TO FIGURE OUT (and test) ASAP:
+- transaction abort/rollback
+- indexes
+- cursors
+
+http://www.w3.org/TR/IndexedDB/
+
+creating object stores, keys
+- http://www.w3.org/TR/IndexedDB/#versionchange-transaction-steps
+
+transactions
+- event interaction with transaction: http://www.w3.org/TR/IndexedDB/#dfn-fire-a-success-event
+
+convert tests from web-platform-tests and delete as i go
+
+asyncify
+- currently using setImmediate for transaction resolution and process.nextTick for queueing everything else
+
+indexes
+- research how to store data
+- or maybe use something like https://github.com/louischatriot/nedb to actually store data
+- initially, just don't. sort/filter as needed

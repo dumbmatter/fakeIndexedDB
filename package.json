@@ -1,0 +1,17 @@
+{
+  "name": "fndexedDB",
+  "version": "0.0.1",
+  "description": "Fake IndexedDB: an in-memory implementation of the IndexedDB API",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --harmony"
+  },
+  "author": "Jeremy Scheff <jdscheff@gmail.com> (http://dumbmatter.com/)",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "structured-clone": "^0.2.2"
+  },
+  "devDependencies": {
+    "mocha": "^2.2.4"
+  }
+}
