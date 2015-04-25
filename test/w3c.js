@@ -1,4 +1,7 @@
 var assert = require('assert');
+var indexedDB = require('..');
+var FDBOpenDBRequest = require('../lib/FDBOpenDBRequest');
+var FDBTransaction = require('../lib/FDBTransaction');
 var InvalidAccessError = require('../lib/errors/InvalidAccessError');
 var InvalidStateError = require('../lib/errors/InvalidStateError');
 var NotFoundError = require('../lib/errors/NotFoundError');
@@ -89,6 +92,53 @@ describe('W3C Web Platform Tests', function () {
                     db.transaction([]);
                 }, InvalidAccessError);
 
+                done();
+            };
+        });
+    });
+    describe('IDBTransaction', function () {
+        // idbtransaction
+        it('(no name)', function (done) {
+            var db;
+            var open_rq = indexedDB.open("idbtransaction-" + new Date().getTime() + Math.random());
+
+            assert.equal(open_rq.transaction, null, "IDBOpenDBRequest.transaction");
+            assert.equal(open_rq.source, null, "IDBOpenDBRequest.source");
+            assert.equal(open_rq.readyState, "pending", "IDBOpenDBRequest.readyState");
+
+            assert(open_rq instanceof FDBOpenDBRequest, "open_rq instanceof FDBOpenDBRequest");
+            //assert.equal(open_rq + "", "[object FDBOpenDBRequest]", "FDBOpenDBRequest (open_rq)");
+
+            open_rq.onupgradeneeded = function (e) {
+                assert.equal(e.target, open_rq, "e.target is reusing the same FDBOpenDBRequest");
+                assert.equal(e.target.transaction, open_rq.transaction, "FDBOpenDBRequest.transaction");
+
+                assert(e.target.transaction instanceof FDBTransaction, "transaction instanceof FDBTransaction");
+                done();
+            };
+        });
+        // idbtransaction-oncomplete
+        it('complete event', function (done) {
+            var db;
+            var open_rq = createdb(done);
+            var stages = [];
+
+            open_rq.onupgradeneeded = function (e) {
+                stages.push("upgradeneeded");
+
+                db = e.target.result;
+                db.createObjectStore('store');
+
+                e.target.transaction.oncomplete = function () {
+                    stages.push("complete");
+                };
+            };
+            open_rq.onsuccess = function () {
+                stages.push("success");
+
+                assert.deepEqual(stages, ["upgradeneeded",
+                                          "complete",
+                                          "success"]);
                 done();
             };
         });

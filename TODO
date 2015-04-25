@@ -1,3 +1,7 @@
+remove fireEvent, just build them manually?
+
+_ for internal properties
+
 TRICKY THINGS TO FIGURE OUT (and test) ASAP:
 - transaction abort/rollback
 - indexes

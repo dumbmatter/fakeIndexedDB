@@ -1,4 +1,4 @@
-var FDBOpenRequest = require('./lib/FDBOpenRequest');
+var FDBOpenDBRequest = require('./lib/FDBOpenDBRequest');
 var FDBDatabase = require('./lib/FDBDatabase');
 var fireEvent = require('./lib/fireEvent');
 
@@ -7,7 +7,7 @@ var databases = {};
 var fndexedDB = {};
 
 fndexedDB.open = function (name) {
-    var request = new FDBOpenRequest();
+    var request = new FDBOpenDBRequest();
 
     if (!databases.hasOwnProperty(name)) {
         databases[name] = new FDBDatabase();
