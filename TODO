@@ -1,8 +1,15 @@
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
 
+versionchange with error should not trigger success
+- can delete the added "open_rq.onsuccess = function () {};" in many tests
+
+tests for ObjectStore.deleteIndex
+
 share some code between Index and ObjectStore, like getValue, confirmActiveTransaction
 
-don't like the naming conventions for database/index/objectstore. should prefix the interface instances with fdb
+don't like the naming conventions for database/index/objectstore - inconsistent, i don't know if a variable named objectStore is an ObjectStore or an FDBObjectStore. Can't just prefix variable names with FDB because some of them are mandated in interfaces, like FDBIndex.objectStore is an FDBObjectStore. Maybe prefix non-FDB ones with "raw"?
+
+get rid of indexNames and objectStoreNames in raw objects - just use Object.keys when necessary
 
 TRICKY THINGS TO FIGURE OUT (and test) ASAP:
 - transaction and request scheduling

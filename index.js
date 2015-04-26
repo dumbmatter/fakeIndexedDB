@@ -38,7 +38,7 @@ fakeIndexedDB.open = function (name, version) {
 
             request.result = db;
             request.transaction = db.transaction(db.objectStoreNames, 'versionchange');
-            request.transaction.addEventListener('complete', function () {
+            request.transaction.addEventListener('complete', function (e) {
                 request.transaction = null;
 
                 process.nextTick(fireOpenSuccessEvent.bind(null, request, db));

@@ -1,8 +1,7 @@
 var assert = require('assert');
 var FDBKeyRange = require('../../lib/FDBKeyRange');
 var DataError = require('../../lib/errors/DataError');
-//var InvalidStateError = require('../../lib/errors/InvalidStateError');
-//var ReadOnlyError = require('../../lib/errors/ReadOnlyError');
+var InvalidStateError = require('../../lib/errors/InvalidStateError');
 var support = require('./support');
 var createdb = support.createdb;
 
@@ -133,7 +132,7 @@ describe('W3C IDBIndex.get Tests', function () {
     });
 
     // idbindex_get6
-    it.skip('throw InvalidStateError when the index is deleted', function (done) {
+    it('throw InvalidStateError when the index is deleted', function (done) {
         var db;
 
         var open_rq = createdb(done);
@@ -150,6 +149,7 @@ describe('W3C IDBIndex.get Tests', function () {
             }, InvalidStateError);
             done();
         }
+        open_rq.onsuccess = function () {};
     });
 
     // idbindex_get7
