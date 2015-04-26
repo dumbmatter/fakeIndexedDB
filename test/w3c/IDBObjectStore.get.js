@@ -119,13 +119,13 @@ describe('W3CIDBObjectStore.get Tests', function () {
               .onsuccess = function(e)
             {
                 assert.equal(e.target.result, "data3", "get(3-6)");
-                this.done();
+                done();
             };
         }
     });
 
     // idbobjectstore_get6
-    it('throw TransactionInactiveError on aborted transaction', function (done) {
+    it.skip('throw TransactionInactiveError on aborted transaction', function (done) {
         var db;
 
         var open_rq = createdb(done);

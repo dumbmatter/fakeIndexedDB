@@ -1,10 +1,10 @@
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
 
 TRICKY THINGS TO FIGURE OUT (and test) ASAP:
+- transaction and request scheduling
 - transaction abort/rollback
   - also include key generator state somehow
 - indexes
-- queries on ranges
 - cursors
 
 http://www.w3.org/TR/IndexedDB/
