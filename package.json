@@ -1,7 +1,7 @@
 {
-  "name": "fndexedDB",
+  "name": "fakeIndexedDB",
   "version": "0.0.1",
-  "description": "Fake IndexedDB: an in-memory implementation of the IndexedDB API",
+  "description": "Fake IndexedDB: a pure JS in-memory implementation of the IndexedDB API",
   "main": "index.js",
   "scripts": {
     "test": "mocha --harmony"

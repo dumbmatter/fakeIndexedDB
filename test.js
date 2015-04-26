@@ -1,6 +1,6 @@
-var fndexedDB = require('./');
+var fakeIndexedDB = require('./');
 
-var request = fndexedDB.open('test');
+var request = fakeIndexedDB.open('test');
 request.onupgradeneeded = function () {
     console.log('UPGRADE NEEDED');
 

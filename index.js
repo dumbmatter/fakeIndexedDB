@@ -15,12 +15,12 @@ function fireOpenSuccessEvent(request, db) {
     request.dispatchEvent(event);
 }
 
-var fndexedDB = {};
+var fakeIndexedDB = {};
 
-fndexedDB.cmp = cmp;
+fakeIndexedDB.cmp = cmp;
 
 // http://www.w3.org/TR/IndexedDB/#widl-IDBFactory-open-IDBOpenDBRequest-DOMString-name-unsigned-long-long-version
-fndexedDB.open = function (name, version) {
+fakeIndexedDB.open = function (name, version) {
     if (version === 0) {
         throw new TypeError();
     }
@@ -53,4 +53,4 @@ fndexedDB.open = function (name, version) {
     return request;
 };
 
-module.exports = fndexedDB;
+module.exports = fakeIndexedDB;
