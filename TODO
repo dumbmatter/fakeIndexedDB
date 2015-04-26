@@ -6,9 +6,8 @@ TRICKY THINGS TO FIGURE OUT (and test) ASAP:
   - also include key generator state somehow
 - indexes
   - FDBIndex just accesses an index. data stored elsewhere (where?)
-    - actually object stores have the same problem - the interface and underlying object store need to be separate, because multiple instances of the interface could be active at the same time
-    - same with databases
-    - have Index.js, ObjectStore.js, and Database.js which handle the underlying data storage
+    - have Index.js, similar to ObjectStore.js and Database.js which handle the underlying data storage
+    - move top level functions from FDBObjectStore to ObjectStore?
   - store key/value pairs taht are indexKey/recordKey
 - cursors
 
