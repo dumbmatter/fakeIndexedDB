@@ -7,7 +7,8 @@ TRICKY THINGS TO FIGURE OUT (and test) ASAP:
 - indexes
   - FDBIndex just accesses an index. data stored elsewhere (where?)
     - actually object stores have the same problem - the interface and underlying object store need to be separate, because multiple instances of the interface could be active at the same time
-    - same with databases. and probably anything with this._ properties
+    - same with databases
+    - have Index.js, ObjectStore.js, and Database.js which handle the underlying data storage
   - store key/value pairs taht are indexKey/recordKey
 - cursors
 
