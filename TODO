@@ -4,7 +4,7 @@ TRICKY THINGS TO FIGURE OUT (and test) ASAP:
 - transaction abort/rollback
   - also include key generator state somehow
 - indexes
-- ranges
+- queries on ranges
 - cursors
 
 http://www.w3.org/TR/IndexedDB/
