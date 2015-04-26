@@ -1,10 +1,3 @@
-Use http://www.w3.org/TR/IndexedDB/#dfn-steps-for-asynchronously-executing-a-request more explicitly rather than fireEvent ad hoc stuff now
-- probably related to the 2 failing tests which expect error in request object, not thrown
-- "Cursors override this step to reuse an existing IDBRequest. However they still put the IDBRequest at the end of the list of requests in transaction."
-- "The propagation path for the event is the transaction's connection, then transaction and finally request."
-
-remove fireEvent, just build them manually? Or http://www.w3.org/TR/IndexedDB/#dfn-steps-for-asynchronously-executing-a-request
-
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
 
 TRICKY THINGS TO FIGURE OUT (and test) ASAP:
@@ -25,6 +18,10 @@ transactions
 convert tests from web-platform-tests and delete as i go
 - missing:
   - test of aborted transaction rollback
+
+events should have stopPropagation and preventDefault and such
+- "The propagation path for the event is the transaction's connection, then transaction and finally request."
+
 
 asyncify
 - currently using setImmediate for transaction resolution and process.nextTick for queueing everything else
