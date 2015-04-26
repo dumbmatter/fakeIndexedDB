@@ -2,7 +2,6 @@ var assert = require('assert');
 var InvalidAccessError = require('../../lib/errors/InvalidAccessError');
 var InvalidStateError = require('../../lib/errors/InvalidStateError');
 var NotFoundError = require('../../lib/errors/NotFoundError');
-var TypeError = require('../../lib/errors/TypeError');
 var support = require('./support');
 var createdb = support.createdb;
 

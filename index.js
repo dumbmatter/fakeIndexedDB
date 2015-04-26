@@ -5,7 +5,6 @@ var Database = require('./lib/Database');
 var FDBOpenDBRequest = require('./lib/FDBOpenDBRequest');
 var FDBDatabase = require('./lib/FDBDatabase');
 var FDBVersionChangeEvent = require('./lib/FDBVersionChangeEvent');
-var TypeError = require('./lib/errors/TypeError');
 var cmp = require('./lib/cmp');
 
 var databases = {};

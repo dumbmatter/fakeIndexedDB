@@ -1,7 +1,6 @@
 var assert = require('assert');
 var fakeIndexedDB = require('../..');
 var DataError = require('../../lib/errors/DataError');
-var TypeError = require('../../lib/errors/TypeError');
 
 describe('W3C IDBFactory.cmp Tests', function () {
     // idbfactory_cmp
