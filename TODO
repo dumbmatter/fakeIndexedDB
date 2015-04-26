@@ -5,10 +5,12 @@ TRICKY THINGS TO FIGURE OUT (and test) ASAP:
 - transaction abort/rollback
   - also include key generator state somehow
 - indexes
-  - FDBIndex just accesses an index. data stored elsewhere (where?)
-    - have Index.js, similar to ObjectStore.js and Database.js which handle the underlying data storage
-    - move top level functions from FDBObjectStore to ObjectStore?
-  - store key/value pairs taht are indexKey/recordKey
+  - writing to objectStore should update indexes
+    - store key/value pairs taht are indexKey/recordKey
+  - creating index when data is already in object store should populate index
+  - get key
+  - get keyrange
+  - unskip createIndex tests when possible
 - cursors
 
 http://www.w3.org/TR/IndexedDB/

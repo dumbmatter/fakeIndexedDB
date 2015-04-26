@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint index.js test lib",
-    "mocha": "mocha --harmony --recursive",
-    "test": "npm run lint && npm run mocha"
+    "test": "mocha --harmony --recursive"
   },
   "author": "Jeremy Scheff <jdscheff@gmail.com> (http://dumbmatter.com/)",
   "license": "Apache-2.0",
