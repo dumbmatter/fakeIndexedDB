@@ -4,7 +4,7 @@ var DataError = require('../../lib/errors/DataError');
 var support = require('./support');
 var createdb = support.createdb;
 
-describe('Key validity', function () {
+describe('W3C Key Validity Tests', function () {
     // key_invalid
     it('Invalid key', function (done) {
         var numChecks = 0;
@@ -38,7 +38,7 @@ describe('Key validity', function () {
                         objStore2.add({ x: "value", keypath: key });
                     }, DataError, desc);
                 }*/
-                
+
                 numDone += 1;
                 if (numDone === numChecks) {
                     done();

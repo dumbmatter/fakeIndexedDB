@@ -5,7 +5,7 @@ var TransactionInactiveError = require('../../lib/errors/TransactionInactiveErro
 var support = require('./support');
 var createdb = support.createdb;
 
-describe('W3CIDBObjectStore.get Tests', function () {
+describe('W3C IDBObjectStore.get Tests', function () {
     // idbobjectstore_get
     it('key is a number', function (done) {
         var db,

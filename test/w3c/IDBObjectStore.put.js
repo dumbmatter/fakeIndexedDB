@@ -5,7 +5,7 @@ var ReadOnlyError = require('../../lib/errors/ReadOnlyError');
 var support = require('./support');
 var createdb = support.createdb;
 
-describe('W3CIDBObjectStore.put Tests', function () {
+describe('W3C IDBObjectStore.put Tests', function () {
     // idbobjectstore_put
     it('put with an inline key', function (done) {
         var db,

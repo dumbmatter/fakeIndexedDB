@@ -2,7 +2,7 @@ var assert = require('assert');
 var support = require('./support');
 var createdb = support.createdb;
 
-describe('Key generator', function () {
+describe('W3C Key Generator Tests', function () {
     // keygenerator
     it('Key generator', function (done) {
         var numChecks = 0;
