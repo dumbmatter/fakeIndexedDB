@@ -1,4 +1,4 @@
-var indexedDB = require('../index.js');
+var indexedDB = require('../..');
 
 function createdb(done, dbname, version)
 {
