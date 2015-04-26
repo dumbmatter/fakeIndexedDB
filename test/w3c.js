@@ -974,7 +974,7 @@ describe('W3C Web Platform Tests', function () {
         });
 
         // keygenerator-overflow
-        it('overflow', function (done) {
+        it.only('overflow', function (done) {
             var db,
               overflow_error_fired = false,
               objects =  [9007199254740991, null, "error", 2, "error" ],
