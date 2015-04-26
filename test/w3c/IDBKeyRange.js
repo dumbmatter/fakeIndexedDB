@@ -8,7 +8,7 @@ describe('W3C IDBKeyRange Tests', function () {
     describe('IDBKeyRange Tests', function () {
         it("FDBKeyRange.only() - returns an FDBKeyRange and the properties are set correctly", function() {
             var keyRange = FDBKeyRange.only(1);
-//            assert(keyRange instanceof FDBKeyRange, "keyRange instanceof FDBKeyRange");
+            assert(keyRange instanceof FDBKeyRange, "keyRange instanceof FDBKeyRange");
             assert.equal(keyRange.lower, 1, "keyRange");
             assert.equal(keyRange.upper, 1, "keyRange");
             assert(!keyRange.lowerOpen, "keyRange.lowerOpen");
@@ -16,7 +16,7 @@ describe('W3C IDBKeyRange Tests', function () {
         });
         it("FDBKeyRange.lowerBound() - returns an FDBKeyRange and the properties are set correctly", function() {
             var keyRange = FDBKeyRange.lowerBound(1, true)
-//            assert(keyRange instanceof FDBKeyRange, "keyRange instanceof FDBKeyRange");
+            assert(keyRange instanceof FDBKeyRange, "keyRange instanceof FDBKeyRange");
             assert.equal(keyRange.lower, 1, "keyRange.lower");
             assert.equal(keyRange.upper, undefined, "keyRange.upper");
             assert(keyRange.lowerOpen, "keyRange.lowerOpen");
@@ -28,7 +28,7 @@ describe('W3C IDBKeyRange Tests', function () {
         });
         it("FDBKeyRange.upperBound() - returns an FDBKeyRange and the properties are set correctly", function() {
             var keyRange = FDBKeyRange.upperBound(1, true);
-//            assert(keyRange instanceof FDBKeyRange, "keyRange instanceof FDBKeyRange");
+            assert(keyRange instanceof FDBKeyRange, "keyRange instanceof FDBKeyRange");
             assert.equal(keyRange.lower, undefined, "keyRange.lower");
             assert.equal(keyRange.upper, 1, "keyRange.upper");
             assert(keyRange.lowerOpen, "keyRange.lowerOpen");
@@ -40,7 +40,7 @@ describe('W3C IDBKeyRange Tests', function () {
         });
         it("FDBKeyRange.bound() - returns an FDBKeyRange and the properties are set correctly", function() {
             var keyRange = FDBKeyRange.bound(1, 2, true, true);
-//            assert(keyRange instanceof FDBKeyRange, "keyRange instanceof FDBKeyRange");
+            assert(keyRange instanceof FDBKeyRange, "keyRange instanceof FDBKeyRange");
             assert.equal(keyRange.lower, 1, "keyRange");
             assert.equal(keyRange.upper, 2, "keyRange");
             assert(keyRange.lowerOpen, "keyRange.lowerOpen");
