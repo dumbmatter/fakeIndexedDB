@@ -1,5 +1,7 @@
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
 
+share some code between Index and ObjectStore, like getValue, confirmActiveTransaction
+
 TRICKY THINGS TO FIGURE OUT (and test) ASAP:
 - transaction and request scheduling
 - transaction abort/rollback

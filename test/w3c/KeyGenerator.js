@@ -98,8 +98,9 @@ describe('W3C Key Generator Tests', function () {
                         };
                     }(i));
                 }
-                else
+                else {
                     objStore.add({ id: objects[i] });
+                }
             }
         };
 

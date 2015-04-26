@@ -1,4 +1,5 @@
 var assert = require('assert');
+var FDBRequest = require('../../lib/FDBRequest');
 var DataError = require('../../lib/errors/DataError');
 var InvalidStateError = require('../../lib/errors/InvalidStateError');
 var ReadOnlyError = require('../../lib/errors/ReadOnlyError');
@@ -98,9 +99,10 @@ describe('W3C IDBObjectStore.put Tests', function () {
     });
 
     // idbobjectstore_put4
-    it.skip('put where an index has unique:true specified', function (done) {
+    it('put where an index has unique:true specified', function (done) {
         var db,
           record = { key: 1, property: "data" };
+        var errors = 0;
 
         var open_rq = createdb(done);
         open_rq.onupgradeneeded = function(e) {
@@ -112,6 +114,8 @@ describe('W3C IDBObjectStore.put Tests', function () {
             var rq = objStore.put(record);
 
             rq.onerror = function(e) {
+                errors += 1;
+
                 assert.equal(rq.error.name, "ConstraintError");
                 assert.equal(e.target.error.name, "ConstraintError");
 
@@ -124,7 +128,8 @@ describe('W3C IDBObjectStore.put Tests', function () {
 
         // Defer done, giving a spurious rq.onsuccess a chance to run
         open_rq.onsuccess = function(e) {
-            this.done();
+            assert.equal(errors, 1);
+            done();
         }
     });
 
@@ -376,7 +381,7 @@ describe('W3C IDBObjectStore.put Tests', function () {
     });
 
     // idbobjectstore_put14
-    it.skip('Put a record where a value being indexed does not meet the constraints of a valid key', function (done) {
+    it('Put a record where a value being indexed does not meet the constraints of a valid key', function (done) {
         var db,
           record = { key: 1, indexedProperty: { property: "data" } };
 

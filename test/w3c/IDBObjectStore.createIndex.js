@@ -61,7 +61,7 @@ describe('W3C IDBObjectStore.createIndex Tests', function () {
     });
 
     // idbobjectstore_createindex3
-    it.skip('the index is usable right after being made', function (done) {
+    it('the index is usable right after being made', function (done) {
         var db, aborted;
 
         var open_rq = createdb(done);
@@ -296,7 +296,7 @@ describe('W3C IDBObjectStore.createIndex Tests', function () {
     });
 
     // idbobjectstore_createindex8
-    it.skip('index can be valid keys', function (done) {
+    it('index can be valid keys', function (done) {
         var db,
           now = new Date(),
           mar18 = new Date(1111111111111),
