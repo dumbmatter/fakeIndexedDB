@@ -1,3 +1,5 @@
+'use strict';
+
 var Event = require('./lib/Event');
 var Database = require('./lib/Database');
 var FDBOpenDBRequest = require('./lib/FDBOpenDBRequest');

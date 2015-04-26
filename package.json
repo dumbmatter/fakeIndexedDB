@@ -4,7 +4,9 @@
   "description": "Fake IndexedDB: a pure JS in-memory implementation of the IndexedDB API",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --harmony --recursive"
+    "lint": "eslint index.js test lib",
+    "mocha": "mocha --harmony --recursive",
+    "test": "npm run lint && npm run mocha"
   },
   "author": "Jeremy Scheff <jdscheff@gmail.com> (http://dumbmatter.com/)",
   "license": "Apache-2.0",
@@ -13,6 +15,7 @@
     "traverse": "^0.6.6"
   },
   "devDependencies": {
+    "eslint": "^0.20.0",
     "mocha": "^2.2.4"
   }
 }
