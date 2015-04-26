@@ -974,7 +974,7 @@ describe('W3C Web Platform Tests', function () {
         });
 
         // keygenerator-overflow
-        it.only('overflow', function (done) {
+        it('overflow', function (done) {
             var db,
               overflow_error_fired = false,
               objects =  [9007199254740991, null, "error", 2, "error" ],
@@ -1020,7 +1020,7 @@ describe('W3C Web Platform Tests', function () {
                         cursor.continue();
                     }
                     else {
-                        assert_true(overflow_error_fired, "error fired on 'current number' overflow");
+                        assert(overflow_error_fired, "error fired on 'current number' overflow");
                         assert.deepEqual(actual_keys, expected_keys, "keygenerator array");
 
                         done();
