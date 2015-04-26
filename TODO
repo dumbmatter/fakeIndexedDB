@@ -4,8 +4,6 @@ events implementation
 - if "cancelable", should be possible to call e.preventDefault() and canel the "default action" (such as aborting a transaction)
   - example is the _canceled check in FDBTransaction
 
-tests for ObjectStore.deleteIndex
-
 share some code between Index and ObjectStore, like getValue, confirmActiveTransaction
 
 don't like the naming conventions for database/index/objectstore - inconsistent, i don't know if a variable named objectStore is an ObjectStore or an FDBObjectStore. Can't just prefix variable names with FDB because some of them are mandated in interfaces, like FDBIndex.objectStore is an FDBObjectStore. Maybe prefix non-FDB ones with "raw"?

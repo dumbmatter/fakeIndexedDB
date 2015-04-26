@@ -125,7 +125,7 @@ describe('W3C IDBObjectStore.get Tests', function () {
     });
 
     // idbobjectstore_get6
-    it.skip('throw TransactionInactiveError on aborted transaction', function (done) {
+    it('throw TransactionInactiveError on aborted transaction', function (done) {
         var db;
 
         var open_rq = createdb(done);

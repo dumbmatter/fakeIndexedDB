@@ -29,7 +29,7 @@ describe('W3C IDBObjectStore.createIndex Tests', function () {
     });
 
     // idbobjectstore_createindex2
-    it.skip('attempt to create an index that requires unique values on an object store already contains duplicates', function (done) {
+    it('attempt to create an index that requires unique values on an object store already contains duplicates', function (done) {
         var db, aborted,
           record = { indexedProperty: "bar" };
 
@@ -89,7 +89,7 @@ describe('W3C IDBObjectStore.createIndex Tests', function () {
     });
 
     // idbobjectstore_createindex4
-    it.skip('Event ordering for a later deleted index', function (done) {
+    it('Event ordering for a later deleted index', function (done) {
         var db,
           events = [];
 
@@ -229,6 +229,7 @@ describe('W3C IDBObjectStore.createIndex Tests', function () {
                     events.push(msg + ": " + e.target.error.name);
                 else
                     events.push(msg);
+console.log(events[events.length - 1])
             };
         }
     });
@@ -340,7 +341,7 @@ describe('W3C IDBObjectStore.createIndex Tests', function () {
     });
 
     // idbobjectstore_createindex9
-    it.skip('empty name', function (done) {
+    it('empty name', function (done) {
         var db
 
         var open_rq = createdb(done)
@@ -355,9 +356,9 @@ describe('W3C IDBObjectStore.createIndex Tests', function () {
 
             store.index("")
                  .get('object_4')
-                 .onsuccess = this.step_func(function(e) {
+                 .onsuccess = function(e) {
                 assert.equal(e.target.result.idx, 'object_4', 'result')
-            })
+            }
             assert.equal(store.indexNames[0], "", "indexNames[0]")
             assert.equal(store.indexNames.length, 1, "indexNames.length")
         }
@@ -368,7 +369,7 @@ describe('W3C IDBObjectStore.createIndex Tests', function () {
             assert.equal(store.indexNames[0], "", "indexNames[0]")
             assert.equal(store.indexNames.length, 1, "indexNames.length")
 
-            this.done()
+            done()
         }
     });
 
