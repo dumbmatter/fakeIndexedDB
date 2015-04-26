@@ -63,7 +63,7 @@ describe('W3C Key Generator Tests', function () {
     });
 
     // keygenerator-constrainterror
-    it('ConstraintError when using same id as already generated', function (done) {
+    it.skip('ConstraintError when using same id as already generated', function (done) {
         var db,
           objects = [1, null, {id: 2}, null, 2.00001, 5, null, {id: 6} ],
           expected = [1, 2, 2.00001, 3, 5, 6],
@@ -130,7 +130,7 @@ describe('W3C Key Generator Tests', function () {
     });
 
     // keygenerator-overflow
-    it('overflow', function (done) {
+    it.skip('overflow', function (done) {
         var db,
           overflow_error_fired = false,
           objects =  [9007199254740991, null, "error", 2, "error" ],

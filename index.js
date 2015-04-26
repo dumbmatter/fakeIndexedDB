@@ -32,24 +32,44 @@ fakeIndexedDB.open = function (name, version) {
 
     // http://www.w3.org/TR/IndexedDB/#dfn-steps-for-opening-a-database
     process.nextTick(function () {
-        if (!databases.hasOwnProperty(name)) {
-            databases[name] = new Database(name, version);
-            var db = new FDBDatabase(databases[name]);
+        try {
+            if (!databases.hasOwnProperty(name)) {
+                databases[name] = new Database(name, version);
+                var db = new FDBDatabase(databases[name]);
 
-            request.result = db;
-            request.transaction = db.transaction(db.objectStoreNames, 'versionchange');
-            request.transaction.addEventListener('complete', function (e) {
-                request.transaction = null;
+                request.result = db;
 
-                process.nextTick(fireOpenSuccessEvent.bind(null, request, db));
+                try {
+                    request.transaction = db.transaction(db.objectStoreNames, 'versionchange');
+                    request.transaction.addEventListener('complete', function (e) {
+                        request.transaction = null;
+
+                        process.nextTick(fireOpenSuccessEvent.bind(null, request, db));
+                    });
+
+                    var event = new FDBVersionChangeEvent();
+                    event.target = request;
+                    event.type = 'upgradeneeded';
+                    request.dispatchEvent(event);
+                } catch (err) {
+                    if (request.transaction) {
+                        request.transaction._abort('AbortError');
+                    }
+                    throw err;
+                }
+            } else {
+                fireOpenSuccessEvent(request, new FDBDatabase(databases[name]));
+            }
+        } catch (err) {
+            request.error = new Error();
+            request.error.name = err.name;
+
+            var event = new Event('error', {
+                bubbles: true,
+                cancelable: false
             });
-
-            var event = new FDBVersionChangeEvent();
-            event.target = request;
-            event.type = 'upgradeneeded';
+            event._eventPath = [];
             request.dispatchEvent(event);
-        } else {
-            fireOpenSuccessEvent(request, new FDBDatabase(databases[name]));
         }
     });
 
