@@ -149,7 +149,7 @@ describe('W3C IDBIndex.get Tests', function () {
             }, InvalidStateError);
             done();
         }
-        open_rq.onsuccess = function (e) { console.log('BAD onsuccess'); };
+        open_rq.onsuccess = function (e) { };
     });
 
     // idbindex_get7

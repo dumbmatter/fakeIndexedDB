@@ -99,7 +99,7 @@ describe('W3C IDBObjectStore.put Tests', function () {
     });
 
     // idbobjectstore_put4
-    it.skip('put where an index has unique:true specified', function (done) {
+    it('put where an index has unique:true specified', function (done) {
         var db,
           record = { key: 1, property: "data" };
         var errors = 0;

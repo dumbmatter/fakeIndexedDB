@@ -1,18 +1,8 @@
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
 
-versionchange with error should not trigger success
-- error from request should bubble up to transaction and be visible in tx.oncomplete
-- https://facebook.github.io/react/docs/events.html
-- then can delete the added "open_rq.onsuccess = function () {};" in many tests
-  - not really, since we're catching them with assert.throws
-
 events implementation
 - if "cancelable", should be possible to call e.preventDefault() and canel the "default action" (such as aborting a transaction)
-  - how do i know what the default action is? store in event object somewhere?
-  - how do i know when it's done bubbling/capturing/whatever and it's safe to run default action? assume sync and just do at end?
-  - unskip the preventDefault tests (KeyGenerator and IDBObjectStore.put) to test
-- how do i construct the 'event path' in EventTarget?
-- for a synchronous error thrown in e.g. FDBIndex.get, how does the transaction ever know about it? because if the transaction doesn't know, it won't propagate and oncomplete will still fire
+  - example is the _canceled check in FDBTransaction
 
 tests for ObjectStore.deleteIndex
 
@@ -42,6 +32,7 @@ transactions
 convert tests from web-platform-tests and delete as i go
 - missing:
   - test of aborted transaction rollback
+  - (because of assert.throws I think) error propagation to transaction rejection
 
 events should have stopPropagation and preventDefault and such
 - "The propagation path for the event is the transaction's connection, then transaction and finally request."
