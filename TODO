@@ -1,7 +1,14 @@
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
 
 versionchange with error should not trigger success
-- can delete the added "open_rq.onsuccess = function () {};" in many tests
+- error from request should bubble up to transaction and be visible in tx.oncomplete
+- https://facebook.github.io/react/docs/events.html
+- then can delete the added "open_rq.onsuccess = function () {};" in many tests
+
+events implementation
+- if "cancellable", should be possible to call e.preventDefault() and canel the "default action" (such as aborting a transaction)
+  - how do i know what the default action is? store in event object somewhere?
+  - how do i know when it's done bubbling/capturing/whatever and it's safe to run default action? assume sync and just do at end?
 
 tests for ObjectStore.deleteIndex
 
@@ -35,6 +42,7 @@ convert tests from web-platform-tests and delete as i go
 events should have stopPropagation and preventDefault and such
 - "The propagation path for the event is the transaction's connection, then transaction and finally request."
 
+break events stuff into separate module
 
 asyncify
 - currently using setImmediate for transaction resolution and process.nextTick for queueing everything else
