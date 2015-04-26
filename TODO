@@ -2,8 +2,11 @@ default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveer
 
 share some code between Index and ObjectStore, like getValue, confirmActiveTransaction
 
+don't like the naming conventions for database/index/objectstore. should prefix the interface instances with fdb
+
 TRICKY THINGS TO FIGURE OUT (and test) ASAP:
 - transaction and request scheduling
+  - reevaluate all uses of setTimeout, setImmediate, and process.nextTick
 - transaction abort/rollback
   - also include key generator state somehow
   - objectStoreNames, indexNames

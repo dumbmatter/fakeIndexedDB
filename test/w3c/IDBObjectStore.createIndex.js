@@ -146,7 +146,7 @@ describe('W3C IDBObjectStore.createIndex Tests', function () {
     });
 
     // idbobjectstore_createindex5
-    it.skip('empty keyPath', function (done) {
+    it('empty keyPath', function (done) {
         var db, aborted;
 
         var open_rq = createdb(done);
