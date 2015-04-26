@@ -1,4 +1,5 @@
 var Event = require('./lib/Event');
+var Database = require('./lib/Database');
 var FDBOpenDBRequest = require('./lib/FDBOpenDBRequest');
 var FDBDatabase = require('./lib/FDBDatabase');
 var FDBVersionChangeEvent = require('./lib/FDBVersionChangeEvent');
@@ -31,14 +32,15 @@ fakeIndexedDB.open = function (name, version) {
     // http://www.w3.org/TR/IndexedDB/#dfn-steps-for-opening-a-database
     process.nextTick(function () {
         if (!databases.hasOwnProperty(name)) {
-            databases[name] = new FDBDatabase();
+            databases[name] = new Database(name, version);
+            var db = new FDBDatabase(databases[name]);
 
-            request.result = databases[name];
-            request.transaction = databases[name].transaction(databases[name].objectStoreNames, 'versionchange');
+            request.result = db;
+            request.transaction = db.transaction(db.objectStoreNames, 'versionchange');
             request.transaction.addEventListener('complete', function () {
                 request.transaction = null;
 
-                process.nextTick(fireOpenSuccessEvent.bind(null, request, databases[name]));
+                process.nextTick(fireOpenSuccessEvent.bind(null, request, db));
             });
 
             var event = new FDBVersionChangeEvent();
@@ -46,7 +48,7 @@ fakeIndexedDB.open = function (name, version) {
             event.type = 'upgradeneeded';
             request.dispatchEvent(event);
         } else {
-            fireOpenSuccessEvent(request, databases[name]);
+            fireOpenSuccessEvent(request, new FDBDatabase(databases[name]));
         }
     });
 
