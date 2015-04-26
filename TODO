@@ -11,13 +11,6 @@ TRICKY THINGS TO FIGURE OUT (and test) ASAP:
   - also include key generator state somehow
   - objectStoreNames, indexNames
 - indexes
-  - writing to objectStore should update indexes
-    - store key/value pairs taht are indexKey/recordKey
-  - creating index when data is already in object store should populate index
-  - get key
-  - get keyrange
-  - unskip createIndex tests when possible
-  - handling errors when in versionchange and out
 - cursors
 
 http://www.w3.org/TR/IndexedDB/
