@@ -234,7 +234,7 @@ describe('W3C IDBObjectStore.createIndex Tests', function () {
     });
 
     // idbobjectstore_createindex7
-    it('Event ordering for ConstraintError on request', function (done) {
+    it.skip('Event ordering for ConstraintError on request', function (done) {
         var db,
           events = [];
 
