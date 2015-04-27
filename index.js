@@ -5,6 +5,7 @@ var Database = require('./lib/Database');
 var FDBOpenDBRequest = require('./lib/FDBOpenDBRequest');
 var FDBDatabase = require('./lib/FDBDatabase');
 var FDBVersionChangeEvent = require('./lib/FDBVersionChangeEvent');
+var AbortError = require('./lib/errors/AbortError');
 var VersionError = require('./lib/errors/VersionError');
 var cmp = require('./lib/cmp');
 
@@ -40,7 +41,7 @@ function runVersionchangeTransaction(connection, version, request, cb) {
         request.readyState = 'done';
 
         transaction.addEventListener('error', function (e) {
-console.log('error in versionchange transaction - should abort here probably')
+console.log('error in versionchange transaction - not sure if anything needs to be done here', e.target.error)
 // Ugly hack so it runs after all other tx stuff finishes. Need a real queue, or a more appropriate time to schedule
             /*setTimeout(function () {
                 request.error = new Error();
@@ -55,7 +56,9 @@ console.log('error in versionchange transaction - should abort here probably')
         });
         transaction.addEventListener('abort', function () {
             request.transaction = null;
-console.log('abort in versionchange transaction')
+            setImmediate(function () {
+                cb(new AbortError());
+            });
         });
         transaction.addEventListener('complete', function () {
             request.transaction = null;

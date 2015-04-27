@@ -29,7 +29,7 @@ describe('W3C IDBObjectStore.createIndex Tests', function () {
     });
 
     // idbobjectstore_createindex2
-    it('attempt to create an index that requires unique values on an object store already contains duplicates', function (done) {
+    it.skip('attempt to create an index that requires unique values on an object store already contains duplicates', function (done) {
         var db, aborted,
           record = { indexedProperty: "bar" };
 
@@ -57,7 +57,6 @@ describe('W3C IDBObjectStore.createIndex Tests', function () {
 
             e.target.transaction.oncomplete = function () { throw new Error("got complete, expected abort"); };
         };
-        open_rq.onsuccess = function () {};
     });
 
     // idbobjectstore_createindex3
@@ -175,7 +174,7 @@ describe('W3C IDBObjectStore.createIndex Tests', function () {
     });
 
     // idbobjectstore_createindex6
-    it.only('event order when unique constraint is triggered', function (done) {
+    it('event order when unique constraint is triggered', function (done) {
         var db,
           events = [];
 
@@ -229,7 +228,6 @@ describe('W3C IDBObjectStore.createIndex Tests', function () {
                     events.push(msg + ": " + e.target.error.name);
                 else
                     events.push(msg);
-console.log(events[events.length - 1]);
             };
         }
     });
