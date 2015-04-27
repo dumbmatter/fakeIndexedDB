@@ -171,6 +171,5 @@ describe('W3C IDBIndex.get Tests', function () {
             }, TransactionInactiveError);
             done();
         }
-        open_rq.onsuccess = function (e) { };
     });
 });
