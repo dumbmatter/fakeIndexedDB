@@ -175,7 +175,7 @@ describe('W3C IDBObjectStore.createIndex Tests', function () {
     });
 
     // idbobjectstore_createindex6
-    it.skip('event order when unique constraint is triggered', function (done) {
+    it.only('event order when unique constraint is triggered', function (done) {
         var db,
           events = [];
 
