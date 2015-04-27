@@ -17,6 +17,49 @@ function fireOpenSuccessEvent(request, db) {
     request.dispatchEvent(event);
 }
 
+// http://www.w3.org/TR/IndexedDB/#dfn-steps-for-opening-a-database
+function openDatabase(name, version, request) {
+    if (!databases.hasOwnProperty(name)) {
+        databases[name] = new Database(name, version);
+        var db = new FDBDatabase(databases[name]);
+        request.result = db; // for versionchange
+
+        try {
+            request.transaction = db.transaction(db.objectStoreNames, 'versionchange');
+            request.transaction.addEventListener('complete', function () {
+                request.transaction = null;
+
+                setImmediate(fireOpenSuccessEvent.bind(null, request, db));
+            });
+            request.transaction.addEventListener('error', function (e) {
+// Ugly hack so it runs after all other tx stuff finishes. Need a real queue, or a more appropriate time to schedule
+                setTimeout(function () {
+                    request.error = new Error();
+                    request.error.name = e.target.error.name;
+                    var event = new Event('error', {
+                        bubbles: true,
+                        cancelable: false
+                    });
+                    event._eventPath = [];
+                    request.dispatchEvent(event);
+                }, 1);
+            });
+
+            var event = new FDBVersionChangeEvent();
+            event.target = request;
+            event.type = 'upgradeneeded';
+            request.dispatchEvent(event);
+        } catch (err) {
+            if (request.transaction) {
+                request.transaction._abort('AbortError');
+            }
+            throw err;
+        }
+    } else {
+        fireOpenSuccessEvent(request, new FDBDatabase(databases[name]));
+    }
+}
+
 var fakeIndexedDB = {};
 
 fakeIndexedDB.cmp = cmp;
@@ -30,49 +73,9 @@ fakeIndexedDB.open = function (name, version) {
     var request = new FDBOpenDBRequest();
     request.source = null;
 
-    // http://www.w3.org/TR/IndexedDB/#dfn-steps-for-opening-a-database
     setImmediate(function () {
         try {
-            if (!databases.hasOwnProperty(name)) {
-                databases[name] = new Database(name, version);
-                var db = new FDBDatabase(databases[name]);
-
-                request.result = db;
-
-                try {
-                    request.transaction = db.transaction(db.objectStoreNames, 'versionchange');
-                    request.transaction.addEventListener('complete', function () {
-                        request.transaction = null;
-
-                        setImmediate(fireOpenSuccessEvent.bind(null, request, db));
-                    });
-                    request.transaction.addEventListener('error', function (e) {
-// Ugly hack so it runs after all other tx stuff finishes. Need a real queue, or a more appropriate time to schedule
-                        setTimeout(function () {
-                            request.error = new Error();
-                            request.error.name = e.target.error.name;
-                            var event = new Event('error', {
-                                bubbles: true,
-                                cancelable: false
-                            });
-                            event._eventPath = [];
-                            request.dispatchEvent(event);
-                        }, 1);
-                    });
-
-                    var event = new FDBVersionChangeEvent();
-                    event.target = request;
-                    event.type = 'upgradeneeded';
-                    request.dispatchEvent(event);
-                } catch (err) {
-                    if (request.transaction) {
-                        request.transaction._abort('AbortError');
-                    }
-                    throw err;
-                }
-            } else {
-                fireOpenSuccessEvent(request, new FDBDatabase(databases[name]));
-            }
+            openDatabase(name, version, request);
         } catch (err) {
             request.error = new Error();
             request.error.name = err.name;
