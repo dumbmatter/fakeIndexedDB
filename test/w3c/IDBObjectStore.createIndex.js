@@ -29,7 +29,7 @@ describe('W3C IDBObjectStore.createIndex Tests', function () {
     });
 
     // idbobjectstore_createindex2
-    it.skip('attempt to create an index that requires unique values on an object store already contains duplicates', function (done) {
+    it('attempt to create an index that requires unique values on an object store already contains duplicates', function (done) {
         var db, aborted,
           record = { indexedProperty: "bar" };
 
@@ -57,6 +57,7 @@ describe('W3C IDBObjectStore.createIndex Tests', function () {
 
             e.target.transaction.oncomplete = function () { throw new Error("got complete, expected abort"); };
         };
+        open_rq.onerror = function () {};
     });
 
     // idbobjectstore_createindex3

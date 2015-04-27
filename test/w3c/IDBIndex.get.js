@@ -154,7 +154,7 @@ describe('W3C IDBIndex.get Tests', function () {
     });
 
     // idbindex_get7
-    it.skip('throw TransactionInactiveError on aborted transaction', function (done) {
+    it('throw TransactionInactiveError on aborted transaction', function (done) {
         var db;
 
         var open_rq = createdb(done);
@@ -171,5 +171,6 @@ describe('W3C IDBIndex.get Tests', function () {
             }, TransactionInactiveError);
             done();
         }
+        open_rq.onerror = function () {};
     });
 });
