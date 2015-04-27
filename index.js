@@ -47,8 +47,8 @@ fakeIndexedDB.open = function (name, version) {
                         setImmediate(fireOpenSuccessEvent.bind(null, request, db));
                     });
                     request.transaction.addEventListener('error', function (e) {
-                        // So it runs after all other tx stuff finishes
-                        setImmediate(function () {
+// Ugly hack so it runs after all other tx stuff finishes. Need a real queue, or a more appropriate time to schedule
+                        setTimeout(function () {
                             request.error = new Error();
                             request.error.name = e.target.error.name;
                             var event = new Event('error', {
@@ -57,7 +57,7 @@ fakeIndexedDB.open = function (name, version) {
                             });
                             event._eventPath = [];
                             request.dispatchEvent(event);
-                        });
+                        }, 1);
                     });
 
                     var event = new FDBVersionChangeEvent();
