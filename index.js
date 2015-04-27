@@ -41,10 +41,23 @@ fakeIndexedDB.open = function (name, version) {
 
                 try {
                     request.transaction = db.transaction(db.objectStoreNames, 'versionchange');
-                    request.transaction.addEventListener('complete', function (e) {
+                    request.transaction.addEventListener('complete', function () {
                         request.transaction = null;
 
                         process.nextTick(fireOpenSuccessEvent.bind(null, request, db));
+                    });
+                    request.transaction.addEventListener('error', function (e) {
+                        // So it runs after all other tx stuff finishes
+                        setImmediate(function () {
+                            request.error = new Error();
+                            request.error.name = e.target.error.name;
+                            var event = new Event('error', {
+                                bubbles: true,
+                                cancelable: false
+                            });
+                            event._eventPath = [];
+                            request.dispatchEvent(event);
+                        });
                     });
 
                     var event = new FDBVersionChangeEvent();
