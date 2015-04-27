@@ -234,7 +234,7 @@ describe('W3C IDBObjectStore.createIndex Tests', function () {
     });
 
     // idbobjectstore_createindex7
-    it.skip('Event ordering for ConstraintError on request', function (done) {
+    it.only('Event ordering for ConstraintError on request', function (done) {
         var db,
           events = [];
 
@@ -291,6 +291,7 @@ describe('W3C IDBObjectStore.createIndex Tests', function () {
                     events.push(msg + ": " + e.target.error.name);
                 else
                     events.push(msg);
+                console.log('EVENT ' + events[events.length - 1])
             };
         }
     });
