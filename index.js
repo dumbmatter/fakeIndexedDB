@@ -31,7 +31,7 @@ fakeIndexedDB.open = function (name, version) {
     request.source = null;
 
     // http://www.w3.org/TR/IndexedDB/#dfn-steps-for-opening-a-database
-    process.nextTick(function () {
+    setImmediate(function () {
         try {
             if (!databases.hasOwnProperty(name)) {
                 databases[name] = new Database(name, version);
@@ -44,7 +44,7 @@ fakeIndexedDB.open = function (name, version) {
                     request.transaction.addEventListener('complete', function () {
                         request.transaction = null;
 
-                        process.nextTick(fireOpenSuccessEvent.bind(null, request, db));
+                        setImmediate(fireOpenSuccessEvent.bind(null, request, db));
                     });
                     request.transaction.addEventListener('error', function (e) {
                         // So it runs after all other tx stuff finishes
