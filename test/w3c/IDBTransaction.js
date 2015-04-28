@@ -27,6 +27,7 @@ describe('W3C IDBTransaction Tests', function () {
             done();
         };
     });
+
     // idbtransaction-oncomplete
     it('complete event', function (done) {
         var db;
