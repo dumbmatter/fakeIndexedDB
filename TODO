@@ -1,7 +1,6 @@
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
 
 FEATURES TO TRY NEXT
-- FDBObjectStore.count
 - FDBCursor methods
 - FDBIndex methods
 
