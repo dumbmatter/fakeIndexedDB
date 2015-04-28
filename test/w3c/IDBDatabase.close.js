@@ -7,7 +7,7 @@ var InvalidStateError = require('../../lib/errors/InvalidStateError');
 var support = require('./support');
 var createdb = support.createdb;
 
-describe.skip('W3C IDBDatabase.close Tests', function () {
+describe('W3C IDBDatabase.close Tests', function () {
     // idbdatabase_close
     it('unblock the version change transaction created by an open database request', function (done) {
         var db;
@@ -43,7 +43,7 @@ describe.skip('W3C IDBDatabase.close Tests', function () {
     });
 
     // idbdatabase_close2
-    it('unblock the delete database request', function (done) {
+    it.skip('unblock the delete database request', function (done) {
         var db;
         var blocked_fired = false;
         var versionchange_fired = false;
@@ -72,7 +72,7 @@ describe.skip('W3C IDBDatabase.close Tests', function () {
     });
 
     // close-in-upgradeneeded
-    it('When db.close is called in upgradeneeded, the db is cleaned up on refresh', function (done) {
+    it.skip('When db.close is called in upgradeneeded, the db is cleaned up on refresh', function (done) {
         var open_rq = createdb(done)
         var sawTransactionComplete = false
 
@@ -99,7 +99,5 @@ describe.skip('W3C IDBDatabase.close Tests', function () {
 
             done()
         }
-
-        open_rq.onsuccess = function () {}
     });
 });

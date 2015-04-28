@@ -1,7 +1,7 @@
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
 
 FEATURES TO TRY NEXT
-- deletedatabase
+- deletedatabase (reenable IDBDatabase.close test)
 - connecting to db
 - FDBCursor methods
 - FDBIndex methods

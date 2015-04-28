@@ -24,44 +24,86 @@ function runVersionchangeTransaction(connection, version, request, cb) {
 
     var oldVersion = connection.version;
 
-//  Set the version of database to version. This change is considered part of the transaction, and so if the transaction is aborted, this change is reverted.
-    connection._rawDatabase.version = version;
-    connection.version = version;
+    var openDatabases = connection._rawDatabase.connections.filter(function (otherConnection) {
+        return connection !== otherConnection;
+    });
 
-    setImmediate(function () {
-        var transaction = connection.transaction(connection.objectStoreNames, 'versionchange');
-        request.result = connection;
-        request.transaction = transaction;
+    openDatabases.forEach(function (openDatabase) {
+        if (!openDatabase._closed) {
+            var event = new FDBVersionChangeEvent();
+            event.target = request;
+            event.type = 'versionchange';
+            event.oldVersion = oldVersion;
+            event.newVersion = version;
+            openDatabase.dispatchEvent(event);
+        }
+    });
 
+    var anyOpen = openDatabases.some(function (openDatabase) {
+        return !openDatabase._closed;
+    });
+
+    if (anyOpen) {
         var event = new FDBVersionChangeEvent();
         event.target = request;
-        event.type = 'upgradeneeded';
+        event.type = 'blocked';
         event.oldVersion = oldVersion;
         event.newVersion = version;
         request.dispatchEvent(event);
+    }
 
-        request.readyState = 'done';
-
-        transaction.addEventListener('error', function (e) {
-            connection._runningVersionchangeTransaction = false;
-            console.log('error in versionchange transaction - not sure if anything needs to be done here', e.target.error.name);
+    var waitForOthersClosed = function () {
+        var anyOpen = openDatabases.some(function (openDatabase) {
+            return !openDatabase._closed;
         });
-        transaction.addEventListener('abort', function () {
-            connection._runningVersionchangeTransaction = false;
-            request.transaction = null;
-            setImmediate(function () {
-                cb(new AbortError());
+
+        if (anyOpen) {
+            setImmediate(waitForOthersClosed);
+            return;
+        }
+
+//  Set the version of database to version. This change is considered part of the transaction, and so if the transaction is aborted, this change is reverted.
+        connection._rawDatabase.version = version;
+        connection.version = version;
+
+// Get rid of this setImmediate?
+        setImmediate(function () {
+            var transaction = connection.transaction(connection.objectStoreNames, 'versionchange');
+            request.result = connection;
+            request.transaction = transaction;
+
+            var event = new FDBVersionChangeEvent();
+            event.target = request;
+            event.type = 'upgradeneeded';
+            event.oldVersion = oldVersion;
+            event.newVersion = version;
+            request.dispatchEvent(event);
+
+            request.readyState = 'done';
+
+            transaction.addEventListener('error', function (e) {
+                connection._runningVersionchangeTransaction = false;
+                console.log('error in versionchange transaction - not sure if anything needs to be done here', e.target.error.name);
+            });
+            transaction.addEventListener('abort', function () {
+                connection._runningVersionchangeTransaction = false;
+                request.transaction = null;
+                setImmediate(function () {
+                    cb(new AbortError());
+                });
+            });
+            transaction.addEventListener('complete', function () {
+                connection._runningVersionchangeTransaction = false;
+                request.transaction = null;
+                // Let other complete event handlers run before continuing
+                setImmediate(function () {
+                    cb(null);
+                });
             });
         });
-        transaction.addEventListener('complete', function () {
-            connection._runningVersionchangeTransaction = false;
-            request.transaction = null;
-            // Let other complete event handlers run before continuing
-            setImmediate(function () {
-                cb(null);
-            });
-        });
-    });
+    };
+
+    waitForOthersClosed();
 }
 
 // http://www.w3.org/TR/IndexedDB/#dfn-steps-for-opening-a-database
