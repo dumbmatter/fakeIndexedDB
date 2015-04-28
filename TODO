@@ -1,8 +1,8 @@
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
 
 FEATURES TO TRY NEXT
+- deletedatabase
 - connecting to db
-  - wait for other connections to close
 - FDBCursor methods
 - FDBIndex methods
 
@@ -37,6 +37,7 @@ convert tests from web-platform-tests and delete as i go
   - multiple transactions interacting, like readwrite blocking another but allowing readonly
 - to fix and contribute back
   - idbfactory_open9 should use val in should_work
+  - idbdatabase_close first 'block event fired #' should be 'versionchange event fired #'
 
 events should have stopPropagation and preventDefault and such
 - "The propagation path for the event is the transaction's connection, then transaction and finally request."
