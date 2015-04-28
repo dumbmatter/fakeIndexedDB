@@ -1,8 +1,5 @@
 var assert = require('assert');
 var fakeIndexedDB = require('../..');
-//var Event = require('../../lib/Event');
-//var FDBVersionChangeEvent = require('../../lib/FDBVersionChangeEvent');
-//var FDBTransaction = require('../../lib/FDBTransaction');
 var InvalidStateError = require('../../lib/errors/InvalidStateError');
 var support = require('./support');
 var createdb = support.createdb;
@@ -43,7 +40,7 @@ describe('W3C IDBDatabase.close Tests', function () {
     });
 
     // idbdatabase_close2
-    it.skip('unblock the delete database request', function (done) {
+    it('unblock the delete database request', function (done) {
         var db;
         var blocked_fired = false;
         var versionchange_fired = false;

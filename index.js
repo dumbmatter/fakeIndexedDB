@@ -11,27 +11,82 @@ var cmp = require('./lib/cmp');
 
 var databases = {};
 
-function fireOpenSuccessEvent(request, db) {
-    request.result = db;
-    var event = new Event();
-    event.target = request;
-    event.type = 'success';
-    request.dispatchEvent(event);
+// http://www.w3.org/TR/IndexedDB/#dfn-steps-for-deleting-a-database
+function deleteDatabase(name, request, cb) {
+    try {
+        var db;
+        if (databases.hasOwnProperty(name)) {
+            db = databases[name];
+        } else {
+            cb();
+            return;
+        }
+
+        db.deletePending = true;
+
+        var openDatabases = db.connections.filter(function (connection) {
+            return !connection._closed;
+        });
+
+        openDatabases.forEach(function (openDatabase) {
+            if (!openDatabase._closePending) {
+                var event = new FDBVersionChangeEvent();
+                event.target = openDatabase;
+                event.type = 'versionchange';
+                event.oldVersion = db.version;
+                event.newVersion = null;
+                openDatabase.dispatchEvent(event);
+            }
+        });
+
+        var anyOpen = openDatabases.some(function (openDatabase) {
+            return !openDatabase._closed;
+        });
+
+        if (request && anyOpen) {
+            var event = new FDBVersionChangeEvent();
+            event.target = request;
+            event.type = 'blocked';
+            event.oldVersion = db.version;
+            event.newVersion = null;
+            request.dispatchEvent(event);
+        }
+    } catch (err) {
+        cb(err);
+    }
+
+    var waitForOthersClosed = function () {
+        var anyOpen = openDatabases.some(function (openDatabase) {
+            return !openDatabase._closed;
+        });
+
+        if (anyOpen) {
+            setImmediate(waitForOthersClosed);
+            return;
+        }
+
+        delete databases[name];
+
+        cb();
+    };
+
+    waitForOthersClosed();
 }
 
+// http://www.w3.org/TR/IndexedDB/#dfn-steps-for-running-a-versionchange-transaction
 function runVersionchangeTransaction(connection, version, request, cb) {
     connection._runningVersionchangeTransaction = true;
 
     var oldVersion = connection.version;
 
-    var openDatabases = connection._rawDatabase.connections.filter(function (otherConnection) {
-        return connection !== otherConnection;
+    var openDatabases = connection._rawDatabase.connections.filter(function (otherDatabase) {
+        return connection !== otherDatabase;
     });
 
     openDatabases.forEach(function (openDatabase) {
         if (!openDatabase._closed) {
             var event = new FDBVersionChangeEvent();
-            event.target = request;
+            event.target = openDatabase;
             event.type = 'versionchange';
             event.oldVersion = oldVersion;
             event.newVersion = version;
@@ -147,6 +202,44 @@ var fakeIndexedDB = {};
 
 fakeIndexedDB.cmp = cmp;
 
+// http://www.w3.org/TR/IndexedDB/#widl-IDBFactory-deleteDatabase-IDBOpenDBRequest-DOMString-name
+fakeIndexedDB.deleteDatabase = function (name) {
+    var request = new FDBOpenDBRequest();
+    request.source = null;
+
+    setImmediate(function () {
+        var version = databases.hasOwnProperty(name) ? databases[name].version : null;
+        deleteDatabase(name, request, function (err) {
+            var event;
+
+            if (err) {
+                request.error = new Error();
+                request.error.name = err.name;
+
+                event = new Event('error', {
+                    bubbles: true,
+                    cancelable: false
+                });
+                event._eventPath = [];
+                request.dispatchEvent(event);
+
+                return;
+            }
+
+            request.result = undefined;
+
+            event = new FDBVersionChangeEvent();
+            event.target = request;
+            event.type = 'success';
+            event.oldVersion = version;
+            event.newVersion = null;
+            request.dispatchEvent(event);
+        });
+    });
+
+    return request;
+};
+
 // http://www.w3.org/TR/IndexedDB/#widl-IDBFactory-open-IDBOpenDBRequest-DOMString-name-unsigned-long-long-version
 fakeIndexedDB.open = function (name, version) {
     if (arguments.length > 1 && (isNaN(version) || version <= 1 || version >= 9007199254740992)) {
@@ -158,11 +251,13 @@ fakeIndexedDB.open = function (name, version) {
 
     setImmediate(function () {
         openDatabase(name, version, request, function (err, connection) {
+            var event;
+
             if (err) {
                 request.error = new Error();
                 request.error.name = err.name;
 
-                var event = new Event('error', {
+                event = new Event('error', {
                     bubbles: true,
                     cancelable: false
                 });
@@ -172,7 +267,12 @@ fakeIndexedDB.open = function (name, version) {
                 return;
             }
 
-            fireOpenSuccessEvent(request, connection);
+            request.result = connection;
+
+            event = new Event();
+            event.target = request;
+            event.type = 'success';
+            request.dispatchEvent(event);
         });
     });
 

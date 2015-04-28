@@ -1,8 +1,6 @@
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
 
 FEATURES TO TRY NEXT
-- deletedatabase (reenable IDBDatabase.close test)
-- connecting to db
 - FDBCursor methods
 - FDBIndex methods
 
@@ -11,6 +9,7 @@ events implementation
   - example is the _canceled check in FDBTransaction
 
 share some code between Index and ObjectStore, like getValue, confirmActiveTransaction
+- similar thing between open and deleteDatabase
 
 TRICKY THINGS TO FIGURE OUT (and test) ASAP:
 - transaction and request scheduling
@@ -19,8 +18,6 @@ TRICKY THINGS TO FIGURE OUT (and test) ASAP:
 - transaction abort/rollback
   - also include key generator state somehow
   - objectStoreNames, indexNames
-- indexes
-- cursors
 
 http://www.w3.org/TR/IndexedDB/
 
@@ -63,6 +60,10 @@ Other tests
 - https://github.com/mozilla/gecko-dev/tree/master/dom/indexedDB/test
 
 Change comment links to http://www.w3.org/TR/2015/REC-IndexedDB-20150108/ which will be stable
+
+could event.target be automatically set to X in X.dispatchEvent(event);? Any time where that's not true?
+
+Constructor to FDBVersionChangeEvent to reduce boilerplate
 
 CAVEATS
 - Couldn't find a good way to make objectStoreNames and indexNames DOMStringLists, so they are just normal arrays
