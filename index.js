@@ -122,38 +122,36 @@ function runVersionchangeTransaction(connection, version, request, cb) {
         connection.version = version;
 
 // Get rid of this setImmediate?
-        setImmediate(function () {
-            var transaction = connection.transaction(connection.objectStoreNames, 'versionchange');
-            request.result = connection;
-            request.transaction = transaction;
+        var transaction = connection.transaction(connection.objectStoreNames, 'versionchange');
+        request.result = connection;
+        request.transaction = transaction;
 
-            var event = new FDBVersionChangeEvent();
-            event.target = request;
-            event.type = 'upgradeneeded';
-            event.oldVersion = oldVersion;
-            event.newVersion = version;
-            request.dispatchEvent(event);
+        var event = new FDBVersionChangeEvent();
+        event.target = request;
+        event.type = 'upgradeneeded';
+        event.oldVersion = oldVersion;
+        event.newVersion = version;
+        request.dispatchEvent(event);
 
-            request.readyState = 'done';
+        request.readyState = 'done';
 
-            transaction.addEventListener('error', function (e) {
-                connection._runningVersionchangeTransaction = false;
-                console.log('error in versionchange transaction - not sure if anything needs to be done here', e.target.error.name);
+        transaction.addEventListener('error', function () {
+            connection._runningVersionchangeTransaction = false;
+//console.log('error in versionchange transaction - not sure if anything needs to be done here', e.target.error.name);
+        });
+        transaction.addEventListener('abort', function () {
+            connection._runningVersionchangeTransaction = false;
+            request.transaction = null;
+            setImmediate(function () {
+                cb(new AbortError());
             });
-            transaction.addEventListener('abort', function () {
-                connection._runningVersionchangeTransaction = false;
-                request.transaction = null;
-                setImmediate(function () {
-                    cb(new AbortError());
-                });
-            });
-            transaction.addEventListener('complete', function () {
-                connection._runningVersionchangeTransaction = false;
-                request.transaction = null;
-                // Let other complete event handlers run before continuing
-                setImmediate(function () {
-                    cb(null);
-                });
+        });
+        transaction.addEventListener('complete', function () {
+            connection._runningVersionchangeTransaction = false;
+            request.transaction = null;
+            // Let other complete event handlers run before continuing
+            setImmediate(function () {
+                cb(null);
             });
         });
     };
