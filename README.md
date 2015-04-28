@@ -12,11 +12,15 @@ I'm not sure if it'll be possible to get all the transaction auto-committing sem
 
 ## Potential applications:
 
-1. Use the same database in Node.js/io.js and in the browser.
+1. Use the same API in Node.js/io.js and in the browser.
 
 2. Support IndexedDB in old or crappy browsers.
 
-3. Somehow use it within a caching layer in the browser, since real IndexedDB can be kind of slow.
+3. Somehow use it within a caching layer on top of IndexedDB in the browser, since IndexedDB can be kind of slow.
+
+4. Abstract the core database functions out, so what is left is a shell that allows the IndexedDB API to easily sit on top of many different backends.
+
+5. Serve as a playground for experimenting with IndexedDB.
 
 ## License
 

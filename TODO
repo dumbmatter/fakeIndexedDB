@@ -1,6 +1,7 @@
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
 
 FEATURES TO TRY NEXT
+- connecting to db
 - FDBCursor methods
 - FDBIndex methods
 
@@ -32,6 +33,7 @@ convert tests from web-platform-tests and delete as i go
 - missing:
   - test of aborted transaction rollback
   - (because of assert.throws I think) error propagation to transaction rejection
+  - multiple transactions interacting, like readwrite blocking another but allowing readonly
 
 events should have stopPropagation and preventDefault and such
 - "The propagation path for the event is the transaction's connection, then transaction and finally request."
