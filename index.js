@@ -41,7 +41,7 @@ function runVersionchangeTransaction(connection, version, request, cb) {
         request.readyState = 'done';
 
         transaction.addEventListener('error', function (e) {
-console.log('error in versionchange transaction - not sure if anything needs to be done here', e.target.error)
+console.log('error in versionchange transaction - not sure if anything needs to be done here', e.target.error.name)
 // Ugly hack so it runs after all other tx stuff finishes. Need a real queue, or a more appropriate time to schedule
             /*setTimeout(function () {
                 request.error = new Error();
