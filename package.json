@@ -2,6 +2,24 @@
   "name": "fakeIndexedDB",
   "version": "0.0.1",
   "description": "Fake IndexedDB: a pure JS in-memory implementation of the IndexedDB API",
+  "homepage": "https://github.com/dumbmatter/fakeIndexedDB",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/dumbmatter/fakeIndexedDB.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dumbmatter/fakeIndexedDB/issues"
+  },
+  "keyword": [
+    "indexeddb",
+    "datastore",
+    "database",
+    "embedded",
+    "nosql",
+    "in-memory",
+    "polyfill",
+    "shim"
+  ],
   "main": "index.js",
   "scripts": {
     "lint": "eslint index.js test lib",
