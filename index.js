@@ -23,7 +23,7 @@ function runVersionchangeTransaction(connection, version, request, cb) {
     var oldVersion = connection.version;
 
 //  Set the version of database to version. This change is considered part of the transaction, and so if the transaction is aborted, this change is reverted.
-    connection._database.version = version;
+    connection._rawDatabase.version = version;
     connection.version = version;
 
     setImmediate(function () {
