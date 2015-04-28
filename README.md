@@ -1,4 +1,6 @@
-# Fake IndexedDB: a pure JS in-memory implementation of the IndexedDB API
+# Fake IndexedDB [![Build Status](https://travis-ci.org/dumbmatter/fakeIndexedDB.svg?branch=master)](https://travis-ci.org/dumbmatter/fakeIndexedDB)
+
+This is a pure JS in-memory implementation of the IndexedDB API. Current status is **very incomplete**, but hopefully that will change soon.
 
 I'm not sure if it'll be possible to get all the transaction auto-committing semantics correct, but we'll see.
 
