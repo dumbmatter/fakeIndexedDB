@@ -413,7 +413,7 @@ describe('W3C IDBObjectStore.add Tests', function () {
     });
 
     // idbobjectstore_add16
-    it.skip('If the object store has been deleted, the implementation must throw a DOMException of type InvalidStateError', function (done) {
+    it('If the object store has been deleted, the implementation must throw a DOMException of type InvalidStateError', function (done) {
         var db,
             ostore;
 
