@@ -20,6 +20,8 @@ function fireOpenSuccessEvent(request, db) {
 }
 
 function runVersionchangeTransaction(connection, version, request, cb) {
+    connection._runningVersionchangeTransaction = true;
+
     var oldVersion = connection.version;
 
 //  Set the version of database to version. This change is considered part of the transaction, and so if the transaction is aborted, this change is reverted.
@@ -41,15 +43,18 @@ function runVersionchangeTransaction(connection, version, request, cb) {
         request.readyState = 'done';
 
         transaction.addEventListener('error', function (e) {
+            connection._runningVersionchangeTransaction = false;
             console.log('error in versionchange transaction - not sure if anything needs to be done here', e.target.error.name);
         });
         transaction.addEventListener('abort', function () {
+            connection._runningVersionchangeTransaction = false;
             request.transaction = null;
             setImmediate(function () {
                 cb(new AbortError());
             });
         });
         transaction.addEventListener('complete', function () {
+            connection._runningVersionchangeTransaction = false;
             request.transaction = null;
             // Let other complete event handlers run before continuing
             setImmediate(function () {

@@ -2,6 +2,10 @@ default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveer
 
 _rawObjectStore.indexes -> _rawObjectStore.rawIndexes
 
+array and DOMStringList are not the same
+- https://developer.mozilla.org/en-US/docs/Web/API/DOMStringList
+- see IDBDatabase.deleteObjectStore.js
+
 events implementation
 - if "cancelable", should be possible to call e.preventDefault() and canel the "default action" (such as aborting a transaction)
   - example is the _canceled check in FDBTransaction
@@ -45,3 +49,6 @@ indexes
 - initially, just don't. sort/filter as needed
 
 "return this" needed at bottom of functions?
+
+_ properties should be hidden from standard functions
+- also nice toStrings
