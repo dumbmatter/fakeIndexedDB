@@ -107,7 +107,7 @@ fakeIndexedDB.cmp = cmp;
 
 // http://www.w3.org/TR/IndexedDB/#widl-IDBFactory-open-IDBOpenDBRequest-DOMString-name-unsigned-long-long-version
 fakeIndexedDB.open = function (name, version) {
-    if (version === 0) {
+    if (arguments.length > 1 && (isNaN(version) || version <= 1 || version >= 9007199254740992)) {
         throw new TypeError();
     }
 

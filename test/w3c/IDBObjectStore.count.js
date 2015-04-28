@@ -1,6 +1,5 @@
 var assert = require('assert');
 var FDBKeyRange = require('../../lib/FDBKeyRange');
-//var ConstraintError = require('../../lib/errors/ConstraintError');
 var InvalidStateError = require('../../lib/errors/InvalidStateError');
 var support = require('./support');
 var createdb = support.createdb;
