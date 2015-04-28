@@ -5,7 +5,7 @@ var createdb = support.createdb;
 
 describe('W3C IDBObjectStore.deleteIndex Tests', function () {
     // idbobjectstore_deleteindex
-    it.skip('removes the index', function (done) {
+    it('removes the index', function (done) {
         var db,
           key = 1,
           record = { property: "data" };
@@ -33,7 +33,7 @@ describe('W3C IDBObjectStore.deleteIndex Tests', function () {
                 assert.throws(function() {
                     index = objStore.index("index")
                 }, NotFoundError);
-                assert.equals(index, undefined);
+                assert.equal(index, undefined);
                 done();
             }
         }

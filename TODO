@@ -2,7 +2,7 @@ default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveer
 
 FEATURES TO TRY NEXT
 - connecting to db
-- db close
+  - wait for other connections to close
 - FDBCursor methods
 - FDBIndex methods
 
@@ -55,6 +55,13 @@ indexes
 
 _ properties should be hidden from standard functions
 - also nice toStrings
+- maybe make some things immutable?
+
+Other tests
+- https://chromium.googlesource.com/chromium/blink/+/72fef91ac1ef679207f51def8133b336a6f6588f/LayoutTests/storage/indexeddb
+- https://github.com/mozilla/gecko-dev/tree/master/dom/indexedDB/test
+
+Change comment links to http://www.w3.org/TR/2015/REC-IndexedDB-20150108/ which will be stable
 
 CAVEATS
 - Couldn't find a good way to make objectStoreNames and indexNames DOMStringLists, so they are just normal arrays

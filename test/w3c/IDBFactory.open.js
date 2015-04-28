@@ -34,7 +34,7 @@ describe('W3C IDBFactory.open Tests', function () {
     });
 
     // idbfactory_open3
-    it.skip('no version opens current database', function (done) {
+    it('no version opens current database', function (done) {
         var open_rq = createdb(done, undefined, 13);
         var did_upgrade = false;
 
@@ -78,7 +78,7 @@ describe('W3C IDBFactory.open Tests', function () {
     });
 
     // idbfactory_open6
-    it.skip('open database with a lower version than current', function (done) {
+    it('open database with a lower version than current', function (done) {
         var open_rq = createdb(done, undefined, 13);
         var did_upgrade = false;
 
@@ -105,7 +105,7 @@ describe('W3C IDBFactory.open Tests', function () {
     });
 
     // idbfactory_open7
-    it.skip('open database with a higher version than current', function (done) {
+    it('open database with a higher version than current', function (done) {
         var open_rq = createdb(done, undefined, 13);
         var did_upgrade = false;
 
@@ -209,7 +209,7 @@ describe('W3C IDBFactory.open Tests', function () {
     // idbfactory_open10
     it.skip('error in upgradeneeded resets db', function (done) {
         var db, db2;
-        var open_rq = createdb(async_test(document.title, {timeout: 10000}), undefined, 9);
+        var open_rq = createdb(done, undefined, 9);
 
         open_rq.onupgradeneeded = function(e) {
             db = e.target.result;
@@ -218,8 +218,8 @@ describe('W3C IDBFactory.open Tests', function () {
             st.createIndex("index", "i");
 
             assert.equal(db.version, 9, "first db.version");
-            assert(db.objectStoreNames.contains("store"), "objectStoreNames contains store");
-            assert(st.indexNames.contains("index"), "indexNames contains index");
+            assert(db.objectStoreNames.indexOf("store") >= 0, "objectStoreNames contains store");
+            assert(st.indexNames.indexOf("index") >= 0, "indexNames contains index");
 
             st.add({i: "Joshua"}, 1);
             st.add({i: "Jonas"}, 2);
@@ -237,10 +237,10 @@ describe('W3C IDBFactory.open Tests', function () {
 
                 assert.equal(db2.version, 10, "db2.version");
 
-                assert(db2.objectStoreNames.contains("store"), "second objectStoreNames contains store");
-                assert(db2.objectStoreNames.contains("store2"), "second objectStoreNames contains store2");
-                assert(store.indexNames.contains("index"), "second indexNames contains index");
-                assert(store.indexNames.contains("index2"), "second indexNames contains index2");
+                assert(db2.objectStoreNames.indexOf("store") >= 0, "second objectStoreNames contains store");
+                assert(db2.objectStoreNames.indexOf("store2") >= 0, "second objectStoreNames contains store2");
+                assert(store.indexNames.indexOf("index") >= 0, "second indexNames contains index");
+                assert(store.indexNames.indexOf("index2") >= 0, "second indexNames contains index2");
 
                 store.add({i: "Odin"}, 3);
                 store.put({i: "Sicking"}, 2);
@@ -291,16 +291,16 @@ describe('W3C IDBFactory.open Tests', function () {
     });
 
     // idbfactory_open11
-    it.skip("second open's transaction is available to get objectStores", function (done) {
+    it("second open's transaction is available to get objectStores", function (done) {
         var db;
         var count_done = 0;
-        var open_rq = createdb(async_test(document.title, {timeout: 10000}));
+        var open_rq = createdb(done);
 
         open_rq.onupgradeneeded = function(e) {
             db = e.target.result;
 
             db.createObjectStore("store");
-            assert(db.objectStoreNames.contains("store"), "objectStoreNames contains store");
+            assert(db.objectStoreNames.indexOf("store") >= 0, "objectStoreNames contains store");
 
             var store = e.target.transaction.objectStore("store");
             assert.equal(store.name, "store", "store.name");
@@ -326,7 +326,7 @@ describe('W3C IDBFactory.open Tests', function () {
             var open_rq2 = fakeIndexedDB.open(db.name, 10);
             open_rq2.onupgradeneeded = function(e) {
                 var db2 = e.target.result;
-                assert(db2.objectStoreNames.contains("store"), "objectStoreNames contains store");
+                assert(db2.objectStoreNames.indexOf("store") >= 0, "objectStoreNames contains store");
                 var store = open_rq2.transaction.objectStore("store");
                 assert.equal(store.name, "store", "store.name");
 

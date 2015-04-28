@@ -75,11 +75,11 @@ function openDatabase(name, version, request, cb) {
     }
 
     if (version === undefined) {
-        version = 1;
+        version = db.version !== 0 ? db.version : 1;
     }
 
     if (db.version > version) {
-        throw new VersionError();
+        return cb(new VersionError());
     }
 
     var connection = new FDBDatabase(databases[name]);
