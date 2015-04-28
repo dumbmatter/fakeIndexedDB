@@ -10,7 +10,7 @@ var createdb = support.createdb;
 
 describe('W3C IDBDatabase.deleteObjectStore Tests', function () {
     // idbdatabase_deleteObjectStore
-    it.skip("object store's name is removed from database's list", function (done) {
+    it("object store's name is removed from database's list", function (done) {
         var open_rq = createdb(done)
 
         open_rq.onupgradeneeded = function(e) {
@@ -18,7 +18,7 @@ describe('W3C IDBDatabase.deleteObjectStore Tests', function () {
 
             db.createObjectStore("deleted");
             db.deleteObjectStore("deleted");
-            assert(!db.objectStoreNames.contains("deleted"))
+            assert(db.objectStoreNames.indexOf("deleted") < 0)
 
             done()
         }
@@ -61,7 +61,7 @@ describe('W3C IDBDatabase.deleteObjectStore Tests', function () {
     });
 
     // idbdatabase_deleteObjectStore4-not_reused
-    it.skip('the object store is not reused', function (done) {
+    it('the object store is not reused', function (done) {
         var keys = [],
             open_rq = createdb(done)
 
@@ -72,14 +72,14 @@ describe('W3C IDBDatabase.deleteObjectStore Tests', function () {
             objStore.add({k:5}).onsuccess = function(e) { keys.push(e.target.result); }
             objStore.add({}).onsuccess = function(e) { keys.push(e.target.result); }
             objStore.createIndex("idx", "i");
-            assert(objStore.indexNames.contains("idx"));
+            assert(objStore.indexNames.indexOf("idx") >= 0);
             assert.equal(objStore.keyPath, "k", "keyPath");
 
             db.deleteObjectStore("resurrected");
 
             var objStore2 = db.createObjectStore("resurrected", { autoIncrement: true });
             objStore2.add("Unicorns'R'us").onsuccess = function(e) { keys.push(e.target.result); };
-            assert(!objStore2.indexNames.contains("idx"), "index exist on new objstore");
+            assert(objStore2.indexNames.indexOf("idx") < 0, "index exist on new objstore");
             assert.equal(objStore2.keyPath, null, "keyPath");
 
             assert.throws(function() {

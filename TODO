@@ -1,9 +1,5 @@
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
 
-array and DOMStringList are not the same
-- https://developer.mozilla.org/en-US/docs/Web/API/DOMStringList
-- see IDBDatabase.deleteObjectStore.js
-
 events implementation
 - if "cancelable", should be possible to call e.preventDefault() and canel the "default action" (such as aborting a transaction)
   - example is the _canceled check in FDBTransaction
@@ -50,3 +46,6 @@ indexes
 
 _ properties should be hidden from standard functions
 - also nice toStrings
+
+CAVEATS
+- Couldn't find a good way to make objectStoreNames and indexNames DOMStringLists, so they are just normal arrays
