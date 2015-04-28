@@ -22,7 +22,7 @@ function fireOpenSuccessEvent(request, db) {
 function runVersionchangeTransaction(connection, version, request, cb) {
     var oldVersion = connection.version;
 
-//  Set the version of database to version. This change is considered part of the transaction, and so if the transaction is aborted, this change is reverted. 
+//  Set the version of database to version. This change is considered part of the transaction, and so if the transaction is aborted, this change is reverted.
     connection._database.version = version;
     connection.version = version;
 
@@ -41,18 +41,7 @@ function runVersionchangeTransaction(connection, version, request, cb) {
         request.readyState = 'done';
 
         transaction.addEventListener('error', function (e) {
-console.log('error in versionchange transaction - not sure if anything needs to be done here', e.target.error.name)
-// Ugly hack so it runs after all other tx stuff finishes. Need a real queue, or a more appropriate time to schedule
-            /*setTimeout(function () {
-                request.error = new Error();
-                request.error.name = e.target.error.name;
-                var event = new Event('error', {
-                    bubbles: true,
-                    cancelable: false
-                });
-                event._eventPath = [];
-                request.dispatchEvent(event);
-            }, 1);*/
+            console.log('error in versionchange transaction - not sure if anything needs to be done here', e.target.error.name);
         });
         transaction.addEventListener('abort', function () {
             request.transaction = null;

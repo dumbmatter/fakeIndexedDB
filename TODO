@@ -1,8 +1,5 @@
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
 
-fix skipped tests
-- WHY DO idbobjectstore_createindex2 AND idbindex_get7 HAVE ONERROR? Why shouldn't they normally, because isn't that how idbobjectstore_createindex6 is written? Investigate in browser first.
-
 events implementation
 - if "cancelable", should be possible to call e.preventDefault() and canel the "default action" (such as aborting a transaction)
   - example is the _canceled check in FDBTransaction
