@@ -1,10 +1,13 @@
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
 
 FEATURES TO TRY NEXT
-- FDBCursor methods
+- FDBObjectStore.openCursor make more correct http://www.w3.org/TR/IndexedDB/#widl-IDBObjectStore-openCursor-IDBRequest-any-range-IDBCursorDirection-direction
+  - 'steps for iterating a cursor' implement and use one common function
+    - http://www.w3.org/TR/IndexedDB/#dfn-steps-for-iterating-a-cursor
+  - unskip IDBObjectStore.openCursor test
 - FDBIndex methods
-
-Fix commented parts of first KeyPath test
+  - openCursor - unskip IDBObjectStore.clear test
+- FDBCursor methods
 
 weird things happen if i listen for success but not upgradeneeded
 
@@ -16,38 +19,27 @@ share some code between Index and ObjectStore, like getValue, confirmActiveTrans
 - similar thing between open and deleteDatabase
 
 TRICKY THINGS TO FIGURE OUT (and test) ASAP:
-- transaction and request scheduling
+- transaction and request scheduling - seems to work so far
   - reevaluate all uses of setTimeout, setImmediate, and process.nextTick
-  - that setTimeout thing will lead to stuff out of order if triggered
 - transaction abort/rollback
   - also include key generator state somehow
   - objectStoreNames, indexNames
 
 http://www.w3.org/TR/IndexedDB/
 
-creating object stores, keys
-- http://www.w3.org/TR/IndexedDB/#versionchange-transaction-steps
-
-transactions
-- event interaction with transaction: http://www.w3.org/TR/IndexedDB/#dfn-fire-a-success-event
-
 convert tests from web-platform-tests and delete as i go
 - missing:
   - test of aborted transaction rollback
   - (because of assert.throws I think) error propagation to transaction rejection
   - multiple transactions interacting, like readwrite blocking another but allowing readonly
+  - IDBObjectStore.openCursor with various valid arguments
 - to fix and contribute back
   - idbfactory_open9 should use val in should_work
   - idbdatabase_close first 'block event fired #' should be 'versionchange event fired #'
   - idbdatabase_createObjectStore11 spelling in title
+  - idbobjectstore_openCursor should actually check count
 
-events should have stopPropagation and preventDefault and such
-- "The propagation path for the event is the transaction's connection, then transaction and finally request."
-
-break events stuff into separate module
-
-asyncify
-- currently using setImmediate for transaction resolution and process.nextTick for queueing everything else
+break events stuff into separate module, maybe fakeDOMEvents
 
 indexes
 - research how to store data
@@ -68,7 +60,7 @@ Change comment links to http://www.w3.org/TR/2015/REC-IndexedDB-20150108/ which 
 
 could event.target be automatically set to X in X.dispatchEvent(event);? Any time where that's not true?
 
-Constructor to FDBVersionChangeEvent to reduce boilerplate
+For .filter calls that are deleting items from arrays (such as ObjectStore.deleteRecord) it might be faster to use splice as iterating over the array
 
 CAVEATS
 - Couldn't find a good way to make objectStoreNames and indexNames DOMStringLists, so they are just normal arrays

@@ -30,11 +30,11 @@ function deleteDatabase(name, request, cb) {
 
         openDatabases.forEach(function (openDatabase) {
             if (!openDatabase._closePending) {
-                var event = new FDBVersionChangeEvent();
+                var event = new FDBVersionChangeEvent('versionchange', {
+                    oldVersion: db.version,
+                    newVersion: null
+                });
                 event.target = openDatabase;
-                event.type = 'versionchange';
-                event.oldVersion = db.version;
-                event.newVersion = null;
                 openDatabase.dispatchEvent(event);
             }
         });
@@ -44,11 +44,11 @@ function deleteDatabase(name, request, cb) {
         });
 
         if (request && anyOpen) {
-            var event = new FDBVersionChangeEvent();
+            var event = new FDBVersionChangeEvent('blocked', {
+                oldVersion: db.version,
+                newVersion: null
+            });
             event.target = request;
-            event.type = 'blocked';
-            event.oldVersion = db.version;
-            event.newVersion = null;
             request.dispatchEvent(event);
         }
     } catch (err) {
@@ -85,11 +85,11 @@ function runVersionchangeTransaction(connection, version, request, cb) {
 
     openDatabases.forEach(function (openDatabase) {
         if (!openDatabase._closed) {
-            var event = new FDBVersionChangeEvent();
+            var event = new FDBVersionChangeEvent('versionchange', {
+                oldVersion: oldVersion,
+                newVersion: version
+            });
             event.target = openDatabase;
-            event.type = 'versionchange';
-            event.oldVersion = oldVersion;
-            event.newVersion = version;
             openDatabase.dispatchEvent(event);
         }
     });
@@ -99,11 +99,11 @@ function runVersionchangeTransaction(connection, version, request, cb) {
     });
 
     if (anyOpen) {
-        var event = new FDBVersionChangeEvent();
+        var event = new FDBVersionChangeEvent('blocked', {
+            oldVersion: oldVersion,
+            newVersion: version
+        });
         event.target = request;
-        event.type = 'blocked';
-        event.oldVersion = oldVersion;
-        event.newVersion = version;
         request.dispatchEvent(event);
     }
 
@@ -126,11 +126,11 @@ function runVersionchangeTransaction(connection, version, request, cb) {
         request.result = connection;
         request.transaction = transaction;
 
-        var event = new FDBVersionChangeEvent();
+        var event = new FDBVersionChangeEvent('upgradeneeded', {
+            oldVersion: oldVersion,
+            newVersion: version
+        });
         event.target = request;
-        event.type = 'upgradeneeded';
-        event.oldVersion = oldVersion;
-        event.newVersion = version;
         request.dispatchEvent(event);
 
         request.readyState = 'done';
@@ -227,11 +227,11 @@ fakeIndexedDB.deleteDatabase = function (name) {
 
             request.result = undefined;
 
-            event = new FDBVersionChangeEvent();
+            event = new FDBVersionChangeEvent('success', {
+                oldVersion: version,
+                newVersion: null
+            });
             event.target = request;
-            event.type = 'success';
-            event.oldVersion = version;
-            event.newVersion = null;
             request.dispatchEvent(event);
         });
     });

@@ -111,16 +111,15 @@ describe('W3C Key Path Tests', function () {
             [ [10, 20], [100, 1.337] ],
             "['x', 'y']");
 
-// BUT "key path sequences can't ever be nested"!!!!
-/*        keypath([['x'], ['y']],
+        keypath([['x'], ['y']],
             [ {x:10, y:20}, {y:1.337, x:100} ],
             [ [10, 20], [100, 1.337] ],
-            "[['x'], 'y'] (stringifies)");*/
+            "[['x'], 'y'] (stringifies)");
 
-/*        keypath(['x', {toString:function(){return 'y'}}],
+        keypath(['x', {toString:function(){return 'y'}}],
             [ {x:10, y:20}, {y:1.337, x:100} ],
             [ [10, 20], [100, 1.337] ],
-            "['x', {toString->'y'}] (stringifies)");*/
+            "['x', {toString->'y'}] (stringifies)");
 
         if (false) {
             var myblob = Blob(["Yoda"], {type:'suprawsum'});
@@ -140,12 +139,12 @@ describe('W3C Key Path Tests', function () {
             [ { name: "orange", type: { name: "fruit" }}, { name: "orange", type: { name: "telecom" }} ],
             [ ["orange", "fruit"], ["orange", "telecom" ] ]);
 
-/*        loop_array = [];
+        loop_array = [];
         loop_array.push(loop_array);
         keypath(loop_array,
             [ "a", 1, ["k"] ],
             [ [1], ["a"], [["k"]] ],
-            "array loop -> stringify becomes ['']");*/
+            "array loop -> stringify becomes ['']");
     });
 
     // keypath_invalid
