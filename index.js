@@ -137,6 +137,7 @@ function runVersionchangeTransaction(connection, version, request, cb) {
 
         transaction.addEventListener('error', function () {
             connection._runningVersionchangeTransaction = false;
+//throw e.target.error
 //console.log('error in versionchange transaction - not sure if anything needs to be done here', e.target.error.name);
         });
         transaction.addEventListener('abort', function () {
@@ -259,6 +260,7 @@ fakeIndexedDB.open = function (name, version) {
                     bubbles: true,
                     cancelable: false
                 });
+                event.target = request;
                 event._eventPath = [];
                 request.dispatchEvent(event);
 
@@ -267,9 +269,9 @@ fakeIndexedDB.open = function (name, version) {
 
             request.result = connection;
 
-            event = new Event();
+            event = new Event('success');
             event.target = request;
-            event.type = 'success';
+            event._eventPath = [];
             request.dispatchEvent(event);
         });
     });

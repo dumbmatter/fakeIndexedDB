@@ -4,6 +4,10 @@ FEATURES TO TRY NEXT
 - FDBCursor methods
 - FDBIndex methods
 
+Fix commented parts of first KeyPath test
+
+weird things happen if i listen for success but not upgradeneeded
+
 events implementation
 - if "cancelable", should be possible to call e.preventDefault() and canel the "default action" (such as aborting a transaction)
   - example is the _canceled check in FDBTransaction
