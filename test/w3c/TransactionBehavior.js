@@ -1,8 +1,185 @@
 var assert = require('assert');
+var fakeIndexedDB = require('../..');
+var FDBDatabase = require('../../lib/FDBDatabase');
 var support = require('./support');
 var createdb = support.createdb;
 
 describe('W3C Transaction Behavior Tests', function () {
+    // transaction-lifetime
+    it('Test events opening a second database when one connection is open already', function (done) {
+        var db, db_got_versionchange, db2,
+            events = [];
+
+        var openrq = fakeIndexedDB.open('db', 3);
+
+        // 1
+        openrq.onupgradeneeded = function(e) {
+            events.push("open." + e.type);
+            e.target.result.createObjectStore('store');
+        };
+
+        // 2
+        openrq.onsuccess = function(e) {
+            db = e.target.result;
+
+            events.push("open." + e.type);
+
+            // 3
+            db.onversionchange = function(e) {
+                events.push("db." + e.type);
+
+                assert.equal(e.oldVersion, 3, "old version");
+                assert.equal(e.newVersion, 4, "new version");
+                db.close();
+            };
+
+            // Errors
+            db.onerror = function () { throw new Error("db.error"); };
+            db.abort = function () { throw new Error("db.abort"); };
+
+            setTimeout(OpenSecond, 10);
+        };
+
+        // Errors
+        openrq.onerror = function () { throw new Error("open.error"); };
+        openrq.onblocked = function () { throw new Error("open.blocked"); };
+
+        function OpenSecond (e) {
+            assert.equal(db2, undefined);
+            assert(db instanceof FDBDatabase);
+            assert.deepEqual(db.objectStoreNames, [ "store" ]);
+
+            var openrq2 = fakeIndexedDB.open('db', 4);
+
+            // 4
+            openrq2.onupgradeneeded = function(e) {
+                db2 = e.target.result;
+
+                events.push("open2." + e.type);
+
+                assert(db2 instanceof FDBDatabase);
+
+                // Errors
+                db2.onversionchange = function () { throw new Error("db2.versionchange"); };
+                db2.onerror = function () { throw new Error("db2.error"); };
+                db2.abort = function () { throw new Error("db2.abort"); };
+            };
+
+            // 5
+            openrq2.onsuccess = function(e) {
+                events.push("open2." + e.type);
+
+                assert.deepEqual(events,
+                    [ "open.upgradeneeded",
+                      "open.success",
+                      "db.versionchange",
+                      "open2.upgradeneeded",
+                      "open2.success",
+                    ]);
+
+                if (db2) db2.close();
+                fakeIndexedDB.deleteDatabase('db');
+                setTimeout(function() {
+                    done();
+                }, 10);
+            };
+
+            // Errors
+            openrq2.onerror = function () { throw new Error("open2.error"); };
+            openrq2.onblocked = function () { throw new Error("open2.blocked"); };
+        }
+    });
+
+    // transaction-lifetime-blocked
+    it('Blocked event', function (done) {
+        var db, db_got_versionchange, db2,
+            events = [];
+
+        var openrq = fakeIndexedDB.open('db', 3);
+
+        // 1
+        openrq.onupgradeneeded = function(e) {
+            events.push("open." + e.type);
+            e.target.result.createObjectStore('store');
+        };
+
+        // 2
+        openrq.onsuccess = function(e) {
+            db = e.target.result;
+
+            events.push("open." + e.type);
+
+            // 3
+            db.onversionchange = function(e) {
+                events.push("db." + e.type);
+
+                assert.equal(e.oldVersion, 3, "old version");
+                assert.equal(e.newVersion, 4, "new version");
+                // Do not close db here (as we should)
+            };
+
+            // Errors
+            db.onerror = function () { throw new Error("db.error"); };
+            db.abort = function () { throw new Error("db.abort"); };
+
+            setTimeout(OpenSecond, 10);
+        };
+
+        // Errors
+        openrq.onerror = function () { throw new Error("open.error"); };
+        openrq.onblocked = function () { throw new Error("open.blocked"); };
+
+        function OpenSecond (e) {
+            assert.equal(db2, undefined);
+            assert(db instanceof FDBDatabase);
+            assert.deepEqual(db.objectStoreNames, [ "store" ]);
+
+            var openrq2 = fakeIndexedDB.open('db', 4);
+
+            // 4
+            openrq2.onblocked = function(e) {
+                events.push("open2." + e.type);
+                // We're closing connection from the other open()
+                db.close();
+            };
+
+            // 5
+            openrq2.onupgradeneeded = function(e) {
+                db2 = e.target.result;
+
+                events.push("open2." + e.type);
+
+                assert(db2 instanceof FDBDatabase);
+
+                // Errors
+                db2.onversionchange = function () { throw new Error("db2.versionchange"); };
+                db2.onerror = function () { throw new Error("db2.error"); };
+                db2.abort = function () { throw new Error("db2.abort"); };
+            };
+
+            // 6
+            openrq2.onsuccess = function(e) {
+                events.push("open2." + e.type);
+
+                assert.deepEqual(events,
+                    [ "open.upgradeneeded",
+                      "open.success",
+                      "db.versionchange",
+                      "open2.blocked",
+                      "open2.upgradeneeded",
+                      "open2.success",
+                    ]);
+
+                if (db2) db2.close();
+                fakeIndexedDB.deleteDatabase('db');
+                setTimeout(function() { done(); }, 10);
+            };
+
+            // Errors
+            openrq2.onerror = function () { throw new Error("open2.error") };
+        }
+    });
+
     // transaction-requestqueue
     it('Transactions have a request queue', function (done) {
         var db,
