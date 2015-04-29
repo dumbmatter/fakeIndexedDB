@@ -35,6 +35,7 @@ convert tests from web-platform-tests and delete as i go
 - to fix and contribute back
   - idbfactory_open9 should use val in should_work
   - idbdatabase_close first 'block event fired #' should be 'versionchange event fired #'
+  - idbdatabase_createObjectStore11 spelling in title
 
 events should have stopPropagation and preventDefault and such
 - "The propagation path for the event is the transaction's connection, then transaction and finally request."
