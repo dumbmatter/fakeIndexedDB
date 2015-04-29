@@ -107,4 +107,54 @@ describe('W3C IDBFactory.deleteDatabase Tests', function () {
         deleterq.onblocked = function () { throw new Error("delete.blocked"); };
         deleterq.onupgradeneeded = function () { throw new Error("delete.upgradeneeded"); };
     });
+
+    // idbversionchangeevent
+    it('IDBVersionChangeEvent fired in upgradeneeded, versionchange and deleteDatabase', function (done) {
+        var db;
+
+        var openrq = fakeIndexedDB.open('db', 3);
+
+        openrq.onupgradeneeded = function(e) {
+            assert.equal(e.oldVersion, 0, "old version (upgradeneeded)");
+            assert.equal(e.newVersion, 3, "new version (upgradeneeded)");
+            assert(e instanceof FDBVersionChangeEvent, "upgradeneeded instanceof IDBVersionChangeEvent");
+        };
+
+        openrq.onsuccess = function(e) {
+            db = e.target.result;
+
+            db.onversionchange = function(e) {
+                assert.equal(e.oldVersion, 3, "old version (versionchange)");
+                assert.equal(e.newVersion, null, "new version (versionchange)");
+                assert(e instanceof FDBVersionChangeEvent, "versionchange instanceof IDBVersionChangeEvent");
+                db.close();
+            };
+
+            // Errors
+            db.onerror = function () { throw new Error("db.error"); };
+            db.onabort = function () { throw new Error("db.abort"); };
+
+            setTimeout(deleteDB, 10);
+        };
+
+        // Errors
+        openrq.onerror = function () { throw new Error("open.error"); };
+        openrq.onblocked = function () { throw new Error("open.blocked"); };
+
+        function deleteDB (e) {
+            var deleterq = fakeIndexedDB.deleteDatabase('db');
+
+            deleterq.onsuccess = function(e) {
+                assert.equal(e.oldVersion, 3, "old version (delete.success)");
+                assert.equal(e.newVersion, null, "new version (delete.success)");
+                assert(e instanceof FDBVersionChangeEvent, "delete.success instanceof IDBVersionChangeEvent");
+
+                setTimeout(function() { done(); }, 10);
+            };
+
+            // Errors
+            deleterq.onerror = function () { throw new Error("delete.error"); };
+            deleterq.onblocked = function () { throw new Error("delete.blocked"); };
+        }
+    });
 });
