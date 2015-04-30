@@ -5,7 +5,6 @@ var FDBCursorWithValue;
 var FDBKeyRange = require('../../lib/FDBKeyRange');
 var DataError = require('../../lib/errors/DataError');
 var InvalidStateError = require('../../lib/errors/InvalidStateError');
-//var ReadOnlyError = require('../../lib/errors/ReadOnlyError');
 var TransactionInactiveError = require('../../lib/errors/TransactionInactiveError');
 var support = require('./support');
 var createdb = support.createdb;
@@ -15,7 +14,7 @@ describe('W3C IDBCursor.continue Tests', function () {
         FDBCursor = require('../../lib/FDBCursor');
         FDBCursorWithValue = FDBCursor;
     });
-    describe.only('index', function () {
+    describe('index', function () {
         // idbcursor-continue
         describe('IDBCursor.continue', function (done) {
             var db, open;
@@ -535,7 +534,7 @@ describe('W3C IDBCursor.continue Tests', function () {
                     done();
                 };
             }
-            open_rq.onsuccess = function () {}
+            open_rq.onerror = function () {}
         });
 
         // idbcursor_continue_index8

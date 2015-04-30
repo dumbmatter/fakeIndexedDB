@@ -3,10 +3,6 @@ default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveer
 FEATURES TO TRY NEXT
 - FDBCursor methods
 - FDBIndex methods
-  - openCursor
-    - unskip IDBObjectStore.clear
-    - unskip IDBCursor.delete
-  - unskip IDBCursor.*
 
 figure out some way to implement FDBCursorWithValue
 - see openKeyCursor, it does become important
@@ -40,6 +36,7 @@ convert tests from web-platform-tests and delete as i go
   - idbdatabase_createObjectStore11 spelling in title
   - idbobjectstore_openCursor should actually check count
   - idbversionchangeevent - db.abort should be db.onabort
+  - idbcursor_advance_index, idbcursor_advance_objectstore - event should be e
 
 break events stuff into separate module, maybe fakeDOMEvents
 

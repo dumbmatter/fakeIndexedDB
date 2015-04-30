@@ -10,7 +10,7 @@ describe('W3C IDBCursor.delete Tests', function () {
     before(function () {
         FDBCursor = require('../../lib/FDBCursor');
     });
-    describe.skip('index', function () {
+    describe('index', function () {
         // idbcursor_delete_index
         it('remove a record from the object store', function (done) {
             var db,
@@ -44,7 +44,7 @@ describe('W3C IDBCursor.delete Tests', function () {
                     assert(cursor instanceof FDBCursor, "cursor exist");
                     cursor.delete();
                 };
-
+                txn.onerror = function (e) { throw e.target.error; }
                 txn.oncomplete = VerifyRecordWasDeleted;
             }
 
@@ -105,7 +105,7 @@ describe('W3C IDBCursor.delete Tests', function () {
 
         // idbcursor_delete_index3
         it('attempt to remove a record in an inactive transaction', function (done) {
-            var db,
+            var db, cursor,
               records = [ { pKey: "primaryKey_0", iKey: "indexKey_0" },
                           { pKey: "primaryKey_1", iKey: "indexKey_1" } ];
 
@@ -121,16 +121,16 @@ describe('W3C IDBCursor.delete Tests', function () {
                 var cursor_rq = index.openCursor();
 
                 cursor_rq.onsuccess = function(e) {
-                    var cursor = e.target.result;
+                    cursor = e.target.result;
                     assert(cursor instanceof FDBCursor, "cursor exist");
-                    window.cursor = cursor;
                 };
 
                 e.target.transaction.oncomplete = function(e) {
-                    assert.throws(function() { window.cursor.delete(); }, TransactionInactiveError)
+                    assert.throws(function() { cursor.delete(); }, TransactionInactiveError)
                     done();
                 };
             }
+            open_rq.onsuccess = function () {};
         });
 
         // idbcursor_delete_index4
@@ -160,6 +160,7 @@ describe('W3C IDBCursor.delete Tests', function () {
                     done();
                 };
             }
+            open_rq.onsuccess = function () {};
         });
 
         // idbcursor_delete_index5
@@ -195,6 +196,7 @@ describe('W3C IDBCursor.delete Tests', function () {
                     }
                 };
             }
+            open_rq.onsuccess = function () {};
         });
     });
 

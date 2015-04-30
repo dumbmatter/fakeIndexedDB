@@ -38,7 +38,7 @@ describe('W3C IDBObjectStore.clear Tests', function () {
     });
 
     // idbobjectstore_clear2
-    it.skip('clear removes all records from an index', function (done) {
+    it('clear removes all records from an index', function (done) {
         var db;
 
         var open_rq = createdb(done);
