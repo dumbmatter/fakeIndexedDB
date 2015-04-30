@@ -10,6 +10,7 @@ FEATURES TO TRY NEXT
 
 figure out some way to implement FDBCursorWithValue
 - see openKeyCursor, it does become important
+- fix FDBCursorWithValue usage in IDBCursor.continue.js tests
 
 weird things happen if i listen for success but not upgradeneeded
 

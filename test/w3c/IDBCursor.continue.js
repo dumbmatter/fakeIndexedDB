@@ -1,6 +1,8 @@
 var assert = require('assert');
 var fakeIndexedDB = require('../..');
 var FDBCursor;
+var FDBCursorWithValue;
+var FDBKeyRange = require('../../lib/FDBKeyRange');
 var DataError = require('../../lib/errors/DataError');
 var InvalidStateError = require('../../lib/errors/InvalidStateError');
 //var ReadOnlyError = require('../../lib/errors/ReadOnlyError');
@@ -11,8 +13,9 @@ var createdb = support.createdb;
 describe('W3C IDBCursor.continue Tests', function () {
     before(function () {
         FDBCursor = require('../../lib/FDBCursor');
+        FDBCursorWithValue = FDBCursor;
     });
-    describe.skip('index', function () {
+    describe.only('index', function () {
         // idbcursor-continue
         describe('IDBCursor.continue', function (done) {
             var db, open;
@@ -131,7 +134,7 @@ describe('W3C IDBCursor.continue Tests', function () {
             it("within range", function (done) {
                 var count = 0;
                 var rq = db.transaction("test").objectStore("test").index("index")
-                           .openCursor(IDBKeyRange.lowerBound("cupcake", true));
+                           .openCursor(FDBKeyRange.lowerBound("cupcake", true));
 
                 rq.onsuccess = function(e) {
                     if (!e.target.result) {
@@ -253,15 +256,14 @@ describe('W3C IDBCursor.continue Tests', function () {
                                   .index("index")
                                   .openCursor();
 
-console.log('here');
                 cursor_rq.onsuccess = function(e) {
                     var cursor = e.target.result;
                     if (!cursor) {
                         assert.equal(count, records.length, "cursor run count");
                         done();
+                        return;
                     }
 
-console.log('here2');
                     var record = cursor.value;
                     assert.equal(record.pKey, records[count].pKey, "primary key");
                     assert.equal(record.iKey, records[count].iKey, "index key");
@@ -299,7 +301,7 @@ console.log('here2');
                 cursor_rq.onsuccess = function(e) {
                     var cursor = e.target.result;
 
-                    assert.throws(DataError,
+                    assert.throws(
                         function() { cursor.continue(true); }, DataError);
 
                     assert(cursor instanceof FDBCursorWithValue, "cursor");
