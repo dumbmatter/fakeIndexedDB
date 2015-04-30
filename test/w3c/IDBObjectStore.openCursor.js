@@ -4,7 +4,7 @@ var DataError = require('../../lib/errors/DataError');
 var support = require('./support');
 var createdb = support.createdb;
 
-describe.skip('W3C IDBObjectStore.openCursor Tests', function () {
+describe('W3C IDBObjectStore.openCursor Tests', function () {
     // idbobjectstore_openCursor
     it('iterate through 100 objects', function (done) {
         var db
@@ -34,7 +34,7 @@ describe.skip('W3C IDBObjectStore.openCursor Tests', function () {
     });
 
     // idbobjectstore_openCursor_invalid
-    it('invalid', function (done) {
+    it.skip('invalid', function (done) {
         var db, open;
         open = fakeIndexedDB.open('testdb-' + new Date().getTime());
         open.onupgradeneeded = function(e) {

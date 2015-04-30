@@ -38,6 +38,7 @@ convert tests from web-platform-tests and delete as i go
   - idbdatabase_close first 'block event fired #' should be 'versionchange event fired #'
   - idbdatabase_createObjectStore11 spelling in title
   - idbobjectstore_openCursor should actually check count
+  - idbversionchangeevent - db.abort should be db.onabort
 
 break events stuff into separate module, maybe fakeDOMEvents
 
