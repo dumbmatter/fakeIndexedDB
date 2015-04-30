@@ -57,7 +57,7 @@ describe('W3C IDBObjectStore.get Tests', function () {
     });
 
     // idbobjectstore_get3
-    it('key is a Date', function (done) {
+    it.only('key is a Date', function (done) {
         var db,
           record = { key: new Date(), property: "data" };
 
@@ -74,6 +74,7 @@ describe('W3C IDBObjectStore.get Tests', function () {
                        .get(record.key);
 
             rq.onsuccess = function(e) {
+                throw new Error("A");
                 assert.equal(e.target.result.key.valueOf(), record.key.valueOf());
                 assert.equal(e.target.result.property, record.property);
                 done();

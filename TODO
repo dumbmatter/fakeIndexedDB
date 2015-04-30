@@ -1,12 +1,10 @@
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
 
 FEATURES TO TRY NEXT
-- FDBObjectStore.openCursor make more correct http://www.w3.org/TR/IndexedDB/#widl-IDBObjectStore-openCursor-IDBRequest-any-range-IDBCursorDirection-direction
-  - 'steps for iterating a cursor' implement and use one common function
-    - http://www.w3.org/TR/IndexedDB/#dfn-steps-for-iterating-a-cursor
-  - unskip IDBObjectStore.openCursor test
 - FDBIndex methods
-  - openCursor - unskip IDBObjectStore.clear test
+  - openCursor - unskip tests:
+    - IDBObjectStore.clear
+    - IDBCursor.delete
 - FDBCursor methods
 
 weird things happen if i listen for success but not upgradeneeded
