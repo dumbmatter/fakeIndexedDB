@@ -55,7 +55,7 @@ describe('W3C IDBCursor.continue Tests', function () {
 
                     count++;
                 };
-                rq.onerror = fail(this, "unexpected error")
+                rq.onerror = function () { throw new Error("unexpected error") };
             });
 
             it("with given key", function (done) {
@@ -95,7 +95,7 @@ describe('W3C IDBCursor.continue Tests', function () {
 
                     count++;
                 };
-                rq.onerror = fail(this, "unexpected error")
+                rq.onerror = function () { throw new Error("unexpected error") };
             });
 
             it("skip far forward", function (done) {
@@ -125,7 +125,7 @@ describe('W3C IDBCursor.continue Tests', function () {
                     cursor.continue([]); // Arrays are always bigger than strings
 
                 };
-                rq.onerror = fail(this, "unexpected error2")
+                rq.onerror = function () { throw new Error("unexpected error2") };
             });
 
             it("within range", function (done) {
@@ -160,7 +160,7 @@ describe('W3C IDBCursor.continue Tests', function () {
 
                     count++;
                 };
-                rq.onerror = fail(this, "unexpected error1")
+                rq.onerror = function () { throw new Error("unexpected error1") };
             });
 
             it("within single key range", function (done) {
@@ -189,7 +189,7 @@ describe('W3C IDBCursor.continue Tests', function () {
 
                     count++;
                 };
-                rq.onerror = fail(this, "unexpected error1")
+                rq.onerror = function () { throw new Error("unexpected error1") };
             });
 
             it("within single key range, with several results", function (done) {
@@ -224,7 +224,7 @@ describe('W3C IDBCursor.continue Tests', function () {
 
                     count++;
                 };
-                rq.onerror = fail(this, "unexpected error1")
+                rq.onerror = function () { throw new Error("unexpected error1") };
             });
         });
 
@@ -253,6 +253,7 @@ describe('W3C IDBCursor.continue Tests', function () {
                                   .index("index")
                                   .openCursor();
 
+console.log('here');
                 cursor_rq.onsuccess = function(e) {
                     var cursor = e.target.result;
                     if (!cursor) {
@@ -260,6 +261,7 @@ describe('W3C IDBCursor.continue Tests', function () {
                         done();
                     }
 
+console.log('here2');
                     var record = cursor.value;
                     assert.equal(record.pKey, records[count].pKey, "primary key");
                     assert.equal(record.iKey, records[count].iKey, "index key");
@@ -267,6 +269,7 @@ describe('W3C IDBCursor.continue Tests', function () {
                     cursor.continue();
                     count++;
                 };
+                cursor_rq.onerror = function (e) { throw e.target.error; }
             };
         });
 
