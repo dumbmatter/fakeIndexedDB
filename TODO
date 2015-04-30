@@ -1,7 +1,5 @@
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
 
-IDBCursor.continue tests
-
 FEATURES TO TRY NEXT
 - FDBCursor methods
 - FDBIndex methods
@@ -11,6 +9,7 @@ FEATURES TO TRY NEXT
   - unskip IDBCursor.*
 
 figure out some way to implement FDBCursorWithValue
+- see openKeyCursor, it does become important
 
 weird things happen if i listen for success but not upgradeneeded
 
@@ -45,7 +44,7 @@ break events stuff into separate module, maybe fakeDOMEvents
 
 go through and fix all the left comments (todo stuff)
 
-"return this" needed at bottom of functions?
+move index.js stuff to FDBFactory
 
 _ properties should be hidden from standard functions
 - also nice toStrings
