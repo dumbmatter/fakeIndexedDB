@@ -1,11 +1,16 @@
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
 
+IDBCursor.continue tests
+
 FEATURES TO TRY NEXT
 - FDBCursor methods
 - FDBIndex methods
-  - openCursor - unskip tests:
-    - IDBObjectStore.clear
-    - IDBCursor.delete
+  - openCursor
+    - unskip IDBObjectStore.clear
+    - unskip IDBCursor.delete
+  - unskip IDBCursor.*
+
+figure out some way to implement FDBCursorWithValue
 
 weird things happen if i listen for success but not upgradeneeded
 
@@ -23,8 +28,6 @@ TRICKY THINGS TO FIGURE OUT (and test) ASAP:
   - also include key generator state somehow
   - objectStoreNames, indexNames
 
-http://www.w3.org/TR/IndexedDB/
-
 convert tests from web-platform-tests and delete as i go
 - missing:
   - test of aborted transaction rollback
@@ -40,10 +43,7 @@ convert tests from web-platform-tests and delete as i go
 
 break events stuff into separate module, maybe fakeDOMEvents
 
-indexes
-- research how to store data
-- or maybe use something like https://github.com/louischatriot/nedb to actually store data
-- initially, just don't. sort/filter as needed
+go through and fix all the left comments (todo stuff)
 
 "return this" needed at bottom of functions?
 
