@@ -1,11 +1,15 @@
 var assert = require('assert');
-//var FDBKeyRange = require('../../lib/FDBKeyRange');
-//var InvalidStateError = require('../../lib/errors/InvalidStateError');
-//var ReadOnlyError = require('../../lib/errors/ReadOnlyError');
+var FDBCursor;
+var InvalidStateError = require('../../lib/errors/InvalidStateError');
+var ReadOnlyError = require('../../lib/errors/ReadOnlyError');
+var TransactionInactiveError = require('../../lib/errors/TransactionInactiveError');
 var support = require('./support');
 var createdb = support.createdb;
 
 describe('W3C IDBCursor.delete Tests', function () {
+    before(function () {
+        FDBCursor = require('../../lib/FDBCursor');
+    });
     describe.skip('index', function () {
         // idbcursor_delete_index
         it('remove a record from the object store', function (done) {
@@ -37,7 +41,7 @@ describe('W3C IDBCursor.delete Tests', function () {
                 cursor_rq.onsuccess = function(e) {
                     var cursor = e.target.result;
 
-                    assert(cursor instanceof IDBCursor, "cursor exist");
+                    assert(cursor instanceof FDBCursor, "cursor exist");
                     cursor.delete();
                 };
 
@@ -92,7 +96,7 @@ describe('W3C IDBCursor.delete Tests', function () {
                 cursor_rq.onsuccess = function(e) {
                     var cursor = e.target.result;
 
-                    assert(cursor instanceof IDBCursor, "cursor exist");
+                    assert(cursor instanceof FDBCursor, "cursor exist");
                     assert.throws(function() { cursor.delete(); }, ReadOnlyError);
                     done();
                 };
@@ -118,7 +122,7 @@ describe('W3C IDBCursor.delete Tests', function () {
 
                 cursor_rq.onsuccess = function(e) {
                     var cursor = e.target.result;
-                    assert(cursor instanceof IDBCursor, "cursor exist");
+                    assert(cursor instanceof FDBCursor, "cursor exist");
                     window.cursor = cursor;
                 };
 
@@ -129,7 +133,7 @@ describe('W3C IDBCursor.delete Tests', function () {
             }
         });
 
-        // idbcursor_delete_index5
+        // idbcursor_delete_index4
         it('throw InvalidStateError caused by object store been deleted', function (done) {
             var db,
                 records = [{ pKey: "primaryKey_0", iKey: "indexKey_0" },
@@ -146,7 +150,7 @@ describe('W3C IDBCursor.delete Tests', function () {
                 var rq = objStore.index("index").openCursor();
                 rq.onsuccess = function(event) {
                     var cursor = event.target.result;
-                    assert(cursor instanceof IDBCursor, "cursor exist");
+                    assert(cursor instanceof FDBCursor, "cursor exist");
 
                     db.deleteObjectStore("store");
                     assert.throws(function() {
@@ -174,16 +178,21 @@ describe('W3C IDBCursor.delete Tests', function () {
                 }
 
                 var rq = objStore.index("index").openCursor();
+                var count = 0;
                 rq.onsuccess = function(event) {
+                    count += 1;
                     var cursor = event.target.result;
-                    assert(cursor instanceof IDBCursor, "cursor exist");
+                    if (cursor) {
+                        assert(cursor instanceof FDBCursor, "cursor exist");
+                        cursor.continue();
+                        assert.throws(function() {
+                            cursor.delete();
+                        }, InvalidStateError);
 
-                    cursor.continue();
-                    assert.throws(function() {
-                        cursor.delete();
-                    }, InvalidStateError);
-
-                    done();
+                        if (count === 1) {
+                            done();
+                        }
+                    }
                 };
             }
         });
@@ -246,7 +255,7 @@ describe('W3C IDBCursor.delete Tests', function () {
         });
 
         // idbcursor_delete_objectstore2
-        it.skip('attempt to remove a record in a read-only transaction', function (done) {
+        it('attempt to remove a record in a read-only transaction', function (done) {
             var db,
               records = [ { pKey: "primaryKey_0", iKey: "indexKey_0" },
                           { pKey: "primaryKey_1", iKey: "indexKey_1" } ];
@@ -264,33 +273,21 @@ describe('W3C IDBCursor.delete Tests', function () {
             open_rq.onsuccess = function(e) {
                 var cursor_rq = db.transaction("test")
                                   .objectStore("test")
-                                  .get("primaryKey_0")
-//                                  .openCursor();
+                                  .openCursor();
 
-console.log('here');
                 cursor_rq.onsuccess = function(e) {
                     var cursor = e.target.result;
-console.log('here2');
-throw new Error('a');
 
                     assert(cursor != null, "cursor exist");
-console.log('here3');
-throw new Error('fuck');
-cursor.delete();
-//                    assert.throws(function() { cursor.delete(); }, ReadOnlyError);
-console.log('here4');
+                    assert.throws(function() { cursor.delete(); }, ReadOnlyError);
                     done();
                 };
-                cursor_rq.onerror = function (e) {
-console.log('onerror', e.target.error.message)
-done();
-                }
             }
         });
 
         // idbcursor_delete_objectstore3
         it('attempt to remove a record in an inactive transaction', function (done) {
-            var db,
+            var db, cursor,
               records = [ { pKey: "primaryKey_0", iKey: "indexKey_0" },
                           { pKey: "primaryKey_1", iKey: "indexKey_1" } ];
 
@@ -305,16 +302,16 @@ done();
                 var cursor_rq = objStore.openCursor();
 
                 cursor_rq.onsuccess = function(e) {
-                    var cursor = e.target.result;
-                    assert(cursor instanceof IDBCursor, "cursor exist");
-                    window.cursor = cursor;
+                    cursor = e.target.result;
+                    assert(cursor instanceof FDBCursor, "cursor exist");
                 };
 
                 e.target.transaction.oncomplete = function(e) {
-                    assert.throws(function() { window.cursor.delete(); }, TransactionInactiveError)
+                    assert.throws(function() { cursor.delete(); }, TransactionInactiveError)
                     done();
                 };
             }
+            open_rq.onsuccess = function () {};
         });
 
         // idbcursor_delete_objectstore4
@@ -333,7 +330,7 @@ done();
                 var rq = objStore.openCursor();
                 rq.onsuccess = function(event) {
                     var cursor = event.target.result;
-                    assert(cursor instanceof IDBCursor, "cursor exist");
+                    assert(cursor instanceof FDBCursor, "cursor exist");
 
                     db.deleteObjectStore("store");
                     assert.throws(function() {
@@ -343,6 +340,7 @@ done();
                     done();
                 };
             }
+            open_rq.onsuccess = function () {};
         });
 
         // idbcursor_delete_objectstore5
@@ -363,16 +361,22 @@ done();
             open_rq.onsuccess = function (event) {
                 var txn = db.transaction("store", "readwrite");
                 var rq = txn.objectStore("store").openCursor();
+                var count = 0;
                 rq.onsuccess = function(event) {
+                    count += 1;
                     var cursor = event.target.result;
-                    assert(cursor instanceof IDBCursor, "cursor exist");
 
-                    cursor.continue();
-                    assert.throws(function() {
-                        cursor.delete();
-                    }, InvalidStateError);
+                    if (cursor) {
+                        assert(cursor instanceof FDBCursor, "cursor exist");
+                        cursor.continue();
+                        assert.throws(function() {
+                            cursor.delete();
+                        }, InvalidStateError);
 
-                    done();
+                        if (count === 1) {
+                            done();
+                        }
+                    }
                 };
             }
         });
