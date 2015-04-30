@@ -1,8 +1,10 @@
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
 
 FEATURES TO TRY NEXT
-- FDBCursor methods
 - FDBIndex methods
+
+Two IDBCursor.update tests skipped
+- what do I do about DataCloneError?
 
 figure out some way to implement FDBCursorWithValue
 - see openKeyCursor, it does become important
