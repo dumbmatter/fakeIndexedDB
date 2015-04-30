@@ -1,11 +1,11 @@
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
 
 FEATURES TO TRY NEXT
+- FDBCursor methods
 - FDBIndex methods
   - openCursor - unskip tests:
     - IDBObjectStore.clear
     - IDBCursor.delete
-- FDBCursor methods
 
 weird things happen if i listen for success but not upgradeneeded
 
