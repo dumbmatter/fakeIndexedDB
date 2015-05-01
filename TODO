@@ -50,8 +50,6 @@ go through and fix all the left comments (todo stuff)
 move index.js stuff to FDBFactory
 
 _ properties should be hidden from standard functions
-- also nice toStrings
-- maybe make some things immutable?
 
 Other tests
 - https://chromium.googlesource.com/chromium/blink/+/72fef91ac1ef679207f51def8133b336a6f6588f/LayoutTests/storage/indexeddb

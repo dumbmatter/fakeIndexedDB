@@ -17,7 +17,7 @@ describe('W3C IDBTransaction Tests', function () {
         assert.equal(open_rq.readyState, "pending", "IDBOpenDBRequest.readyState");
 
         assert(open_rq instanceof FDBOpenDBRequest, "open_rq instanceof FDBOpenDBRequest");
-        //assert.equal(open_rq + "", "[object FDBOpenDBRequest]", "FDBOpenDBRequest (open_rq)");
+        assert.equal(open_rq + "", "[object IDBOpenDBRequest]", "IDBOpenDBRequest (open_rq)");
 
         open_rq.onupgradeneeded = function (e) {
             assert.equal(e.target, open_rq, "e.target is reusing the same FDBOpenDBRequest");
@@ -119,7 +119,7 @@ describe('W3C IDBTransaction Tests', function () {
                                           "versionchange_count.success: 0",
                                           "versionchange_add2.success: 2",
                                           "versionchange_txn.complete",
-                                          "open_rq.success: [object Object]",
+                                          "open_rq.success: [object IDBDatabase]",
                                           "complete_count.success: 2",
                                           "complete2_get.success: 1"], "events");
                 done();
