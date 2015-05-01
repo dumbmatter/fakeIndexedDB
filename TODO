@@ -42,8 +42,6 @@ break events stuff into separate module, maybe fakeDOMEvents
 
 go through and fix all the left comments (todo stuff)
 
-move index.js stuff to FDBFactory
-
 _ properties should be hidden from standard functions
 
 Other tests
