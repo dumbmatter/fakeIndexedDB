@@ -1,5 +1,5 @@
 var assert = require('assert');
-var FDBCursor;
+var FDBCursor = require('../../lib/FDBCursor');
 var DataError = require('../../lib/errors/DataError');
 var InvalidStateError = require('../../lib/errors/InvalidStateError');
 var ReadOnlyError = require('../../lib/errors/ReadOnlyError');
@@ -8,9 +8,6 @@ var support = require('./support');
 var createdb = support.createdb;
 
 describe('W3C IDBCursor.update Tests', function () {
-    before(function () {
-        FDBCursor = require('../../lib/FDBCursor');
-    });
     describe('index', function () {
         // idbcursor_update_index
         it('modify a record in the object store', function (done) {
