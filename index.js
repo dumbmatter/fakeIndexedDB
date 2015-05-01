@@ -137,7 +137,7 @@ function runVersionchangeTransaction(connection, version, request, cb) {
 
         transaction.addEventListener('error', function () {
             connection._runningVersionchangeTransaction = false;
-//throw e.target.error
+//throw arguments[0].target.error;
 //console.log('error in versionchange transaction - not sure if anything needs to be done here', e.target.error.name);
         });
         transaction.addEventListener('abort', function () {
