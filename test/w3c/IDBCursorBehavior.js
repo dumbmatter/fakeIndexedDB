@@ -816,4 +816,80 @@ describe('W3C IDBCursor Behavior Tests', function () {
                                                      .openCursor());
         };
     });
+
+    // cursor-overloads
+    it.skip('Validate the overloads of IDBObjectStore.openCursor(), IDBIndex.openCursor() and IDBIndex.openKeyCursor()', function (done) {
+        var db, trans, store, index;
+
+        var request = createdb(done);
+        request.onupgradeneeded = function(e) {
+            db = request.result;
+            store = db.createObjectStore('store');
+            index = store.createIndex('index', 'value');
+            store.put({value: 0}, 0);
+            trans = request.transaction;
+            trans.oncomplete = verifyOverloads;
+        };
+        request.onsuccess = function () {};
+
+        function verifyOverloads() {
+            trans = db.transaction('store');
+            store = trans.objectStore('store');
+            index = store.index('index');
+
+            checkCursorDirection("store.openCursor()", "next");
+            checkCursorDirection("store.openCursor(0)", "next");
+            checkCursorDirection("store.openCursor(0, 'next')", "next");
+            checkCursorDirection("store.openCursor(0, 'nextunique')", "nextunique");
+            checkCursorDirection("store.openCursor(0, 'prev')", "prev");
+            checkCursorDirection("store.openCursor(0, 'prevunique')", "prevunique");
+
+            checkCursorDirection("store.openCursor(FDBKeyRange.only(0))", "next");
+            checkCursorDirection("store.openCursor(FDBKeyRange.only(0), 'next')", "next");
+            checkCursorDirection("store.openCursor(FDBKeyRange.only(0), 'nextunique')", "nextunique");
+            checkCursorDirection("store.openCursor(FDBKeyRange.only(0), 'prev')", "prev");
+            checkCursorDirection("store.openCursor(FDBKeyRange.only(0), 'prevunique')", "prevunique");
+
+            checkCursorDirection("index.openCursor()", "next");
+            checkCursorDirection("index.openCursor(0)", "next");
+            checkCursorDirection("index.openCursor(0, 'next')", "next");
+            checkCursorDirection("index.openCursor(0, 'nextunique')", "nextunique");
+            checkCursorDirection("index.openCursor(0, 'prev')", "prev");
+            checkCursorDirection("index.openCursor(0, 'prevunique')", "prevunique");
+
+            checkCursorDirection("index.openCursor(FDBKeyRange.only(0))", "next");
+            checkCursorDirection("index.openCursor(FDBKeyRange.only(0), 'next')", "next");
+            checkCursorDirection("index.openCursor(FDBKeyRange.only(0), 'nextunique')", "nextunique");
+            checkCursorDirection("index.openCursor(FDBKeyRange.only(0), 'prev')", "prev");
+            checkCursorDirection("index.openCursor(FDBKeyRange.only(0), 'prevunique')", "prevunique");
+
+            checkCursorDirection("index.openKeyCursor()", "next");
+            checkCursorDirection("index.openKeyCursor(0)", "next");
+            checkCursorDirection("index.openKeyCursor(0, 'next')", "next");
+            checkCursorDirection("index.openKeyCursor(0, 'nextunique')", "nextunique");
+            checkCursorDirection("index.openKeyCursor(0, 'prev')", "prev");
+            checkCursorDirection("index.openKeyCursor(0, 'prevunique')", "prevunique");
+
+            checkCursorDirection("index.openKeyCursor(FDBKeyRange.only(0))", "next");
+            checkCursorDirection("index.openKeyCursor(FDBKeyRange.only(0), 'next')", "next");
+            checkCursorDirection("index.openKeyCursor(FDBKeyRange.only(0), 'nextunique')", "nextunique");
+            checkCursorDirection("index.openKeyCursor(FDBKeyRange.only(0), 'prev')", "prev");
+            checkCursorDirection("index.openKeyCursor(FDBKeyRange.only(0), 'prevunique')", "prevunique");
+        }
+
+        var numTried = 0;
+        var numDone = 0;
+        function checkCursorDirection(statement, direction) {
+            numTried += 1;
+            request = eval(statement);
+            request.onsuccess = function(event) {
+                assert(event.target.result !== null, "Check the result is not null")
+                assert.equal(event.target.result.direction, direction, "Check the result direction");
+                numDone += 1;
+                if (numDone >= numTried) {
+                    done();
+                }
+            };
+        }
+    })
 });

@@ -12,6 +12,7 @@ Two IDBCursor.update tests skipped
 
 FEATURES TO TRY NEXT
 - FDBIndex.openKeyCursor
+  - unskip IDBCursorBehavior test
 
 weird things happen if i listen for success but not upgradeneeded
 
