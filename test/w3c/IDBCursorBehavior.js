@@ -1,9 +1,6 @@
 var assert = require('assert');
 var fakeIndexedDB = require('../..');
-//var FDBCursor;
-//var InvalidStateError = require('../../lib/errors/InvalidStateError');
-//var ReadOnlyError = require('../../lib/errors/ReadOnlyError');
-//var TransactionInactiveError = require('../../lib/errors/TransactionInactiveError');
+var FDBKeyRange = require('../../lib/FDBKeyRange');
 var support = require('./support');
 var createdb = support.createdb;
 
@@ -18,14 +15,17 @@ return;
     }
 }
 
-describe('W3C IDBCursor Behavior Tests', function () {
-    before(function () {
-//        FDBCursor = require('../../lib/FDBCursor');
-    });
+function fail_helper(name) {
+    return function() {
+        throw new Error(name);
+    };
+}
 
-    describe.skip('direction', function () {
+describe('W3C IDBCursor Behavior Tests', function () {
+    describe('direction', function () {
         // idbcursor-direction
         it('IDBCursor.direction', function (done) {
+            var count = 0;
             function cursor_direction(constant, dir)
             {
                 var db,
@@ -41,7 +41,7 @@ describe('W3C IDBCursor Behavior Tests', function () {
                 };
 
                 open_rq.onsuccess = function(e) {
-                    var cursor_rq, count = 0;
+                    var cursor_rq;
                     var os = db.transaction("test")
                                .objectStore("test");
                     if (dir)
@@ -55,10 +55,6 @@ describe('W3C IDBCursor Behavior Tests', function () {
                         assert.equal(cursor.direction, constant, 'direction constant');
                         assert.equal(cursor.direction, expected, 'direction');
                         assert_readonly(cursor, 'direction');
-
-                        count++;
-                        if (count >= 2)
-                            done();
                     };
 
                     var cursor_rq2 = db.transaction("test")
@@ -73,7 +69,7 @@ describe('W3C IDBCursor Behavior Tests', function () {
                         assert_readonly(cursor, 'direction');
 
                         count++;
-                        if (count >= 2)
+                        if (count >= 5)
                             done();
                     };
 
@@ -91,11 +87,7 @@ describe('W3C IDBCursor Behavior Tests', function () {
         it('index', function (done) {
             var records = [ "Alice", "Bob", "Bob", "Greg" ];
             var directions = ["next", "prev", "nextunique", "prevunique"];
-            var tests = {};
-
-            directions.forEach(function(dir) {
-                tests[dir] = async_test(document.title + ' - ' + dir);
-            });
+            var doneCount = 0;
 
             var open_rq = fakeIndexedDB.open("testdb-" + new Date().getTime() + Math.random());
 
@@ -122,13 +114,16 @@ describe('W3C IDBCursor Behavior Tests', function () {
                 // Test function
                 function testdir(dir, expect) {
                     var count = 0;
-                    var t = tests[dir];
                     var rq = db.transaction("test").objectStore("test").index("idx").openCursor(undefined, dir);
                     rq.onsuccess = function(e) {
                         var cursor = e.target.result;
                         if (!cursor) {
                             assert.equal(count, expect.length, "cursor runs");
-                            done();
+                            doneCount += 1;
+                            if (doneCount >= 4) {
+                                done();
+                            }
+                            return;
                         }
                         assert.equal(cursor.value.name + ":" + cursor.primaryKey, expect[count], "cursor.value");
                         count++;
@@ -142,14 +137,6 @@ describe('W3C IDBCursor Behavior Tests', function () {
                 }
             };
 
-            // Fail handling
-            function fail_helper(name) {
-                return function() {
-                    directions.forEach(function(dir) {
-                        tests[dir].step(function() { throw new Error(name); });
-                    });
-                };
-            }
             open_rq.onblocked = fail_helper('open_rq.onblocked');
             open_rq.onerror = fail_helper('open_rq.onerror');
         });
@@ -158,11 +145,7 @@ describe('W3C IDBCursor Behavior Tests', function () {
         it('index with keyrange', function (done) {
             var records = [ 1337, "Alice", "Bob", "Bob", "Greg", "Åke", ["Anne"] ];
             var directions = ["next", "prev", "nextunique", "prevunique"];
-            var tests = {};
-
-            directions.forEach(function(dir) {
-                tests[dir] = async_test(document.title + ' - ' + dir);
-            });
+            var doneCount = 0;
 
             var open_rq = fakeIndexedDB.open("testdb-" + new Date().getTime() + Math.random());
 
@@ -189,13 +172,16 @@ describe('W3C IDBCursor Behavior Tests', function () {
                 // Test function
                 function testdir(dir, expect) {
                     var count = 0;
-                    var t = tests[dir];
-                    var rq = db.transaction("test").objectStore("test").index("idx").openCursor(IDBKeyRange.bound("AA", "ZZ"), dir);
+                    var rq = db.transaction("test").objectStore("test").index("idx").openCursor(FDBKeyRange.bound("AA", "ZZ"), dir);
                     rq.onsuccess = function(e) {
                         var cursor = e.target.result;
                         if (!cursor) {
                             assert.equal(count, expect.length, "cursor runs");
-                            done();
+                            doneCount += 1;
+                            if (doneCount >= 4) {
+                                done();
+                            }
+                            return;
                         }
                         assert.equal(cursor.value.name + ":" + cursor.primaryKey, expect[count], "cursor.value");
                         count++;
@@ -209,14 +195,6 @@ describe('W3C IDBCursor Behavior Tests', function () {
                 }
             };
 
-            // Fail handling
-            function fail_helper(name) {
-                return function() {
-                    directions.forEach(function(dir) {
-                        tests[dir].step(function() { throw new Error(name); });
-                    });
-                };
-            }
             open_rq.onblocked = fail_helper('open_rq.onblocked');
             open_rq.onerror = fail_helper('open_rq.onerror');
         });
@@ -225,11 +203,7 @@ describe('W3C IDBCursor Behavior Tests', function () {
         it('object store', function (done) {
             var records = [ "Alice", "Bob", "Greg" ];
             var directions = ["next", "prev", "nextunique", "prevunique"];
-            var tests = {};
-
-            directions.forEach(function(dir) {
-                tests[dir] = async_test(document.title + ' - ' + dir);
-            });
+            var doneCount = 0;
 
             var open_rq = fakeIndexedDB.open("testdb-" + new Date().getTime() + Math.random());
 
@@ -255,13 +229,16 @@ describe('W3C IDBCursor Behavior Tests', function () {
                 // Test function
                 function testdir(dir, expect) {
                     var count = 0;
-                    var t = tests[dir];
                     var rq = db.transaction("test").objectStore("test").openCursor(undefined, dir);
                     rq.onsuccess = function(e) {
                         var cursor = e.target.result;
                         if (!cursor) {
                             assert.equal(count, expect.length, "cursor runs");
-                            done();
+                            doneCount += 1;
+                            if (doneCount >= 4) {
+                                done();
+                            }
+                            return;
                         }
                         assert.equal(cursor.value, expect[count], "cursor.value");
                         count++;
@@ -275,14 +252,6 @@ describe('W3C IDBCursor Behavior Tests', function () {
                 }
             };
 
-            // Fail handling
-            function fail_helper(name) {
-                return function() {
-                    directions.forEach(function(dir) {
-                        tests[dir].step(function() { throw new Error(name); });
-                    });
-                };
-            }
             open_rq.onblocked = fail_helper('open_rq.onblocked');
             open_rq.onerror = fail_helper('open_rq.onerror');
         });
@@ -291,11 +260,7 @@ describe('W3C IDBCursor Behavior Tests', function () {
         it('object store with keyrange', function (done) {
             var records = [ 1337, "Alice", "Bob", "Greg", "Åke", ["Anne"] ];
             var directions = ["next", "prev", "nextunique", "prevunique"];
-            var tests = {};
-
-            directions.forEach(function(dir) {
-                tests[dir] = async_test(document.title + ' - ' + dir);
-            });
+            var doneCount = 0;
 
             var open_rq = fakeIndexedDB.open("testdb-" + new Date().getTime() + Math.random());
 
@@ -321,13 +286,16 @@ describe('W3C IDBCursor Behavior Tests', function () {
                 // Test function
                 function testdir(dir, expect) {
                     var count = 0;
-                    var t = tests[dir];
-                    var rq = db.transaction("test").objectStore("test").openCursor(IDBKeyRange.bound("AA", "ZZ"), dir);
+                    var rq = db.transaction("test").objectStore("test").openCursor(FDBKeyRange.bound("AA", "ZZ"), dir);
                     rq.onsuccess = function(e) {
                         var cursor = e.target.result;
                         if (!cursor) {
                             assert.equal(count, expect.length, "cursor runs");
-                            done();
+                            doneCount += 1;
+                            if (doneCount >= 4) {
+                                done();
+                            }
+                            return;
                         }
                         assert.equal(cursor.value, expect[count], "cursor.value");
                         count++;
@@ -341,22 +309,16 @@ describe('W3C IDBCursor Behavior Tests', function () {
                 }
             };
 
-            // Fail handling
-            function fail_helper(name) {
-                return function() {
-                    directions.forEach(function(dir) {
-                        tests[dir].step(function() { throw new Error(name); });
-                    });
-                };
-            }
             open_rq.onblocked = fail_helper('open_rq.onblocked');
             open_rq.onerror = fail_helper('open_rq.onerror');
         });
     });
 
-    describe.skip('iterating', function () {
+    describe('iterating', function () {
         // idbcursor_iterating
-        it('objectstore - delete next element, and iterate to it', function (done) {
+        it.skip('objectstore - delete next element, and iterate to it', function (done) {
+            this.timeout(10000);
+
             var db,
               count = 0;
 
@@ -494,7 +456,7 @@ describe('W3C IDBCursor Behavior Tests', function () {
                     if (count === 0) {
                         e.target.source.objectStore.delete(["primaryKey_1", "iKey_1"]);
                     }
-                    assert_array_equals(cursor.key, expected[count], "primary key");
+                    assert.deepEqual(cursor.key, expected[count], "primary key");
 
                     cursor.continue();
                     count++;
@@ -539,7 +501,7 @@ describe('W3C IDBCursor Behavior Tests', function () {
                     if (count === 0) {
                         e.target.source.objectStore.add({ pKey: "primaryKey_1", obj: { iKey: "iKey_1" } });
                     }
-                    assert_array_equals(cursor.key, expected[count], "primary key");
+                    assert.deepEqual(cursor.key, expected[count], "primary key");
 
                     cursor.continue();
                     count++;
@@ -548,7 +510,7 @@ describe('W3C IDBCursor Behavior Tests', function () {
         });
 
         // idbcursor_iterating_objectstore
-        it('objectstore - delete next element, and iterate to it', function (done) {
+        it('objectstore - delete next element, and iterate to it (2)', function (done) {
             var db,
               count = 0,
               records = [ { pKey: "primaryKey_0" },
