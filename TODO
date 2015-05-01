@@ -67,7 +67,5 @@ could event.target be automatically set to X in X.dispatchEvent(event);? Any tim
 
 For .filter calls that are deleting items from arrays (such as ObjectStore.deleteRecord) it might be faster to use splice as iterating over the array
 
-replace charfunk
-
 CAVEATS
 - Couldn't find a good way to make objectStoreNames and indexNames DOMStringLists, so they are just normal arrays
