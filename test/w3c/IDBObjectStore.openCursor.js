@@ -34,7 +34,7 @@ describe('W3C IDBObjectStore.openCursor Tests', function () {
     });
 
     // idbobjectstore_openCursor_invalid
-    it.skip('invalid', function (done) {
+    it('invalid', function (done) {
         var db, open;
         open = fakeIndexedDB.open('testdb-' + new Date().getTime());
         open.onupgradeneeded = function(e) {

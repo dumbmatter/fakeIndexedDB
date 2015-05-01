@@ -15,10 +15,6 @@ FEATURES TO TRY NEXT
 
 weird things happen if i listen for success but not upgradeneeded
 
-events implementation
-- if "cancelable", should be possible to call e.preventDefault() and cancel the "default action" (such as aborting a transaction)
-  - example is the _canceled check in FDBTransaction
-
 share some code between Index and ObjectStore, like getValue, confirmActiveTransaction
 - similar thing between open and deleteDatabase
 
@@ -31,7 +27,7 @@ TRICKY THINGS TO FIGURE OUT (and test) ASAP:
 
 convert tests from web-platform-tests and delete as i go
 - missing:
-  - test of aborted transaction rollback
+  - comprehensive tests of aborted transaction rollback
   - (because of assert.throws I think) error propagation to transaction rejection
   - multiple transactions interacting, like readwrite blocking another but allowing readonly
   - IDBObjectStore.openCursor with various valid arguments
