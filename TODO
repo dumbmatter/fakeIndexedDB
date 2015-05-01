@@ -1,7 +1,16 @@
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
 
+assert_readonly in IDBCursorBehavior
+
+readonly properties need to actually be readonly
+- FDBCursor.direction
+- FDBCursor.key
+- others?
+
 FEATURES TO TRY NEXT
-- FDBIndex methods
+- FDBIndex.count
+- FDBIndex.getKey
+- FDBIndex.openKeyCursor
 
 Two IDBCursor.update tests skipped
 - what do I do about DataCloneError?
