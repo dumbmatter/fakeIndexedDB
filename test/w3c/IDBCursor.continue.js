@@ -1,7 +1,6 @@
 var assert = require('assert');
 var fakeIndexedDB = require('../..');
 var FDBCursor;
-var FDBCursorWithValue;
 var FDBKeyRange = require('../../lib/FDBKeyRange');
 var DataError = require('../../lib/errors/DataError');
 var InvalidStateError = require('../../lib/errors/InvalidStateError');
@@ -12,7 +11,7 @@ var createdb = support.createdb;
 describe('W3C IDBCursor.continue Tests', function () {
     before(function () {
         FDBCursor = require('../../lib/FDBCursor');
-        FDBCursorWithValue = FDBCursor;
+        FDBCursorWithValue = require('../../lib/FDBCursorWithValue');
     });
     describe('index', function () {
         // idbcursor-continue

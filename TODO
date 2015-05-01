@@ -10,10 +10,6 @@ readonly properties need to actually be readonly
 Two IDBCursor.update tests skipped
 - what do I do about DataCloneError?
 
-figure out some way to implement FDBCursorWithValue
-- see openKeyCursor, it does become important
-- fix FDBCursorWithValue usage in IDBCursor.continue.js tests
-
 FEATURES TO TRY NEXT
 - FDBIndex.openKeyCursor
 
@@ -67,5 +63,5 @@ could event.target be automatically set to X in X.dispatchEvent(event);? Any tim
 
 For .filter calls that are deleting items from arrays (such as ObjectStore.deleteRecord) it might be faster to use splice as iterating over the array
 
-CAVEATS
-- Couldn't find a good way to make objectStoreNames and indexNames DOMStringLists, so they are just normal arrays
+objectStoreNames and indexNames should be DOMStringLists
+- see https://github.com/facebookarchive/IndexedDB-polyfill/blob/master/indexedDB.polyfill.js#L36
