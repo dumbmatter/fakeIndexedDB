@@ -5,7 +5,6 @@ var support = require('./support');
 var createdb = support.createdb;
 
 function assert_readonly(obj, prop) {
-return;
     try {
         obj[prop] = 587238956283;
     } catch (err) {}
@@ -597,8 +596,7 @@ describe('W3C IDBCursor Behavior Tests', function () {
     });
 
     // idbcursor-key
-// NEED cursor.key TO ACTUALLY BE READONLY
-    it.skip('IDBCursor.key', function (done) {
+    it('IDBCursor.key', function (done) {
         var count = 0;
         function cursor_key(key)
         {

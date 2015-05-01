@@ -1,11 +1,7 @@
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
 
-assert_readonly in IDBCursorBehavior
-
 readonly properties need to actually be readonly
-- FDBCursor.direction
-- FDBCursor.key
-- others?
+- done FDBCursor. others?
 
 Two IDBCursor.update tests skipped
 - what do I do about DataCloneError?
@@ -43,6 +39,7 @@ break events stuff into separate module, maybe fakeDOMEvents
 go through and fix all the left comments (todo stuff)
 
 _ properties should be hidden from standard functions
+- object.defineProperty enumerable?
 
 Other tests
 - https://chromium.googlesource.com/chromium/blink/+/72fef91ac1ef679207f51def8133b336a6f6588f/LayoutTests/storage/indexeddb
