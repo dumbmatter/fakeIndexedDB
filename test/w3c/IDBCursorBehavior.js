@@ -818,7 +818,7 @@ describe('W3C IDBCursor Behavior Tests', function () {
     });
 
     // cursor-overloads
-    it.skip('Validate the overloads of IDBObjectStore.openCursor(), IDBIndex.openCursor() and IDBIndex.openKeyCursor()', function (done) {
+    it('Validate the overloads of IDBObjectStore.openCursor(), IDBIndex.openCursor() and IDBIndex.openKeyCursor()', function (done) {
         var db, trans, store, index;
 
         var request = createdb(done);

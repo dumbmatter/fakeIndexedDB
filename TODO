@@ -10,10 +10,6 @@ readonly properties need to actually be readonly
 Two IDBCursor.update tests skipped
 - what do I do about DataCloneError?
 
-FEATURES TO TRY NEXT
-- FDBIndex.openKeyCursor
-  - unskip IDBCursorBehavior test
-
 weird things happen if i listen for success but not upgradeneeded
 
 share some code between Index and ObjectStore, like getValue, confirmActiveTransaction
