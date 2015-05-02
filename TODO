@@ -7,6 +7,7 @@ transaction abort/rollback
 redo transaction lifetime
 - shouldn't need all these setImmediates. should instead execute the next item on the queue after the previous is done. if there is nothing on the queue, commit
 - need a transaction queue similar to the request queue
+  - store in Database.js?
   - allow only one readwrite/versionchange to run at a time, but if it's only readonly, can start multiple
   - this will require a distinction between an active transaction and a started transaction, which doesn't currently exist
   - see test in test/fakeIndexedDB.js
@@ -48,6 +49,8 @@ break events stuff into separate module, maybe fakeDOMEvents
 - readonly properties? hidden/non-enumerable properties?
 
 go through and fix all the left comments (todo stuff)
+
+reevaluate all uses of setImmedaite, setTimeout, nextTick
 
 _ properties should be hidden from standard functions
 - object.defineProperty enumerable?
