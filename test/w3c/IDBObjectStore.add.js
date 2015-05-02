@@ -431,4 +431,198 @@ describe('W3C IDBObjectStore.add Tests', function () {
             done();
         }
     });
+
+    // value
+    it('Values', function (done) {
+        var count = 0;
+
+        function value(value, _instanceof) {
+            assert(value instanceof _instanceof, "TEST ERROR, instanceof");
+
+            var open_rq = createdb(done)
+            open_rq.onupgradeneeded = function(e) {
+                e.target.result
+                        .createObjectStore("store")
+                        .add(value, 1);
+
+                e.target.onsuccess = function(e) {
+                    e.target.result
+                            .transaction("store")
+                            .objectStore("store")
+                            .get(1)
+                            .onsuccess = function(e)
+                    {
+                        assert(e.target.result instanceof _instanceof, "instanceof")
+
+                        count += 1;
+                        if (count >= 2) {
+                            done();
+                        }
+                    };
+                };
+            };
+            open_rq.onsuccess = function () {};
+        }
+
+        value(new Date(), Date);
+        value(new Array(), Array);
+    });
+
+    // value_recursive
+    it('Recursive value', function (done) {
+        var count = 0;
+
+        function recursive_value(desc, value) {
+            var db;
+
+            var open_rq = createdb(done);
+            open_rq.onupgradeneeded = function(e) {
+                db = e.target.result
+                db.createObjectStore("store")
+                  .add(value, 1);
+
+                e.target.onsuccess = function(e) {
+                    db.transaction('store')
+                      .objectStore('store')
+                      .get(1)
+                      .onsuccess = function(e)
+                    {
+
+                        try
+                        {
+                            var fresh_value = JSON.stringify(value);
+                        }
+                        catch (e)
+                        {
+                            if (e.name == 'TypeError')
+                            {
+                                try
+                                {
+                                    JSON.stringify(e.target.result);
+                                }
+                                catch (e)
+                                {
+                                    count += 1;
+                                    if (count >= 3) {
+                                        done();
+                                    }
+                                    return;
+                                }
+                            }
+                            else
+                                throw e;
+                        }
+                    };
+                };
+            };
+            open_rq.onsuccess = function () {};
+        }
+
+        var recursive = [];
+        recursive.push(recursive);
+        recursive_value('array directly contains self', recursive);
+
+        var recursive2 = [];
+        recursive2.push([recursive2]);
+        recursive_value('array indirectly contains self', recursive2);
+
+        var recursive3 = [recursive];
+        recursive_value('array member contains self', recursive3);
+    });
+
+    // writer-starvation
+    it('Writer starvation', function (done) {
+        var db, read_request_count = 0, read_success_count = 0;
+        var write_request_count = 0, write_success_count = 0;
+        var RQ_COUNT = 25;
+
+        var open_rq = createdb(done);
+        open_rq.onupgradeneeded = function(e) {
+            db = e.target.result;
+            db.createObjectStore("s")
+              .add("1", 1);
+        }
+
+        open_rq.onsuccess = function(e) {
+            var i = 0, continue_reading = true;
+
+            /* Pre-fill some read requests */
+            for (i = 0; i < RQ_COUNT; i++)
+            {
+                read_request_count++;
+
+                db.transaction("s")
+                  .objectStore("s")
+                  .get(1)
+                  .onsuccess = function(e) {
+                        read_success_count++;
+                        assert.equal(e.target.transaction.mode, "readonly");
+                    };
+            }
+
+            loop();
+
+            function loop() {
+                read_request_count++;
+
+                db.transaction("s")
+                  .objectStore("s")
+                  .get(1)
+                  .onsuccess = function(e)
+                {
+                    read_success_count++;
+                    assert.equal(e.target.transaction.mode, "readonly");
+
+                    if (read_success_count >= RQ_COUNT && write_request_count == 0)
+                    {
+                        write_request_count++;
+
+                        db.transaction("s", "readwrite")
+                          .objectStore("s")
+                          .add("written", read_request_count)
+                          .onsuccess = function(e)
+                        {
+                            write_success_count++;
+                            assert.equal(e.target.transaction.mode, "readwrite");
+                            assert.equal(e.target.result, read_success_count,
+                                           "write cb came before later read cb's")
+                        };
+
+                        /* Reads done after the write */
+                        for (i = 0; i < 5; i++)
+                        {
+                            read_request_count++;
+
+                            db.transaction("s")
+                              .objectStore("s")
+                              .get(1)
+                              .onsuccess = function(e)
+                            {
+                                read_success_count++;
+                            };
+                        }
+                    }
+                };
+
+                if (read_success_count < RQ_COUNT + 5)
+                    setTimeout(loop, write_request_count ? 1000 : 100);
+                else
+                    // This is merely a "nice" hack to run finish after the last request is done
+                    db.transaction("s")
+                      .objectStore("s")
+                      .count()
+                      .onsuccess = function()
+                    {
+                        setTimeout(finish, 100);
+                    };
+            }
+        }
+
+
+        function finish() {
+            assert.equal(read_request_count, read_success_count, "read counts");
+            assert.equal(write_request_count, write_success_count, "write counts");
+            done();
+        }
+    })
 });
