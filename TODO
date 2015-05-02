@@ -10,6 +10,10 @@ objectStoreNames and indexNames should be DOMStringLists
 readonly properties need to actually be readonly
 - done in FDBCursor, but messy if other classes need to update a value that is to be presented to the user as readonly, like FDBCursorWithValue.value
 
+use browserify to create bundle for browser
+- should somehow export fakeIndexedDB and FDB* classes to window
+- then could run on tests (w3c or other) if i rename all the appropriate variables first
+
 share some code between Index and ObjectStore, like getValue, confirmActiveTransaction
 - similar thing between open and deleteDatabase
 
