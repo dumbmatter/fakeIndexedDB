@@ -1,6 +1,15 @@
 transaction abort/rollback
 - also include key generator state somehow
 - objectStoreNames, indexNames
+- every time a mutation is performed, log an operation that would reverse it. then on abort, play those back in reverse.
+  - because of this, can't allow readonly transaction concurrent with readwrite!
+
+redo transaction lifetime
+- shouldn't need all these setImmediates. should instead execute the next item on the queue after the previous is done. if there is nothing on the queue, commit
+- need a transaction queue similar to the request queue
+  - allow only one readwrite/versionchange to run at a time, but if it's only readonly, can start multiple
+  - this will require a distinction between an active transaction and a started transaction, which doesn't currently exist
+  - see test in test/fakeIndexedDB.js
 
 objectStoreNames and indexNames should be DOMStringLists
 - see https://github.com/facebookarchive/IndexedDB-polyfill/blob/master/indexedDB.polyfill.js#L36
@@ -22,6 +31,7 @@ convert tests from web-platform-tests and delete as i go
   - comprehensive tests of aborted transaction rollback
   - (because of assert.throws I think) error propagation to transaction rejection
   - multiple transactions interacting, like readwrite blocking another but allowing readonly
+  - multiple transactions on the same object stores in multiple connections
   - IDBObjectStore.openCursor with various valid arguments
   - openKeyCursor actually being used to retrieve keys
   - IDBObjectStore.index returns the same or different IDBIndex depending on situation http://www.w3.org/TR/IndexedDB/#widl-IDBObjectStore-index-IDBIndex-DOMString-name
@@ -58,3 +68,5 @@ For .filter calls that are deleting items from arrays (such as ObjectStore.delet
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
 
 what if my backend data storage was async?
+
+run eslint on my tests
