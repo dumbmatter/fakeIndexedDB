@@ -68,5 +68,3 @@ For .filter calls that are deleting items from arrays (such as ObjectStore.delet
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
 
 what if my backend data storage was async?
-
-run eslint on my tests

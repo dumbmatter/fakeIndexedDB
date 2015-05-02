@@ -1,10 +1,12 @@
+'use strict';
+
 var assert = require('assert');
 var fakeIndexedDB = require('..');
 
 describe('fakeIndexedDB Tests', function () {
     it.skip('Transactions should be activated from queue based on mode', function (done) {
-        var open_rq = fakeIndexedDB.open('test' + Math.random());
-        open_rq.onupgradeneeded = function(e) {
+        var request = fakeIndexedDB.open('test' + Math.random());
+        request.onupgradeneeded = function(e) {
             var db = e.target.result;
             var store = db.createObjectStore('store', {keyPath: 'key'});
 
@@ -25,21 +27,21 @@ describe('fakeIndexedDB Tests', function () {
                 }
 
                 started.push(desc);
-console.log('start', desc);
+                console.log('start', desc);
 
                 tx.objectStore('store').get(2).onsuccess = function () {
                     tx.objectStore('store').get(3).onsuccess = function () {
                         tx.objectStore('store').get(4).onsuccess = function () {
                             tx.objectStore('store').get(5).onsuccess = function () {
                                 tx.objectStore('store').get(6);
-                            }
-                        }
-                    }
-                }
-            }
+                            };
+                        };
+                    };
+                };
+            };
             tx.oncomplete = function () {
                 completed.push(desc);
-console.log('done', desc);
+                console.log('done', desc);
 
                 if (completed.length >= 12) {
                     done();
@@ -47,7 +49,7 @@ console.log('done', desc);
             };
         }
 
-        open_rq.onsuccess = function (e) {
+        request.onsuccess = function (e) {
             var db = e.target.result;
 
             var i;
@@ -61,4 +63,4 @@ console.log('done', desc);
             }
         };
     });
-})
+});
