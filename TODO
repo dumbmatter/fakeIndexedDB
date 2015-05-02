@@ -1,22 +1,17 @@
+transaction abort/rollback
+- also include key generator state somehow
+- objectStoreNames, indexNames
+
 objectStoreNames and indexNames should be DOMStringLists
 - see https://github.com/facebookarchive/IndexedDB-polyfill/blob/master/indexedDB.polyfill.js#L36
 - http://www.w3.org/TR/DOM-Level-3-Core/core.html#DOMStringList
+- do real implementations really not support [] indexing?
 
 readonly properties need to actually be readonly
 - done in FDBCursor, but messy if other classes need to update a value that is to be presented to the user as readonly, like FDBCursorWithValue.value
 
-Two IDBCursor.update tests skipped
-- what do I do about DataCloneError?
-
-weird things happen if i listen for success but not upgradeneeded
-
 share some code between Index and ObjectStore, like getValue, confirmActiveTransaction
 - similar thing between open and deleteDatabase
-
-TRICKY THINGS TO FIGURE OUT (and test) ASAP:
-- transaction abort/rollback
-  - also include key generator state somehow
-  - objectStoreNames, indexNames
 
 convert tests from web-platform-tests and delete as i go
 - missing:
@@ -43,9 +38,14 @@ go through and fix all the left comments (todo stuff)
 _ properties should be hidden from standard functions
 - object.defineProperty enumerable?
 
+structured-clone is not accurate to spec
+- https://github.com/tcr/structured-clone/issues/3
+- Two IDBCursor.update tests skipped
+
 Other tests
 - https://chromium.googlesource.com/chromium/blink/+/72fef91ac1ef679207f51def8133b336a6f6588f/LayoutTests/storage/indexeddb
 - https://github.com/mozilla/gecko-dev/tree/master/dom/indexedDB/test
+- ideally run these in the browser (and w3c original ones too)
 
 Change comment links to http://www.w3.org/TR/2015/REC-IndexedDB-20150108/ which will be stable
 
