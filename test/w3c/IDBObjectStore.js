@@ -161,4 +161,44 @@ describe('W3C IDBObjectStore Tests', function () {
             [ "cc", "c", "aa", "a", "bb", "b", "ab", "", "ac" ],
             [ "", "a", "aa", "ab", "ac", "b", "bb", "c", "cc" ]);
     });
+
+    // objectstore_keyorder
+    it("Verify key sort order in an object store is 'number < Date < DOMString'", function (done) {
+        var db,
+          d = new Date(),
+          records = [ { key: d },
+                      { key: "test" },
+                      { key: 1 },
+                      { key: 2.55 }  ],
+          expectedKeyOrder = [ 1, 2.55, d.valueOf(), "test" ];
+
+        var open_rq = createdb(done);
+        open_rq.onupgradeneeded = function(e) {
+            db = e.target.result;
+            var objStore = db.createObjectStore("store", { keyPath: "key" });
+
+            for (var i = 0; i < records.length; i++)
+                objStore.add(records[i]);
+        };
+
+        open_rq.onsuccess = function(e) {
+            var actual_keys = [],
+              rq = db.transaction("store")
+                     .objectStore("store")
+                     .openCursor();
+
+            rq.onsuccess = function(e) {
+                var cursor = e.target.result;
+
+                if (cursor) {
+                    actual_keys.push(cursor.key.valueOf());
+                    cursor.continue();
+                }
+                else {
+                    assert.deepEqual(actual_keys, expectedKeyOrder);
+                    done();
+                }
+            };
+        };
+    });
 });
