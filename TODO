@@ -1,6 +1,13 @@
 transaction abort/rollback
-- also include key generator state somehow
-- objectStoreNames, indexNames
+- todo
+  - createIndex -> deleteIndex
+  - deleteIndex -> createIndex
+  - createObjectStore -> deleteObjectStore
+  - deleteObjectStore -> createObjectStore (AND ALL THE STATE OF IT!)
+  - add -> delete + restore key generator
+  - put -> delete + restore key generator (AND SOMEHOW RESTORE ORIGINAL DATA IF NECESSARY!)
+  - delete -> SOMEHOW RESTORE ORIGINAL DATA (skip key generator)
+  - versionchange -> http://www.w3.org/TR/IndexedDB/#dfn-steps-for-aborting-a-versionchange-transaction
 - every time a mutation is performed, log an operation that would reverse it. then on abort, play those back in reverse.
   - because of this, can't allow readonly transaction concurrent with readwrite!
 
