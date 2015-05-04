@@ -4,7 +4,7 @@ var assert = require('assert');
 var fakeIndexedDB = require('..');
 
 describe('fakeIndexedDB Tests', function () {
-    it.skip('Transactions should be activated from queue based on mode', function (done) {
+    it('Transactions should be activated from queue based on mode', function (done) {
         var request = fakeIndexedDB.open('test' + Math.random());
         request.onupgradeneeded = function(e) {
             var db = e.target.result;

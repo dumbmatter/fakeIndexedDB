@@ -7,6 +7,8 @@ transaction abort/rollback
 redo transaction lifetime
 - shouldn't need all these setImmediates. should instead execute the next item on the queue after the previous is done. if there is nothing on the queue, commit
 - need a transaction queue similar to the request queue
+  - can't be too similar, because db could be open for long time and we don't want continual setImmediates
+    - check if can start right when tx is created. if not, that means another tx must be running and it will check when it's over
   - store in Database.js?
   - allow only one readwrite/versionchange to run at a time, but if it's only readonly, can start multiple
   - this will require a distinction between an active transaction and a started transaction, which doesn't currently exist
