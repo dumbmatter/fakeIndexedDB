@@ -66,7 +66,7 @@ describe('fakeIndexedDB Tests', function () {
         });
     });
     describe('Transaction Rollback', function () {
-        it.skip('Normal rollback', function (done) {
+        it('Rollback add', function (done) {
             var request = fakeIndexedDB.open('test' + Math.random());
             request.onupgradeneeded = function(e) {
                 var db = e.target.result;
@@ -82,7 +82,10 @@ describe('fakeIndexedDB Tests', function () {
                 var tx = db.transaction('store', 'readwrite');
                 tx.objectStore('store').count().onsuccess = function (e) {
                     assert.equal(e.target.result, 10);
-                    tx.objectStore('store').add({content: 'SHOULD BE ROLLED BACK'}).onsuccess = function () {
+                    tx.objectStore('store').add({content: 'SHOULD BE ROLLED BACK'});
+
+                    tx.objectStore('store').get(11).onsuccess = function (e) {
+                        assert.equal(e.target.result.content, 'SHOULD BE ROLLED BACK');
                         tx.abort();
                     };
                 };
@@ -90,7 +93,7 @@ describe('fakeIndexedDB Tests', function () {
                 var tx2 = db.transaction('store', 'readwrite');
                 tx2.objectStore('store').count().onsuccess = function (e) {
                     assert.equal(e.target.result, 10);
-                    tx2.objectStore('store').add({content: 'SHOULD BE 11TH RECORD'});
+                    tx2.objectStore('store').add({content: 'SHOULD BE 11TH RECORD'}); // add would fail if SHOULD BE ROLLED BACK was still there
 
                     tx2.objectStore('store').count().onsuccess = function (e) {
                         assert.equal(e.target.result, 11);
