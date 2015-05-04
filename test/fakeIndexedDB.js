@@ -66,7 +66,7 @@ describe('fakeIndexedDB Tests', function () {
         });
     });
     describe('Transaction Rollback', function () {
-        it.only('Normal rollback', function (done) {
+        it.skip('Normal rollback', function (done) {
             var request = fakeIndexedDB.open('test' + Math.random());
             request.onupgradeneeded = function(e) {
                 var db = e.target.result;
