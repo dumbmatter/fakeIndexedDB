@@ -4,15 +4,9 @@ transaction abort/rollback
 - every time a mutation is performed, log an operation that would reverse it. then on abort, play those back in reverse.
   - because of this, can't allow readonly transaction concurrent with readwrite!
 
-redo transaction lifetime
-- shouldn't need all these setImmediates. should instead execute the next item on the queue after the previous is done. if there is nothing on the queue, commit
-- need a transaction queue similar to the request queue
-  - can't be too similar, because db could be open for long time and we don't want continual setImmediates
-    - check if can start right when tx is created. if not, that means another tx must be running and it will check when it's over
-  - store in Database.js?
-  - allow only one readwrite/versionchange to run at a time, but if it's only readonly, can start multiple
-  - this will require a distinction between an active transaction and a started transaction, which doesn't currently exist
-  - see test in test/fakeIndexedDB.js
+redo transaction/request lifetime
+- current implementations feel a bit hacky/ugly
+- multiple readonly transactions should be allowed to run at the same time (but not readwrite, they should be all alone)
 
 objectStoreNames and indexNames should be DOMStringLists
 - see https://github.com/facebookarchive/IndexedDB-polyfill/blob/master/indexedDB.polyfill.js#L36
