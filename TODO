@@ -14,8 +14,10 @@ transaction abort/rollback
     - DONE
   - FDBObjectStore.delete -> SOMEHOW RESTORE ORIGINAL DATA (skip key generator)
     - DONE
-  - FDBIndex.delete -> SOMEHOW RESTORE ORIGINAL DATA (skip key generator)
-  - FDBIndex.update -> SOMEHOW RESTORE ORIGINAL DATA (skip key generator)
+  - FDBCursor.delete -> SOMEHOW RESTORE ORIGINAL DATA (skip key generator)
+    - DONE
+  - FDBCursor.update -> SOMEHOW RESTORE ORIGINAL DATA (skip key generator)
+    - DONE
   - versionchange -> http://www.w3.org/TR/IndexedDB/#dfn-steps-for-aborting-a-versionchange-transaction
 - every time a mutation is performed, log an operation that would reverse it. then on abort, play those back in reverse.
   - because of this, can't allow readonly transaction concurrent with readwrite!
@@ -79,6 +81,9 @@ Other tests
 Change comment links to http://www.w3.org/TR/2015/REC-IndexedDB-20150108/ which will be stable
 
 For .filter calls that are deleting items from arrays (such as ObjectStore.deleteRecord) it might be faster to use splice as iterating over the array
+
+slice to add to middle of array is really slow http://jsperf.com/splicing-a-single-value/19
+- btree?
 
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
 

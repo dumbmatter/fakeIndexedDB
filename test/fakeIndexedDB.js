@@ -28,7 +28,7 @@ describe('fakeIndexedDB Tests', function () {
                     }
 
                     started.push(desc);
-                    console.log('start', desc);
+                    //console.log('start', desc);
 
                     tx.objectStore('store').get(2).onsuccess = function () {
                         tx.objectStore('store').get(3).onsuccess = function () {
@@ -42,7 +42,7 @@ describe('fakeIndexedDB Tests', function () {
                 };
                 tx.oncomplete = function () {
                     completed.push(desc);
-                    console.log('done', desc);
+                    //console.log('done', desc);
 
                     if (completed.length >= 12) {
                         done();
@@ -107,35 +107,6 @@ describe('fakeIndexedDB Tests', function () {
             };
         });
 
-        it('Rollback FDBObjectStore.put', function (done) {
-            var request = fakeIndexedDB.open('test' + Math.random());
-            request.onupgradeneeded = function(e) {
-                var db = e.target.result;
-                var store = db.createObjectStore('store', {autoIncrement: true});
-
-                for (var i = 0; i < 10; i++) {
-                    store.add({content: 'test' + (i + 1)});
-                }
-            };
-            request.onsuccess = function (e) {
-                var db = e.target.result;
-
-                var tx = db.transaction('store', 'readwrite');
-                tx.objectStore('store').put({content: 'SHOULD BE ROLLED BACK'}, 10);
-                tx.objectStore('store').get(10).onsuccess = function (e) {
-                    assert.equal(e.target.result.content, 'SHOULD BE ROLLED BACK');
-                    tx.abort();
-                };
-
-                var tx2 = db.transaction('store', 'readwrite');
-                tx2.objectStore('store').get(10).onsuccess = function (e) {
-                    assert.equal(e.target.result.content, 'test10');
-                };
-
-                tx2.oncomplete = function () { done(); };
-            };
-        });
-
         it('Rollback FDBObjectStore.clear', function (done) {
             var request = fakeIndexedDB.open('test' + Math.random());
             request.onupgradeneeded = function(e) {
@@ -190,6 +161,103 @@ describe('fakeIndexedDB Tests', function () {
                 var tx2 = db.transaction('store', 'readwrite');
                 tx2.objectStore('store').count().onsuccess = function (e) {
                     assert.equal(e.target.result, 10);
+                };
+
+                tx2.oncomplete = function () { done(); };
+            };
+        });
+
+        it('Rollback FDBObjectStore.put', function (done) {
+            var request = fakeIndexedDB.open('test' + Math.random());
+            request.onupgradeneeded = function(e) {
+                var db = e.target.result;
+                var store = db.createObjectStore('store', {autoIncrement: true});
+
+                for (var i = 0; i < 10; i++) {
+                    store.add({content: 'test' + (i + 1)});
+                }
+            };
+            request.onsuccess = function (e) {
+                var db = e.target.result;
+
+                var tx = db.transaction('store', 'readwrite');
+                tx.objectStore('store').put({content: 'SHOULD BE ROLLED BACK'}, 10);
+                tx.objectStore('store').get(10).onsuccess = function (e) {
+                    assert.equal(e.target.result.content, 'SHOULD BE ROLLED BACK');
+                    tx.abort();
+                };
+
+                var tx2 = db.transaction('store', 'readwrite');
+                tx2.objectStore('store').get(10).onsuccess = function (e) {
+                    assert.equal(e.target.result.content, 'test10');
+                };
+
+                tx2.oncomplete = function () { done(); };
+            };
+        });
+
+        it('Rollback FDBCursor.delete', function (done) {
+            var request = fakeIndexedDB.open('test' + Math.random());
+            request.onupgradeneeded = function(e) {
+                var db = e.target.result;
+                var store = db.createObjectStore('store', {autoIncrement: true});
+
+                for (var i = 0; i < 10; i++) {
+                    store.add({content: 'test' + (i + 1)});
+                }
+            };
+            request.onsuccess = function (e) {
+                var db = e.target.result;
+
+                var tx = db.transaction('store', 'readwrite');
+                tx.objectStore('store').openCursor(3).onsuccess = function (e) {
+                    var cursor = e.target.result;
+                    var obj = cursor.value;
+                    obj.content = 'SHOULD BE ROLLED BACK';
+                    cursor.delete();
+                    tx.objectStore('store').get(3).onsuccess = function (e) {
+                        assert.equal(e.target.result, undefined);
+                        tx.abort();
+                    };
+                };
+
+                var tx2 = db.transaction('store', 'readwrite');
+                tx2.objectStore('store').get(3).onsuccess = function (e) {
+                    assert.equal(e.target.result.content, 'test3');
+                };
+
+                tx2.oncomplete = function () { done(); };
+            };
+        });
+
+        it('Rollback FDBCursor.update', function (done) {
+            var request = fakeIndexedDB.open('test' + Math.random());
+            request.onupgradeneeded = function(e) {
+                var db = e.target.result;
+                var store = db.createObjectStore('store', {autoIncrement: true});
+
+                for (var i = 0; i < 10; i++) {
+                    store.add({content: 'test' + (i + 1)});
+                }
+            };
+            request.onsuccess = function (e) {
+                var db = e.target.result;
+
+                var tx = db.transaction('store', 'readwrite');
+                tx.objectStore('store').openCursor(3).onsuccess = function (e) {
+                    var cursor = e.target.result;
+                    var obj = cursor.value;
+                    obj.content = 'SHOULD BE ROLLED BACK';
+                    cursor.update(obj);
+                    tx.objectStore('store').get(3).onsuccess = function (e) {
+                        assert.equal(e.target.result.content, 'SHOULD BE ROLLED BACK');
+                        tx.abort();
+                    };
+                };
+
+                var tx2 = db.transaction('store', 'readwrite');
+                tx2.objectStore('store').get(3).onsuccess = function (e) {
+                    assert.equal(e.target.result.content, 'test3');
                 };
 
                 tx2.oncomplete = function () { done(); };
