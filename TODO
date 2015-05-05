@@ -8,7 +8,7 @@ transaction abort/rollback
   - FDBObjectStore.add -> delete + restore key generator
     - DONE
   - FDBObjectStore.put -> delete + restore key generator (AND SOMEHOW RESTORE ORIGINAL DATA IF NECESSARY!)
-    - would be better of the delete was automatically logged in ObjectStore.deleteRecord, rather than manually specified in "rollback" callback. that would require updating tx._rollbackLog from within functions like ObjectStore.deleteRecord, which would require passing a tx to them. feasible?
+    - would be better of the delete was automatically logged in ObjectStore.deleteRecord, rather than manually specified in "rollback" callback. that would require updating tx._rollbackLog from within functions like ObjectStore.deleteRecord, which would require passing rollbackLog to them (to push to)
   - FDBObjectStore.clear -> ???
   - FDBObjectStore.delete -> SOMEHOW RESTORE ORIGINAL DATA (skip key generator)
   - FDBIndex.delete -> SOMEHOW RESTORE ORIGINAL DATA (skip key generator)
