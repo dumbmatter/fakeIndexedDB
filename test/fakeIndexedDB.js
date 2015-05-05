@@ -66,7 +66,7 @@ describe('fakeIndexedDB Tests', function () {
         });
     });
     describe('Transaction Rollback', function () {
-        it('Rollback add', function (done) {
+        it('Rollback FDBObjectStore.add', function (done) {
             var request = fakeIndexedDB.open('test' + Math.random());
             request.onupgradeneeded = function(e) {
                 var db = e.target.result;
@@ -106,6 +106,96 @@ describe('fakeIndexedDB Tests', function () {
                 tx2.oncomplete = function () { done(); };
             };
         });
+
+        it('Rollback FDBObjectStore.put', function (done) {
+            var request = fakeIndexedDB.open('test' + Math.random());
+            request.onupgradeneeded = function(e) {
+                var db = e.target.result;
+                var store = db.createObjectStore('store', {autoIncrement: true});
+
+                for (var i = 0; i < 10; i++) {
+                    store.add({content: 'test' + (i + 1)});
+                }
+            };
+            request.onsuccess = function (e) {
+                var db = e.target.result;
+
+                var tx = db.transaction('store', 'readwrite');
+                tx.objectStore('store').put({content: 'SHOULD BE ROLLED BACK'}, 10);
+                tx.objectStore('store').get(10).onsuccess = function (e) {
+                    assert.equal(e.target.result.content, 'SHOULD BE ROLLED BACK');
+                    tx.abort();
+                };
+
+                var tx2 = db.transaction('store', 'readwrite');
+                tx2.objectStore('store').get(10).onsuccess = function (e) {
+                    assert.equal(e.target.result.content, 'test10');
+                };
+
+                tx2.oncomplete = function () { done(); };
+            };
+        });
+
+        it('Rollback FDBObjectStore.clear', function (done) {
+            var request = fakeIndexedDB.open('test' + Math.random());
+            request.onupgradeneeded = function(e) {
+                var db = e.target.result;
+                var store = db.createObjectStore('store', {autoIncrement: true});
+
+                for (var i = 0; i < 10; i++) {
+                    store.add({content: 'test' + (i + 1)});
+                }
+            };
+            request.onsuccess = function (e) {
+                var db = e.target.result;
+
+                var tx = db.transaction('store', 'readwrite');
+                tx.objectStore('store').clear().onsuccess = function () {
+                    tx.objectStore('store').count().onsuccess = function (e) {
+                        assert.equal(e.target.result, 0);
+                        tx.abort();
+                    };
+                };
+
+                var tx2 = db.transaction('store', 'readwrite');
+                tx2.objectStore('store').count().onsuccess = function (e) {
+                    assert.equal(e.target.result, 10);
+                };
+
+                tx2.oncomplete = function () { done(); };
+            };
+        });
+
+        it('Rollback FDBObjectStore.delete', function (done) {
+            var request = fakeIndexedDB.open('test' + Math.random());
+            request.onupgradeneeded = function(e) {
+                var db = e.target.result;
+                var store = db.createObjectStore('store', {autoIncrement: true});
+
+                for (var i = 0; i < 10; i++) {
+                    store.add({content: 'test' + (i + 1)});
+                }
+            };
+            request.onsuccess = function (e) {
+                var db = e.target.result;
+
+                var tx = db.transaction('store', 'readwrite');
+                tx.objectStore('store').delete(2).onsuccess = function () {
+                    tx.objectStore('store').count().onsuccess = function (e) {
+                        assert.equal(e.target.result, 9);
+                        tx.abort();
+                    };
+                };
+
+                var tx2 = db.transaction('store', 'readwrite');
+                tx2.objectStore('store').count().onsuccess = function (e) {
+                    assert.equal(e.target.result, 10);
+                };
+
+                tx2.oncomplete = function () { done(); };
+            };
+        });
+
         it.skip('Rollback of versionchange transaction', function () {
 
         });
