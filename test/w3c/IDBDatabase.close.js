@@ -69,7 +69,7 @@ describe('W3C IDBDatabase.close Tests', function () {
     });
 
     // close-in-upgradeneeded
-    it.skip('When db.close is called in upgradeneeded, the db is cleaned up on refresh', function (done) {
+    it('When db.close is called in upgradeneeded, the db is cleaned up on refresh', function (done) {
         var open_rq = createdb(done)
         var sawTransactionComplete = false
 

@@ -5,7 +5,7 @@ var createdb = support.createdb;
 
 describe('W3C IDBTransaction.abort Tests', function () {
     // abort-in-initial-upgradeneeded
-    it.skip('Test that an abort in the initial upgradeneeded sets version back to 0', function (done) {
+    it('Test that an abort in the initial upgradeneeded sets version back to 0', function (done) {
         var db, open_rq = createdb(done, undefined, 2);
 
         open_rq.onupgradeneeded = function(e) {

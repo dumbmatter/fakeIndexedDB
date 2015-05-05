@@ -175,7 +175,7 @@ describe('W3C Key Path Tests', function () {
                     done();
                 }
             };
-            open_rq.onsuccess = function () {};
+            open_rq.onerror = function () {}; // Because of db.close() in onupgradeneeded
         }
 
         invalid_keypath('j a');

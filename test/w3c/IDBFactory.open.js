@@ -207,7 +207,7 @@ describe('W3C IDBFactory.open Tests', function () {
     });
 
     // idbfactory_open10
-    it.skip('error in upgradeneeded resets db', function (done) {
+    it('error in upgradeneeded resets db', function (done) {
         var db, db2;
         var open_rq = createdb(done, undefined, 9);
 

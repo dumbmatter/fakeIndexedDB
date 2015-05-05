@@ -1,26 +1,4 @@
-transaction abort/rollback
-- todo
-  - FDBObjectStore.createIndex -> deleteIndex
-    - these and other functions should be driven at the core by ObjectStore.whatever, to allow easy reversibility without going through the FDB interface
-  - FDBObjectStore.deleteIndex -> createIndex
-  - FDBDatabase.createObjectStore -> deleteObjectStore
-  - FDBDatabase.deleteObjectStore -> createObjectStore (AND ALL THE STATE OF IT!)
-  - FDBObjectStore.add -> delete + restore key generator
-    - DONE
-  - FDBObjectStore.put -> delete + restore key generator (AND SOMEHOW RESTORE ORIGINAL DATA IF NECESSARY!)
-    - would be better of the delete was automatically logged in ObjectStore.deleteRecord, rather than manually specified in "rollback" callback. that would require updating tx._rollbackLog from within functions like ObjectStore.deleteRecord, which would require passing rollbackLog to them (to push to)
-    - DONE
-  - FDBObjectStore.clear -> many storeRecords
-    - DONE
-  - FDBObjectStore.delete -> SOMEHOW RESTORE ORIGINAL DATA (skip key generator)
-    - DONE
-  - FDBCursor.delete -> SOMEHOW RESTORE ORIGINAL DATA (skip key generator)
-    - DONE
-  - FDBCursor.update -> SOMEHOW RESTORE ORIGINAL DATA (skip key generator)
-    - DONE
-  - versionchange -> http://www.w3.org/TR/IndexedDB/#dfn-steps-for-aborting-a-versionchange-transaction
-- every time a mutation is performed, log an operation that would reverse it. then on abort, play those back in reverse.
-  - because of this, can't allow readonly transaction concurrent with readwrite!
+what about rollback to null version, how is that supposed to work? delete the whole thing?
 
 redo transaction/request lifetime
 - current implementations feel a bit hacky/ugly
@@ -84,7 +62,10 @@ For .filter calls that are deleting items from arrays (such as ObjectStore.delet
 
 slice to add to middle of array is really slow http://jsperf.com/splicing-a-single-value/19
 - btree?
+  - http://goneill.co.nz/btree.php
+  - https://github.com/santanubasu/BPlusJS
+  - http://www.conquex.com/b-tree-javascript-implementation/
 
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
 
-what if my backend data storage was async?
+what if my backend data storage was async? should make it easier to plug-and-play things besides JS objects

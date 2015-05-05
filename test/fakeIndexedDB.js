@@ -264,8 +264,71 @@ describe('fakeIndexedDB Tests', function () {
             };
         });
 
-        it.skip('Rollback of versionchange transaction', function () {
+        it('Rollback of versionchange transaction', function (done) {
+            var dbName = 'test' + Math.random();
+            var request = fakeIndexedDB.open(dbName);
+            request.onupgradeneeded = function(e) {
+                var db = e.target.result;
+                var store = db.createObjectStore('store', {autoIncrement: true});
+                store.createIndex('content', 'content');
 
+                for (var i = 0; i < 10; i++) {
+                    store.add({content: 'test' + (i + 1)});
+                }
+            };
+            request.onsuccess = function (e) {
+                var db = e.target.result;
+                db.close();
+
+                var request = fakeIndexedDB.open(dbName, 2);
+                request.onupgradeneeded = function(e) {
+                    var db = e.target.result;
+                    var store = e.target.transaction.objectStore('store');
+
+                    db.createObjectStore('store2', {autoIncrement: true});
+                    assert.equal(db.objectStoreNames.length, 2);
+
+
+                    store.createIndex('content2', 'content');
+                    assert.equal(store.indexNames.length, 2);
+
+                    store.add({content: 'SHOULD BE ROLLED BACK'});
+
+                    store.deleteIndex('content');
+                    assert.equal(store.indexNames.length, 1);
+
+                    db.deleteObjectStore('store');
+                    assert.equal(db.objectStoreNames.length, 1);
+
+                    request.transaction.abort();
+                };
+                request.onerror = function () {
+                    var request = fakeIndexedDB.open(dbName);
+                    request.onsuccess = function(e) {
+                        var db = e.target.result;
+                        assert.equal(db.version, 1);
+                        assert.equal(db.objectStoreNames.length, 1);
+
+                        var tx = db.transaction('store');
+                        var store = tx.objectStore('store');
+                        assert(!store._rawObjectStore.deleted);
+                        var index = store.index('content');
+                        assert(!index._rawIndex.deleted);
+
+                        store.count().onsuccess = function (e) {
+                            assert.equal(e.target.result, 10);
+                        };
+
+                        index.get('test2').onsuccess = function (e) {
+                            assert.deepEqual(e.target.result, {content: 'test2'});
+                        };
+
+                        assert.equal(store.indexNames.length, 1);
+
+                        tx.oncomplete = function () { done(); };
+                    };
+                };
+            };
         });
     });
 });
