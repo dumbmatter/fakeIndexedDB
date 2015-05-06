@@ -29,7 +29,7 @@
   "author": "Jeremy Scheff <jdscheff@gmail.com> (http://dumbmatter.com/)",
   "license": "Apache-2.0",
   "dependencies": {
-    "realistic-structured-clone": "0.0.1"
+    "realistic-structured-clone": "0.0.2"
   },
   "devDependencies": {
     "eslint": "^0.20.0",

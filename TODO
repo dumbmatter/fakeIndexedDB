@@ -12,19 +12,13 @@ convert tests from web-platform-tests and delete as i go
   - IDBObjectStore.openCursor with various valid arguments
   - openKeyCursor actually being used to retrieve keys
   - IDBObjectStore.index returns the same or different IDBIndex depending on situation http://www.w3.org/TR/IndexedDB/#widl-IDBObjectStore-index-IDBIndex-DOMString-name
-- to fix and contribute back
-  - idbfactory_open9 should use val in should_work
-  - idbdatabase_close first 'block event fired #' should be 'versionchange event fired #'
-  - idbdatabase_createObjectStore11 spelling in title
-  - idbobjectstore_openCursor should actually check count
-  - idbversionchangeevent - db.abort should be db.onabort
-  - idbcursor_advance_index, idbcursor_advance_objectstore - event should be e
-  - idbtransaction_abort - remove TODO comment
 
 Other tests
-- https://chromium.googlesource.com/chromium/blink/+/72fef91ac1ef679207f51def8133b336a6f6588f/LayoutTests/storage/indexeddb
-- https://github.com/mozilla/gecko-dev/tree/master/dom/indexedDB/test
 - ideally run these in the browser (and w3c original ones too)
+  - https://chromium.googlesource.com/chromium/blink/+/72fef91ac1ef679207f51def8133b336a6f6588f/LayoutTests/storage/indexeddb
+  - https://github.com/mozilla/gecko-dev/tree/master/dom/indexedDB/test
+- https://github.com/kristofdegrave/indexedDBmock
+  - somehow convert to mocha?
 
 redo transaction/request lifetime
 - current implementations feel a bit hacky/ugly
