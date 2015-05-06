@@ -1,6 +1,7 @@
 var assert = require('assert');
 var FDBCursor = require('../../lib/FDBCursor');
 var DataError = require('../../lib/errors/DataError');
+var DataCloneError = require('../../lib/errors/DataCloneError');
 var InvalidStateError = require('../../lib/errors/InvalidStateError');
 var ReadOnlyError = require('../../lib/errors/ReadOnlyError');
 var TransactionInactiveError = require('../../lib/errors/TransactionInactiveError');
@@ -157,7 +158,7 @@ describe('W3C IDBCursor.update Tests', function () {
         });
 
         // idbcursor_update_index5
-        it.skip('throw DataCloneError', function (done) {
+        it('throw DataCloneError', function (done) {
             var db,
                 records = [ { pKey: "primaryKey_0", iKey: "indexKey_0" },
                             { pKey: "primaryKey_1", iKey: "indexKey_1" } ];
@@ -184,7 +185,7 @@ describe('W3C IDBCursor.update Tests', function () {
                     assert(cursor instanceof FDBCursor);
 
                     var record = cursor.value;
-                    record.data = document;
+                    record.data = new Error();
                     assert.throws(function() {
                         cursor.update(record);
                     }, DataCloneError);
@@ -433,7 +434,7 @@ describe('W3C IDBCursor.update Tests', function () {
         });
 
         // idbcursor_update_objectstore6
-        it.skip('throw DataCloneError', function (done) {
+        it('throw DataCloneError', function (done) {
             var db,
                 records = [ { pKey: "primaryKey_0", iKey: "indexKey_0" },
                             { pKey: "primaryKey_1", iKey: "indexKey_1" } ];
@@ -458,7 +459,7 @@ describe('W3C IDBCursor.update Tests', function () {
                     assert(cursor instanceof FDBCursor);
 
                     var record = cursor.value;
-                    record.data = document;
+                    record.data = function () {};
                     assert.throws(function() {
                         cursor.update(record);
                     }, DataCloneError);

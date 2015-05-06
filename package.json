@@ -23,13 +23,13 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint index.js test lib",
-    "mocha": "mocha --harmony --recursive",
+    "mocha": "mocha --harmony --recursive --timeout 10000",
     "test": "npm run lint && npm run mocha"
   },
   "author": "Jeremy Scheff <jdscheff@gmail.com> (http://dumbmatter.com/)",
   "license": "Apache-2.0",
   "dependencies": {
-    "structured-clone": "^0.2.2"
+    "lodash.isplainobject": "^3.0.2"
   },
   "devDependencies": {
     "eslint": "^0.20.0",
