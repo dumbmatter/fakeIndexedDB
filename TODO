@@ -44,8 +44,6 @@ share some code between Index and ObjectStore, like getValue, confirmActiveTrans
 break events stuff into separate module, maybe fakeDOMEvents
 - readonly properties? hidden/non-enumerable properties?
 
-break structuredClone into separate module?
-
 go through and fix all the left comments (todo stuff)
 
 reevaluate all uses of setImmedaite, setTimeout, nextTick
@@ -69,4 +67,3 @@ what if my backend data storage was async? should make it easier to plug-and-pla
 findIndex (and similar) could be replaced by smarter searches, like binary search if we know the list is sorted
 - Given an array sorted in ascending order, find the lowest value of i where array[i] >= x
   - use this to replace findIndex in storeInIndex in Index.js
-    - does binary-search do this for me out of the box? how does it handle dupes?

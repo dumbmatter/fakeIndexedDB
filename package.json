@@ -10,7 +10,7 @@
   "bugs": {
     "url": "https://github.com/dumbmatter/fakeIndexedDB/issues"
   },
-  "keyword": [
+  "keywords": [
     "indexeddb",
     "datastore",
     "database",
@@ -29,7 +29,7 @@
   "author": "Jeremy Scheff <jdscheff@gmail.com> (http://dumbmatter.com/)",
   "license": "Apache-2.0",
   "dependencies": {
-    "lodash.isplainobject": "^3.0.2"
+    "realistic-structured-clone": "0.0.1"
   },
   "devDependencies": {
     "eslint": "^0.20.0",

@@ -1,14 +1,16 @@
 # Fake IndexedDB [![Build Status](https://travis-ci.org/dumbmatter/fakeIndexedDB.svg?branch=master)](https://travis-ci.org/dumbmatter/fakeIndexedDB)
 
-This is a pure JS in-memory implementation of the IndexedDB API. Current status is **very incomplete**, but hopefully that will change soon.
+This is a pure JS in-memory implementation of the IndexedDB API.
 
-I'm not sure if it'll be possible to get all the transaction auto-committing semantics correct, but we'll see.
+It passes [the W3C IndexedDB test suite](https://github.com/w3c/web-platform-tests/tree/master/IndexedDB) plus a few extra test (run `npm test` to see).
 
 ## Goals:
 
-1. Finish implementing everything (very much a work in progress - please help!)
+1. Finish implementing everything cleanly (there are still a few minor issues, see TODO).
 
-2. Run [the W3C IndexedDB test suite](https://github.com/w3c/web-platform-tests/tree/master/IndexedDB) on it (a fair amount of tests already pass if you run `npm test`), plus some extra tests just to be sure
+2. Run more tests, especially in-browser tests.
+
+3. Start working towards the potential applications listed below.
 
 ## Potential applications:
 
