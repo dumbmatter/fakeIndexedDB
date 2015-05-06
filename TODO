@@ -60,12 +60,16 @@ Change comment links to http://www.w3.org/TR/2015/REC-IndexedDB-20150108/ which 
 
 For .filter calls that are deleting items from arrays (such as ObjectStore.deleteRecord) it might be faster to use splice as iterating over the array
 
-slice to add to middle of array is really slow http://jsperf.com/splicing-a-single-value/19
-- btree?
-  - http://goneill.co.nz/btree.php
-  - https://github.com/santanubasu/BPlusJS
-  - http://www.conquex.com/b-tree-javascript-implementation/
+btree? slice to add to middle of array is slow http://jsperf.com/splicing-a-single-value/19
+- probably best: http://goneill.co.nz/btree.php
+- https://github.com/santanubasu/BPlusJS
+- http://www.conquex.com/b-tree-javascript-implementation/
 
 default error messages http://www.w3.org/TR/IndexedDB/#dfn-transactioninactiveerror
 
 what if my backend data storage was async? should make it easier to plug-and-play things besides JS objects
+
+findIndex (and similar) could be replaced by smarter searches, like binary search if we know the list is sorted
+- Given an array sorted in ascending order, find the lowest value of i where array[i] >= x
+  - use this to replace findIndex in storeInIndex in Index.js
+    - does binary-search do this for me out of the box? how does it handle dupes?

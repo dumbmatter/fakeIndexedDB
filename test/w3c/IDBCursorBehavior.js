@@ -315,9 +315,7 @@ describe('W3C IDBCursor Behavior Tests', function () {
 
     describe('iterating', function () {
         // idbcursor_iterating
-        it.skip('objectstore - delete next element, and iterate to it', function (done) {
-            this.timeout(10000);
-
+        it('objectstore - delete next element, and iterate to it', function (done) {
             var db,
               count = 0;
 
