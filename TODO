@@ -19,6 +19,7 @@ Other tests
   - https://github.com/mozilla/gecko-dev/tree/master/dom/indexedDB/test
 - https://github.com/kristofdegrave/indexedDBmock
   - somehow convert to mocha?
+    - https://www.npmjs.com/package/mocha-qunit-ui and rename variables - might work
 
 redo transaction/request lifetime
 - current implementations feel a bit hacky/ugly
