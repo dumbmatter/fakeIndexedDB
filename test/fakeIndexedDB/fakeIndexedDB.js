@@ -1,7 +1,7 @@
 'use strict';
 
 var assert = require('assert');
-var fakeIndexedDB = require('..');
+var fakeIndexedDB = require('../..');
 
 describe('fakeIndexedDB Tests', function () {
     describe('Transaction Lifetime', function () {
