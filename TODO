@@ -1,7 +1,9 @@
 use browserify to create bundle for browser
 - should somehow export fakeIndexedDB and FDB* classes to window
 - then could run on tests (w3c or other) if i rename all the appropriate variables first
-- try BBGM
+
+try BBGM
+- works when i get rid of the this._active=false after request.dispatchEvent inside FDBTransaction._start. WHY?
 
 convert tests from web-platform-tests and delete as i go
 - missing:
