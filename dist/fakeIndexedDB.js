@@ -2487,7 +2487,7 @@ module.exports = function (input) {
         throw new DataCloneError();
     }
 };
-},{"./errors/DataCloneError":22,"realistic-structured-clone":45}],32:[function(require,module,exports){
+},{"./errors/DataCloneError":22,"realistic-structured-clone":46}],32:[function(require,module,exports){
 'use strict';
 
 var DataError = require('./errors/DataError');
@@ -6940,6 +6940,26 @@ function escapeRegExp(string) {
 module.exports = isArray;
 
 },{}],45:[function(require,module,exports){
+if (typeof Function.prototype.bind != 'function') {
+    Function.prototype.bind = function bind(obj) {
+        var args = Array.prototype.slice.call(arguments, 1),
+            self = this,
+            nop = function() {
+            },
+            bound = function() {
+                return self.apply(
+                    this instanceof nop ? this : (obj || {}), args.concat(
+                        Array.prototype.slice.call(arguments)
+                    )
+                );
+            };
+        nop.prototype = this.prototype || {};
+        bound.prototype = new nop();
+        return bound;
+    };
+}
+
+},{}],46:[function(require,module,exports){
 'use strict';
 
 var util = require('util');
@@ -7018,7 +7038,7 @@ function structuredClone(input, memory) {
 }
 
 module.exports = structuredClone;
-},{"lodash.isplainobject":39,"util":37}],46:[function(require,module,exports){
+},{"lodash.isplainobject":39,"util":37}],47:[function(require,module,exports){
 (function (process){
 (function (global, undefined) {
     "use strict";
@@ -7197,11 +7217,12 @@ module.exports = structuredClone;
 }(new Function("return this")()));
 
 }).call(this,require('_process'))
-},{"_process":35}],47:[function(require,module,exports){
+},{"_process":35}],48:[function(require,module,exports){
 'use strict';
 
-require("setimmediate");
-require("es6-shim");
+require('phantomjs-polyfill')
+require('setimmediate');
+require('es6-shim');
 
 window.fakeIndexedDB = require('.');
 window.FDBCursor = require('./lib/FDBCursor');
@@ -7215,4 +7236,4 @@ window.FDBOpenDBRequest = require('./lib/FDBOpenDBRequest');
 window.FDBRequest = require('./lib/FDBRequest');
 window.FDBTransaction = require('./lib/FDBTransaction');
 window.FDBVersionChangeEvent = require('./lib/FDBVersionChangeEvent');
-},{".":1,"./lib/FDBCursor":5,"./lib/FDBCursorWithValue":6,"./lib/FDBDatabase":7,"./lib/FDBFactory":8,"./lib/FDBIndex":9,"./lib/FDBKeyRange":10,"./lib/FDBObjectStore":11,"./lib/FDBOpenDBRequest":12,"./lib/FDBRequest":13,"./lib/FDBTransaction":14,"./lib/FDBVersionChangeEvent":15,"es6-shim":38,"setimmediate":46}]},{},[47]);
+},{".":1,"./lib/FDBCursor":5,"./lib/FDBCursorWithValue":6,"./lib/FDBDatabase":7,"./lib/FDBFactory":8,"./lib/FDBIndex":9,"./lib/FDBKeyRange":10,"./lib/FDBObjectStore":11,"./lib/FDBOpenDBRequest":12,"./lib/FDBRequest":13,"./lib/FDBTransaction":14,"./lib/FDBVersionChangeEvent":15,"es6-shim":38,"phantomjs-polyfill":45,"setimmediate":47}]},{},[48]);

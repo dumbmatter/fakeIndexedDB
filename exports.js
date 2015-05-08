@@ -1,7 +1,8 @@
 'use strict';
 
-require("setimmediate");
-require("es6-shim");
+require('phantomjs-polyfill')
+require('setimmediate');
+require('es6-shim');
 
 window.fakeIndexedDB = require('.');
 window.FDBCursor = require('./lib/FDBCursor');
