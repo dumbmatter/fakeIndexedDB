@@ -23,7 +23,7 @@
   "main": "index.js",
   "scripts": {
     "build": "browserify exports.js -o dist/fakeIndexedDB.js",
-    "lint": "eslint index.js test lib",
+    "lint": "eslint exports.js index.js test lib",
     "mocha": "mocha --harmony --timeout 5000 test/w3c test/fakeIndexedDB",
     "qunit": "node-qunit-phantomjs ./test/indexedDBmock/index.html",
     "test": "npm run lint && npm run mocha && npm run qunit"

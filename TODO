@@ -17,8 +17,6 @@ Other tests
 - ideally run these in the browser (and w3c original ones too)
   - https://chromium.googlesource.com/chromium/blink/+/72fef91ac1ef679207f51def8133b336a6f6588f/LayoutTests/storage/indexeddb
   - https://github.com/mozilla/gecko-dev/tree/master/dom/indexedDB/test
-- https://github.com/kristofdegrave/indexedDBmock
-  - these work in browser, but what about from command line? runs through grunt in that project
 
 redo transaction/request lifetime
 - current implementations feel a bit hacky/ugly

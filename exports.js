@@ -1,6 +1,8 @@
+/*eslint-env node, browser */
+
 'use strict';
 
-require('phantomjs-polyfill')
+require('phantomjs-polyfill');
 require('setimmediate');
 require('es6-shim');
 
