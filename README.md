@@ -1,12 +1,12 @@
 # Fake IndexedDB [![Build Status](https://travis-ci.org/dumbmatter/fakeIndexedDB.svg?branch=master)](https://travis-ci.org/dumbmatter/fakeIndexedDB)
 
-This is a pure JS in-memory implementation of [http://www.w3.org/TR/2015/REC-IndexedDB-20150108/](the IndexedDB API).
+This is a pure JS in-memory implementation of [the IndexedDB API](http://www.w3.org/TR/2015/REC-IndexedDB-20150108/).
 
 It passes [the W3C IndexedDB test suite](https://github.com/w3c/web-platform-tests/tree/master/IndexedDB) (a feat that all browsers except Chrome fail) plus a couple hundred more tests just to be sure. It also works well enough to run [fairly complex IndexedDB-based software](https://github.com/dumbmatter/basketball-gm/tree/fakeIndexedDB).
 
 ## Installation
 
-For use with CommonJS (Node.js/io.js/Browserify), install through npm:
+For use with CommonJS (Node.js/io.js/Browserify), [install through npm](https://www.npmjs.com/package/fakeIndexedDB):
 
     $ npm install fakeIndexedDB
 
@@ -55,9 +55,9 @@ Example usage:
         };
     };
 
-Variable names of all the objects are like IndexedDB ones except with F replacing I, e.g. `FDBIndex` instead of `IDBIndex`.
+Variable names of all the objects are like the normal IndexedDB ones except with F replacing I, e.g. `FDBIndex` instead of `IDBIndex`.
 
-If you're using the bundled version (not installed through npm), then all of the variables have been created and attached to `window`, like `window.fakeIndexedDB`, `window.FDBKeyRange`, etc.
+If you're using the bundled version (not installed through npm), then all of the variables are created and attached to `window`, like `window.fakeIndexedDB`, `window.FDBKeyRange`, etc.
 
 ## Potential applications:
 
