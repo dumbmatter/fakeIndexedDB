@@ -2,15 +2,62 @@
 
 This is a pure JS in-memory implementation of [http://www.w3.org/TR/2015/REC-IndexedDB-20150108/](the IndexedDB API).
 
-It passes [the W3C IndexedDB test suite](https://github.com/w3c/web-platform-tests/tree/master/IndexedDB) plus a few extra (run `npm test` to see).
+It passes [the W3C IndexedDB test suite](https://github.com/w3c/web-platform-tests/tree/master/IndexedDB) (a feat that all browsers except Chrome fail) plus a couple hundred more tests just to be sure. It also works well enough to run [fairly complex IndexedDB-based software](https://github.com/dumbmatter/basketball-gm/tree/fakeIndexedDB).
 
-## Goals:
+## Installation
 
-1. Finish implementing everything cleanly (there are still a few minor issues, see TODO).
+For use with CommonJS (Node.js/io.js/Browserify), install through npm:
 
-2. Run more tests, especially in-browser tests.
+    $ npm install fakeIndexedDB
 
-3. Start working towards the potential applications listed below.
+Otherwise, download [the bundled version](dist/fakeIndexedDB.js) and include it in your page like:
+
+    <script type="text/javascript" src="fakeIndexedDB.js"></script>
+
+If you're using AMD, you'll have to shim it.
+
+## Use
+
+Functionally, it works exactly like IndexedDB except data is not persisted to disk.
+
+Example usage:
+
+    var fakeIndexedDB = require('fakeIndexedDB');
+    var FDBKeyRange = require('fakeIndexedDB/lib/FDBKeyRange');
+
+    var request = fakeIndexedDB.open('test', 3);
+    request.onupgradeneeded = function () {
+        var db = request.result;
+        var store = db.createObjectStore("books", {keyPath: "isbn"});
+        store.createIndex("by_title", "title", {unique: true});
+
+        store.put({title: "Quarry Memories", author: "Fred", isbn: 123456});
+        store.put({title: "Water Buffaloes", author: "Fred", isbn: 234567});
+        store.put({title: "Bedrock Nights", author: "Barney", isbn: 345678});
+    }
+    request.onsuccess = function (event) {
+        var db = event.target.result;
+
+        var tx = db.transaction("books");
+
+        tx.objectStore("books").index("by_title").get("Quarry Memories").addEventListener('success', function (event) {
+            console.log('From index:', event.target.result);
+        });
+        tx.objectStore("books").openCursor(FDBKeyRange.lowerBound(200000)).onsuccess = function (event) {
+            var cursor = event.target.result;
+            if (cursor) {
+                console.log('From cursor:', cursor.value);
+                cursor.continue();
+            }
+        };
+        tx.oncomplete = function () {
+            console.log('All done!');
+        };
+    };
+
+Variable names of all the objects are like IndexedDB ones except with F replacing I, e.g. `FDBIndex` instead of `IDBIndex`.
+
+If you're using the bundled version (not installed through npm), then all of the variables have been created and attached to `window`, like `window.fakeIndexedDB`, `window.FDBKeyRange`, etc.
 
 ## Potential applications:
 
