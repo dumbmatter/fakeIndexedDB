@@ -22,8 +22,8 @@ Functionally, it works exactly like IndexedDB except data is not persisted to di
 
 Example usage:
 
-    var fakeIndexedDB = require('fakeIndexedDB');
-    var FDBKeyRange = require('fakeIndexedDB/lib/FDBKeyRange');
+    var fakeIndexedDB = require('fake-indexeddb');
+    var FDBKeyRange = require('fake-indexeddb/lib/FDBKeyRange');
 
     var request = fakeIndexedDB.open('test', 3);
     request.onupgradeneeded = function () {
