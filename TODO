@@ -1,8 +1,6 @@
-Change comment links to http://www.w3.org/TR/2015/REC-IndexedDB-20150108/ which will be stable
-
 README explain node/browser usage
 
-test that IDBObjectStore.index returns the same or different IDBIndex depending on situation http://www.w3.org/TR/IndexedDB/#widl-IDBObjectStore-index-IDBIndex-DOMString-name
+test that IDBObjectStore.index returns the same or different IDBIndex depending on situation http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBObjectStore-index-IDBIndex-DOMString-name
 
 Other tests
 - ideally run these in the browser (and w3c original ones too)

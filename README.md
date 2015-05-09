@@ -1,6 +1,6 @@
 # Fake IndexedDB [![Build Status](https://travis-ci.org/dumbmatter/fakeIndexedDB.svg?branch=master)](https://travis-ci.org/dumbmatter/fakeIndexedDB)
 
-This is a pure JS in-memory implementation of the IndexedDB API.
+This is a pure JS in-memory implementation of [http://www.w3.org/TR/2015/REC-IndexedDB-20150108/](the IndexedDB API).
 
 It passes [the W3C IndexedDB test suite](https://github.com/w3c/web-platform-tests/tree/master/IndexedDB) plus a few extra (run `npm test` to see).
 
