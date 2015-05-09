@@ -1768,7 +1768,9 @@ function FDBTransaction(storeNames, mode) {
                 try {
                     event._eventPath = [this.db, this];
                     request.dispatchEvent(event);
-                    this._active = false;
+
+                    // You're supposed to set this._active to false here, but I'm skipping that. Why? Because scheduling gets tricky when promises are involved. I know that promises and IndexedDB transactions in general are tricky https://lists.w3.org/Archives/Public/public-webapps/2015AprJun/0126.html but for some reason I still tend to do it. So this line is commented out for me, and for any other masochists who do similar things. It doesn't seem to break any tests or functionality, and in fact if I uncomment this line it does make transaction/promise interactions wonky.
+                    //this._active = false;
                 } catch (err) {
 //console.error(err);
                     this._abort('AbortError');
@@ -2487,7 +2489,7 @@ module.exports = function (input) {
         throw new DataCloneError();
     }
 };
-},{"./errors/DataCloneError":22,"realistic-structured-clone":46}],32:[function(require,module,exports){
+},{"./errors/DataCloneError":22,"realistic-structured-clone":40}],32:[function(require,module,exports){
 'use strict';
 
 var DataError = require('./errors/DataError');
@@ -6164,6 +6166,105 @@ function hasOwnProperty(obj, prop) {
 
 }).call(this,require('_process'))
 },{"_process":35}],39:[function(require,module,exports){
+if (typeof Function.prototype.bind != 'function') {
+    Function.prototype.bind = function bind(obj) {
+        var args = Array.prototype.slice.call(arguments, 1),
+            self = this,
+            nop = function() {
+            },
+            bound = function() {
+                return self.apply(
+                    this instanceof nop ? this : (obj || {}), args.concat(
+                        Array.prototype.slice.call(arguments)
+                    )
+                );
+            };
+        nop.prototype = this.prototype || {};
+        bound.prototype = new nop();
+        return bound;
+    };
+}
+
+},{}],40:[function(require,module,exports){
+'use strict';
+
+var util = require('util');
+var isPlainObject = require('lodash.isplainobject');
+
+function DataCloneError(message) {
+    this.name = this.constructor.name;
+    this.message = message;
+    if (Error.captureStackTrace) {
+        Error.captureStackTrace(this, DataCloneError);
+    }
+}
+util.inherits(DataCloneError, Error);
+
+// http://www.w3.org/TR/html5/infrastructure.html#internal-structured-cloning-algorithm
+function structuredClone(input, memory) {
+    memory = memory !== undefined ? memory : [];
+
+    for (var i = 0; i < memory.length; i++) {
+        if (memory[i].source === input) {
+            return memory[i].destination;
+        }
+    }
+
+    var type = typeof input;
+    var output;
+
+    if (type === 'string' || type === 'number' || type === 'boolean' || type === 'undefined' || input === null) {
+        return input;
+    }
+
+    var deepClone = 'none';
+
+    if (input instanceof Boolean || input instanceof Number || input instanceof String || input instanceof Date) {
+        output = new input.constructor(input.valueOf());
+    } else if (input instanceof RegExp) {
+        output = new RegExp(input.source, "g".substr(0, Number(input.global)) + "i".substr(0, Number(input.ignoreCase)) + "m".substr(0, Number(input.multiline)));
+
+        // Supposed to also handle Blob, FileList, ImageData, ImageBitmap, ArrayBuffer, and "object with a [[DataView]] internal slot", but fuck it
+    } else if (Array.isArray(input)) {
+        output = new Array(input.length);
+        deepClone = 'own';
+    } else if (isPlainObject(input)) {
+        output = {};
+        deepClone = 'own';
+    } else if (input instanceof Map) {
+        output = new Map();
+        deepClone = 'map';
+    } else if (input instanceof Set) {
+        output = new Set();
+        deepClone = 'set';
+    } else {
+        throw new DataCloneError();
+    }
+
+    memory.push({
+        source: input,
+        destination: output
+    });
+
+    if (deepClone === 'map') {
+        throw new DataCloneError('Map support not implemented yet');
+    } else if (deepClone === 'set') {
+        throw new DataCloneError('Set support not implemented yet');
+    } else if (deepClone === 'own') {
+        for (var name in input) {
+            if (input.hasOwnProperty(name)) {
+                var sourceValue = input[name];
+                var clonedValue = structuredClone(sourceValue, memory);
+                output[name] = clonedValue;
+            }
+        }
+    }
+
+    return output;
+}
+
+module.exports = structuredClone;
+},{"lodash.isplainobject":41,"util":37}],41:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -6293,7 +6394,7 @@ var isPlainObject = !getPrototypeOf ? shimIsPlainObject : function(value) {
 
 module.exports = isPlainObject;
 
-},{"lodash._basefor":40,"lodash.isnative":41,"lodash.keysin":42}],40:[function(require,module,exports){
+},{"lodash._basefor":42,"lodash.isnative":43,"lodash.keysin":44}],42:[function(require,module,exports){
 /**
  * lodash 3.0.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -6381,7 +6482,7 @@ function isObject(value) {
 
 module.exports = baseFor;
 
-},{}],41:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -6498,7 +6599,7 @@ function escapeRegExp(string) {
 
 module.exports = isNative;
 
-},{}],42:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 /**
  * lodash 3.0.6 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -6669,7 +6770,7 @@ function keysIn(object) {
 
 module.exports = keysIn;
 
-},{"lodash.isarguments":43,"lodash.isarray":44}],43:[function(require,module,exports){
+},{"lodash.isarguments":45,"lodash.isarray":46}],45:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -6779,7 +6880,7 @@ function isArguments(value) {
 
 module.exports = isArguments;
 
-},{}],44:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -6939,106 +7040,7 @@ function escapeRegExp(string) {
 
 module.exports = isArray;
 
-},{}],45:[function(require,module,exports){
-if (typeof Function.prototype.bind != 'function') {
-    Function.prototype.bind = function bind(obj) {
-        var args = Array.prototype.slice.call(arguments, 1),
-            self = this,
-            nop = function() {
-            },
-            bound = function() {
-                return self.apply(
-                    this instanceof nop ? this : (obj || {}), args.concat(
-                        Array.prototype.slice.call(arguments)
-                    )
-                );
-            };
-        nop.prototype = this.prototype || {};
-        bound.prototype = new nop();
-        return bound;
-    };
-}
-
-},{}],46:[function(require,module,exports){
-'use strict';
-
-var util = require('util');
-var isPlainObject = require('lodash.isplainobject');
-
-function DataCloneError(message) {
-    this.name = this.constructor.name;
-    this.message = message;
-    if (Error.captureStackTrace) {
-        Error.captureStackTrace(this, DataCloneError);
-    }
-}
-util.inherits(DataCloneError, Error);
-
-// http://www.w3.org/TR/html5/infrastructure.html#internal-structured-cloning-algorithm
-function structuredClone(input, memory) {
-    memory = memory !== undefined ? memory : [];
-
-    for (var i = 0; i < memory.length; i++) {
-        if (memory[i].source === input) {
-            return memory[i].destination;
-        }
-    }
-
-    var type = typeof input;
-    var output;
-
-    if (type === 'string' || type === 'number' || type === 'boolean' || type === 'undefined' || input === null) {
-        return input;
-    }
-
-    var deepClone = 'none';
-
-    if (input instanceof Boolean || input instanceof Number || input instanceof String || input instanceof Date) {
-        output = new input.constructor(input.valueOf());
-    } else if (input instanceof RegExp) {
-        output = new RegExp(input.source, "g".substr(0, Number(input.global)) + "i".substr(0, Number(input.ignoreCase)) + "m".substr(0, Number(input.multiline)));
-
-        // Supposed to also handle Blob, FileList, ImageData, ImageBitmap, ArrayBuffer, and "object with a [[DataView]] internal slot", but fuck it
-    } else if (Array.isArray(input)) {
-        output = new Array(input.length);
-        deepClone = 'own';
-    } else if (isPlainObject(input)) {
-        output = {};
-        deepClone = 'own';
-    } else if (input instanceof Map) {
-        output = new Map();
-        deepClone = 'map';
-    } else if (input instanceof Set) {
-        output = new Set();
-        deepClone = 'set';
-    } else {
-        throw new DataCloneError();
-    }
-
-    memory.push({
-        source: input,
-        destination: output
-    });
-
-    if (deepClone === 'map') {
-        throw new DataCloneError('Map support not implemented yet');
-    } else if (deepClone === 'set') {
-        throw new DataCloneError('Set support not implemented yet');
-    } else if (deepClone === 'own') {
-        for (var name in input) {
-            if (input.hasOwnProperty(name)) {
-                var sourceValue = input[name];
-                var clonedValue = structuredClone(sourceValue, memory);
-                output[name] = clonedValue;
-            }
-        }
-    }
-
-    return output;
-}
-
-module.exports = structuredClone;
-},{"lodash.isplainobject":39,"util":37}],47:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 (function (process){
 (function (global, undefined) {
     "use strict";
@@ -7218,9 +7220,11 @@ module.exports = structuredClone;
 
 }).call(this,require('_process'))
 },{"_process":35}],48:[function(require,module,exports){
+/*eslint-env node, browser */
+
 'use strict';
 
-require('phantomjs-polyfill')
+require('phantomjs-polyfill');
 require('setimmediate');
 require('es6-shim');
 
@@ -7236,4 +7240,4 @@ window.FDBOpenDBRequest = require('./lib/FDBOpenDBRequest');
 window.FDBRequest = require('./lib/FDBRequest');
 window.FDBTransaction = require('./lib/FDBTransaction');
 window.FDBVersionChangeEvent = require('./lib/FDBVersionChangeEvent');
-},{".":1,"./lib/FDBCursor":5,"./lib/FDBCursorWithValue":6,"./lib/FDBDatabase":7,"./lib/FDBFactory":8,"./lib/FDBIndex":9,"./lib/FDBKeyRange":10,"./lib/FDBObjectStore":11,"./lib/FDBOpenDBRequest":12,"./lib/FDBRequest":13,"./lib/FDBTransaction":14,"./lib/FDBVersionChangeEvent":15,"es6-shim":38,"phantomjs-polyfill":45,"setimmediate":47}]},{},[48]);
+},{".":1,"./lib/FDBCursor":5,"./lib/FDBCursorWithValue":6,"./lib/FDBDatabase":7,"./lib/FDBFactory":8,"./lib/FDBIndex":9,"./lib/FDBKeyRange":10,"./lib/FDBObjectStore":11,"./lib/FDBOpenDBRequest":12,"./lib/FDBRequest":13,"./lib/FDBTransaction":14,"./lib/FDBVersionChangeEvent":15,"es6-shim":38,"phantomjs-polyfill":39,"setimmediate":47}]},{},[48]);
