@@ -6,9 +6,9 @@ It passes [the W3C IndexedDB test suite](https://github.com/w3c/web-platform-tes
 
 ## Installation
 
-For use with CommonJS (Node.js/io.js/Browserify), [install through npm](https://www.npmjs.com/package/fakeIndexedDB):
+For use with CommonJS (Node.js/io.js/Browserify), [install through npm](https://www.npmjs.com/package/fake-indexeddb):
 
-    $ npm install fakeIndexedDB
+    $ npm install fake-indexeddb
 
 Otherwise, download [the bundled version](dist/fakeIndexedDB.js) and include it in your page like:
 
