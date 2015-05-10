@@ -4,7 +4,8 @@
 
 require('phantomjs-polyfill');
 require('setimmediate');
-require('es6-shim');
+require('array.prototype.find');
+require('array.prototype.findindex');
 
 window.fakeIndexedDB = require('.');
 window.FDBCursor = require('./lib/FDBCursor');
