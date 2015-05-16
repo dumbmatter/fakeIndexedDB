@@ -5,9 +5,7 @@ Other tests
   - https://chromium.googlesource.com/chromium/blink/+/72fef91ac1ef679207f51def8133b336a6f6588f/LayoutTests/storage/indexeddb
   - https://github.com/mozilla/gecko-dev/tree/master/dom/indexedDB/test
 
-redo transaction/request lifetime
-- current implementations feel a bit hacky/ugly
-- multiple readonly transactions should be allowed to run at the same time (but not readwrite, they should be all alone)
+multiple readonly transactions should be allowed to run at the same time (but not readwrite, they should be all alone)
 
 objectStoreNames and indexNames should be DOMStringLists
 - see https://github.com/facebookarchive/IndexedDB-polyfill/blob/master/indexedDB.polyfill.js#L36
