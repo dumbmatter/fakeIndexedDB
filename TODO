@@ -1,5 +1,9 @@
 adapters
-- _rawObjectStore.recordStore usage of adapter is suboptimal in FDBCursor, FDBObjectStore
+- JsArray
+  - move Index over too
+  - _rawObjectStore.recordStore usage of adapter is suboptimal in FDBCursor, FDBObjectStore
+  - reassess how anything involving keys and ranges is done, so it'll be general enough for other adapters
+- BTree
 
 test that IDBObjectStore.index returns the same or different IDBIndex depending on situation http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBObjectStore-index-IDBIndex-DOMString-name
 
