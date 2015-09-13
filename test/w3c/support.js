@@ -20,7 +20,13 @@ function createdb_for_multiple_tests(dbname, version) {
     function auto_fail(evt) {
         /* Fail handlers, if we haven't set on/whatever/, don't
          * expect to get event whatever. */
-        rq_open['on' + evt] = function () { done(new Error('Unexpected ' + evt + ' event')) };
+        rq_open['on' + evt] = function (e) {
+            if (e.target.error) {
+                done(e.target.error);
+            } else {
+                done(new Error('Unexpected ' + evt + ' event'))
+            }
+        };
     }
 
     // add a .setTest method to the DB object
