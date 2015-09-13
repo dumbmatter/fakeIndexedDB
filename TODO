@@ -2,8 +2,10 @@ adapters
 - JsArray
   - _rawObjectStore.recordStore and _rawIndex.recordStore usage of adapter is suboptimal in FDBCursor
   - reassess how anything involving keys and ranges is done, so it'll be general enough for other adapters
+    - need to be able to use one compare function for all sorting crap
   - need a better way of iterating over records, either all or a filtered range
     - use for cursor
+    - need to be able to search, like "give me the next record with key gt X". then use that to rewrite _iterate
 - BTree
 
 FDBObjectStore.count and FDBIndex.count should use cursors, not getAll, because getAll could read a lot into memory at once

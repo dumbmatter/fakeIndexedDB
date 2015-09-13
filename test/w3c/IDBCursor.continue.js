@@ -187,7 +187,7 @@ describe('W3C IDBCursor.continue Tests', function () {
 
                     count++;
                 };
-                rq.onerror = function () { throw new Error("unexpected error1") };
+                rq.onerror = function (e) { throw e.target.error };
             });
 
             it("within single key range, with several results", function (done) {
