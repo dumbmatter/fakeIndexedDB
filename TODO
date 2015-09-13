@@ -5,6 +5,8 @@ adapters
       - this could be tricky for indexes, since they sort by key and then by value
 - BTree
 
+define functions on prototype (like JsArray) or on this in constructor (like elsewhere)? probably the former
+
 FDBObjectStore.count and FDBIndex.count should use cursors, not getAll, because getAll could read a lot into memory at once
 
 test that IDBObjectStore.index returns the same or different IDBIndex depending on situation http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBObjectStore-index-IDBIndex-DOMString-name
@@ -49,3 +51,5 @@ what if my backend data storage was async? should make it easier to plug-and-pla
 findIndex (and similar) could be replaced by smarter searches, like binary search if we know the list is sorted
 - Given an array sorted in ascending order, find the lowest value of i where array[i] >= x
   - use this to replace findIndex in storeInIndex in Index.js
+
+array.prototype.find and array.prototype.findindex dependencies won't be needed, eventually
