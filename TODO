@@ -1,5 +1,4 @@
 adapters
-- come up with some way to easily switch between them
 - JsArray
   - reassess how anything involving keys and ranges is done, so it'll be general enough for other adapters
     - need to be able to use one compare function for all sorting crap (ranges, get, inserts, etc)
@@ -12,7 +11,8 @@ adapters
     - see getAll retrieval for key, it's fucked up
   - would be nice if we could iterate rather than getting whole range (see getAll in get, find)
   - performance?
-- rename folder to something like recordStoreAdapters
+- in Readme, describe how to switch between adapters
+- unit tests for all adapters?
 
 define functions on prototype (like JsArray) or on this in constructor (like elsewhere)? probably the former
 
