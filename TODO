@@ -1,4 +1,5 @@
 adapters
+- come up with some way to easily switch between them
 - JsArray
   - reassess how anything involving keys and ranges is done, so it'll be general enough for other adapters
     - need to be able to use one compare function for all sorting crap (ranges, get, inserts, etc)
