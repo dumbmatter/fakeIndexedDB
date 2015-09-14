@@ -8,6 +8,7 @@ adapters
 - BTree
   - if keys are {key, value}, then how will getting a bound work when value matters or not?
   - currently storing whole record as key and value. that is suboptimal
+    - see getAll retrieval for key, it's fucked up
   - would be nice if we could iterate rather than getting whole range (see getAll in get, find)
 - rename folder to something like recordStoreAdapters
 
