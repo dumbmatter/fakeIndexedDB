@@ -6,7 +6,7 @@ It passes [the W3C IndexedDB test suite](https://github.com/w3c/web-platform-tes
 
 ## Installation
 
-For use with CommonJS (Node.js/io.js/Browserify), [install through npm](https://www.npmjs.com/package/fake-indexeddb):
+For use with CommonJS (Node.js/Browserify), [install through npm](https://www.npmjs.com/package/fake-indexeddb):
 
     $ npm install fake-indexeddb
 
@@ -63,7 +63,7 @@ If you're using the bundled version (not installed through npm), then all of the
 
 1. Use as a mock database in unit tests.
 
-2. Use the same API in Node.js/io.js and in the browser.
+2. Use the same API in Node.js and in the browser.
 
 3. Support IndexedDB in old or crappy browsers.
 
