@@ -1,5 +1,6 @@
 'use strict';
 
+require('setimmediate');
 require('array.prototype.find');
 require('array.prototype.findindex');
 

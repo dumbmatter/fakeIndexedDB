@@ -2,11 +2,6 @@
 
 'use strict';
 
-require('phantomjs-polyfill');
-require('setimmediate');
-require('array.prototype.find');
-require('array.prototype.findindex');
-
 window.fakeIndexedDB = require('.');
 window.FDBCursor = require('./lib/FDBCursor');
 window.FDBCursorWithValue = require('./lib/FDBCursorWithValue');
