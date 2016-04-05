@@ -1,6 +1,6 @@
 {
   "name": "fake-indexeddb",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "dependencies": {
     "array.prototype.find": {
       "version": "1.0.0",
