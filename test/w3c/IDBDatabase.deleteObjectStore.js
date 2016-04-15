@@ -4,10 +4,6 @@ var NotFoundError = require('../../lib/errors/NotFoundError');
 var support = require('./support');
 var createdb = support.createdb;
 
-/*Array.prototype.contains = function (item) {
-    return this.indexOf(item) >= 0;
-}*/
-
 describe('W3C IDBDatabase.deleteObjectStore Tests', function () {
     // idbdatabase_deleteObjectStore
     it("object store's name is removed from database's list", function (done) {
@@ -18,7 +14,7 @@ describe('W3C IDBDatabase.deleteObjectStore Tests', function () {
 
             db.createObjectStore("deleted");
             db.deleteObjectStore("deleted");
-            assert(db.objectStoreNames.indexOf("deleted") < 0)
+            assert(!db.objectStoreNames.contains("deleted"))
 
             done()
         }
@@ -72,14 +68,14 @@ describe('W3C IDBDatabase.deleteObjectStore Tests', function () {
             objStore.add({k:5}).onsuccess = function(e) { keys.push(e.target.result); }
             objStore.add({}).onsuccess = function(e) { keys.push(e.target.result); }
             objStore.createIndex("idx", "i");
-            assert(objStore.indexNames.indexOf("idx") >= 0);
+            assert(objStore.indexNames.contains("idx"));
             assert.equal(objStore.keyPath, "k", "keyPath");
 
             db.deleteObjectStore("resurrected");
 
             var objStore2 = db.createObjectStore("resurrected", { autoIncrement: true });
             objStore2.add("Unicorns'R'us").onsuccess = function(e) { keys.push(e.target.result); };
-            assert(objStore2.indexNames.indexOf("idx") < 0, "index exist on new objstore");
+            assert(!objStore2.indexNames.contains("idx"), "index exist on new objstore");
             assert.equal(objStore2.keyPath, null, "keyPath");
 
             assert.throws(function() {
