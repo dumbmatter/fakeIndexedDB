@@ -25,7 +25,7 @@ require('array.prototype.findindex');
 var FDBFactory = require('./lib/FDBFactory');
 
 module.exports = new FDBFactory();
-},{"./lib/FDBFactory":9,"array.prototype.find":37,"array.prototype.findindex":62,"setimmediate":96}],3:[function(require,module,exports){
+},{"./lib/FDBFactory":9,"array.prototype.find":36,"array.prototype.findindex":37,"setimmediate":48}],3:[function(require,module,exports){
 'use strict';
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-database
@@ -578,7 +578,7 @@ function FDBCursorWithValue() {
 util.inherits(FDBCursorWithValue, FDBCursor);
 
 module.exports = FDBCursorWithValue;
-},{"./FDBCursor":6,"util":89}],8:[function(require,module,exports){
+},{"./FDBCursor":6,"util":41}],8:[function(require,module,exports){
 'use strict';
 
 var util = require('util');
@@ -750,7 +750,7 @@ util.inherits(FDBDatabase, EventTarget);
 
 module.exports = FDBDatabase;
 
-},{"./EventTarget":5,"./FDBTransaction":15,"./ObjectStore":19,"./addDomStringListMethods":20,"./errors/ConstraintError":23,"./errors/InvalidAccessError":26,"./errors/InvalidStateError":27,"./errors/NotFoundError":28,"./errors/TransactionInactiveError":30,"./validateKeyPath":35,"util":89}],9:[function(require,module,exports){
+},{"./EventTarget":5,"./FDBTransaction":15,"./ObjectStore":19,"./addDomStringListMethods":20,"./errors/ConstraintError":23,"./errors/InvalidAccessError":26,"./errors/InvalidStateError":27,"./errors/NotFoundError":28,"./errors/TransactionInactiveError":30,"./validateKeyPath":35,"util":41}],9:[function(require,module,exports){
 'use strict';
 
 var Event = require('./Event');
@@ -1592,7 +1592,7 @@ function FDBOpenDBRequest() {
 util.inherits(FDBOpenDBRequest, FDBRequest);
 
 module.exports = FDBOpenDBRequest;
-},{"./FDBRequest":14,"util":89}],14:[function(require,module,exports){
+},{"./FDBRequest":14,"util":41}],14:[function(require,module,exports){
 'use strict';
 
 var util = require('util');
@@ -1616,7 +1616,7 @@ function FDBRequest() {
 util.inherits(FDBRequest, EventTarget);
 
 module.exports = FDBRequest;
-},{"./EventTarget":5,"util":89}],15:[function(require,module,exports){
+},{"./EventTarget":5,"util":41}],15:[function(require,module,exports){
 'use strict';
 
 var util = require('util');
@@ -1852,7 +1852,7 @@ function FDBTransaction(storeNames, mode) {
 util.inherits(FDBTransaction, EventTarget);
 
 module.exports = FDBTransaction;
-},{"./Event":4,"./EventTarget":5,"./FDBObjectStore":12,"./FDBRequest":14,"./errors/AbortError":22,"./errors/InvalidStateError":27,"./errors/NotFoundError":28,"./errors/TransactionInactiveError":30,"util":89}],16:[function(require,module,exports){
+},{"./Event":4,"./EventTarget":5,"./FDBObjectStore":12,"./FDBRequest":14,"./errors/AbortError":22,"./errors/InvalidStateError":27,"./errors/NotFoundError":28,"./errors/TransactionInactiveError":30,"util":41}],16:[function(require,module,exports){
 'use strict';
 
 var util = require('util');
@@ -1872,7 +1872,7 @@ function FDBVersionChangeEvent(type, parameters) {
 util.inherits(FDBVersionChangeEvent, Event);
 
 module.exports = FDBVersionChangeEvent;
-},{"./Event":4,"util":89}],17:[function(require,module,exports){
+},{"./Event":4,"util":41}],17:[function(require,module,exports){
 'use strict';
 
 var FDBKeyRange = require('./FDBKeyRange');
@@ -2344,7 +2344,7 @@ function AbortError(message) {
 util.inherits(AbortError, Error);
 
 module.exports = AbortError;
-},{"util":89}],23:[function(require,module,exports){
+},{"util":41}],23:[function(require,module,exports){
 'use strict';
 
 var util = require('util');
@@ -2359,7 +2359,7 @@ function ConstraintError(message) {
 util.inherits(ConstraintError, Error);
 
 module.exports = ConstraintError;
-},{"util":89}],24:[function(require,module,exports){
+},{"util":41}],24:[function(require,module,exports){
 'use strict';
 
 var util = require('util');
@@ -2374,7 +2374,7 @@ function DataCloneError(message) {
 util.inherits(DataCloneError, Error);
 
 module.exports = DataCloneError;
-},{"util":89}],25:[function(require,module,exports){
+},{"util":41}],25:[function(require,module,exports){
 'use strict';
 
 var util = require('util');
@@ -2389,7 +2389,7 @@ function DataError(message) {
 util.inherits(DataError, Error);
 
 module.exports = DataError;
-},{"util":89}],26:[function(require,module,exports){
+},{"util":41}],26:[function(require,module,exports){
 'use strict';
 
 var util = require('util');
@@ -2404,7 +2404,7 @@ function InvalidAccessError(message) {
 util.inherits(InvalidAccessError, Error);
 
 module.exports = InvalidAccessError;
-},{"util":89}],27:[function(require,module,exports){
+},{"util":41}],27:[function(require,module,exports){
 'use strict';
 
 var util = require('util');
@@ -2419,7 +2419,7 @@ function InvalidStateError(message) {
 util.inherits(InvalidStateError, Error);
 
 module.exports = InvalidStateError;
-},{"util":89}],28:[function(require,module,exports){
+},{"util":41}],28:[function(require,module,exports){
 'use strict';
 
 var util = require('util');
@@ -2434,7 +2434,7 @@ function NotFoundError(message) {
 util.inherits(NotFoundError, Error);
 
 module.exports = NotFoundError;
-},{"util":89}],29:[function(require,module,exports){
+},{"util":41}],29:[function(require,module,exports){
 'use strict';
 
 var util = require('util');
@@ -2449,7 +2449,7 @@ function ReadOnlyError(message) {
 util.inherits(ReadOnlyError, Error);
 
 module.exports = ReadOnlyError;
-},{"util":89}],30:[function(require,module,exports){
+},{"util":41}],30:[function(require,module,exports){
 'use strict';
 
 var util = require('util');
@@ -2464,7 +2464,7 @@ function TransactionInactiveError(message) {
 util.inherits(TransactionInactiveError, Error);
 
 module.exports = TransactionInactiveError;
-},{"util":89}],31:[function(require,module,exports){
+},{"util":41}],31:[function(require,module,exports){
 'use strict';
 
 var util = require('util');
@@ -2479,7 +2479,7 @@ function VersionError(message) {
 util.inherits(VersionError, Error);
 
 module.exports = VersionError;
-},{"util":89}],32:[function(require,module,exports){
+},{"util":41}],32:[function(require,module,exports){
 'use strict';
 
 var structuredClone = require('./structuredClone');
@@ -2544,7 +2544,7 @@ module.exports = function (input) {
         throw new DataCloneError();
     }
 };
-},{"./errors/DataCloneError":24,"realistic-structured-clone":90}],34:[function(require,module,exports){
+},{"./errors/DataCloneError":24,"realistic-structured-clone":42}],34:[function(require,module,exports){
 'use strict';
 
 var DataError = require('./errors/DataError');
@@ -2638,1066 +2638,72 @@ module.exports = validateKeyPath;
 },{}],36:[function(require,module,exports){
 // Array.prototype.find - MIT License (c) 2013 Paul Miller <http://paulmillr.com>
 // For all details and docs: https://github.com/paulmillr/array.prototype.find
-'use strict';
-var ES = require('es-abstract/es6');
+// Fixes and tests supplied by Duncan Hall <http://duncanhall.net> 
+(function(globals){
+  if (Array.prototype.find) return;
 
-module.exports = function find(predicate) {
-	var list = ES.ToObject(this);
-	var length = ES.ToInteger(ES.ToLength(list.length));
-	if (!ES.IsCallable(predicate)) {
-		throw new TypeError('Array#find: predicate must be a function');
-	}
-	if (length === 0) return undefined;
-	var thisArg = arguments[1];
-	for (var i = 0, value; i < length; i++) {
-		value = list[i];
-		if (ES.Call(predicate, thisArg, [value, i, list])) return value;
-	}
-	return undefined;
-};
-
-},{"es-abstract/es6":43}],37:[function(require,module,exports){
-'use strict';
-
-var define = require('define-properties');
-var ES = require('es-abstract/es6');
-
-var implementation = require('./implementation');
-var getPolyfill = require('./polyfill');
-var shim = require('./shim');
-
-var slice = Array.prototype.slice;
-
-var boundFindShim = function find(array, predicate) {
-	ES.RequireObjectCoercible(array);
-	return implementation.apply(array, predicate);
-};
-
-define(boundFindShim, {
-	implementation: implementation,
-	getPolyfill: getPolyfill,
-	shim: shim
-});
-
-module.exports = boundFindShim;
-
-},{"./implementation":36,"./polyfill":59,"./shim":60,"define-properties":38,"es-abstract/es6":43}],38:[function(require,module,exports){
-'use strict';
-
-var keys = require('object-keys');
-var foreach = require('foreach');
-var hasSymbols = typeof Symbol === 'function' && typeof Symbol() === 'symbol';
-
-var toStr = Object.prototype.toString;
-
-var isFunction = function (fn) {
-	return typeof fn === 'function' && toStr.call(fn) === '[object Function]';
-};
-
-var arePropertyDescriptorsSupported = function () {
-	var obj = {};
-	try {
-		Object.defineProperty(obj, 'x', { enumerable: false, value: obj });
-        /* eslint-disable no-unused-vars, no-restricted-syntax */
-        for (var _ in obj) { return false; }
-        /* eslint-enable no-unused-vars, no-restricted-syntax */
-		return obj.x === obj;
-	} catch (e) { /* this is IE 8. */
-		return false;
-	}
-};
-var supportsDescriptors = Object.defineProperty && arePropertyDescriptorsSupported();
-
-var defineProperty = function (object, name, value, predicate) {
-	if (name in object && (!isFunction(predicate) || !predicate())) {
-		return;
-	}
-	if (supportsDescriptors) {
-		Object.defineProperty(object, name, {
-			configurable: true,
-			enumerable: false,
-			value: value,
-			writable: true
-		});
-	} else {
-		object[name] = value;
-	}
-};
-
-var defineProperties = function (object, map) {
-	var predicates = arguments.length > 2 ? arguments[2] : {};
-	var props = keys(map);
-	if (hasSymbols) {
-		props = props.concat(Object.getOwnPropertySymbols(map));
-	}
-	foreach(props, function (name) {
-		defineProperty(object, name, map[name], predicates[name]);
-	});
-};
-
-defineProperties.supportsDescriptors = !!supportsDescriptors;
-
-module.exports = defineProperties;
-
-},{"foreach":39,"object-keys":40}],39:[function(require,module,exports){
-
-var hasOwn = Object.prototype.hasOwnProperty;
-var toString = Object.prototype.toString;
-
-module.exports = function forEach (obj, fn, ctx) {
-    if (toString.call(fn) !== '[object Function]') {
-        throw new TypeError('iterator must be a function');
+  var find = function(predicate) {
+    var list = Object(this);
+    var length = list.length < 0 ? 0 : list.length >>> 0; // ES.ToUint32;
+    if (length === 0) return undefined;
+    if (typeof predicate !== 'function' || Object.prototype.toString.call(predicate) !== '[object Function]') {
+      throw new TypeError('Array#find: predicate must be a function');
     }
-    var l = obj.length;
-    if (l === +l) {
-        for (var i = 0; i < l; i++) {
-            fn.call(ctx, obj[i], i, obj);
-        }
-    } else {
-        for (var k in obj) {
-            if (hasOwn.call(obj, k)) {
-                fn.call(ctx, obj[k], k, obj);
-            }
-        }
+    var thisArg = arguments[1];
+    for (var i = 0, value; i < length; i++) {
+      value = list[i];
+      if (predicate.call(thisArg, value, i, list)) return value;
     }
-};
-
-
-},{}],40:[function(require,module,exports){
-'use strict';
-
-// modified from https://github.com/es-shims/es5-shim
-var has = Object.prototype.hasOwnProperty;
-var toStr = Object.prototype.toString;
-var slice = Array.prototype.slice;
-var isArgs = require('./isArguments');
-var isEnumerable = Object.prototype.propertyIsEnumerable;
-var hasDontEnumBug = !isEnumerable.call({ toString: null }, 'toString');
-var hasProtoEnumBug = isEnumerable.call(function () {}, 'prototype');
-var dontEnums = [
-	'toString',
-	'toLocaleString',
-	'valueOf',
-	'hasOwnProperty',
-	'isPrototypeOf',
-	'propertyIsEnumerable',
-	'constructor'
-];
-var equalsConstructorPrototype = function (o) {
-	var ctor = o.constructor;
-	return ctor && ctor.prototype === o;
-};
-var excludedKeys = {
-	$console: true,
-	$external: true,
-	$frame: true,
-	$frameElement: true,
-	$frames: true,
-	$innerHeight: true,
-	$innerWidth: true,
-	$outerHeight: true,
-	$outerWidth: true,
-	$pageXOffset: true,
-	$pageYOffset: true,
-	$parent: true,
-	$scrollLeft: true,
-	$scrollTop: true,
-	$scrollX: true,
-	$scrollY: true,
-	$self: true,
-	$webkitIndexedDB: true,
-	$webkitStorageInfo: true,
-	$window: true
-};
-var hasAutomationEqualityBug = (function () {
-	/* global window */
-	if (typeof window === 'undefined') { return false; }
-	for (var k in window) {
-		try {
-			if (!excludedKeys['$' + k] && has.call(window, k) && window[k] !== null && typeof window[k] === 'object') {
-				try {
-					equalsConstructorPrototype(window[k]);
-				} catch (e) {
-					return true;
-				}
-			}
-		} catch (e) {
-			return true;
-		}
-	}
-	return false;
-}());
-var equalsConstructorPrototypeIfNotBuggy = function (o) {
-	/* global window */
-	if (typeof window === 'undefined' || !hasAutomationEqualityBug) {
-		return equalsConstructorPrototype(o);
-	}
-	try {
-		return equalsConstructorPrototype(o);
-	} catch (e) {
-		return false;
-	}
-};
-
-var keysShim = function keys(object) {
-	var isObject = object !== null && typeof object === 'object';
-	var isFunction = toStr.call(object) === '[object Function]';
-	var isArguments = isArgs(object);
-	var isString = isObject && toStr.call(object) === '[object String]';
-	var theKeys = [];
-
-	if (!isObject && !isFunction && !isArguments) {
-		throw new TypeError('Object.keys called on a non-object');
-	}
-
-	var skipProto = hasProtoEnumBug && isFunction;
-	if (isString && object.length > 0 && !has.call(object, 0)) {
-		for (var i = 0; i < object.length; ++i) {
-			theKeys.push(String(i));
-		}
-	}
-
-	if (isArguments && object.length > 0) {
-		for (var j = 0; j < object.length; ++j) {
-			theKeys.push(String(j));
-		}
-	} else {
-		for (var name in object) {
-			if (!(skipProto && name === 'prototype') && has.call(object, name)) {
-				theKeys.push(String(name));
-			}
-		}
-	}
-
-	if (hasDontEnumBug) {
-		var skipConstructor = equalsConstructorPrototypeIfNotBuggy(object);
-
-		for (var k = 0; k < dontEnums.length; ++k) {
-			if (!(skipConstructor && dontEnums[k] === 'constructor') && has.call(object, dontEnums[k])) {
-				theKeys.push(dontEnums[k]);
-			}
-		}
-	}
-	return theKeys;
-};
-
-keysShim.shim = function shimObjectKeys() {
-	if (Object.keys) {
-		var keysWorksWithArguments = (function () {
-			// Safari 5.0 bug
-			return (Object.keys(arguments) || '').length === 2;
-		}(1, 2));
-		if (!keysWorksWithArguments) {
-			var originalKeys = Object.keys;
-			Object.keys = function keys(object) {
-				if (isArgs(object)) {
-					return originalKeys(slice.call(object));
-				} else {
-					return originalKeys(object);
-				}
-			};
-		}
-	} else {
-		Object.keys = keysShim;
-	}
-	return Object.keys || keysShim;
-};
-
-module.exports = keysShim;
-
-},{"./isArguments":41}],41:[function(require,module,exports){
-'use strict';
-
-var toStr = Object.prototype.toString;
-
-module.exports = function isArguments(value) {
-	var str = toStr.call(value);
-	var isArgs = str === '[object Arguments]';
-	if (!isArgs) {
-		isArgs = str !== '[object Array]' &&
-			value !== null &&
-			typeof value === 'object' &&
-			typeof value.length === 'number' &&
-			value.length >= 0 &&
-			toStr.call(value.callee) === '[object Function]';
-	}
-	return isArgs;
-};
-
-},{}],42:[function(require,module,exports){
-'use strict';
-
-var $isNaN = require('./helpers/isNaN');
-var $isFinite = require('./helpers/isFinite');
-
-var sign = require('./helpers/sign');
-var mod = require('./helpers/mod');
-
-var IsCallable = require('is-callable');
-var toPrimitive = require('es-to-primitive/es5');
-
-// https://es5.github.io/#x9
-var ES5 = {
-	ToPrimitive: toPrimitive,
-
-	ToBoolean: function ToBoolean(value) {
-		return Boolean(value);
-	},
-	ToNumber: function ToNumber(value) {
-		return Number(value);
-	},
-	ToInteger: function ToInteger(value) {
-		var number = this.ToNumber(value);
-		if ($isNaN(number)) { return 0; }
-		if (number === 0 || !$isFinite(number)) { return number; }
-		return sign(number) * Math.floor(Math.abs(number));
-	},
-	ToInt32: function ToInt32(x) {
-		return this.ToNumber(x) >> 0;
-	},
-	ToUint32: function ToUint32(x) {
-		return this.ToNumber(x) >>> 0;
-	},
-	ToUint16: function ToUint16(value) {
-		var number = this.ToNumber(value);
-		if ($isNaN(number) || number === 0 || !$isFinite(number)) { return 0; }
-		var posInt = sign(number) * Math.floor(Math.abs(number));
-		return mod(posInt, 0x10000);
-	},
-	ToString: function ToString(value) {
-		return String(value);
-	},
-	ToObject: function ToObject(value) {
-		this.CheckObjectCoercible(value);
-		return Object(value);
-	},
-	CheckObjectCoercible: function CheckObjectCoercible(value, optMessage) {
-		/* jshint eqnull:true */
-		if (value == null) {
-			throw new TypeError(optMessage || 'Cannot call method on ' + value);
-		}
-		return value;
-	},
-	IsCallable: IsCallable,
-	SameValue: function SameValue(x, y) {
-		if (x === y) { // 0 === -0, but they are not identical.
-			if (x === 0) { return 1 / x === 1 / y; }
-			return true;
-		}
-		return $isNaN(x) && $isNaN(y);
-	}
-};
-
-module.exports = ES5;
-
-},{"./helpers/isFinite":45,"./helpers/isNaN":46,"./helpers/mod":48,"./helpers/sign":49,"es-to-primitive/es5":50,"is-callable":57}],43:[function(require,module,exports){
-'use strict';
-
-var toStr = Object.prototype.toString;
-var hasSymbols = typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol';
-var symbolToStr = hasSymbols ? Symbol.prototype.toString : toStr;
-
-var $isNaN = require('./helpers/isNaN');
-var $isFinite = require('./helpers/isFinite');
-var MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER || Math.pow(2, 53) - 1;
-
-var assign = require('./helpers/assign');
-var sign = require('./helpers/sign');
-var mod = require('./helpers/mod');
-var isPrimitive = require('./helpers/isPrimitive');
-var toPrimitive = require('es-to-primitive/es6');
-var parseInteger = parseInt;
-var bind = require('function-bind');
-var strSlice = bind.call(Function.call, String.prototype.slice);
-var isBinary = bind.call(Function.call, RegExp.prototype.test, /^0b[01]+$/i);
-var isOctal = bind.call(Function.call, RegExp.prototype.test, /^0o[0-7]+$/i);
-var nonWS = ['\u0085', '\u200b', '\ufffe'].join('');
-var nonWSregex = new RegExp('[' + nonWS + ']', 'g');
-var hasNonWS = bind.call(Function.call, RegExp.prototype.test, nonWSregex);
-var invalidHexLiteral = /^[\-\+]0x[0-9a-f]+$/i;
-var isInvalidHexLiteral = bind.call(Function.call, RegExp.prototype.test, invalidHexLiteral);
-
-// whitespace from: http://es5.github.io/#x15.5.4.20
-// implementation from https://github.com/es-shims/es5-shim/blob/v3.4.0/es5-shim.js#L1304-L1324
-var ws = [
-	'\x09\x0A\x0B\x0C\x0D\x20\xA0\u1680\u180E\u2000\u2001\u2002\u2003',
-	'\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\u2028',
-	'\u2029\uFEFF'
-].join('');
-var trimRegex = new RegExp('(^[' + ws + ']+)|([' + ws + ']+$)', 'g');
-var replace = bind.call(Function.call, String.prototype.replace);
-var trim = function (value) {
-	return replace(value, trimRegex, '');
-};
-
-var ES5 = require('./es5');
-
-var hasRegExpMatcher = require('is-regex');
-
-// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-abstract-operations
-var ES6 = assign(assign({}, ES5), {
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-call-f-v-args
-	Call: function Call(F, V) {
-		var args = arguments.length > 2 ? arguments[2] : [];
-		if (!this.IsCallable(F)) {
-			throw new TypeError(F + ' is not a function');
-		}
-		return F.apply(V, args);
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-toprimitive
-	ToPrimitive: toPrimitive,
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-toboolean
-	// ToBoolean: ES5.ToBoolean,
-
-	// http://www.ecma-international.org/ecma-262/6.0/#sec-tonumber
-	ToNumber: function ToNumber(argument) {
-		var value = isPrimitive(argument) ? argument : toPrimitive(argument, 'number');
-		if (typeof value === 'symbol') {
-			throw new TypeError('Cannot convert a Symbol value to a number');
-		}
-		if (typeof value === 'string') {
-			if (isBinary(value)) {
-				return this.ToNumber(parseInteger(strSlice(value, 2), 2));
-			} else if (isOctal(value)) {
-				return this.ToNumber(parseInteger(strSlice(value, 2), 8));
-			} else if (hasNonWS(value) || isInvalidHexLiteral(value)) {
-				return NaN;
-			} else {
-				var trimmed = trim(value);
-				if (trimmed !== value) {
-					return this.ToNumber(trimmed);
-				}
-			}
-		}
-		return Number(value);
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-tointeger
-	// ToInteger: ES5.ToNumber,
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-toint32
-	// ToInt32: ES5.ToInt32,
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-touint32
-	// ToUint32: ES5.ToUint32,
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-toint16
-	ToInt16: function ToInt16(argument) {
-		var int16bit = this.ToUint16(argument);
-		return int16bit >= 0x8000 ? int16bit - 0x10000 : int16bit;
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-touint16
-	// ToUint16: ES5.ToUint16,
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-toint8
-	ToInt8: function ToInt8(argument) {
-		var int8bit = this.ToUint8(argument);
-		return int8bit >= 0x80 ? int8bit - 0x100 : int8bit;
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-touint8
-	ToUint8: function ToUint8(argument) {
-		var number = this.ToNumber(argument);
-		if ($isNaN(number) || number === 0 || !$isFinite(number)) { return 0; }
-		var posInt = sign(number) * Math.floor(Math.abs(number));
-		return mod(posInt, 0x100);
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-touint8clamp
-	ToUint8Clamp: function ToUint8Clamp(argument) {
-		var number = this.ToNumber(argument);
-		if ($isNaN(number) || number <= 0) { return 0; }
-		if (number >= 0xFF) { return 0xFF; }
-		var f = Math.floor(argument);
-		if (f + 0.5 < number) { return f + 1; }
-		if (number < f + 0.5) { return f; }
-		if (f % 2 !== 0) { return f + 1; }
-		return f;
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-tostring
-	ToString: function ToString(argument) {
-		if (typeof argument === 'symbol') {
-			throw new TypeError('Cannot convert a Symbol value to a string');
-		}
-		return String(argument);
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-toobject
-	ToObject: function ToObject(value) {
-		this.RequireObjectCoercible(value);
-		return Object(value);
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-topropertykey
-	ToPropertyKey: function ToPropertyKey(argument) {
-		var key = this.ToPrimitive(argument, String);
-		return typeof key === 'symbol' ? symbolToStr.call(key) : this.ToString(key);
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength
-	ToLength: function ToLength(argument) {
-		var len = this.ToInteger(argument);
-		if (len <= 0) { return 0; } // includes converting -0 to +0
-		if (len > MAX_SAFE_INTEGER) { return MAX_SAFE_INTEGER; }
-		return len;
-	},
-
-	// http://www.ecma-international.org/ecma-262/6.0/#sec-canonicalnumericindexstring
-	CanonicalNumericIndexString: function CanonicalNumericIndexString(argument) {
-		if (toStr.call(argument) !== '[object String]') {
-			throw new TypeError('must be a string');
-		}
-		if (argument === '-0') { return -0; }
-		var n = this.ToNumber(argument);
-		if (this.SameValue(this.ToString(n), argument)) { return n; }
-		return void 0;
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-requireobjectcoercible
-	RequireObjectCoercible: ES5.CheckObjectCoercible,
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-isarray
-	IsArray: Array.isArray || function IsArray(argument) {
-		return toStr.call(argument) === '[object Array]';
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-iscallable
-	// IsCallable: ES5.IsCallable,
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-isconstructor
-	IsConstructor: function IsConstructor(argument) {
-		return this.IsCallable(argument); // unfortunately there's no way to truly check this without try/catch `new argument`
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-isextensible-o
-	IsExtensible: function IsExtensible(obj) {
-		if (!Object.preventExtensions) { return true; }
-		if (isPrimitive(obj)) {
-			return false;
-		}
-		return Object.isExtensible(obj);
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-isinteger
-	IsInteger: function IsInteger(argument) {
-		if (typeof argument !== 'number' || $isNaN(argument) || !$isFinite(argument)) {
-			return false;
-		}
-		var abs = Math.abs(argument);
-		return Math.floor(abs) === abs;
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-ispropertykey
-	IsPropertyKey: function IsPropertyKey(argument) {
-		return typeof argument === 'string' || typeof argument === 'symbol';
-	},
-
-	// http://www.ecma-international.org/ecma-262/6.0/#sec-isregexp
-	IsRegExp: function IsRegExp(argument) {
-		if (!argument || typeof argument !== 'object') {
-			return false;
-		}
-		if (hasSymbols) {
-			var isRegExp = argument[Symbol.match];
-			if (typeof isRegExp !== 'undefined') {
-				return ES5.ToBoolean(isRegExp);
-			}
-		}
-		return hasRegExpMatcher(argument);
-	},
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-samevalue
-	// SameValue: ES5.SameValue,
-
-	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-samevaluezero
-	SameValueZero: function SameValueZero(x, y) {
-		return (x === y) || ($isNaN(x) && $isNaN(y));
-	}
-});
-
-delete ES6.CheckObjectCoercible; // renamed in ES6 to RequireObjectCoercible
-
-module.exports = ES6;
-
-},{"./es5":42,"./helpers/assign":44,"./helpers/isFinite":45,"./helpers/isNaN":46,"./helpers/isPrimitive":47,"./helpers/mod":48,"./helpers/sign":49,"es-to-primitive/es6":51,"function-bind":56,"is-regex":58}],44:[function(require,module,exports){
-var has = Object.prototype.hasOwnProperty;
-module.exports = Object.assign || function assign(target, source) {
-	for (var key in source) {
-		if (has.call(source, key)) {
-			target[key] = source[key];
-		}
-	}
-	return target;
-};
-
-},{}],45:[function(require,module,exports){
-var $isNaN = Number.isNaN || function (a) { return a !== a; };
-
-module.exports = Number.isFinite || function (x) { return typeof x === 'number' && !$isNaN(x) && x !== Infinity && x !== -Infinity; };
-
-},{}],46:[function(require,module,exports){
-module.exports = Number.isNaN || function isNaN(a) {
-	return a !== a;
-};
-
-},{}],47:[function(require,module,exports){
-module.exports = function isPrimitive(value) {
-	return value === null || (typeof value !== 'function' && typeof value !== 'object');
-};
-
-},{}],48:[function(require,module,exports){
-module.exports = function mod(number, modulo) {
-	var remain = number % modulo;
-	return Math.floor(remain >= 0 ? remain : remain + modulo);
-};
-
-},{}],49:[function(require,module,exports){
-module.exports = function sign(number) {
-	return number >= 0 ? 1 : -1;
-};
-
-},{}],50:[function(require,module,exports){
-'use strict';
-
-var toStr = Object.prototype.toString;
-
-var isPrimitive = require('./helpers/isPrimitive');
-
-var isCallable = require('is-callable');
-
-// https://es5.github.io/#x8.12
-var ES5internalSlots = {
-	'[[DefaultValue]]': function (O, hint) {
-		var actualHint = hint || (toStr.call(O) === '[object Date]' ? String : Number);
-
-		if (actualHint === String || actualHint === Number) {
-			var methods = actualHint === String ? ['toString', 'valueOf'] : ['valueOf', 'toString'];
-			var value, i;
-			for (i = 0; i < methods.length; ++i) {
-				if (isCallable(O[methods[i]])) {
-					value = O[methods[i]]();
-					if (isPrimitive(value)) {
-						return value;
-					}
-				}
-			}
-			throw new TypeError('No default value');
-		}
-		throw new TypeError('invalid [[DefaultValue]] hint supplied');
-	}
-};
-
-// https://es5.github.io/#x9
-module.exports = function ToPrimitive(input, PreferredType) {
-	if (isPrimitive(input)) {
-		return input;
-	}
-	return ES5internalSlots['[[DefaultValue]]'](input, PreferredType);
-};
-
-},{"./helpers/isPrimitive":52,"is-callable":57}],51:[function(require,module,exports){
-'use strict';
-
-var hasSymbols = typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol';
-
-var isPrimitive = require('./helpers/isPrimitive');
-var isCallable = require('is-callable');
-var isDate = require('is-date-object');
-var isSymbol = require('is-symbol');
-
-var ordinaryToPrimitive = function OrdinaryToPrimitive(O, hint) {
-	if (typeof O === 'undefined' || O === null) {
-		throw new TypeError('Cannot call method on ' + O);
-	}
-	if (typeof hint !== 'string' || (hint !== 'number' && hint !== 'string')) {
-		throw new TypeError('hint must be "string" or "number"');
-	}
-	var methodNames = hint === 'string' ? ['toString', 'valueOf'] : ['valueOf', 'toString'];
-	var method, result, i;
-	for (i = 0; i < methodNames.length; ++i) {
-		method = O[methodNames[i]];
-		if (isCallable(method)) {
-			result = method.call(O);
-			if (isPrimitive(result)) {
-				return result;
-			}
-		}
-	}
-	throw new TypeError('No default value');
-};
-
-var GetMethod = function GetMethod(O, P) {
-	var func = O[P];
-	if (func !== null && typeof func !== 'undefined') {
-		if (!isCallable(func)) {
-			throw new TypeError(func + ' returned for property ' + P + ' of object ' + O + ' is not a function');
-		}
-		return func;
-	}
-};
-
-// http://www.ecma-international.org/ecma-262/6.0/#sec-toprimitive
-module.exports = function ToPrimitive(input, PreferredType) {
-	if (isPrimitive(input)) {
-		return input;
-	}
-	var hint = 'default';
-	if (arguments.length > 1) {
-		if (PreferredType === String) {
-			hint = 'string';
-		} else if (PreferredType === Number) {
-			hint = 'number';
-		}
-	}
-
-	var exoticToPrim;
-	if (hasSymbols) {
-		if (Symbol.toPrimitive) {
-			exoticToPrim = GetMethod(input, Symbol.toPrimitive);
-		} else if (isSymbol(input)) {
-			exoticToPrim = Symbol.prototype.valueOf;
-		}
-	}
-	if (typeof exoticToPrim !== 'undefined') {
-		var result = exoticToPrim.call(input, hint);
-		if (isPrimitive(result)) {
-			return result;
-		}
-		throw new TypeError('unable to convert exotic object to primitive');
-	}
-	if (hint === 'default' && (isDate(input) || isSymbol(input))) {
-		hint = 'string';
-	}
-	return ordinaryToPrimitive(input, hint === 'default' ? 'number' : hint);
-};
-
-},{"./helpers/isPrimitive":52,"is-callable":57,"is-date-object":53,"is-symbol":54}],52:[function(require,module,exports){
-arguments[4][47][0].apply(exports,arguments)
-},{"dup":47}],53:[function(require,module,exports){
-'use strict';
-
-var getDay = Date.prototype.getDay;
-var tryDateObject = function tryDateObject(value) {
-	try {
-		getDay.call(value);
-		return true;
-	} catch (e) {
-		return false;
-	}
-};
-
-var toStr = Object.prototype.toString;
-var dateClass = '[object Date]';
-var hasToStringTag = typeof Symbol === 'function' && typeof Symbol.toStringTag === 'symbol';
-
-module.exports = function isDateObject(value) {
-	if (typeof value !== 'object' || value === null) { return false; }
-	return hasToStringTag ? tryDateObject(value) : toStr.call(value) === dateClass;
-};
-
-},{}],54:[function(require,module,exports){
-'use strict';
-
-var toStr = Object.prototype.toString;
-var hasSymbols = typeof Symbol === 'function' && typeof Symbol() === 'symbol';
-
-if (hasSymbols) {
-	var symToStr = Symbol.prototype.toString;
-	var symStringRegex = /^Symbol\(.*\)$/;
-	var isSymbolObject = function isSymbolObject(value) {
-		if (typeof value.valueOf() !== 'symbol') { return false; }
-		return symStringRegex.test(symToStr.call(value));
-	};
-	module.exports = function isSymbol(value) {
-		if (typeof value === 'symbol') { return true; }
-		if (toStr.call(value) !== '[object Symbol]') { return false; }
-		try {
-			return isSymbolObject(value);
-		} catch (e) {
-			return false;
-		}
-	};
-} else {
-	module.exports = function isSymbol(value) {
-		// this environment does not support Symbols.
-		return false;
-	};
-}
-
-},{}],55:[function(require,module,exports){
-var ERROR_MESSAGE = 'Function.prototype.bind called on incompatible ';
-var slice = Array.prototype.slice;
-var toStr = Object.prototype.toString;
-var funcType = '[object Function]';
-
-module.exports = function bind(that) {
-    var target = this;
-    if (typeof target !== 'function' || toStr.call(target) !== funcType) {
-        throw new TypeError(ERROR_MESSAGE + target);
-    }
-    var args = slice.call(arguments, 1);
-
-    var bound;
-    var binder = function () {
-        if (this instanceof bound) {
-            var result = target.apply(
-                this,
-                args.concat(slice.call(arguments))
-            );
-            if (Object(result) === result) {
-                return result;
-            }
-            return this;
-        } else {
-            return target.apply(
-                that,
-                args.concat(slice.call(arguments))
-            );
-        }
-    };
-
-    var boundLength = Math.max(0, target.length - args.length);
-    var boundArgs = [];
-    for (var i = 0; i < boundLength; i++) {
-        boundArgs.push('$' + i);
-    }
-
-    bound = Function('binder', 'return function (' + boundArgs.join(',') + '){ return binder.apply(this,arguments); }')(binder);
-
-    if (target.prototype) {
-        var Empty = function Empty() {};
-        Empty.prototype = target.prototype;
-        bound.prototype = new Empty();
-        Empty.prototype = null;
-    }
-
-    return bound;
-};
-
-},{}],56:[function(require,module,exports){
-var implementation = require('./implementation');
-
-module.exports = Function.prototype.bind || implementation;
-
-},{"./implementation":55}],57:[function(require,module,exports){
-'use strict';
-
-var fnToStr = Function.prototype.toString;
-
-var constructorRegex = /^\s*class /;
-var isES6ClassFn = function isES6ClassFn(value) {
-	try {
-		var fnStr = fnToStr.call(value);
-		var singleStripped = fnStr.replace(/\/\/.*\n/g, '');
-		var multiStripped = singleStripped.replace(/\/\*[.\s\S]*\*\//g, '');
-		var spaceStripped = multiStripped.replace(/\n/mg, ' ').replace(/ {2}/g, ' ');
-		return constructorRegex.test(spaceStripped);
-	} catch (e) {
-		return false; // not a function
-	}
-};
-
-var tryFunctionObject = function tryFunctionObject(value) {
-	try {
-		if (isES6ClassFn(value)) { return false; }
-		fnToStr.call(value);
-		return true;
-	} catch (e) {
-		return false;
-	}
-};
-var toStr = Object.prototype.toString;
-var fnClass = '[object Function]';
-var genClass = '[object GeneratorFunction]';
-var hasToStringTag = typeof Symbol === 'function' && typeof Symbol.toStringTag === 'symbol';
-
-module.exports = function isCallable(value) {
-	if (!value) { return false; }
-	if (typeof value !== 'function' && typeof value !== 'object') { return false; }
-	if (hasToStringTag) { return tryFunctionObject(value); }
-	if (isES6ClassFn(value)) { return false; }
-	var strClass = toStr.call(value);
-	return strClass === fnClass || strClass === genClass;
-};
-
-},{}],58:[function(require,module,exports){
-'use strict';
-
-var regexExec = RegExp.prototype.exec;
-var tryRegexExec = function tryRegexExec(value) {
-	try {
-		regexExec.call(value);
-		return true;
-	} catch (e) {
-		return false;
-	}
-};
-var toStr = Object.prototype.toString;
-var regexClass = '[object RegExp]';
-var hasToStringTag = typeof Symbol === 'function' && typeof Symbol.toStringTag === 'symbol';
-
-module.exports = function isRegex(value) {
-	if (typeof value !== 'object') { return false; }
-	return hasToStringTag ? tryRegexExec(value) : toStr.call(value) === regexClass;
-};
-
-},{}],59:[function(require,module,exports){
-'use strict';
-
-module.exports = function getPolyfill() {
-	// Detect if an implementation exists
-	// Detect early implementations which skipped holes in sparse arrays
-	var implemented = Array.prototype.find && [, 1].find(function (item, index) {
-		return index === 0;
-	});
-
-	return implemented ? Array.prototype.find : require('./implementation');
-};
-
-},{"./implementation":36}],60:[function(require,module,exports){
-'use strict';
-
-var define = require('define-properties');
-var getPolyfill = require('./polyfill');
-
-module.exports = function shimArrayPrototypeFind() {
-	var polyfill = getPolyfill();
-
-	define(Array.prototype, { find: polyfill }, {
-		find: function () {
-			return Array.prototype.find !== polyfill;
-		}
-	});
-
-	return polyfill;
-};
-
-},{"./polyfill":59,"define-properties":38}],61:[function(require,module,exports){
+    return undefined;
+  };
+
+  if (Object.defineProperty) {
+    try {
+      Object.defineProperty(Array.prototype, 'find', {
+        value: find, configurable: true, enumerable: false, writable: true
+      });
+    } catch(e) {}
+  }
+
+  if (!Array.prototype.find) {
+    Array.prototype.find = find;
+  }
+})(this);
+
+},{}],37:[function(require,module,exports){
 // Array.prototype.findIndex - MIT License (c) 2013 Paul Miller <http://paulmillr.com>
 // For all details and docs: <https://github.com/paulmillr/Array.prototype.findIndex>
-'use strict';
-var ES = require('es-abstract/es6');
+(function (globals) {
+  if (Array.prototype.findIndex) return;
 
-module.exports = function findIndex(predicate) {
-	var list = ES.ToObject(this);
-	var length = ES.ToLength(ES.ToLength(list.length));
-	if (!ES.IsCallable(predicate)) {
-		throw new TypeError('Array#findIndex: predicate must be a function');
-	}
-	if (length === 0) return -1;
-	var thisArg = arguments[1];
-	for (var i = 0, value; i < length; i++) {
-		value = list[i];
-		if (ES.Call(predicate, thisArg, [value, i, list])) return i;
-	}
-	return -1;
-};
+  var findIndex = function(predicate) {
+    var list = Object(this);
+    var length = Math.max(0, list.length) >>> 0; // ES.ToUint32;
+    if (length === 0) return -1;
+    if (typeof predicate !== 'function' || Object.prototype.toString.call(predicate) !== '[object Function]') {
+      throw new TypeError('Array#findIndex: predicate must be a function');
+    }
+    var thisArg = arguments.length > 1 ? arguments[1] : undefined;
+    for (var i = 0; i < length; i++) {
+      if (predicate.call(thisArg, list[i], i, list)) return i;
+    }
+    return -1;
+  };
 
-},{"es-abstract/es6":68}],62:[function(require,module,exports){
-'use strict';
+  if (Object.defineProperty) {
+    try {
+      Object.defineProperty(Array.prototype, 'findIndex', {
+        value: findIndex, configurable: true, writable: true
+      });
+    } catch(e) {}
+  }
 
-var define = require('define-properties');
-var ES = require('es-abstract/es6');
+  if (!Array.prototype.findIndex) {
+    Array.prototype.findIndex = findIndex;
+  }
+}(this));
 
-var implementation = require('./implementation');
-var getPolyfill = require('./polyfill');
-var shim = require('./shim');
-
-var slice = Array.prototype.slice;
-
-var boundShim = function findIndex(array, predicate) {
-	ES.RequireObjectCoercible(array);
-	return implementation.apply(array, predicate);
-};
-
-define(boundShim, {
-	implementation: implementation,
-	getPolyfill: getPolyfill,
-	shim: shim
-});
-
-module.exports = boundShim;
-
-},{"./implementation":61,"./polyfill":84,"./shim":85,"define-properties":63,"es-abstract/es6":68}],63:[function(require,module,exports){
-arguments[4][38][0].apply(exports,arguments)
-},{"dup":38,"foreach":64,"object-keys":65}],64:[function(require,module,exports){
-arguments[4][39][0].apply(exports,arguments)
-},{"dup":39}],65:[function(require,module,exports){
-arguments[4][40][0].apply(exports,arguments)
-},{"./isArguments":66,"dup":40}],66:[function(require,module,exports){
-arguments[4][41][0].apply(exports,arguments)
-},{"dup":41}],67:[function(require,module,exports){
-arguments[4][42][0].apply(exports,arguments)
-},{"./helpers/isFinite":70,"./helpers/isNaN":71,"./helpers/mod":73,"./helpers/sign":74,"dup":42,"es-to-primitive/es5":75,"is-callable":82}],68:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"./es5":67,"./helpers/assign":69,"./helpers/isFinite":70,"./helpers/isNaN":71,"./helpers/isPrimitive":72,"./helpers/mod":73,"./helpers/sign":74,"dup":43,"es-to-primitive/es6":76,"function-bind":81,"is-regex":83}],69:[function(require,module,exports){
-arguments[4][44][0].apply(exports,arguments)
-},{"dup":44}],70:[function(require,module,exports){
-arguments[4][45][0].apply(exports,arguments)
-},{"dup":45}],71:[function(require,module,exports){
-arguments[4][46][0].apply(exports,arguments)
-},{"dup":46}],72:[function(require,module,exports){
-arguments[4][47][0].apply(exports,arguments)
-},{"dup":47}],73:[function(require,module,exports){
-arguments[4][48][0].apply(exports,arguments)
-},{"dup":48}],74:[function(require,module,exports){
-arguments[4][49][0].apply(exports,arguments)
-},{"dup":49}],75:[function(require,module,exports){
-arguments[4][50][0].apply(exports,arguments)
-},{"./helpers/isPrimitive":77,"dup":50,"is-callable":82}],76:[function(require,module,exports){
-arguments[4][51][0].apply(exports,arguments)
-},{"./helpers/isPrimitive":77,"dup":51,"is-callable":82,"is-date-object":78,"is-symbol":79}],77:[function(require,module,exports){
-arguments[4][47][0].apply(exports,arguments)
-},{"dup":47}],78:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"dup":53}],79:[function(require,module,exports){
-arguments[4][54][0].apply(exports,arguments)
-},{"dup":54}],80:[function(require,module,exports){
-arguments[4][55][0].apply(exports,arguments)
-},{"dup":55}],81:[function(require,module,exports){
-arguments[4][56][0].apply(exports,arguments)
-},{"./implementation":80,"dup":56}],82:[function(require,module,exports){
-arguments[4][57][0].apply(exports,arguments)
-},{"dup":57}],83:[function(require,module,exports){
-arguments[4][58][0].apply(exports,arguments)
-},{"dup":58}],84:[function(require,module,exports){
-'use strict';
-
-module.exports = function getPolyfill() {
-	// Detect if an implementation exists
-	// Detect early implementations which skipped holes in sparse arrays
-	var implemented = Array.prototype.findIndex && ([, 1].findIndex(function (item, idx) {
-		return idx === 0;
-	}) === 0);
-
-
-	return implemented ? Array.prototype.findIndex : require('./implementation');
-};
-
-},{"./implementation":61}],85:[function(require,module,exports){
-'use strict';
-
-var define = require('define-properties');
-var getPolyfill = require('./polyfill');
-
-module.exports = function shimArrayPrototypeFindIndex() {
-	var polyfill = getPolyfill();
-
-	define(Array.prototype, { findIndex: polyfill }, {
-		findIndex: function () {
-			return Array.prototype.findIndex !== polyfill;
-		}
-	});
-
-	return polyfill;
-};
-
-},{"./polyfill":84,"define-properties":63}],86:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -3722,7 +2728,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],87:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -3884,14 +2890,14 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],88:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],89:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -4481,7 +3487,7 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":88,"_process":87,"inherits":86}],90:[function(require,module,exports){
+},{"./support/isBuffer":40,"_process":39,"inherits":38}],42:[function(require,module,exports){
 'use strict';
 
 var util = require('util');
@@ -4560,7 +3566,7 @@ function structuredClone(input, memory) {
 }
 
 module.exports = structuredClone;
-},{"lodash.isplainobject":91,"util":89}],91:[function(require,module,exports){
+},{"lodash.isplainobject":43,"util":41}],43:[function(require,module,exports){
 /**
  * lodash 3.2.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -4665,7 +3671,7 @@ function isPlainObject(value) {
 
 module.exports = isPlainObject;
 
-},{"lodash._basefor":92,"lodash.isarguments":93,"lodash.keysin":94}],92:[function(require,module,exports){
+},{"lodash._basefor":44,"lodash.isarguments":45,"lodash.keysin":46}],44:[function(require,module,exports){
 /**
  * lodash 3.0.3 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -4715,7 +3721,7 @@ function createBaseFor(fromRight) {
 
 module.exports = baseFor;
 
-},{}],93:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 /**
  * lodash (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -4974,7 +3980,7 @@ function isObjectLike(value) {
 
 module.exports = isArguments;
 
-},{}],94:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 /**
  * lodash 3.0.8 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -5108,7 +4114,7 @@ function keysIn(object) {
 
 module.exports = keysIn;
 
-},{"lodash.isarguments":93,"lodash.isarray":95}],95:[function(require,module,exports){
+},{"lodash.isarguments":45,"lodash.isarray":47}],47:[function(require,module,exports){
 /**
  * lodash 3.0.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -5290,7 +4296,7 @@ function isNative(value) {
 
 module.exports = isArray;
 
-},{}],96:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 (function (process,global){
 (function (global, undefined) {
     "use strict";
@@ -5469,4 +4475,4 @@ module.exports = isArray;
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":87}]},{},[1]);
+},{"_process":39}]},{},[1]);
