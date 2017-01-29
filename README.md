@@ -8,11 +8,15 @@ It passes [the W3C IndexedDB test suite](https://github.com/w3c/web-platform-tes
 
 For use with CommonJS (Node.js/Browserify), [install through npm](https://www.npmjs.com/package/fake-indexeddb):
 
-    $ npm install fake-indexeddb
+```sh
+npm install fake-indexeddb
+```
 
 Otherwise, download [the bundled version](dist/fakeIndexedDB.js) and include it in your page like:
 
-    <script type="text/javascript" src="fakeIndexedDB.js"></script>
+```html
+<script type="text/javascript" src="fakeIndexedDB.js"></script>
+```
 
 If you're using AMD, you'll have to shim it.
 
@@ -22,38 +26,40 @@ Functionally, it works exactly like IndexedDB except data is not persisted to di
 
 Example usage:
 
-    var fakeIndexedDB = require('fake-indexeddb');
-    var FDBKeyRange = require('fake-indexeddb/lib/FDBKeyRange');
+```js
+var fakeIndexedDB = require('fake-indexeddb');
+var FDBKeyRange = require('fake-indexeddb/lib/FDBKeyRange');
 
-    var request = fakeIndexedDB.open('test', 3);
-    request.onupgradeneeded = function () {
-        var db = request.result;
-        var store = db.createObjectStore("books", {keyPath: "isbn"});
-        store.createIndex("by_title", "title", {unique: true});
+var request = fakeIndexedDB.open('test', 3);
+request.onupgradeneeded = function () {
+    var db = request.result;
+    var store = db.createObjectStore("books", {keyPath: "isbn"});
+    store.createIndex("by_title", "title", {unique: true});
 
-        store.put({title: "Quarry Memories", author: "Fred", isbn: 123456});
-        store.put({title: "Water Buffaloes", author: "Fred", isbn: 234567});
-        store.put({title: "Bedrock Nights", author: "Barney", isbn: 345678});
-    }
-    request.onsuccess = function (event) {
-        var db = event.target.result;
+    store.put({title: "Quarry Memories", author: "Fred", isbn: 123456});
+    store.put({title: "Water Buffaloes", author: "Fred", isbn: 234567});
+    store.put({title: "Bedrock Nights", author: "Barney", isbn: 345678});
+}
+request.onsuccess = function (event) {
+    var db = event.target.result;
 
-        var tx = db.transaction("books");
+    var tx = db.transaction("books");
 
-        tx.objectStore("books").index("by_title").get("Quarry Memories").addEventListener('success', function (event) {
-            console.log('From index:', event.target.result);
-        });
-        tx.objectStore("books").openCursor(FDBKeyRange.lowerBound(200000)).onsuccess = function (event) {
-            var cursor = event.target.result;
-            if (cursor) {
-                console.log('From cursor:', cursor.value);
-                cursor.continue();
-            }
-        };
-        tx.oncomplete = function () {
-            console.log('All done!');
-        };
+    tx.objectStore("books").index("by_title").get("Quarry Memories").addEventListener('success', function (event) {
+        console.log('From index:', event.target.result);
+    });
+    tx.objectStore("books").openCursor(FDBKeyRange.lowerBound(200000)).onsuccess = function (event) {
+        var cursor = event.target.result;
+        if (cursor) {
+            console.log('From cursor:', cursor.value);
+            cursor.continue();
+        }
     };
+    tx.oncomplete = function () {
+        console.log('All done!');
+    };
+};
+```
 
 Variable names of all the objects are like the normal IndexedDB ones except with F replacing I, e.g. `FDBIndex` instead of `IDBIndex`.
 
