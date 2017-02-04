@@ -331,4 +331,37 @@ describe('fakeIndexedDB Tests', function () {
             };
         });
     });
+
+    it('should allow index where not all records have keys', function (done) {
+        var request = fakeIndexedDB.open('test' + Math.random());
+        request.onupgradeneeded = function(e) {
+            var db = e.target.result;
+            var store = db.createObjectStore('store', {autoIncrement: true});
+            store.createIndex('compound', ['a','b'], {unique: false });
+        };
+        request.onsuccess = function (e) {
+            var db = e.target.result;
+
+            var tx = db.transaction('store', 'readwrite');
+            tx.objectStore('store').put({
+                whatever: 'foo',
+            });
+            tx.onerror = function (e) {
+                done(e.target.error);
+            }
+
+            tx.oncomplete = function () {
+                var tx2 = db.transaction('store');
+                var request = tx2.objectStore('store').get(1);
+
+                request.onsuccess = function (e) {
+                    assert.deepEqual(e.target.result, {
+                        whatever: 'foo',
+                    });
+                }
+
+                tx2.oncomplete = function () { done(); };
+            };
+        };
+    });
 });
