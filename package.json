@@ -31,16 +31,16 @@
   "author": "Jeremy Scheff <jdscheff@gmail.com> (http://dumbmatter.com/)",
   "license": "Apache-2.0",
   "dependencies": {
-    "array.prototype.find": "1.0.0",
-    "array.prototype.findindex": "1.0.0",
-    "realistic-structured-clone": "0.0.2",
-    "setimmediate": "1.0.4"
+    "array.prototype.find": "^1.0.0",
+    "array.prototype.findindex": "^1.0.0",
+    "realistic-structured-clone": "^0.0.3",
+    "setimmediate": "^1.0.5"
   },
   "devDependencies": {
-    "browserify": "13.1.0",
-    "eslint": "3.2.2",
-    "mocha": "3.0.2",
-    "node-qunit-phantomjs": "1.4.0",
-    "qunitjs": "1.x"
+    "browserify": "^14.0.0",
+    "eslint": "^3.15.0",
+    "mocha": "^3.2.0",
+    "node-qunit-phantomjs": "^1.5.0",
+    "qunitjs": "^1.23.1"
   }
 }
