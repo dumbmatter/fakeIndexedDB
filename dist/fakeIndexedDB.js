@@ -3,18 +3,18 @@
 
 'use strict';
 
-window.fakeIndexedDB = require('.');
-window.FDBCursor = require('./lib/FDBCursor');
-window.FDBCursorWithValue = require('./lib/FDBCursorWithValue');
-window.FDBDatabase = require('./lib/FDBDatabase');
-window.FDBFactory = require('./lib/FDBFactory');
-window.FDBIndex = require('./lib/FDBIndex');
-window.FDBKeyRange = require('./lib/FDBKeyRange');
-window.FDBObjectStore = require('./lib/FDBObjectStore');
-window.FDBOpenDBRequest = require('./lib/FDBOpenDBRequest');
-window.FDBRequest = require('./lib/FDBRequest');
-window.FDBTransaction = require('./lib/FDBTransaction');
-window.FDBVersionChangeEvent = require('./lib/FDBVersionChangeEvent');
+self.fakeIndexedDB = require('.');
+self.FDBCursor = require('./lib/FDBCursor');
+self.FDBCursorWithValue = require('./lib/FDBCursorWithValue');
+self.FDBDatabase = require('./lib/FDBDatabase');
+self.FDBFactory = require('./lib/FDBFactory');
+self.FDBIndex = require('./lib/FDBIndex');
+self.FDBKeyRange = require('./lib/FDBKeyRange');
+self.FDBObjectStore = require('./lib/FDBObjectStore');
+self.FDBOpenDBRequest = require('./lib/FDBOpenDBRequest');
+self.FDBRequest = require('./lib/FDBRequest');
+self.FDBTransaction = require('./lib/FDBTransaction');
+self.FDBVersionChangeEvent = require('./lib/FDBVersionChangeEvent');
 },{".":2,"./lib/FDBCursor":6,"./lib/FDBCursorWithValue":7,"./lib/FDBDatabase":8,"./lib/FDBFactory":9,"./lib/FDBIndex":10,"./lib/FDBKeyRange":11,"./lib/FDBObjectStore":12,"./lib/FDBOpenDBRequest":13,"./lib/FDBRequest":14,"./lib/FDBTransaction":15,"./lib/FDBVersionChangeEvent":16}],2:[function(require,module,exports){
 'use strict';
 
@@ -3486,7 +3486,7 @@ function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof self !== "undefined" ? self : {})
 },{"./support/isBuffer":40,"_process":39,"inherits":38}],42:[function(require,module,exports){
 'use strict';
 
@@ -4474,5 +4474,5 @@ module.exports = isArray;
     attachTo.clearImmediate = clearImmediate;
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
-}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof self !== "undefined" ? self : {})
 },{"_process":39}]},{},[1]);
