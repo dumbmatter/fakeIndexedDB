@@ -73,7 +73,7 @@ describe('W3C Key Validity Tests', function () {
         invalid_key( '{}'                           , {} );
         invalid_key( '{ obj: 1 }'                   , { obj: 1 });
         invalid_key( 'Math'                         , Math );
-        //invalid_key( 'window'                       , window );
+        //invalid_key( 'self'                       , self );
         invalid_key( '{length:0,constructor:Array}' , fake_array );
         invalid_key( 'Array clone’s instance'       , ArrayClone_instance );
         invalid_key( 'Array (object)'               , Array );
