@@ -2,15 +2,15 @@
 
 'use strict';
 
-window.fakeIndexedDB = require('.');
-window.FDBCursor = require('./lib/FDBCursor');
-window.FDBCursorWithValue = require('./lib/FDBCursorWithValue');
-window.FDBDatabase = require('./lib/FDBDatabase');
-window.FDBFactory = require('./lib/FDBFactory');
-window.FDBIndex = require('./lib/FDBIndex');
-window.FDBKeyRange = require('./lib/FDBKeyRange');
-window.FDBObjectStore = require('./lib/FDBObjectStore');
-window.FDBOpenDBRequest = require('./lib/FDBOpenDBRequest');
-window.FDBRequest = require('./lib/FDBRequest');
-window.FDBTransaction = require('./lib/FDBTransaction');
-window.FDBVersionChangeEvent = require('./lib/FDBVersionChangeEvent');
+self.fakeIndexedDB = require('.');
+self.FDBCursor = require('./lib/FDBCursor');
+self.FDBCursorWithValue = require('./lib/FDBCursorWithValue');
+self.FDBDatabase = require('./lib/FDBDatabase');
+self.FDBFactory = require('./lib/FDBFactory');
+self.FDBIndex = require('./lib/FDBIndex');
+self.FDBKeyRange = require('./lib/FDBKeyRange');
+self.FDBObjectStore = require('./lib/FDBObjectStore');
+self.FDBOpenDBRequest = require('./lib/FDBOpenDBRequest');
+self.FDBRequest = require('./lib/FDBRequest');
+self.FDBTransaction = require('./lib/FDBTransaction');
+self.FDBVersionChangeEvent = require('./lib/FDBVersionChangeEvent');

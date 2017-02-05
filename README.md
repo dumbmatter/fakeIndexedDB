@@ -63,7 +63,7 @@ request.onsuccess = function (event) {
 
 Variable names of all the objects are like the normal IndexedDB ones except with F replacing I, e.g. `FDBIndex` instead of `IDBIndex`.
 
-If you're using the bundled version (not installed through npm), then all of the variables are created and attached to `window`, like `window.fakeIndexedDB`, `window.FDBKeyRange`, etc.
+If you're using the bundled version (not installed through npm), then all of the variables are created and attached to `window` (or `self` in a Web Worker), like `window.fakeIndexedDB`, `window.FDBKeyRange`, etc.
 
 ## Potential applications:
 
