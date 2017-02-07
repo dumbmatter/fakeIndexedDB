@@ -25,20 +25,22 @@
     "build": "browserify exports.js -o dist/fakeIndexedDB.js",
     "lint": "eslint exports.js index.js test lib",
     "mocha": "mocha --timeout 5000 test/w3c test/fakeIndexedDB",
-    "test": "npm run lint && npm run mocha && echo 'For additional indexedDBmock tests, open test/indexedDBmock/index.html in a web browser.'"
+    "qunit": "node-qunit-phantomjs ./test/indexedDBmock/index.html",
+    "test": "npm run lint && npm run mocha && npm run qunit"
   },
   "author": "Jeremy Scheff <jdscheff@gmail.com> (http://dumbmatter.com/)",
   "license": "Apache-2.0",
   "dependencies": {
     "array.prototype.find": "^1.0.0",
     "array.prototype.findindex": "^1.0.0",
-    "realistic-structured-clone": "^1.0.0",
+    "realistic-structured-clone": "^1.0.1",
     "setimmediate": "^1.0.5"
   },
   "devDependencies": {
     "browserify": "^14.0.0",
     "eslint": "^3.15.0",
     "mocha": "^3.2.0",
+    "node-qunit-phantomjs": "^1.5.0",
     "qunitjs": "^1.23.1"
   }
 }

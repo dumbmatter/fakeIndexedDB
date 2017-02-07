@@ -3636,17 +3636,17 @@ function structuredClone(input, memory) {
         output = new RegExp(input.source, input.flags);
     } else if (input instanceof ArrayBuffer) {
         output = input.slice();
-    } else if (typeof ArrayBuffer !== 'undefined' && ArrayBuffer.isView(input)) {
+    } else if (typeof ArrayBuffer !== 'undefined' && ArrayBuffer.isView && ArrayBuffer.isView(input)) {
         var outputBuffer = structuredClone(input.buffer, memory);
         if (input instanceof DataView) {
             output = new DataView(outputBuffer, input.byteOffset, input.byteLength);
         } else {
             output = new input.constructor(outputBuffer, input.byteOffset, input.length);
         }
-    } else if (typeof Map !== 'undefined' && input instanceof Map) {
+    } else if (input instanceof Map) {
         output = new Map();
         deepClone = 'map';
-    } else if (typeof Set !== 'undefined' && input instanceof Set) {
+    } else if (input instanceof Set) {
         output = new Set();
         deepClone = 'set';
     } else if (typeof Blob !== 'undefined' && input instanceof Blob) {
