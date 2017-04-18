@@ -1,7 +1,5 @@
 # v2 stuff:
 
-make count use cursor rather than rawIndex
-
 abstract data functions
 
 binary search tree
@@ -32,7 +30,7 @@ multiple readonly transactions should be allowed to run at the same time (but no
 readonly properties need to actually be readonly
 - done in FDBCursor
 
-share some code between Index and ObjectStore, like getValue, confirmActiveTransaction
+share some code between Index and ObjectStore, like getValue, confirmActiveTransaction, count
 - similar thing between open and deleteDatabase
 
 break events stuff into separate module, maybe fakeDOMEvents

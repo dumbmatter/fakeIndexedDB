@@ -4,7 +4,6 @@ const FDBCursorWithValue = require('./FDBCursorWithValue');
 const FDBKeyRange = require('./FDBKeyRange');
 const FDBRequest = require('./FDBRequest');
 const {InvalidStateError, TransactionInactiveError} = require('./lib/errors');
-const cmp = require('./lib/cmp');
 const validateKey = require('./lib/validateKey');
 
 const confirmActiveTransaction = (index) => {
@@ -106,32 +105,19 @@ class FDBIndex {
     count(key) {
         confirmActiveTransaction(this);
 
+        if (key === null) { key = undefined; }
         if (key !== undefined && !(key instanceof FDBKeyRange)) {
-            key = structuredClone(validateKey(key));
+            key = FDBKeyRange.only(structuredClone(validateKey(key)));
         }
 
-// Should really use a cursor under the hood
         return this.objectStore.transaction._execRequestAsync({
             source: this,
             operation: () => {
-                let count;
+                let count = 0;
 
-                if (key instanceof FDBKeyRange) {
-                    count = 0;
-                    for (const record of this._rawIndex.records) {
-                        if (FDBKeyRange.check(key, record.key)) {
-                            count += 1;
-                        }
-                    }
-                } else if (key !== undefined) {
-                    count = 0;
-                    for (const record of this._rawIndex.records) {
-                        if (cmp(record.key, key) === 0) {
-                            count += 1;
-                        }
-                    }
-                } else {
-                    count = this._rawIndex.records.length;
+                const cursor = new FDBCursor(this, key);
+                while (cursor._iterate() !== null) {
+                    count += 1;
                 }
 
                 return count;
