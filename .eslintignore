@@ -1,2 +1,2 @@
-test/w3c
-test/indexedDBmock
+src/test/w3c
+src/test/indexedDBmock

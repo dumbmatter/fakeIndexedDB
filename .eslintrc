@@ -1,8 +1,7 @@
 {
     "env": {
-        "browser": true,
-        "node": true,
-        "mocha": true
+        "es6": true,
+        "node": true
     },
 
     "extends": "eslint:recommended"

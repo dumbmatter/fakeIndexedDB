@@ -6,31 +6,20 @@ It passes [the W3C IndexedDB test suite](https://github.com/w3c/web-platform-tes
 
 ## Installation
 
-For use with CommonJS (Node.js/Browserify), [install through npm](https://www.npmjs.com/package/fake-indexeddb):
-
 ```sh
 npm install fake-indexeddb
 ```
-
-Otherwise, download [the bundled version](dist/fakeIndexedDB.js) and include it in your page like:
-
-```html
-<script type="text/javascript" src="fakeIndexedDB.js"></script>
-```
-
-If you're using AMD, you'll have to shim it.
 
 ## Use
 
 Functionally, it works exactly like IndexedDB except data is not persisted to disk.
 
-Example usage:
+Use it as a shim to conditionally load it when IndexedDB is not present, such as in NodeJS or in really old browsers.
 
 ```js
-var fakeIndexedDB = require('fake-indexeddb');
-var FDBKeyRange = require('fake-indexeddb/lib/FDBKeyRange');
+require('fake-indexeddb/shim');
 
-var request = fakeIndexedDB.open('test', 3);
+var request = indexedDB.open('test', 3);
 request.onupgradeneeded = function () {
     var db = request.result;
     var store = db.createObjectStore("books", {keyPath: "isbn"});
@@ -48,7 +37,7 @@ request.onsuccess = function (event) {
     tx.objectStore("books").index("by_title").get("Quarry Memories").addEventListener('success', function (event) {
         console.log('From index:', event.target.result);
     });
-    tx.objectStore("books").openCursor(FDBKeyRange.lowerBound(200000)).onsuccess = function (event) {
+    tx.objectStore("books").openCursor(IDBKeyRange.lowerBound(200000)).onsuccess = function (event) {
         var cursor = event.target.result;
         if (cursor) {
             console.log('From cursor:', cursor.value);
@@ -61,9 +50,14 @@ request.onsuccess = function (event) {
 };
 ```
 
-Variable names of all the objects are like the normal IndexedDB ones except with F replacing I, e.g. `FDBIndex` instead of `IDBIndex`.
+Or you can import individual functions directly. Variable names of all the objects are like the normal IndexedDB ones except with F replacing I, e.g. `FDBIndex` instead of `IDBIndex`.
 
-If you're using the bundled version (not installed through npm), then all of the variables are created and attached to `window` (or `self` in a Web Worker), like `window.fakeIndexedDB`, `window.FDBKeyRange`, etc.
+```js
+var fakeIndexedDB = require('fake-indexeddb');
+var FDBKeyRange = require('fake-indexeddb/FDBKeyRange');
+
+// ...same code as last example, but fakeIndexedDB instead of indexedDB and FDBKeyRange instead of IDBKeyRange
+```
 
 ## Potential applications:
 

@@ -1,3 +1,25 @@
+# v2 stuff:
+
+make count use cursor rather than rawIndex
+
+abstract data functions
+
+binary search tree
+
+TypeScript
+
+Run on real W3C tests
+
+IDB2 Features
+
+reevaluate all uses of setImmedaite, setTimeout, nextTick
+
+open issues
+
+addDomStringListMethods - make it a class
+
+---
+
 test that IDBObjectStore.index returns the same or different IDBIndex depending on situation http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBObjectStore-index-IDBIndex-DOMString-name
 
 Other tests
@@ -7,13 +29,8 @@ Other tests
 
 multiple readonly transactions should be allowed to run at the same time (but not readwrite, they should be all alone)
 
-objectStoreNames and indexNames should be DOMStringLists
-- see https://github.com/facebookarchive/IndexedDB-polyfill/blob/master/indexedDB.polyfill.js#L36
-- http://www.w3.org/TR/DOM-Level-3-Core/core.html#DOMStringList
-- do real implementations really not support [] indexing?
-
 readonly properties need to actually be readonly
-- done in FDBCursor, but messy if other classes need to update a value that is to be presented to the user as readonly, like FDBCursorWithValue.value
+- done in FDBCursor
 
 share some code between Index and ObjectStore, like getValue, confirmActiveTransaction
 - similar thing between open and deleteDatabase
@@ -22,8 +39,6 @@ break events stuff into separate module, maybe fakeDOMEvents
 - readonly properties? hidden/non-enumerable properties?
 
 go through and fix all the left comments (todo stuff)
-
-reevaluate all uses of setImmedaite, setTimeout, nextTick
 
 _ properties should be hidden from standard functions
 - object.defineProperty enumerable?
