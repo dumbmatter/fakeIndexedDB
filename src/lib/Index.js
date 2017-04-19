@@ -1,13 +1,12 @@
-const FDBKeyRange = require('../FDBKeyRange');
+const RecordStore = require('./RecordStore');
 const {ConstraintError} = require('./errors');
-const cmp = require('./cmp');
 const extractKey = require('./extractKey');
 const validateKey = require('./validateKey');
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-index
 class Index {
     constructor(rawObjectStore, name, keyPath, multiEntry, unique) {
-        this.records = [];
+        this.records = new RecordStore();
         this.rawObjectStore = rawObjectStore;
         this.initialized = false;
         this.deleted = false;
@@ -19,28 +18,16 @@ class Index {
         this.unique = unique;
     }
 
-    _getRecord(key) {
-        if (key instanceof FDBKeyRange) {
-            return this.records.find((record) => {
-                return FDBKeyRange.check(key, record.key);
-            });
-        }
-
-        return this.records.find((record) => {
-            return cmp(record.key, key) === 0;
-        });
-    }
-
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-retrieving-a-value-from-an-index
     getKey(key) {
-        const record = this._getRecord(key);
+        const record = this.records.get(key);
 
         return record !== undefined ? record.value : undefined;
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#index-referenced-value-retrieval-operation
     getValue(key) {
-        const record = this._getRecord(key);
+        const record = this.records.get(key);
 
         return record !== undefined ? this.rawObjectStore.getValue(record.value) : undefined;
     }
@@ -81,57 +68,30 @@ class Index {
 
         if (!this.multiEntry || !Array.isArray(indexKey)) {
             if (this.unique) {
-                const i = this.records.findIndex((record) => {
-                    return cmp(record.key, indexKey) === 0;
-                });
-                if (i >= 0) {
+                const existingRecord = this.records.get(indexKey);
+                if (existingRecord) {
                     throw new ConstraintError();
                 }
             }
         } else {
             if (this.unique) {
                 for (const individualIndexKey of indexKey) {
-                    for (const record of this.records) {
-                        if (cmp(record.key, individualIndexKey) === 0) {
-                            throw new ConstraintError();
-                        }
+                    const existingRecord = this.records.get(individualIndexKey);
+                    if (existingRecord) {
+                        throw new ConstraintError();
                     }
                 }
             }
         }
 
-        // Store record {key (indexKey) and value (recordKey)} sorted ascending by key (primarily) and value (secondarily)
-        const storeInIndex = (newRecord) => {
-            let i = this.records.findIndex((record) => {
-                return cmp(record.key, newRecord.key) >= 0;
-            });
-
-            // If no matching key, add to end
-            if (i === -1) {
-                i = this.records.length;
-            } else {
-                // If matching key, advance to appropriate position based on value
-                while (i < this.records.length && cmp(this.records[i].key, newRecord.key) === 0) {
-                    if (cmp(this.records[i].value, newRecord.value) !== -1) {
-                        // Record value >= newRecord value, so insert here
-                        break;
-                    }
-
-                    i += 1; // Look at next record
-                }
-            }
-
-            this.records.splice(i, 0, newRecord);
-        };
-
         if (!this.multiEntry || !Array.isArray(indexKey)) {
-            storeInIndex({
+            this.records.add({
                 key: indexKey,
                 value: newRecord.key
             });
         } else {
             for (const individualIndexKey of indexKey) {
-                storeInIndex({
+                this.records.add({
                     key: individualIndexKey,
                     value: newRecord.key
                 });
@@ -149,12 +109,13 @@ class Index {
             operation: () => {
                 try {
                     // Create index based on current value of objectstore
-                    for (const record of this.rawObjectStore.records) {
+                    for (const record of this.rawObjectStore.records.values()) {
                         this.storeRecord(record);
                     }
 
                     this.initialized = true;
                 } catch (err) {
+//console.error(err);
                     transaction._abort(err.name);
                 }
             },

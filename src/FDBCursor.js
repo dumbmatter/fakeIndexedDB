@@ -45,7 +45,7 @@ class FDBCursor {
     _iterate(key) {
         const sourceIsObjectStore = !this.source.hasOwnProperty('_rawIndex');
 
-        const records = sourceIsObjectStore ? this.source._rawObjectStore.records : this.source._rawIndex.records;
+        const records = sourceIsObjectStore ? this.source._rawObjectStore.records._records : this.source._rawIndex.records._records;
 
         let foundRecord;
         if (this.direction === "next") {

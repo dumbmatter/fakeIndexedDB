@@ -10,7 +10,6 @@ describe('W3C IDBObjectStore.count Tests', function () {
         var db;
 
         var open_rq = createdb(done);
-
         open_rq.onupgradeneeded = function(e) {
             db = e.target.result;
             var store = db.createObjectStore("store");

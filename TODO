@@ -1,6 +1,7 @@
 # v2 stuff:
 
 abstract data functions
+- FDBCursor
 
 binary search tree
 
@@ -15,6 +16,8 @@ reevaluate all uses of setImmedaite, setTimeout, nextTick
 open issues
 
 addDomStringListMethods - make it a class
+
+add lib.js for 1.x compatability
 
 ---
 
