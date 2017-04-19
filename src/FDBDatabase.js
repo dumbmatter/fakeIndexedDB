@@ -2,7 +2,7 @@ const EventTarget = require('./lib/EventTarget').default;
 const FDBTransaction = require('./FDBTransaction').default;
 const ObjectStore = require('./lib/ObjectStore').default;
 const {ConstraintError, InvalidAccessError, InvalidStateError, NotFoundError, TransactionInactiveError} = require('./lib/errors');
-const addDomStringListMethods = require('./lib/addDomStringListMethods');
+const FakeDOMStringList = require("./lib/FakeDOMStringList").default;
 const validateKeyPath = require('./lib/validateKeyPath').default;
 
 const confirmActiveVersionchangeTransaction = (database) => {
@@ -53,8 +53,7 @@ class FDBDatabase extends EventTarget {
 
         this.name = rawDatabase.name;
         this.version = rawDatabase.version;
-        this.objectStoreNames = Object.keys(rawDatabase.rawObjectStores).sort();
-        addDomStringListMethods(this.objectStoreNames);
+        this.objectStoreNames = FakeDOMStringList.from(Object.keys(rawDatabase.rawObjectStores).sort());
     }
 
     createObjectStore(name, optionalParameters) {
@@ -77,11 +76,11 @@ class FDBDatabase extends EventTarget {
             throw new InvalidAccessError();
         }
 
-        transaction._rollbackLog.push(function (objectStoreNames) {
-            this.objectStoreNames = objectStoreNames;
-            addDomStringListMethods(this.objectStoreNames);
+        const objectStoreNames = this.objectStoreNames.slice();
+        transaction._rollbackLog.push(() => {
+            this.objectStoreNames = FakeDOMStringList.from(objectStoreNames);
             delete this._rawDatabase.rawObjectStores[name];
-        }.bind(this, this.objectStoreNames.slice()));
+        });
 
         const objectStore = new ObjectStore(this._rawDatabase, name, keyPath, autoIncrement);
         this.objectStoreNames.push(name);
@@ -99,10 +98,9 @@ class FDBDatabase extends EventTarget {
             throw new NotFoundError();
         }
 
-        this.objectStoreNames = this.objectStoreNames.filter((objectStoreName) => {
+        this.objectStoreNames = FakeDOMStringList.from(this.objectStoreNames.filter((objectStoreName) => {
             return objectStoreName !== name;
-        });
-        addDomStringListMethods(this.objectStoreNames);
+        }));
 
         transaction._rollbackLog.push(function (store) {
             store.deleted = false;

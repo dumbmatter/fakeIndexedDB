@@ -12,8 +12,8 @@ const {
     ReadOnlyError,
     TransactionInactiveError,
 } = require("./lib/errors");
-const addDomStringListMethods = require("./lib/addDomStringListMethods");
 import extractKey from "./lib/extractKey";
+import FakeDOMStringList from "./lib/FakeDOMStringList";
 import Index from "./lib/Index";
 import ObjectStore from "./lib/ObjectStore";
 import structuredClone from "./lib/structuredClone";
@@ -77,7 +77,7 @@ class FDBObjectStore {
     public keyPath: KeyPath | null;
     public autoIncrement: boolean;
     public transaction: any;
-    public indexNames: string[];
+    public indexNames: FakeDOMStringList;
 
     constructor(transaction: any, rawObjectStore: ObjectStore) {
         this._rawObjectStore = rawObjectStore;
@@ -87,8 +87,7 @@ class FDBObjectStore {
         this.keyPath = rawObjectStore.keyPath;
         this.autoIncrement = rawObjectStore.autoIncrement;
         this.transaction = transaction;
-        this.indexNames = Object.keys(rawObjectStore.rawIndexes).sort();
-        addDomStringListMethods(this.indexNames);
+        this.indexNames = FakeDOMStringList.from(Object.keys(rawObjectStore.rawIndexes).sort());
     }
 
     public put(value: Value, key?: Key) {
@@ -218,8 +217,7 @@ class FDBObjectStore {
 
         const indexNames = this.indexNames.slice();
         this.transaction._rollbackLog.push(() => {
-            this.indexNames = indexNames;
-            addDomStringListMethods(this.indexNames);
+            this.indexNames = FakeDOMStringList.from(indexNames);
             delete this._rawObjectStore.rawIndexes[name];
         });
 
@@ -275,10 +273,9 @@ class FDBObjectStore {
             this.indexNames.sort();
         });
 
-        this.indexNames = this.indexNames.filter((indexName) => {
+        this.indexNames = FakeDOMStringList.from(this.indexNames.filter((indexName) => {
             return indexName !== name;
-        });
-        addDomStringListMethods(this.indexNames);
+        }));
         this._rawObjectStore.rawIndexes[name].deleted = true; // Not sure if this is supposed to happen synchronously
 
         this.transaction._execRequestAsync({
