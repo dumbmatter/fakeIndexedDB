@@ -101,7 +101,12 @@ class RecordStore {
                         }
                     }
                 } else {
-                    i = this._records.length;
+                    i = this._records.length - 1;
+                    if (range !== undefined && range.upper !== undefined) {
+                        while (this._records[i] !== undefined && cmp(this._records[i].key, range.upper) === 1) {
+                            i -= 1;
+                        }
+                    }
                 }
 
                 return {
@@ -120,9 +125,16 @@ class RecordStore {
                                 }
                             }
                         } else {
-                            i -= 1;
                             value = this._records[i];
                             done = i < 0;
+                            i -= 1;
+
+                            if (!done && range !== undefined && range.lower !== undefined) {
+                                done = cmp(value.key, range.lower) === -1;
+                                if (done) {
+                                    value = undefined;
+                                }
+                            }
                         }
 
                         return {

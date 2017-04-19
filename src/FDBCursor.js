@@ -12,7 +12,35 @@ const getEffectiveObjectStore = (cursor) => {
     return cursor.source;
 };
 
-const makeKeyRange = (lower, upper) => {
+// This takes a key range, a list of lower bounds, and a list of upper bounds and combines them all into a single key
+// range. It does not handle gt/gte distinctions, because it doesn't really matter much anyway, since for next/prev
+// cursor iteration it'd also have to look at values to be precise, which would be complicated. This should get us 99%
+// of the way there.
+const makeKeyRange = (range, lowers, uppers) => {
+    // Start with bounds from range
+    let lower = range !== undefined ? range.lower : undefined;
+    let upper = range !== undefined ? range.upper : undefined;
+
+    // Augment with values from lowers and uppers
+    for (const lowerTemp of lowers) {
+        if (lowerTemp === undefined) {
+            continue;
+        }
+
+        if (lower === undefined || cmp(lower, lowerTemp) === 1) {
+            lower = lowerTemp;
+        }
+    }
+    for (const upperTemp of uppers) {
+        if (upperTemp === undefined) {
+            continue;
+        }
+
+        if (upper === undefined || cmp(upper, upperTemp) === -1) {
+            upper = upperTemp;
+        }
+    }
+
     if (lower !== undefined && upper !== undefined) {
         return FDBKeyRange.bound(lower, upper);
     }
@@ -61,7 +89,8 @@ class FDBCursor {
 
         let foundRecord;
         if (this.direction === "next") {
-            for (const record of records.values()) {
+            const range = makeKeyRange(this._range, [key, this._position], []);
+            for (const record of records.values(range)) {
                 if (key !== undefined) {
                     if (cmp(record.key, key) === -1) {
                         continue;
@@ -90,29 +119,10 @@ class FDBCursor {
                 break;
             }
         } else if (this.direction === "nextunique") {
-            let lower;
-            let upper;
-            if (key !== undefined) {
-                lower = key;
-            }
-            if (this._position !== undefined) {
-                if (lower === undefined || cmp(lower, this._position) === 1) {
-                    lower = this._position;
-                }
-            }
-            if (this._range !== undefined) {
-                if (this._range.lower !== undefined && (lower === undefined || cmp(lower, this._range.lower) === 1)) {
-                    lower = this._range.lower;
-                }
-                if (this._range.upper !== undefined) {
-                    upper = this._range.upper;
-                }
-            }
-            const range = makeKeyRange(lower, upper);
-
             // This could be done without iterating, if the range was defined slightly better (to handle gt/gte cases).
             // But the performance difference should be small, and that wouldn't work anyway for directions where the
             // value needs to be used (like next and prev).
+            const range = makeKeyRange(this._range, [key, this._position], []);
             for (const record of records.values(range)) {
                 if (key !== undefined) {
                     if (cmp(record.key, key) === -1) {
@@ -133,7 +143,8 @@ class FDBCursor {
                 break;
             }
         } else if (this.direction === "prev") {
-            for (const record of records.values(undefined, 'prev')) {
+            const range = makeKeyRange(this._range, [], [key, this._position]);
+            for (const record of records.values(range, 'prev')) {
                 if (key !== undefined) {
                     if (cmp(record.key, key) === 1) {
                         continue;
@@ -163,7 +174,8 @@ class FDBCursor {
             }
         } else if (this.direction === "prevunique") {
             let tempRecord;
-            for (const record of records.values(undefined, 'prev')) {
+            const range = makeKeyRange(this._range, [], [key, this._position]);
+            for (const record of records.values(range, 'prev')) {
                 if (key !== undefined) {
                     if (cmp(record.key, key) === 1) {
                         continue;
@@ -192,17 +204,24 @@ class FDBCursor {
         if (!foundRecord) {
             this._key = undefined;
             if (!sourceIsObjectStore) { this._objectStorePosition = undefined; }
-            this.value = undefined;
+            if (this.constructor.name === 'FDBCursorWithValue') {
+                this.value = undefined;
+            }
             result = null;
         } else {
             this._position = foundRecord.key;
             if (!sourceIsObjectStore) { this._objectStorePosition = foundRecord.value; }
             this._key = foundRecord.key;
             if (sourceIsObjectStore) {
-                this.value = structuredClone(foundRecord.value);
+                this._primaryKey = structuredClone(foundRecord.key);
+                if (this.constructor.name === 'FDBCursorWithValue') {
+                    this.value = structuredClone(foundRecord.value);
+                }
             } else {
-                this.value = structuredClone(this.source.objectStore._rawObjectStore.getValue(foundRecord.value));
                 this._primaryKey = structuredClone(foundRecord.value);
+                if (this.constructor.name === 'FDBCursorWithValue') {
+                    this.value = structuredClone(this.source.objectStore._rawObjectStore.getValue(foundRecord.value));
+                }
             }
             this._gotValue = true;
             result = this;
