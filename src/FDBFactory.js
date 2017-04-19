@@ -1,10 +1,10 @@
-const Event = require('./lib/Event');
-const Database = require('./lib/Database');
-const FDBOpenDBRequest = require('./FDBOpenDBRequest');
-const FDBDatabase = require('./FDBDatabase');
-const FDBVersionChangeEvent = require('./FDBVersionChangeEvent');
-const {AbortError, VersionError} = require('./lib/errors');
-const cmp = require('./lib/cmp');
+const FDBDatabase = require("./FDBDatabase");
+const FDBOpenDBRequest = require("./FDBOpenDBRequest").default;
+const FDBVersionChangeEvent = require("./FDBVersionChangeEvent").default;
+const cmp = require("./lib/cmp").default;
+const Database = require("./lib/Database").default;
+const {AbortError, VersionError} = require("./lib/errors");
+const Event = require("./lib/Event").default;
 
 const waitForOthersClosedDelete = (databases, name, openDatabases, cb) => {
     const anyOpen = openDatabases.some((openDatabase) => {
@@ -38,7 +38,7 @@ const deleteDatabase = (databases, name, request, cb) => {
 
         for (const openDatabase of openDatabases) {
             if (!openDatabase._closePending) {
-                const event = new FDBVersionChangeEvent('versionchange', {
+                const event = new FDBVersionChangeEvent("versionchange", {
                     oldVersion: db.version,
                     newVersion: null
                 });
@@ -51,7 +51,7 @@ const deleteDatabase = (databases, name, request, cb) => {
         });
 
         if (request && anyOpen) {
-            const event = new FDBVersionChangeEvent('blocked', {
+            const event = new FDBVersionChangeEvent("blocked", {
                 oldVersion: db.version,
                 newVersion: null
             });
@@ -76,7 +76,7 @@ const runVersionchangeTransaction = (connection, version, request, cb) => {
 
     for (const openDatabase of openDatabases) {
         if (!openDatabase._closed) {
-            const event = new FDBVersionChangeEvent('versionchange', {
+            const event = new FDBVersionChangeEvent("versionchange", {
                 oldVersion: oldVersion,
                 newVersion: version
             });
@@ -89,7 +89,7 @@ const runVersionchangeTransaction = (connection, version, request, cb) => {
     });
 
     if (anyOpen) {
-        const event = new FDBVersionChangeEvent('blocked', {
+        const event = new FDBVersionChangeEvent("blocked", {
             oldVersion: oldVersion,
             newVersion: version
         });
@@ -106,12 +106,13 @@ const runVersionchangeTransaction = (connection, version, request, cb) => {
             return;
         }
 
-//  Set the version of database to version. This change is considered part of the transaction, and so if the transaction is aborted, this change is reverted.
+        // Set the version of database to version. This change is considered part of the transaction, and so if the
+        // transaction is aborted, this change is reverted.
         connection._rawDatabase.version = version;
         connection.version = version;
 
 // Get rid of this setImmediate?
-        const transaction = connection.transaction(connection.objectStoreNames, 'versionchange');
+        const transaction = connection.transaction(connection.objectStoreNames, "versionchange");
         request.result = connection;
         request.transaction = transaction;
 
@@ -120,27 +121,27 @@ const runVersionchangeTransaction = (connection, version, request, cb) => {
             connection.version = oldVersion;
         });
 
-        const event = new FDBVersionChangeEvent('upgradeneeded', {
+        const event = new FDBVersionChangeEvent("upgradeneeded", {
             oldVersion: oldVersion,
             newVersion: version
         });
         request.dispatchEvent(event);
 
-        request.readyState = 'done';
+        request.readyState = "done";
 
-        transaction.addEventListener('error', () => {
+        transaction.addEventListener("error", () => {
             connection._runningVersionchangeTransaction = false;
 //throw arguments[0].target.error;
-//console.log('error in versionchange transaction - not sure if anything needs to be done here', e.target.error.name);
+//console.log("error in versionchange transaction - not sure if anything needs to be done here", e.target.error.name);
         });
-        transaction.addEventListener('abort', () => {
+        transaction.addEventListener("abort", () => {
             connection._runningVersionchangeTransaction = false;
             request.transaction = null;
             setImmediate(() => {
                 cb(new AbortError());
             });
         });
-        transaction.addEventListener('complete', () => {
+        transaction.addEventListener("complete", () => {
             connection._runningVersionchangeTransaction = false;
             request.transaction = null;
             // Let other complete event handlers run before continuing
@@ -209,11 +210,11 @@ class FDBFactory {
                     request.error = new Error();
                     request.error.name = err.name;
 
-                    const event = new Event('error', {
+                    const event = new Event("error", {
                         bubbles: true,
                         cancelable: false
                     });
-                    event._eventPath = [];
+                    event.eventPath = [];
                     request.dispatchEvent(event);
 
                     return;
@@ -221,7 +222,7 @@ class FDBFactory {
 
                 request.result = undefined;
 
-                const event = new FDBVersionChangeEvent('success', {
+                const event = new FDBVersionChangeEvent("success", {
                     oldVersion: version,
                     newVersion: null
                 });
@@ -232,6 +233,7 @@ class FDBFactory {
         return request;
     }
 
+    // tslint:disable-next-line max-line-length
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBFactory-open-IDBOpenDBRequest-DOMString-name-unsigned-long-long-version
     open(name, version) {
         if (arguments.length > 1 && (isNaN(version) || version < 1 || version >= 9007199254740992)) {
@@ -249,11 +251,11 @@ class FDBFactory {
                     request.error = new Error();
                     request.error.name = err.name;
 
-                    const event = new Event('error', {
+                    const event = new Event("error", {
                         bubbles: true,
                         cancelable: false
                     });
-                    event._eventPath = [];
+                    event.eventPath = [];
                     request.dispatchEvent(event);
 
                     return;
@@ -261,8 +263,8 @@ class FDBFactory {
 
                 request.result = connection;
 
-                const event = new Event('success');
-                event._eventPath = [];
+                const event = new Event("success");
+                event.eventPath = [];
                 request.dispatchEvent(event);
             });
         });
@@ -271,7 +273,7 @@ class FDBFactory {
     }
 
     toString() {
-        return '[object IDBFactory]';
+        return "[object IDBFactory]";
     }
 }
 

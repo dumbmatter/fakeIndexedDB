@@ -1,18 +1,21 @@
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-database
 class Database {
-    constructor(name, version) {
-        this.deletePending = false;
-        this.transactions = [];
-        this.rawObjectStores = {};
-        this.connections = [];
+    public deletePending = false;
+    public readonly transactions: any[] = [];
+    public readonly rawObjectStores = {};
+    public readonly connections = [];
 
+    public readonly name: string;
+    public version: number;
+
+    constructor(name: string, version: number) {
         this.name = name;
         this.version = version;
 
         this.processTransactions = this.processTransactions.bind(this);
     }
 
-    processTransactions() {
+    public processTransactions() {
         setImmediate(() => {
             const anyRunning = this.transactions.some((transaction) => {
                 return transaction._started && !transaction._finished;
@@ -26,12 +29,12 @@ class Database {
                 if (next) {
                     next._start();
 
-                    next.addEventListener('complete', this.processTransactions);
-                    next.addEventListener('abort', this.processTransactions);
+                    next.addEventListener("complete", this.processTransactions);
+                    next.addEventListener("abort", this.processTransactions);
                 }
             }
         });
     }
 }
 
-module.exports = Database;
+export default Database;

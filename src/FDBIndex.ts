@@ -1,12 +1,13 @@
-const structuredClone = require('./lib/structuredClone');
-const FDBCursor = require('./FDBCursor');
-const FDBCursorWithValue = require('./FDBCursorWithValue');
-const FDBKeyRange = require('./FDBKeyRange');
-const FDBRequest = require('./FDBRequest');
-const {InvalidStateError, TransactionInactiveError} = require('./lib/errors');
-const validateKey = require('./lib/validateKey');
+import FDBCursor from "./FDBCursor";
+import FDBCursorWithValue from "./FDBCursorWithValue";
+import FDBKeyRange from "./FDBKeyRange";
+import FDBRequest from "./FDBRequest";
+const {InvalidStateError, TransactionInactiveError} = require("./lib/errors");
+import structuredClone from "./lib/structuredClone";
+import {FDBCursorDirection, Key, KeyPath} from "./lib/types";
+import validateKey from "./lib/validateKey";
 
-const confirmActiveTransaction = (index) => {
+const confirmActiveTransaction = (index: FDBIndex) => {
     if (!index.objectStore.transaction._active) {
         throw new TransactionInactiveError();
     }
@@ -18,7 +19,14 @@ const confirmActiveTransaction = (index) => {
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#idl-def-IDBIndex
 class FDBIndex {
-    constructor(objectStore, rawIndex) {
+    public _rawIndex: any;
+    public name: string;
+    public objectStore: any;
+    public keyPath: KeyPath;
+    public multiEntry: boolean;
+    public unique: boolean;
+
+    constructor(objectStore: any, rawIndex: any) {
         this._rawIndex = rawIndex;
 
         this.name = rawIndex.name;
@@ -28,8 +36,9 @@ class FDBIndex {
         this.unique = rawIndex.unique;
     }
 
+    // tslint:disable-next-line max-line-length
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBIndex-openCursor-IDBRequest-any-range-IDBCursorDirection-direction
-    openCursor(range, direction) {
+    public openCursor(range: FDBKeyRange | Key | null | void, direction: FDBCursorDirection) {
         confirmActiveTransaction(this);
 
         if (range === null) { range = undefined; }
@@ -41,18 +50,18 @@ class FDBIndex {
         request.source = this;
         request.transaction = this.objectStore.transaction;
 
-        const cursor = new FDBCursorWithValue(this, range, direction);
-        cursor._request = request;
+        const cursor = new FDBCursorWithValue(this, range, direction, request);
 
         return this.objectStore.transaction._execRequestAsync({
-            source: this,
             operation: cursor._iterate.bind(cursor),
-            request: request,
+            request,
+            source: this,
         });
     }
 
+    // tslint:disable-next-line max-line-length
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-IDBCursorDirection-direction
-    openKeyCursor(range, direction) {
+    public openKeyCursor(range: FDBKeyRange | Key | null | void, direction: FDBCursorDirection) {
         confirmActiveTransaction(this);
 
         if (range === null) { range = undefined; }
@@ -64,17 +73,16 @@ class FDBIndex {
         request.source = this;
         request.transaction = this.objectStore.transaction;
 
-        const cursor = new FDBCursor(this, range, direction);
-        cursor._request = request;
+        const cursor = new FDBCursor(this, range, direction, request);
 
         return this.objectStore.transaction._execRequestAsync({
-            source: this,
             operation: cursor._iterate.bind(cursor),
-            request: request
+            request,
+            source: this,
         });
     }
 
-    get(key) {
+    public get(key: FDBKeyRange | Key) {
         confirmActiveTransaction(this);
 
         if (!(key instanceof FDBKeyRange)) {
@@ -82,13 +90,13 @@ class FDBIndex {
         }
 
         return this.objectStore.transaction._execRequestAsync({
+            operation: this._rawIndex.getValue.bind(this._rawIndex, key),
             source: this,
-            operation: this._rawIndex.getValue.bind(this._rawIndex, key)
         });
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBIndex-getKey-IDBRequest-any-key
-    getKey(key) {
+    public getKey(key: FDBKeyRange | Key) {
         confirmActiveTransaction(this);
 
         if (!(key instanceof FDBKeyRange)) {
@@ -96,13 +104,13 @@ class FDBIndex {
         }
 
         return this.objectStore.transaction._execRequestAsync({
+            operation: this._rawIndex.getKey.bind(this._rawIndex, key),
             source: this,
-            operation: this._rawIndex.getKey.bind(this._rawIndex, key)
         });
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBIndex-count-IDBRequest-any-key
-    count(key) {
+    public count(key: FDBKeyRange | Key | null | void) {
         confirmActiveTransaction(this);
 
         if (key === null) { key = undefined; }
@@ -111,7 +119,6 @@ class FDBIndex {
         }
 
         return this.objectStore.transaction._execRequestAsync({
-            source: this,
             operation: () => {
                 let count = 0;
 
@@ -122,12 +129,13 @@ class FDBIndex {
 
                 return count;
             },
+            source: this,
         });
     }
 
-    toString() {
-        return '[object IDBIndex]';
+    public toString() {
+        return "[object IDBIndex]";
     }
 }
 
-module.exports = FDBIndex;
+export default FDBIndex;

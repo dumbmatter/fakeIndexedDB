@@ -1,16 +1,24 @@
-const RecordStore = require('./RecordStore');
-const {ConstraintError} = require('./errors');
-const extractKey = require('./extractKey');
-const validateKey = require('./validateKey');
+import RecordStore from "./RecordStore";
+const {ConstraintError} = require("./errors");
+import extractKey from "./extractKey";
+import {Key, KeyPath, Record} from "./types";
+import validateKey from "./validateKey";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-index
 class Index {
-    constructor(rawObjectStore, name, keyPath, multiEntry, unique) {
-        this.records = new RecordStore();
+    public deleted = false;
+// Initialized should be used to decide whether to throw an error or abort the versionchange transaction when there is a
+// constraint
+    public initialized = false;
+    public readonly rawObjectStore: any;
+    public readonly records = new RecordStore();
+    public name: string;
+    public readonly keyPath: KeyPath;
+    public multiEntry: boolean;
+    public unique: boolean;
+
+    constructor(rawObjectStore: any, name: string, keyPath: KeyPath, multiEntry: boolean, unique: boolean) {
         this.rawObjectStore = rawObjectStore;
-        this.initialized = false;
-        this.deleted = false;
-// Initialized should be used to decide whether to throw an error or abort the versionchange transaction when there is a constraint
 
         this.name = name;
         this.keyPath = keyPath;
@@ -19,26 +27,26 @@ class Index {
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-retrieving-a-value-from-an-index
-    getKey(key) {
+    public getKey(key: Key) {
         const record = this.records.get(key);
 
         return record !== undefined ? record.value : undefined;
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#index-referenced-value-retrieval-operation
-    getValue(key) {
+    public getValue(key: Key) {
         const record = this.records.get(key);
 
         return record !== undefined ? this.rawObjectStore.getValue(record.value) : undefined;
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-storing-a-record-into-an-object-store (step 7)
-    storeRecord(newRecord) {
+    public storeRecord(newRecord: Record) {
         let indexKey;
         try {
             indexKey = extractKey(this.keyPath, newRecord.value);
         } catch (err) {
-            if (err.name === 'DataError') {
+            if (err.name === "DataError") {
                 // Invalid key is not an actual error, just means we do not store an entry in this index
                 return;
             }
@@ -53,7 +61,8 @@ class Index {
                 return;
             }
         } else {
-            // remove any elements from index key that are not valid keys and remove any duplicate elements from index key such that only one instance of the duplicate value remains.
+            // remove any elements from index key that are not valid keys and remove any duplicate elements from index
+            // key such that only one instance of the duplicate value remains.
             const keep = [];
             for (const part of indexKey) {
                 if (keep.indexOf(part) < 0) {
@@ -87,25 +96,24 @@ class Index {
         if (!this.multiEntry || !Array.isArray(indexKey)) {
             this.records.add({
                 key: indexKey,
-                value: newRecord.key
+                value: newRecord.key,
             });
         } else {
             for (const individualIndexKey of indexKey) {
                 this.records.add({
                     key: individualIndexKey,
-                    value: newRecord.key
+                    value: newRecord.key,
                 });
             }
         }
     }
 
-    initialize(transaction) {
+    public initialize(transaction: any) {
         if (this.initialized) {
             throw new Error("Index already initialized");
         }
 
         transaction._execRequestAsync({
-            source: null,
             operation: () => {
                 try {
                     // Create index based on current value of objectstore
@@ -115,12 +123,13 @@ class Index {
 
                     this.initialized = true;
                 } catch (err) {
-//console.error(err);
+// console.error(err);
                     transaction._abort(err.name);
                 }
             },
+            source: null,
         });
     }
 }
 
-module.exports = Index;
+export default Index;

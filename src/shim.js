@@ -8,15 +8,15 @@ const globalVar = typeof window !== 'undefined' ? window :
 
 if (!globalVar.indexedDB) {
     globalVar.indexedDB = require('.');
-    globalVar.IDBCursor = require('./FDBCursor');
-    globalVar.IDBCursorWithValue = require('./FDBCursorWithValue');
+    globalVar.IDBCursor = require('./FDBCursor').default;
+    globalVar.IDBCursorWithValue = require('./FDBCursorWithValue').default;
     globalVar.IDBDatabase = require('./FDBDatabase');
     globalVar.IDBFactory = require('./FDBFactory');
-    globalVar.IDBIndex = require('./FDBIndex');
-    globalVar.IDBKeyRange = require('./FDBKeyRange');
-    globalVar.IDBObjectStore = require('./FDBObjectStore');
-    globalVar.IDBOpenDBRequest = require('./FDBOpenDBRequest');
-    globalVar.IDBRequest = require('./FDBRequest');
-    globalVar.IDBTransaction = require('./FDBTransaction');
-    globalVar.IDBVersionChangeEvent = require('./FDBVersionChangeEvent');
+    globalVar.IDBIndex = require('./FDBIndex').default;
+    globalVar.IDBKeyRange = require('./FDBKeyRange').default;
+    globalVar.IDBObjectStore = require('./FDBObjectStore').default;
+    globalVar.IDBOpenDBRequest = require('./FDBOpenDBRequest').default;
+    globalVar.IDBRequest = require('./FDBRequest').default;
+    globalVar.IDBTransaction = require('./FDBTransaction').default;
+    globalVar.IDBVersionChangeEvent = require('./FDBVersionChangeEvent').default;
 }

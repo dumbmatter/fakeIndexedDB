@@ -1,4 +1,4 @@
 /* eslint-env browser */
 
 window.indexedDBmock = require('..');
-window.IDBKeyRangemock = require('../FDBKeyRange');
+window.IDBKeyRangemock = require('../FDBKeyRange').default;

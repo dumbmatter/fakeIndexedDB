@@ -4,6 +4,26 @@ binary search tree
 
 TypeScript
 - tslint
+  - re-enable disabled rules
+- provide type defs to consumer
+- remove eslint - all files and comments
+- remove babel
+- improve types
+  - Database.transactions
+  - FDBCursorWithValue any
+  - types.ts any
+  - EventTarget addEventListener callback can be null?
+  - FDBRequest null/any variables
+  - ObjectStore rawDatabase, rawIndexes
+  - Index rawObjectStore, transaction any
+  - FDBCursor source any
+  - FDBIndex objectStore, rawIndex any
+  - FDBObjectStore transaction any
+  - FDBTransaction db any
+  - circular import problems (search) - define interface in types.ts
+  - public APIs should accept any - errors are part of spec, not to be prevented by types?
+- make sure it's still usable by normal ES5 code, not weird exports
+  - change target in tsconfig
 
 Run on real W3C tests
 
@@ -14,8 +34,6 @@ reevaluate all uses of setImmedaite, setTimeout, nextTick
 open issues
 
 addDomStringListMethods - make it a class
-
-add lib.js for 1.x compatability, and test
 
 make sure it works in node 4
 
@@ -32,6 +50,7 @@ multiple readonly transactions should be allowed to run at the same time (but no
 
 readonly properties need to actually be readonly
 - done in FDBCursor
+- typescript annotation is easier (like in FDBKeyRange), but not actually binding for compiled JS version
 
 share some code between Index and ObjectStore, like getValue, confirmActiveTransaction, count
 - similar thing between open and deleteDatabase

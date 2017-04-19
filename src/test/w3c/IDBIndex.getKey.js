@@ -1,5 +1,5 @@
 var assert = require('assert');
-var FDBKeyRange = require('../../FDBKeyRange');
+var FDBKeyRange = require('../../FDBKeyRange').default;
 var {DataError, InvalidStateError, TransactionInactiveError} = require('../../lib/errors');
 var support = require('./support');
 var createdb = support.createdb;

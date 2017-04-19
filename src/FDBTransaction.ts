@@ -1,72 +1,80 @@
-const Event = require('./lib/Event');
-const EventTarget = require('./lib/EventTarget');
-const FDBObjectStore = require('./FDBObjectStore');
-const FDBRequest = require('./FDBRequest');
-const {AbortError, InvalidStateError, NotFoundError, TransactionInactiveError} = require('./lib/errors');
+import FDBObjectStore from "./FDBObjectStore";
+import FDBRequest from "./FDBRequest";
+const {AbortError, InvalidStateError, NotFoundError, TransactionInactiveError} = require("./lib/errors");
+import Event from "./lib/Event";
+import EventTarget from "./lib/EventTarget";
+import {EventCallback, RequestObj, RollbackLog} from "./lib/types";
+
+type Mode = "readonly" | "readwrite";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#transaction
 class FDBTransaction extends EventTarget {
-    constructor(storeNames, mode) {
+    public _started = false;
+    public _active = true;
+    public _finished = false; // Set true after commit or abort
+    public _rollbackLog: RollbackLog = [];
+
+    public mode: Mode;
+    public db: any;
+    public error: Error | null = null;
+    public onabort: EventCallback | null = null;
+    public oncomplete: EventCallback | null = null;
+    public onerror: EventCallback | null = null;
+
+    private _scope: string[];
+    private _requests: RequestObj[] = [];
+
+    constructor(storeNames: string[], mode: Mode, db: any) {
         super();
 
         this._scope = storeNames;
-        this._started = false;
-        this._active = true;
-        this._finished = false; // Set true after commit or abort
-        this._requests = [];
-        this._rollbackLog = [];
-
         this.mode = mode;
-        this.db = null;
-        this.error = null;
-        this.onabort = null;
-        this.oncomplete = null;
-        this.onerror = null;
+        this.db = db;
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-aborting-a-transaction
-    _abort(error) {
+    public _abort(errName: string | null) {
         for (const f of this._rollbackLog.reverse()) {
             f();
         }
 
-        if (error !== null) {
+        if (errName !== null) {
             const e = new Error();
-            e.name = error;
+            e.name = errName;
             this.error = e;
         }
 
 // Should this directly remove from _requests?
         for (const {request} of this._requests) {
-            if (request.readyState !== 'done') {
-                request.readyState = 'done'; // This will cancel execution of this request's operation
+            if (request.readyState !== "done") {
+                request.readyState = "done"; // This will cancel execution of this request's operation
                 if (request.source) {
                     request.result = undefined;
                     request.error = new AbortError();
 
-                    const event = new Event('error', {
+                    const event = new Event("error", {
                         bubbles: true,
-                        cancelable: true
+                        cancelable: true,
                     });
-                    event._eventPath = [this.db, this];
+                    event.eventPath = [this.db, this];
                     request.dispatchEvent(event);
                 }
             }
         }
 
         setImmediate(() => {
-            const event = new Event('abort', {
+            const event = new Event("abort", {
                 bubbles: true,
-                cancelable: false
+                cancelable: false,
             });
-            event._eventPath = [this.db];
+            event.eventPath = [this.db];
             this.dispatchEvent(event);
         });
 
         this._finished = true;
     }
 
-    abort() {
+    public abort() {
         if (this._finished) {
             throw new InvalidStateError();
         }
@@ -75,7 +83,7 @@ class FDBTransaction extends EventTarget {
         this._abort(null);
     }
 
-    objectStore(name) {
+    public objectStore(name: string) {
         if (this._scope.indexOf(name) < 0) {
             throw new NotFoundError();
         }
@@ -88,10 +96,10 @@ class FDBTransaction extends EventTarget {
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-asynchronously-executing-a-request
-    _execRequestAsync(obj) {
+    public _execRequestAsync(obj: RequestObj) {
         const source = obj.source;
         const operation = obj.operation;
-        let request = obj.hasOwnProperty('request') ? obj.request : null;
+        let request = obj.hasOwnProperty("request") ? obj.request : null;
 
         if (!this._active) {
             throw new TransactionInactiveError();
@@ -101,25 +109,23 @@ class FDBTransaction extends EventTarget {
         if (!request) {
             if (!source) {
                 // Special requests like indexes that just need to run some code
-                request = {
-                    readyState: 'pending'
-                };
+                request = new FDBRequest();
             } else {
                 request = new FDBRequest();
                 request.source = source;
-                request.transaction = source.transaction;
+                request.transaction = (source as any).transaction;
             }
         }
 
         this._requests.push({
-            request: request,
-            operation: operation
+            request,
+            operation,
         });
 
         return request;
     }
 
-    _start() {
+    public _start() {
         this._started = true;
 
         // Remove from request queue - cursor ones will be added back if necessary by cursor.continue and such
@@ -129,49 +135,50 @@ class FDBTransaction extends EventTarget {
             const r = this._requests.shift();
 
             // This should only be false if transaction was aborted
-            if (r.request.readyState !== 'done') {
+            if (r && r.request.readyState !== "done") {
                 request = r.request;
                 operation = r.operation;
                 break;
             }
         }
 
-        if (request) {
+        if (request && operation) {
             if (!request.source) {
-                // Special requests like indexes that just need to run some code, with error handling already built into operation
+                // Special requests like indexes that just need to run some code, with error handling already built into
+                // operation
                 operation();
             } else {
                 let defaultAction;
                 let event;
                 try {
                     const result = operation();
-                    request.readyState = 'done';
+                    request.readyState = "done";
                     request.result = result;
                     request.error = undefined;
 
                     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-fire-a-success-event
                     this._active = true;
-                    event = new Event('success', {
+                    event = new Event("success", {
                         bubbles: false,
-                        cancelable: false
+                        cancelable: false,
                     });
                 } catch (err) {
-                    request.readyState = 'done';
+                    request.readyState = "done";
                     request.result = undefined;
                     request.error = err;
 
                     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-fire-an-error-event
                     this._active = true;
-                    event = new Event('error', {
+                    event = new Event("error", {
                         bubbles: true,
-                        cancelable: true
+                        cancelable: true,
                     });
 
                     defaultAction = this._abort.bind(this, err.name);
                 }
 
                 try {
-                    event._eventPath = [this.db, this];
+                    event.eventPath = [this.db, this];
                     request.dispatchEvent(event);
 
                     // You're supposed to set this._active to false here, but I'm skipping that.
@@ -182,15 +189,15 @@ class FDBTransaction extends EventTarget {
                     // and for any other masochists who do similar things. It doesn't seem to break
                     // any tests or functionality, and in fact if I uncomment this line it does make
                     // transaction/promise interactions wonky.
-                    //this._active = false;
+                    // this._active = false;
                 } catch (err) {
-//console.error(err);
-                    this._abort('AbortError');
+// console.error(err);
+                    this._abort("AbortError");
                     throw err;
                 }
 
                 // Default action of event
-                if (!event._canceled) {
+                if (!event.canceled) {
                     if (defaultAction) {
                         defaultAction();
                     }
@@ -213,16 +220,15 @@ class FDBTransaction extends EventTarget {
             this._finished = true;
 
             if (!this.error) {
-                const event = new Event();
-                event.type = 'complete';
+                const event = new Event("complete");
                 this.dispatchEvent(event);
             }
         }
     }
 
-    toString() {
-        return '[object IDBRequest]';
+    public toString() {
+        return "[object IDBRequest]";
     }
 }
 
-module.exports = FDBTransaction;
+export default FDBTransaction;

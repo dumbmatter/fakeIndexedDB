@@ -54,7 +54,7 @@ Or you can import individual functions directly. Variable names of all the objec
 
 ```js
 var fakeIndexedDB = require('fake-indexeddb');
-var FDBKeyRange = require('fake-indexeddb/FDBKeyRange');
+var FDBKeyRange = require('fake-indexeddb/FDBKeyRange').default;
 
 // ...same code as last example, but fakeIndexedDB instead of indexedDB and FDBKeyRange instead of IDBKeyRange
 ```

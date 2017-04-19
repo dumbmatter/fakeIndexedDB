@@ -1,14 +1,12 @@
-const {ConstraintError} = require('./errors');
+const {ConstraintError} = require("./errors");
 
 const MAX_KEY = 9007199254740992;
 
 class KeyGenerator {
-    constructor() {
-// This is kind of wrong. Should start at 1 and increment only after record is saved
-        this.num = 0;
-    }
+    // This is kind of wrong. Should start at 1 and increment only after record is saved
+    public num = 0;
 
-    next() {
+    public next() {
         if (this.num >= MAX_KEY) {
             throw new ConstraintError();
         }
@@ -18,7 +16,7 @@ class KeyGenerator {
         return this.num;
     }
 
-    setIfLarger(num) {
+    public setIfLarger(num: number) {
         if (num > MAX_KEY) {
             throw new ConstraintError();
         }
@@ -29,4 +27,4 @@ class KeyGenerator {
     }
 }
 
-module.exports = KeyGenerator;
+export default KeyGenerator;

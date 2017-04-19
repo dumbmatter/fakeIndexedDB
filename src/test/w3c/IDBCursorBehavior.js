@@ -1,6 +1,6 @@
 var assert = require('assert');
 var fakeIndexedDB = require('../..');
-var FDBKeyRange = require('../../FDBKeyRange');
+var FDBKeyRange = require('../../FDBKeyRange').default;
 var support = require('./support');
 var createdb = support.createdb;
 
@@ -407,7 +407,6 @@ describe('W3C IDBCursor Behavior Tests', function () {
                         case 511:
                         case 611:
                             throw new Error(cursor.key + " should be deleted and never run");
-                            break;
                     }
 
                     cursor.continue();

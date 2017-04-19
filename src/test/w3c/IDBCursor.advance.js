@@ -1,7 +1,7 @@
 var assert = require('assert');
 var fakeIndexedDB = require('../..');
-var FDBCursor = require('../../FDBCursor');
-var FDBKeyRange = require('../../FDBKeyRange');
+var FDBCursor = require('../../FDBCursor').default;
+var FDBKeyRange = require('../../FDBKeyRange').default;
 var {InvalidStateError, TransactionInactiveError} = require('../../lib/errors');
 var support = require('./support');
 var createdb = support.createdb;
@@ -610,7 +610,6 @@ describe('W3C IDBCursor.advance Tests', function () {
                             break;
                         default:
                             throw new Error("unexpected count");
-                            break;
                     }
                 };
             }
@@ -896,7 +895,6 @@ describe('W3C IDBCursor.advance Tests', function () {
                             break;
                         default:
                             throw new Error("unexpected count");
-                            break;
                     }
                 };
             }

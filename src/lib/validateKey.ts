@@ -1,8 +1,8 @@
-const {DataError} = require('./errors');
+const {DataError} = require("./errors");
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-valid-key
-const validateKey = (key, seen) => {
-    if (typeof key === 'number') {
+const validateKey = (key: any, seen?: Set<object>) => {
+    if (typeof key === "number") {
         if (isNaN(key)) {
             throw new DataError();
         }
@@ -14,7 +14,7 @@ const validateKey = (key, seen) => {
         seen = seen !== undefined ? seen : new Set();
         for (const x of key) {
             // Only need to test objects, because otherwise [0, 0] shows up as circular
-            if (typeof x === 'object' && seen.has(x)) {
+            if (typeof x === "object" && seen.has(x)) {
                 throw new DataError();
             }
             seen.add(x);
@@ -29,11 +29,11 @@ const validateKey = (key, seen) => {
             throw new DataError();
         }
         return key;
-    } else if (typeof key !== 'string') {
+    } else if (typeof key !== "string") {
         throw new DataError();
     }
 
     return key;
-}
+};
 
-module.exports = validateKey;
+export default validateKey;

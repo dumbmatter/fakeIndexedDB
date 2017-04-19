@@ -1,5 +1,5 @@
 var assert = require('assert');
-//var FDBRequest = require('../../FDBRequest');
+//var FDBRequest = require('../../FDBRequest').default;
 //var {DataError} = require('../../lib/errors');
 var support = require('./support');
 var createdb = support.createdb;
@@ -121,13 +121,13 @@ describe('W3C Key Path Tests', function () {
             [ [10, 20], [100, 1.337] ],
             "['x', {toString->'y'}] (stringifies)");
 
-        if (false) {
+/*        if (false) {
             var myblob = Blob(["Yoda"], {type:'suprawsum'});
             keypath(['length', 'type'],
                 [ myblob ],
                 [ 4, 'suprawsum' ],
                 "[Blob.length, Blob.type]");
-        }
+        }*/
 
         // File.name and File.lastModifiedDate is not testable automatically
 

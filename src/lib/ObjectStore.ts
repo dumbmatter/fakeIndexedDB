@@ -1,15 +1,23 @@
-const structuredClone = require('./structuredClone');
-const KeyGenerator = require('./KeyGenerator');
-const RecordStore = require('./RecordStore');
-const {ConstraintError, DataError} = require('./errors');
-const extractKey = require('./extractKey');
+import extractKey from "./extractKey";
+import KeyGenerator from "./KeyGenerator";
+import RecordStore from "./RecordStore";
+import structuredClone from "./structuredClone";
+import {Key, KeyPath, Record, RollbackLog} from "./types";
+const {ConstraintError, DataError} = require("./errors");
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-object-store
 class ObjectStore {
-    constructor(rawDatabase, name, keyPath, autoIncrement) {
+    public deleted = false;
+    public readonly rawDatabase: any;
+    public readonly records = new RecordStore();
+    public readonly rawIndexes: {[key: string]: any} = {};
+    public name: string;
+    public readonly keyPath: KeyPath | null;
+    public readonly autoIncrement: boolean;
+    public readonly keyGenerator: KeyGenerator | null;
+
+    constructor(rawDatabase: any, name: string, keyPath: KeyPath | null, autoIncrement: boolean) {
         this.rawDatabase = rawDatabase;
-        this.records = new RecordStore();
-        this.rawIndexes = {};
         this.keyGenerator = autoIncrement === true ? new KeyGenerator() : null;
         this.deleted = false;
 
@@ -19,14 +27,14 @@ class ObjectStore {
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-retrieving-a-value-from-an-object-store
-    getValue(key) {
+    public getValue(key: Key) {
         const record = this.records.get(key);
 
         return record !== undefined ? structuredClone(record.value) : undefined;
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-storing-a-record-into-an-object-store
-    storeRecord(newRecord, noOverwrite, rollbackLog) {
+    public storeRecord(newRecord: Record, noOverwrite: boolean, rollbackLog: RollbackLog) {
         if (this.keyPath !== null) {
             const key = extractKey(this.keyPath, newRecord.value);
             if (key !== undefined) {
@@ -36,9 +44,12 @@ class ObjectStore {
 
         if (this.keyGenerator !== null && newRecord.key === undefined) {
             if (rollbackLog) {
-                rollbackLog.push(function (keyGeneratorBefore) {
-                    this.keyGenerator.num = keyGeneratorBefore;
-                }.bind(this, this.keyGenerator.num));
+                const keyGeneratorBefore = this.keyGenerator.num;
+                rollbackLog.push(() => {
+                    if (this.keyGenerator) {
+                        this.keyGenerator.num = keyGeneratorBefore;
+                    }
+                });
             }
 
             newRecord.key = this.keyGenerator.next();
@@ -46,17 +57,20 @@ class ObjectStore {
             // Set in value if keyPath defiend but led to no key
             // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-to-assign-a-key-to-a-value-using-a-key-path
             if (this.keyPath !== null) {
+                if (Array.isArray(this.keyPath)) {
+                    throw new Error("Cannot have an array key path in an object store with a key generator");
+                }
                 let remainingKeyPath = this.keyPath;
                 let object = newRecord.value;
                 let identifier;
 
                 let i = 0; // Just to run the loop at least once
                 while (i >= 0) {
-                    if (typeof object !== 'object') {
+                    if (typeof object !== "object") {
                         throw new DataError();
                     }
 
-                    i = remainingKeyPath.indexOf('.');
+                    i = remainingKeyPath.indexOf(".");
                     if (i >= 0) {
                         identifier = remainingKeyPath.slice(0, i);
                         remainingKeyPath = remainingKeyPath.slice(i + 1);
@@ -73,7 +87,7 @@ class ObjectStore {
 
                 object[identifier] = newRecord.key;
             }
-        } else if (this.keyGenerator !== null && typeof newRecord.key === 'number') {
+        } else if (this.keyGenerator !== null && typeof newRecord.key === "number") {
             this.keyGenerator.setIfLarger(newRecord.key);
         }
 
@@ -102,7 +116,7 @@ class ObjectStore {
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-deleting-records-from-an-object-store
-    deleteRecord(key, rollbackLog) {
+    public deleteRecord(key: Key, rollbackLog: RollbackLog) {
         const deletedRecords = this.records.delete(key);
 
         if (rollbackLog) {
@@ -118,7 +132,7 @@ class ObjectStore {
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-clearing-an-object-store
-    clear(rollbackLog) {
+    public clear(rollbackLog: RollbackLog) {
         const deletedRecords = this.records.clear();
 
         if (rollbackLog) {
@@ -134,4 +148,4 @@ class ObjectStore {
     }
 }
 
-module.exports = ObjectStore;
+export default ObjectStore;

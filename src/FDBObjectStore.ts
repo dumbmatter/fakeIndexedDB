@@ -1,17 +1,27 @@
-const structuredClone = require('./lib/structuredClone');
-const Index = require('./lib/Index');
-const FDBCursor = require('./FDBCursor');
-const FDBCursorWithValue = require('./FDBCursorWithValue');
-const FDBIndex = require('./FDBIndex');
-const FDBKeyRange = require('./FDBKeyRange');
-const FDBRequest = require('./FDBRequest');
-const {ConstraintError, DataError, InvalidAccessError, InvalidStateError, NotFoundError, ReadOnlyError, TransactionInactiveError} = require('./lib/errors');
-const addDomStringListMethods = require('./lib/addDomStringListMethods');
-const extractKey = require('./lib/extractKey');
-const validateKey = require('./lib/validateKey');
-const validateKeyPath = require('./lib/validateKeyPath');
+import FDBCursor from "./FDBCursor";
+import FDBCursorWithValue from "./FDBCursorWithValue";
+import FDBIndex from "./FDBIndex";
+import FDBKeyRange from "./FDBKeyRange";
+import FDBRequest from "./FDBRequest";
+const {
+    ConstraintError,
+    DataError,
+    InvalidAccessError,
+    InvalidStateError,
+    NotFoundError,
+    ReadOnlyError,
+    TransactionInactiveError,
+} = require("./lib/errors");
+const addDomStringListMethods = require("./lib/addDomStringListMethods");
+import extractKey from "./lib/extractKey";
+import Index from "./lib/Index";
+import ObjectStore from "./lib/ObjectStore";
+import structuredClone from "./lib/structuredClone";
+import {FDBCursorDirection, Key, KeyPath, Value} from "./lib/types";
+import validateKey from "./lib/validateKey";
+import validateKeyPath from "./lib/validateKeyPath";
 
-const confirmActiveTransaction = (objectStore) => {
+const confirmActiveTransaction = (objectStore: FDBObjectStore) => {
     if (objectStore._rawObjectStore.deleted) {
         throw new InvalidStateError();
     }
@@ -21,8 +31,8 @@ const confirmActiveTransaction = (objectStore) => {
     }
 };
 
-const buildRecordAddPut = (objectStore, value, key) => {
-    if (objectStore.transaction.mode === 'readonly') {
+const buildRecordAddPut = (objectStore: FDBObjectStore, value: Value, key: Key) => {
+    if (objectStore.transaction.mode === "readonly") {
         throw new ReadOnlyError();
     }
 
@@ -54,13 +64,22 @@ const buildRecordAddPut = (objectStore, value, key) => {
 
     return {
         key: structuredClone(key),
-        value: structuredClone(value)
+        value: structuredClone(value),
     };
 };
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#object-store
 class FDBObjectStore {
-    constructor(transaction, rawObjectStore) {
+    public _rawObjectStore: ObjectStore;
+    public _rawIndexesCache: {[key: string]: FDBIndex};
+
+    public name: string;
+    public keyPath: KeyPath | null;
+    public autoIncrement: boolean;
+    public transaction: any;
+    public indexNames: string[];
+
+    constructor(transaction: any, rawObjectStore: ObjectStore) {
         this._rawObjectStore = rawObjectStore;
         this._rawIndexesCache = {}; // Store the FDBIndex objects
 
@@ -72,42 +91,51 @@ class FDBObjectStore {
         addDomStringListMethods(this.indexNames);
     }
 
-    put(value, key) {
+    public put(value: Value, key?: Key) {
         const record = buildRecordAddPut(this, value, key);
 
         return this.transaction._execRequestAsync({
+            operation: this._rawObjectStore.storeRecord.bind(
+                this._rawObjectStore,
+                record,
+                false,
+                this.transaction._rollbackLog,
+            ),
             source: this,
-            operation: this._rawObjectStore.storeRecord.bind(this._rawObjectStore, record, false, this.transaction._rollbackLog)
         });
     }
 
-    add(value, key) {
+    public add(value: Value, key?: Key) {
         const record = buildRecordAddPut(this, value, key);
 
         return this.transaction._execRequestAsync({
+            operation: this._rawObjectStore.storeRecord.bind(
+                this._rawObjectStore,
+                record,
+                true,
+                this.transaction._rollbackLog,
+            ),
             source: this,
-            operation: this._rawObjectStore.storeRecord.bind(this._rawObjectStore, record, true, this.transaction._rollbackLog)
         });
     }
 
-    delete(key) {
-        if (this.transaction.mode === 'readonly') {
+    public delete(key: Key) {
+        if (this.transaction.mode === "readonly") {
             throw new ReadOnlyError();
         }
         confirmActiveTransaction(this);
-
 
         if (!(key instanceof FDBKeyRange)) {
             key = structuredClone(validateKey(key));
         }
 
         return this.transaction._execRequestAsync({
+            operation: this._rawObjectStore.deleteRecord.bind(this._rawObjectStore, key, this.transaction._rollbackLog),
             source: this,
-            operation: this._rawObjectStore.deleteRecord.bind(this._rawObjectStore, key, this.transaction._rollbackLog)
         });
     }
 
-    get(key) {
+    public get(key?: Key) {
         confirmActiveTransaction(this);
 
         if (!(key instanceof FDBKeyRange)) {
@@ -115,24 +143,24 @@ class FDBObjectStore {
         }
 
         return this.transaction._execRequestAsync({
+            operation: this._rawObjectStore.getValue.bind(this._rawObjectStore, key),
             source: this,
-            operation: this._rawObjectStore.getValue.bind(this._rawObjectStore, key)
         });
     }
 
-    clear() {
-        if (this.transaction.mode === 'readonly') {
+    public clear() {
+        if (this.transaction.mode === "readonly") {
             throw new ReadOnlyError();
         }
         confirmActiveTransaction(this);
 
         return this.transaction._execRequestAsync({
+            operation: this._rawObjectStore.clear.bind(this._rawObjectStore, this.transaction._rollbackLog),
             source: this,
-            operation: this._rawObjectStore.clear.bind(this._rawObjectStore, this.transaction._rollbackLog)
         });
     }
 
-    openCursor(range, direction) {
+    public openCursor(range: FDBKeyRange | Key, direction?: FDBCursorDirection) {
         confirmActiveTransaction(this);
 
         if (range === null) { range = undefined; }
@@ -144,25 +172,28 @@ class FDBObjectStore {
         request.source = this;
         request.transaction = this.transaction;
 
-        const cursor = new FDBCursorWithValue(this, range, direction);
-        cursor._request = request;
+        const cursor = new FDBCursorWithValue(this, range, direction, request);
 
         return this.transaction._execRequestAsync({
-            source: this,
             operation: cursor._iterate.bind(cursor),
-            request: request
+            request,
+            source: this,
         });
     }
 
+    // tslint:disable-next-line max-line-length
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBObjectStore-createIndex-IDBIndex-DOMString-name-DOMString-sequence-DOMString--keyPath-IDBIndexParameters-optionalParameters
-    createIndex(name, keyPath, optionalParameters) {
+    public createIndex(
+        name: string,
+        keyPath: KeyPath,
+        optionalParameters: {multiEntry?: boolean, unique?: boolean} = {},
+    ) {
         if (keyPath === undefined) { throw new TypeError(); }
 
-        optionalParameters = optionalParameters !== undefined ? optionalParameters : {};
         const multiEntry = optionalParameters.multiEntry !== undefined ? optionalParameters.multiEntry : false;
         const unique = optionalParameters.unique !== undefined ? optionalParameters.unique : false;
 
-        if (this.transaction.mode !== 'versionchange') {
+        if (this.transaction.mode !== "versionchange") {
             throw new InvalidStateError();
         }
 
@@ -178,13 +209,19 @@ class FDBObjectStore {
             throw new InvalidAccessError();
         }
 
-// The index that is requested to be created can contain constraints on the data allowed in the index's referenced object store, such as requiring uniqueness of the values referenced by the index's keyPath. If the referenced object store already contains data which violates these constraints, this MUST NOT cause the implementation of createIndex to throw an exception or affect what it returns. The implementation MUST still create and return an IDBIndex object. Instead the implementation must queue up an operation to abort the "versionchange" transaction which was used for the createIndex call.
+        // The index that is requested to be created can contain constraints on the data allowed in the index's
+        // referenced object store, such as requiring uniqueness of the values referenced by the index's keyPath. If the
+        // referenced object store already contains data which violates these constraints, this MUST NOT cause the
+        // implementation of createIndex to throw an exception or affect what it returns. The implementation MUST still
+        // create and return an IDBIndex object. Instead the implementation must queue up an operation to abort the
+        // "versionchange" transaction which was used for the createIndex call.
 
-        this.transaction._rollbackLog.push(function (indexNames) {
+        const indexNames = this.indexNames.slice();
+        this.transaction._rollbackLog.push(() => {
             this.indexNames = indexNames;
             addDomStringListMethods(this.indexNames);
             delete this._rawObjectStore.rawIndexes[name];
-        }.bind(this, this.indexNames.slice()));
+        });
 
         const index = new Index(this._rawObjectStore, name, keyPath, multiEntry, unique);
         this.indexNames.push(name);
@@ -196,7 +233,7 @@ class FDBObjectStore {
         return new FDBIndex(this, index);
     }
 
-    index(name) {
+    public index(name: string) {
         if (name === undefined) { throw new TypeError(); }
 
         if (this._rawIndexesCache.hasOwnProperty(name)) {
@@ -217,10 +254,10 @@ class FDBObjectStore {
         return index;
     }
 
-    deleteIndex(name) {
+    public deleteIndex(name: string) {
         if (name === undefined) { throw new TypeError(); }
 
-        if (this.transaction.mode !== 'versionchange') {
+        if (this.transaction.mode !== "versionchange") {
             throw new InvalidStateError();
         }
 
@@ -230,12 +267,13 @@ class FDBObjectStore {
             throw new NotFoundError();
         }
 
-        this.transaction._rollbackLog.push(function (index) {
+        const index = this._rawObjectStore.rawIndexes[name];
+        this.transaction._rollbackLog.push(() => {
             index.deleted = false;
             this._rawObjectStore.rawIndexes[name] = index;
             this.indexNames.push(name);
             this.indexNames.sort();
-        }.bind(this, this._rawObjectStore.rawIndexes[name]));
+        });
 
         this.indexNames = this.indexNames.filter((indexName) => {
             return indexName !== name;
@@ -244,15 +282,15 @@ class FDBObjectStore {
         this._rawObjectStore.rawIndexes[name].deleted = true; // Not sure if this is supposed to happen synchronously
 
         this.transaction._execRequestAsync({
-            source: this,
             operation: () => {
                 delete this._rawObjectStore.rawIndexes[name];
             },
+            source: this,
         });
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBObjectStore-count-IDBRequest-any-key
-    count(key) {
+    public count(key?: Key | FDBKeyRange) {
         confirmActiveTransaction(this);
 
         if (key === null) { key = undefined; }
@@ -261,7 +299,6 @@ class FDBObjectStore {
         }
 
         return this.transaction._execRequestAsync({
-            source: this,
             operation: () => {
                 let count = 0;
 
@@ -272,12 +309,13 @@ class FDBObjectStore {
 
                 return count;
             },
+            source: this,
         });
     }
 
-    toString() {
-        return '[object IDBObjectStore]';
+    public toString() {
+        return "[object IDBObjectStore]";
     }
 }
 
-module.exports = FDBObjectStore;
+export default FDBObjectStore;

@@ -1,5 +1,5 @@
 var assert = require('assert');
-var FDBCursor = require('../../FDBCursor');
+var FDBCursor = require('../../FDBCursor').default;
 var {DataError, DataCloneError, InvalidStateError, ReadOnlyError, TransactionInactiveError} = require('../../lib/errors');
 var support = require('./support');
 var createdb = support.createdb;

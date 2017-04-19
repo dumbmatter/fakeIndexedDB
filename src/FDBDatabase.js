@@ -1,9 +1,9 @@
-const EventTarget = require('./lib/EventTarget');
-const FDBTransaction = require('./FDBTransaction');
-const ObjectStore = require('./lib/ObjectStore');
+const EventTarget = require('./lib/EventTarget').default;
+const FDBTransaction = require('./FDBTransaction').default;
+const ObjectStore = require('./lib/ObjectStore').default;
 const {ConstraintError, InvalidAccessError, InvalidStateError, NotFoundError, TransactionInactiveError} = require('./lib/errors');
 const addDomStringListMethods = require('./lib/addDomStringListMethods');
-const validateKeyPath = require('./lib/validateKeyPath');
+const validateKeyPath = require('./lib/validateKeyPath').default;
 
 const confirmActiveVersionchangeTransaction = (database) => {
     if (!database._runningVersionchangeTransaction) {
@@ -144,8 +144,7 @@ class FDBDatabase extends EventTarget {
             }
         }
 
-        const tx = new FDBTransaction(storeNames, mode);
-        tx.db = this;
+        const tx = new FDBTransaction(storeNames, mode, this);
         this._rawDatabase.transactions.push(tx);
         this._rawDatabase.processTransactions(); // See if can start right away (async)
 

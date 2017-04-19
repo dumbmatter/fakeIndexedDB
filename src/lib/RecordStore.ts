@@ -1,40 +1,39 @@
-const FDBKeyRange = require('../FDBKeyRange');
-const cmp = require('./cmp');
+import FDBKeyRange from "../FDBKeyRange";
+import cmp from "./cmp";
+import {Key, Record} from "./types";
 
 class RecordStore {
-    constructor() {
-        this._records = [];
-    }
+    private records: Record[] = [];
 
-    get(key) {
+    public get(key: Key) {
         if (key instanceof FDBKeyRange) {
-            return this._records.find((record) => {
+            return this.records.find((record) => {
                 return FDBKeyRange.check(key, record.key);
             });
         }
 
-        return this._records.find((record) => {
+        return this.records.find((record) => {
             return cmp(record.key, key) === 0;
         });
     }
 
-    add(newRecord) {
+    public add(newRecord: Record) {
         // Find where to put it so it's sorted by key
         let i;
-        if (this._records.length === 0) {
+        if (this.records.length === 0) {
             i = 0;
         } else {
-            i = this._records.findIndex((record) => {
+            i = this.records.findIndex((record) => {
                 return cmp(record.key, newRecord.key) === 1;
             });
 
             if (i === -1) {
                 // If no matching key, add to end
-                i = this._records.length;
+                i = this.records.length;
             } else {
                 // If matching key, advance to appropriate position based on value (used in indexes)
-                while (i < this._records.length && cmp(this._records[i].key, newRecord.key) === 0) {
-                    if (cmp(this._records[i].value, newRecord.value) !== -1) {
+                while (i < this.records.length && cmp(this.records[i].key, newRecord.key) === 0) {
+                    if (cmp(this.records[i].value, newRecord.value) !== -1) {
                         // Record value >= newRecord value, so insert here
                         break;
                     }
@@ -44,15 +43,15 @@ class RecordStore {
             }
         }
 
-        this._records.splice(i, 0, newRecord);
+        this.records.splice(i, 0, newRecord);
     }
 
-    delete(key) {
+    public delete(key: Key) {
         const range = key instanceof FDBKeyRange ? key : FDBKeyRange.only(key);
 
-        const deletedRecords = [];
+        const deletedRecords: Record[] = [];
 
-        this._records = this._records.filter((record) => {
+        this.records = this.records.filter((record) => {
             const shouldDelete = FDBKeyRange.check(range, record.key);
 
             if (shouldDelete) {
@@ -65,12 +64,12 @@ class RecordStore {
         return deletedRecords;
     }
 
-    deleteByValue(key) {
+    public deleteByValue(key: Key) {
         const range = key instanceof FDBKeyRange ? key : FDBKeyRange.only(key);
 
-        const deletedRecords = [];
+        const deletedRecords: Record[] = [];
 
-        this._records = this._records.filter((record) => {
+        this.records = this.records.filter((record) => {
             const shouldDelete = FDBKeyRange.check(range, record.value);
 
             if (shouldDelete) {
@@ -83,27 +82,27 @@ class RecordStore {
         return deletedRecords;
     }
 
-    clear() {
-        const deletedRecords = this._records.slice();
-        this._records = [];
+    public clear() {
+        const deletedRecords = this.records.slice();
+        this.records = [];
         return deletedRecords;
     }
 
-    values(range, direction = 'next') {
+    public values(range?: FDBKeyRange, direction: "next" | "prev" = "next") {
         return {
             [Symbol.iterator]: () => {
-                let i;
-                if (direction === 'next') {
+                let i: number;
+                if (direction === "next") {
                     i = 0;
                     if (range !== undefined && range.lower !== undefined) {
-                        while (this._records[i] !== undefined && cmp(this._records[i].key, range.lower) === -1) {
+                        while (this.records[i] !== undefined && cmp(this.records[i].key, range.lower) === -1) {
                             i += 1;
                         }
                     }
                 } else {
-                    i = this._records.length - 1;
+                    i = this.records.length - 1;
                     if (range !== undefined && range.upper !== undefined) {
-                        while (this._records[i] !== undefined && cmp(this._records[i].key, range.upper) === 1) {
+                        while (this.records[i] !== undefined && cmp(this.records[i].key, range.upper) === 1) {
                             i -= 1;
                         }
                     }
@@ -113,9 +112,9 @@ class RecordStore {
                     next: () => {
                         let done;
                         let value;
-                        if (direction === 'next') {
-                            value = this._records[i];
-                            done = i >= this._records.length;
+                        if (direction === "next") {
+                            value = this.records[i];
+                            done = i >= this.records.length;
                             i += 1;
 
                             if (!done && range !== undefined && range.upper !== undefined) {
@@ -125,7 +124,7 @@ class RecordStore {
                                 }
                             }
                         } else {
-                            value = this._records[i];
+                            value = this.records[i];
                             done = i < 0;
                             i -= 1;
 
@@ -140,7 +139,7 @@ class RecordStore {
                         return {
                             value,
                             done,
-                        }
+                        };
                     },
                 };
             },
@@ -148,4 +147,4 @@ class RecordStore {
     }
 }
 
-module.exports = RecordStore;
+export default RecordStore;
