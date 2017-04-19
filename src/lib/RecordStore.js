@@ -89,18 +89,25 @@ class RecordStore {
         return deletedRecords;
     }
 
-    values() {
+    values(direction = 'next') {
         return {
             [Symbol.iterator]: () => {
-                let i = -1;
+                let i = direction === 'next' ? -1 : this._records.length;
 
                 return {
                     next: () => {
-                        i += 1;
+                        let done;
+                        if (direction === 'next') {
+                            i += 1;
+                            done = i >= this._records.length;
+                        } else {
+                            i -= 1;
+                            done = i < 0;
+                        }
 
                         return {
                             value: this._records[i],
-                            done: i >= this._records.length,
+                            done,
                         }
                     },
                 };

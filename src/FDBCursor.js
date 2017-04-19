@@ -45,111 +45,111 @@ class FDBCursor {
     _iterate(key) {
         const sourceIsObjectStore = !this.source.hasOwnProperty('_rawIndex');
 
-        const records = sourceIsObjectStore ? this.source._rawObjectStore.records._records : this.source._rawIndex.records._records;
+        const records = sourceIsObjectStore ? this.source._rawObjectStore.records : this.source._rawIndex.records;
 
         let foundRecord;
         if (this.direction === "next") {
-            foundRecord = records.find((record) => {
+            for (const record of records.values()) {
                 if (key !== undefined) {
                     if (cmp(record.key, key) === -1) {
-                        return false;
+                        continue;
                     }
                 }
                 if (this._position !== undefined && sourceIsObjectStore) {
                     if (cmp(record.key, this._position) !== 1) {
-                        return false;
+                        continue;
                     }
                 }
                 if (this._position !== undefined && !sourceIsObjectStore) {
                     const cmpResult = cmp(record.key, this._position);
                     if (cmpResult === -1) {
-                        return false;
+                        continue;
                     }
                     if (cmpResult === 0 && cmp(record.value, this._objectStorePosition) !== 1) {
-                        return false;
+                        continue;
                     }
                 }
                 if (this._range !== undefined) {
                     if (!FDBKeyRange.check(this._range, record.key)) {
-                        return false;
+                        continue;
                     }
                 }
-                return true;
-            });
+                foundRecord = record;
+                break;
+            }
         } else if (this.direction === "nextunique") {
-            foundRecord = records.find((record) => {
+            for (const record of records.values()) {
                 if (key !== undefined) {
                     if (cmp(record.key, key) === -1) {
-                        return false;
+                        continue;
                     }
                 }
                 if (this._position !== undefined) {
                     if (cmp(record.key, this._position) !== 1) {
-                        return false;
+                        continue;
                     }
                 }
                 if (this._range !== undefined) {
                     if (!FDBKeyRange.check(this._range, record.key)) {
-                        return false;
+                        continue;
                     }
                 }
-                return true;
-            });
+                foundRecord = record;
+                break;
+            }
         } else if (this.direction === "prev") {
-            foundRecord = records.reverse().find((record) => {
+            for (const record of records.values('prev')) {
                 if (key !== undefined) {
                     if (cmp(record.key, key) === 1) {
-                        return false;
+                        continue;
                     }
                 }
                 if (this._position !== undefined && sourceIsObjectStore) {
                     if (cmp(record.key, this._position) !== -1) {
-                        return false;
+                        continue;
                     }
                 }
                 if (this._position !== undefined && !sourceIsObjectStore) {
                     const cmpResult = cmp(record.key, this._position);
                     if (cmpResult === 1) {
-                        return false;
+                        continue;
                     }
                     if (cmpResult === 0 && cmp(record.value, this._objectStorePosition) !== -1) {
-                        return false;
+                        continue;
                     }
                 }
                 if (this._range !== undefined) {
                     if (!FDBKeyRange.check(this._range, record.key)) {
-                        return false;
+                        continue;
                     }
                 }
-                return true;
-            });
-            records.reverse();
+                foundRecord = record;
+                break;
+            }
         } else if (this.direction === "prevunique") {
-            const tempRecord = records.reverse().find((record) => {
+            let tempRecord;
+            for (const record of records.values('prev')) {
                 if (key !== undefined) {
                     if (cmp(record.key, key) === 1) {
-                        return false;
+                        continue;
                     }
                 }
                 if (this._position !== undefined) {
                     if (cmp(record.key, this._position) !== -1) {
-                        return false;
+                        continue;
                     }
                 }
                 if (this._range !== undefined) {
                     if (!FDBKeyRange.check(this._range, record.key)) {
-                        return false;
+                        continue;
                     }
                 }
-                return true;
-            });
-            records.reverse();
-
+                tempRecord = record;
+                break;
+            }
 
             if (tempRecord) {
-                foundRecord = records.find((record) => {
-                    return cmp(record.key, tempRecord.key) === 0;
-                });
+                foundRecord = records.get(tempRecord.key);
             }
         }
 

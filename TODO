@@ -1,7 +1,9 @@
 # v2 stuff:
 
 abstract data functions
-- FDBCursor
+- FDBCursor._iterate
+  - don't start searching at record 0 if we know there is a lower bound. same with upper bound, can stop after passing it
+  - store lower bound to start iterator (don't worry about making it precise, including value and gt/gte), and upper bound to stop, based on various inputs
 
 binary search tree
 
@@ -17,7 +19,7 @@ open issues
 
 addDomStringListMethods - make it a class
 
-add lib.js for 1.x compatability
+add lib.js for 1.x compatability, and test
 
 ---
 
