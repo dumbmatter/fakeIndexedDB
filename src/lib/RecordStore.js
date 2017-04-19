@@ -89,24 +89,44 @@ class RecordStore {
         return deletedRecords;
     }
 
-    values(direction = 'next') {
+    values(range, direction = 'next') {
         return {
             [Symbol.iterator]: () => {
-                let i = direction === 'next' ? -1 : this._records.length;
+                let i;
+                if (direction === 'next') {
+                    i = 0;
+                    if (range !== undefined && range.lower !== undefined) {
+                        while (this._records[i] !== undefined && cmp(this._records[i].key, range.lower) === -1) {
+                            i += 1;
+                        }
+                    }
+                } else {
+                    i = this._records.length;
+                }
 
                 return {
                     next: () => {
                         let done;
+                        let value;
                         if (direction === 'next') {
-                            i += 1;
+                            value = this._records[i];
                             done = i >= this._records.length;
+                            i += 1;
+
+                            if (!done && range !== undefined && range.upper !== undefined) {
+                                done = cmp(value.key, range.upper) === 1;
+                                if (done) {
+                                    value = undefined;
+                                }
+                            }
                         } else {
                             i -= 1;
+                            value = this._records[i];
                             done = i < 0;
                         }
 
                         return {
-                            value: this._records[i],
+                            value,
                             done,
                         }
                     },

@@ -12,6 +12,18 @@ const getEffectiveObjectStore = (cursor) => {
     return cursor.source;
 };
 
+const makeKeyRange = (lower, upper) => {
+    if (lower !== undefined && upper !== undefined) {
+        return FDBKeyRange.bound(lower, upper);
+    }
+    if (lower !== undefined) {
+        return FDBKeyRange.lowerBound(lower);
+    }
+    if (upper !== undefined) {
+        return FDBKeyRange.upperBound(upper);
+    }
+}
+
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#cursor
 class FDBCursor {
     constructor(source, range, direction = 'next', request) {
@@ -78,7 +90,30 @@ class FDBCursor {
                 break;
             }
         } else if (this.direction === "nextunique") {
-            for (const record of records.values()) {
+            let lower;
+            let upper;
+            if (key !== undefined) {
+                lower = key;
+            }
+            if (this._position !== undefined) {
+                if (lower === undefined || cmp(lower, this._position) === 1) {
+                    lower = this._position;
+                }
+            }
+            if (this._range !== undefined) {
+                if (this._range.lower !== undefined && (lower === undefined || cmp(lower, this._range.lower) === 1)) {
+                    lower = this._range.lower;
+                }
+                if (this._range.upper !== undefined) {
+                    upper = this._range.upper;
+                }
+            }
+            const range = makeKeyRange(lower, upper);
+
+            // This could be done without iterating, if the range was defined slightly better (to handle gt/gte cases).
+            // But the performance difference should be small, and that wouldn't work anyway for directions where the
+            // value needs to be used (like next and prev).
+            for (const record of records.values(range)) {
                 if (key !== undefined) {
                     if (cmp(record.key, key) === -1) {
                         continue;
@@ -98,7 +133,7 @@ class FDBCursor {
                 break;
             }
         } else if (this.direction === "prev") {
-            for (const record of records.values('prev')) {
+            for (const record of records.values(undefined, 'prev')) {
                 if (key !== undefined) {
                     if (cmp(record.key, key) === 1) {
                         continue;
@@ -128,7 +163,7 @@ class FDBCursor {
             }
         } else if (this.direction === "prevunique") {
             let tempRecord;
-            for (const record of records.values('prev')) {
+            for (const record of records.values(undefined, 'prev')) {
                 if (key !== undefined) {
                     if (cmp(record.key, key) === 1) {
                         continue;
