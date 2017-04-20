@@ -1,4 +1,4 @@
-const {InvalidStateError} = require("./errors");
+import {InvalidStateError} from "./errors";
 import Event from "./Event";
 import {EventCallback, EventType} from "./types";
 

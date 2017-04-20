@@ -4,7 +4,7 @@ import FDBIndex from "./FDBIndex";
 import FDBKeyRange from "./FDBKeyRange";
 import FDBRequest from "./FDBRequest";
 import FDBTransaction from "./FDBTransaction";
-const {
+import {
     ConstraintError,
     DataError,
     InvalidAccessError,
@@ -12,7 +12,7 @@ const {
     NotFoundError,
     ReadOnlyError,
     TransactionInactiveError,
-} = require("./lib/errors");
+} from "./lib/errors";
 import extractKey from "./lib/extractKey";
 import FakeDOMStringList from "./lib/FakeDOMStringList";
 import Index from "./lib/Index";

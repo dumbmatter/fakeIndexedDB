@@ -1,12 +1,12 @@
 import FDBTransaction from "./FDBTransaction";
-const {
+import Database from "./lib/Database";
+import {
     ConstraintError,
     InvalidAccessError,
     InvalidStateError,
     NotFoundError,
     TransactionInactiveError,
-} = require("./lib/errors");
-import Database from "./lib/Database";
+} from "./lib/errors";
 import EventTarget from "./lib/EventTarget";
 import FakeDOMStringList from "./lib/FakeDOMStringList";
 import ObjectStore from "./lib/ObjectStore";

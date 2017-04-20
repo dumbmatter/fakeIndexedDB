@@ -3,7 +3,7 @@ import FDBOpenDBRequest from "./FDBOpenDBRequest";
 import FDBVersionChangeEvent from "./FDBVersionChangeEvent";
 import cmp from "./lib/cmp";
 import Database from "./lib/Database";
-const {AbortError, VersionError} = require("./lib/errors");
+import {AbortError, VersionError} from "./lib/errors";
 import Event from "./lib/Event";
 
 const waitForOthersClosedDelete = (

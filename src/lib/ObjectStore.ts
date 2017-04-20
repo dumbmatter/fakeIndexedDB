@@ -1,11 +1,11 @@
 import Database from "./Database";
+import {ConstraintError, DataError} from "./errors";
 import extractKey from "./extractKey";
 import Index from "./Index";
 import KeyGenerator from "./KeyGenerator";
 import RecordStore from "./RecordStore";
 import structuredClone from "./structuredClone";
 import {Key, KeyPath, Record, RollbackLog} from "./types";
-const {ConstraintError, DataError} = require("./errors");
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-object-store
 class ObjectStore {

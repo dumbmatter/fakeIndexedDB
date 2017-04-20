@@ -14,10 +14,10 @@ npm install fake-indexeddb
 
 Functionally, it works exactly like IndexedDB except data is not persisted to disk.
 
-Use it as a shim to conditionally load it when IndexedDB is not present, such as in NodeJS or in really old browsers.
+Import `fake-indexeddb/global` to have it write (or overwrite) all the default IndexedDB variables like `indexedDB`, `IDBKeyRange`, etc.
 
 ```js
-require('fake-indexeddb/shim');
+require('fake-indexeddb/global');
 
 var request = indexedDB.open('test', 3);
 request.onupgradeneeded = function () {
@@ -54,7 +54,7 @@ Or you can import individual functions directly. Variable names of all the objec
 
 ```js
 var fakeIndexedDB = require('fake-indexeddb');
-var FDBKeyRange = require('fake-indexeddb/FDBKeyRange').default;
+var FDBKeyRange = require('fake-indexeddb/classes').FDBKeyRange;
 
 // ...same code as last example, but fakeIndexedDB instead of indexedDB and FDBKeyRange instead of IDBKeyRange
 ```

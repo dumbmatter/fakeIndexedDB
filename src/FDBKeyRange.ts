@@ -1,5 +1,5 @@
 import cmp from "./lib/cmp";
-const {DataError} = require("./lib/errors");
+import {DataError} from "./lib/errors";
 import {Key} from "./lib/types";
 import validateKey from "./lib/validateKey";
 

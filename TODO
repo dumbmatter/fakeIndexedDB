@@ -8,7 +8,7 @@ TypeScript
 - provide type defs to consumer
 - remove eslint - all files and comments
 - remove babel
-- errors.js, index.js, shim.js
+- errors.js
 - my tests
 - improve types
   - types.ts any

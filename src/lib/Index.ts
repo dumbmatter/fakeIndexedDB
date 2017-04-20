@@ -1,5 +1,5 @@
 import FDBTransaction from "../FDBTransaction";
-const {ConstraintError} = require("./errors");
+import {ConstraintError} from "./errors";
 import extractKey from "./extractKey";
 import ObjectStore from "./ObjectStore";
 import RecordStore from "./RecordStore";

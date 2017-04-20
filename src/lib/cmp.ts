@@ -1,4 +1,4 @@
-const {DataError} = require("./errors");
+import {DataError} from "./errors";
 import validateKey from "./validateKey";
 
 const getType = (x: any) => {

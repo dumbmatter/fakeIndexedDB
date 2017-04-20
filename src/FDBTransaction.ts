@@ -1,7 +1,7 @@
 import FDBDatabase from "./FDBDatabase";
 import FDBObjectStore from "./FDBObjectStore";
 import FDBRequest from "./FDBRequest";
-const {AbortError, InvalidStateError, NotFoundError, TransactionInactiveError} = require("./lib/errors");
+import {AbortError, InvalidStateError, NotFoundError, TransactionInactiveError} from "./lib/errors";
 import Event from "./lib/Event";
 import EventTarget from "./lib/EventTarget";
 import {EventCallback, RequestObj, RollbackLog, TransactionMode} from "./lib/types";

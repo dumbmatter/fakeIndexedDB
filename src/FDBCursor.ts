@@ -2,7 +2,7 @@ import FDBKeyRange from "./FDBKeyRange";
 import FDBObjectStore from "./FDBObjectStore";
 import FDBRequest from "./FDBRequest";
 import cmp from "./lib/cmp";
-const {DataError, InvalidStateError, ReadOnlyError, TransactionInactiveError} = require("./lib/errors");
+import {DataError, InvalidStateError, ReadOnlyError, TransactionInactiveError} from "./lib/errors";
 import extractKey from "./lib/extractKey";
 import structuredClone from "./lib/structuredClone";
 import {CursorRange, CursorSource, FDBCursorDirection, Key, Value} from "./lib/types";

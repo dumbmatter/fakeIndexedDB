@@ -1,4 +1,4 @@
-const {DataError} = require("./errors");
+import {DataError} from "./errors";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-valid-key
 const validateKey = (key: any, seen?: Set<object>) => {

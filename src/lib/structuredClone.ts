@@ -1,5 +1,5 @@
 const realisticStructuredClone = require("realistic-structured-clone");
-const {DataCloneError} = require("./errors");
+import {DataCloneError} from "./errors";
 
 const structuredClone = <T>(input: T): T => {
     try {

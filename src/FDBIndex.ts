@@ -3,7 +3,7 @@ import FDBCursorWithValue from "./FDBCursorWithValue";
 import FDBKeyRange from "./FDBKeyRange";
 import FDBObjectStore from "./FDBObjectStore";
 import FDBRequest from "./FDBRequest";
-const {InvalidStateError, TransactionInactiveError} = require("./lib/errors");
+import {InvalidStateError, TransactionInactiveError} from "./lib/errors";
 import Index from "./lib/Index";
 import structuredClone from "./lib/structuredClone";
 import {FDBCursorDirection, Key, KeyPath} from "./lib/types";
