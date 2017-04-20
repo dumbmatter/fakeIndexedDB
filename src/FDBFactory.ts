@@ -1,12 +1,17 @@
-const FDBDatabase = require("./FDBDatabase");
-const FDBOpenDBRequest = require("./FDBOpenDBRequest").default;
-const FDBVersionChangeEvent = require("./FDBVersionChangeEvent").default;
-const cmp = require("./lib/cmp").default;
-const Database = require("./lib/Database").default;
+import FDBDatabase from "./FDBDatabase";
+import FDBOpenDBRequest from "./FDBOpenDBRequest";
+import FDBVersionChangeEvent from "./FDBVersionChangeEvent";
+import cmp from "./lib/cmp";
+import Database from "./lib/Database";
 const {AbortError, VersionError} = require("./lib/errors");
-const Event = require("./lib/Event").default;
+import Event from "./lib/Event";
 
-const waitForOthersClosedDelete = (databases, name, openDatabases, cb) => {
+const waitForOthersClosedDelete = (
+    databases: Map<string, Database>,
+    name: string,
+    openDatabases: FDBDatabase[],
+    cb: (err: Error | null) => void,
+) => {
     const anyOpen = openDatabases.some((openDatabase) => {
         return !openDatabase._closed;
     });
@@ -16,20 +21,25 @@ const waitForOthersClosedDelete = (databases, name, openDatabases, cb) => {
         return;
     }
 
-    delete databases[name];
+    databases.delete(name);
 
-    cb();
+    cb(null);
 };
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-deleting-a-database
-const deleteDatabase = (databases, name, request, cb) => {
+const deleteDatabase = (
+    databases: Map<string, Database>,
+    name: string,
+    request: FDBOpenDBRequest,
+    cb: (err: Error | null) => void,
+) => {
     try {
-        if (!databases.hasOwnProperty(name)) {
-            cb();
+        const db = databases.get(name);
+        if (db === undefined) {
+            cb(null);
             return;
         }
 
-        const db = databases[name];
         db.deletePending = true;
 
         const openDatabases = db.connections.filter((connection) => {
@@ -39,8 +49,8 @@ const deleteDatabase = (databases, name, request, cb) => {
         for (const openDatabase of openDatabases) {
             if (!openDatabase._closePending) {
                 const event = new FDBVersionChangeEvent("versionchange", {
+                    newVersion: null,
                     oldVersion: db.version,
-                    newVersion: null
                 });
                 openDatabase.dispatchEvent(event);
             }
@@ -52,8 +62,8 @@ const deleteDatabase = (databases, name, request, cb) => {
 
         if (request && anyOpen) {
             const event = new FDBVersionChangeEvent("blocked", {
+                newVersion: null,
                 oldVersion: db.version,
-                newVersion: null
             });
             request.dispatchEvent(event);
         }
@@ -62,10 +72,15 @@ const deleteDatabase = (databases, name, request, cb) => {
     } catch (err) {
         cb(err);
     }
-}
+};
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-running-a-versionchange-transaction
-const runVersionchangeTransaction = (connection, version, request, cb) => {
+const runVersionchangeTransaction = (
+    connection: FDBDatabase,
+    version: number,
+    request: FDBOpenDBRequest,
+    cb: (err: Error | null) => void,
+) => {
     connection._runningVersionchangeTransaction = true;
 
     const oldVersion = connection.version;
@@ -77,8 +92,8 @@ const runVersionchangeTransaction = (connection, version, request, cb) => {
     for (const openDatabase of openDatabases) {
         if (!openDatabase._closed) {
             const event = new FDBVersionChangeEvent("versionchange", {
-                oldVersion: oldVersion,
-                newVersion: version
+                oldVersion,
+                newVersion: version,
             });
             openDatabase.dispatchEvent(event);
         }
@@ -90,18 +105,18 @@ const runVersionchangeTransaction = (connection, version, request, cb) => {
 
     if (anyOpen) {
         const event = new FDBVersionChangeEvent("blocked", {
-            oldVersion: oldVersion,
-            newVersion: version
+            newVersion: version,
+            oldVersion,
         });
         request.dispatchEvent(event);
     }
 
     const waitForOthersClosed = () => {
-        const anyOpen = openDatabases.some((openDatabase) => {
+        const anyOpen2 = openDatabases.some((openDatabase) => {
             return !openDatabase._closed;
         });
 
-        if (anyOpen) {
+        if (anyOpen2) {
             setImmediate(waitForOthersClosed);
             return;
         }
@@ -122,8 +137,8 @@ const runVersionchangeTransaction = (connection, version, request, cb) => {
         });
 
         const event = new FDBVersionChangeEvent("upgradeneeded", {
-            oldVersion: oldVersion,
-            newVersion: version
+            newVersion: version,
+            oldVersion,
         });
         request.dispatchEvent(event);
 
@@ -131,8 +146,8 @@ const runVersionchangeTransaction = (connection, version, request, cb) => {
 
         transaction.addEventListener("error", () => {
             connection._runningVersionchangeTransaction = false;
-//throw arguments[0].target.error;
-//console.log("error in versionchange transaction - not sure if anything needs to be done here", e.target.error.name);
+// throw arguments[0].target.error;
+// console.log("error in versionchange transaction - not sure if anything needs to be done here", e.target.error.name);
         });
         transaction.addEventListener("abort", () => {
             connection._runningVersionchangeTransaction = false;
@@ -156,16 +171,20 @@ const runVersionchangeTransaction = (connection, version, request, cb) => {
     };
 
     waitForOthersClosed();
-}
+};
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-opening-a-database
-const openDatabase = (databases, name, version, request, cb) => {
-    let db;
-    if (databases.hasOwnProperty(name)) {
-        db = databases[name];
-    } else {
+const openDatabase = (
+    databases: Map<string, Database>,
+    name: string,
+    version: number,
+    request: FDBOpenDBRequest,
+    cb: (err: Error | null, connection?: FDBDatabase) => void,
+) => {
+    let db = databases.get(name);
+    if (db === undefined) {
         db = new Database(name, 0);
-        databases[name] = db;
+        databases.set(name, db);
     }
 
     if (version === undefined) {
@@ -176,12 +195,13 @@ const openDatabase = (databases, name, version, request, cb) => {
         return cb(new VersionError());
     }
 
-    const connection = new FDBDatabase(databases[name]);
+    const connection = new FDBDatabase(db);
 
     if (db.version < version) {
         runVersionchangeTransaction(connection, version, request, (err) => {
             if (err) {
-// DO THIS HERE: ensure that connection is closed by running the steps for closing a database connection before these steps are aborted.
+// DO THIS HERE: ensure that connection is closed by running the steps for closing a database connection before these
+// steps are aborted.
                 return cb(err);
             }
 
@@ -190,21 +210,21 @@ const openDatabase = (databases, name, version, request, cb) => {
     } else {
         cb(null, connection);
     }
-}
+};
 
 class FDBFactory {
-    constructor() {
-        this._databases = {};
-        this.cmp = cmp;
-    }
+    public cmp = cmp;
+    private _databases: Map<string, Database> = new Map();
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBFactory-deleteDatabase-IDBOpenDBRequest-DOMString-name
-    deleteDatabase(name) {
+    public deleteDatabase(name: string) {
         const request = new FDBOpenDBRequest();
         request.source = null;
 
         setImmediate(() => {
-            const version = this._databases.hasOwnProperty(name) ? this._databases[name].version : null;
+            const db = this._databases.get(name);
+            const oldVersion = db !== undefined ? db.version : 0;
+
             deleteDatabase(this._databases, name, request, (err) => {
                 if (err) {
                     request.error = new Error();
@@ -212,7 +232,7 @@ class FDBFactory {
 
                     const event = new Event("error", {
                         bubbles: true,
-                        cancelable: false
+                        cancelable: false,
                     });
                     event.eventPath = [];
                     request.dispatchEvent(event);
@@ -223,8 +243,8 @@ class FDBFactory {
                 request.result = undefined;
 
                 const event = new FDBVersionChangeEvent("success", {
-                    oldVersion: version,
-                    newVersion: null
+                    newVersion: null,
+                    oldVersion,
                 });
                 request.dispatchEvent(event);
             });
@@ -235,7 +255,7 @@ class FDBFactory {
 
     // tslint:disable-next-line max-line-length
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBFactory-open-IDBOpenDBRequest-DOMString-name-unsigned-long-long-version
-    open(name, version) {
+    public open(name: string, version: number) {
         if (arguments.length > 1 && (isNaN(version) || version < 1 || version >= 9007199254740992)) {
             throw new TypeError();
         }
@@ -253,7 +273,7 @@ class FDBFactory {
 
                     const event = new Event("error", {
                         bubbles: true,
-                        cancelable: false
+                        cancelable: false,
                     });
                     event.eventPath = [];
                     request.dispatchEvent(event);
@@ -272,9 +292,9 @@ class FDBFactory {
         return request;
     }
 
-    toString() {
+    public toString() {
         return "[object IDBFactory]";
     }
 }
 
-module.exports = FDBFactory;
+export default FDBFactory;

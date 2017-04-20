@@ -3,6 +3,7 @@ import FDBCursorWithValue from "./FDBCursorWithValue";
 import FDBIndex from "./FDBIndex";
 import FDBKeyRange from "./FDBKeyRange";
 import FDBRequest from "./FDBRequest";
+import FDBTransaction from "./FDBTransaction";
 const {
     ConstraintError,
     DataError,
@@ -71,23 +72,23 @@ const buildRecordAddPut = (objectStore: FDBObjectStore, value: Value, key: Key) 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#object-store
 class FDBObjectStore {
     public _rawObjectStore: ObjectStore;
-    public _rawIndexesCache: {[key: string]: FDBIndex};
 
     public name: string;
     public keyPath: KeyPath | null;
     public autoIncrement: boolean;
-    public transaction: any;
+    public transaction: FDBTransaction;
     public indexNames: FakeDOMStringList;
 
-    constructor(transaction: any, rawObjectStore: ObjectStore) {
+    private _rawIndexesCache: Map<string, FDBIndex> = new Map();
+
+    constructor(transaction: FDBTransaction, rawObjectStore: ObjectStore) {
         this._rawObjectStore = rawObjectStore;
-        this._rawIndexesCache = {}; // Store the FDBIndex objects
 
         this.name = rawObjectStore.name;
         this.keyPath = rawObjectStore.keyPath;
         this.autoIncrement = rawObjectStore.autoIncrement;
         this.transaction = transaction;
-        this.indexNames = FakeDOMStringList.from(Object.keys(rawObjectStore.rawIndexes).sort());
+        this.indexNames = FakeDOMStringList.from(Array.from(rawObjectStore.rawIndexes.keys())).sort();
     }
 
     public put(value: Value, key?: Key) {
@@ -218,13 +219,13 @@ class FDBObjectStore {
         const indexNames = this.indexNames.slice();
         this.transaction._rollbackLog.push(() => {
             this.indexNames = FakeDOMStringList.from(indexNames);
-            delete this._rawObjectStore.rawIndexes[name];
+            this._rawObjectStore.rawIndexes.delete(name);
         });
 
         const index = new Index(this._rawObjectStore, name, keyPath, multiEntry, unique);
         this.indexNames.push(name);
         this.indexNames.sort();
-        this._rawObjectStore.rawIndexes[name] = index;
+        this._rawObjectStore.rawIndexes.set(name, index);
 
         index.initialize(this.transaction); // This is async by design
 
@@ -234,11 +235,13 @@ class FDBObjectStore {
     public index(name: string) {
         if (name === undefined) { throw new TypeError(); }
 
-        if (this._rawIndexesCache.hasOwnProperty(name)) {
-            return this._rawIndexesCache[name];
+        const rawIndex = this._rawIndexesCache.get(name);
+        if (rawIndex !== undefined) {
+            return rawIndex;
         }
 
-        if (this.indexNames.indexOf(name) < 0) {
+        const rawIndex2 = this._rawObjectStore.rawIndexes.get(name);
+        if (this.indexNames.indexOf(name) < 0 || rawIndex2 === undefined) {
             throw new NotFoundError();
         }
 
@@ -246,8 +249,8 @@ class FDBObjectStore {
             throw new InvalidStateError();
         }
 
-        const index = new FDBIndex(this, this._rawObjectStore.rawIndexes[name]);
-        this._rawIndexesCache[name] = index;
+        const index = new FDBIndex(this, rawIndex2);
+        this._rawIndexesCache.set(name, index);
 
         return index;
     }
@@ -261,14 +264,14 @@ class FDBObjectStore {
 
         confirmActiveTransaction(this);
 
-        if (!this._rawObjectStore.rawIndexes.hasOwnProperty(name)) {
+        const rawIndex = this._rawObjectStore.rawIndexes.get(name);
+        if (rawIndex === undefined) {
             throw new NotFoundError();
         }
 
-        const index = this._rawObjectStore.rawIndexes[name];
         this.transaction._rollbackLog.push(() => {
-            index.deleted = false;
-            this._rawObjectStore.rawIndexes[name] = index;
+            rawIndex.deleted = false;
+            this._rawObjectStore.rawIndexes.set(name, rawIndex);
             this.indexNames.push(name);
             this.indexNames.sort();
         });
@@ -276,11 +279,11 @@ class FDBObjectStore {
         this.indexNames = FakeDOMStringList.from(this.indexNames.filter((indexName) => {
             return indexName !== name;
         }));
-        this._rawObjectStore.rawIndexes[name].deleted = true; // Not sure if this is supposed to happen synchronously
+        rawIndex.deleted = true; // Not sure if this is supposed to happen synchronously
 
         this.transaction._execRequestAsync({
             operation: () => {
-                delete this._rawObjectStore.rawIndexes[name];
+                this._rawObjectStore.rawIndexes.delete(name);
             },
             source: this,
         });

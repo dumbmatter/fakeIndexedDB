@@ -1,9 +1,13 @@
+import FDBDatabase from "../FDBDatabase";
+import FDBTransaction from "../FDBTransaction";
+import ObjectStore from "./ObjectStore";
+
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-database
 class Database {
     public deletePending = false;
-    public readonly transactions: any[] = [];
-    public readonly rawObjectStores = {};
-    public readonly connections = [];
+    public readonly transactions: FDBTransaction[] = [];
+    public readonly rawObjectStores: Map<string, ObjectStore> = new Map();
+    public connections: FDBDatabase[] = [];
 
     public readonly name: string;
     public version: number;

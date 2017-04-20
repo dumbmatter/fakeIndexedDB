@@ -136,10 +136,13 @@ class RecordStore {
                             }
                         }
 
+                        // The weird "as IteratorResult<Record>" is needed because of
+                        // https://github.com/Microsoft/TypeScript/issues/11375 and
+                        // https://github.com/Microsoft/TypeScript/issues/2983
                         return {
                             value,
                             done,
-                        };
+                        } as IteratorResult<Record>;
                     },
                 };
             },

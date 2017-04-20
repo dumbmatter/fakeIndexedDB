@@ -77,9 +77,7 @@ abstract class EventTarget {
     public readonly onupgradeneeded: EventCallback | null | void;
     public readonly onversionchange: EventCallback | null | void;
 
-    public addEventListener(type: EventType, callback: EventCallback | null, capture = false) {
-        if (callback === null) { return; }
-
+    public addEventListener(type: EventType, callback: EventCallback, capture = false) {
         this.listeners.push({
             callback,
             capture,

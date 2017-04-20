@@ -154,7 +154,7 @@ QUnit.test("Aborting transaction", function (assert) {
                 transaction.abort();
             }
             catch (ex) {
-                assert.equal(ex.type, "InvalidAccessError", transArgs.message);
+                assert.equal(ex.type, "InvalidAccessError", "InvalidAccessError");
                 e.target.result.close();
                 done();
             }

@@ -1,17 +1,25 @@
-const EventTarget = require('./lib/EventTarget').default;
-const FDBTransaction = require('./FDBTransaction').default;
-const ObjectStore = require('./lib/ObjectStore').default;
-const {ConstraintError, InvalidAccessError, InvalidStateError, NotFoundError, TransactionInactiveError} = require('./lib/errors');
-const FakeDOMStringList = require("./lib/FakeDOMStringList").default;
-const validateKeyPath = require('./lib/validateKeyPath').default;
+import FDBTransaction from "./FDBTransaction";
+const {
+    ConstraintError,
+    InvalidAccessError,
+    InvalidStateError,
+    NotFoundError,
+    TransactionInactiveError,
+} = require("./lib/errors");
+import Database from "./lib/Database";
+import EventTarget from "./lib/EventTarget";
+import FakeDOMStringList from "./lib/FakeDOMStringList";
+import ObjectStore from "./lib/ObjectStore";
+import {KeyPath, TransactionMode} from "./lib/types";
+import validateKeyPath from "./lib/validateKeyPath";
 
-const confirmActiveVersionchangeTransaction = (database) => {
+const confirmActiveVersionchangeTransaction = (database: FDBDatabase) => {
     if (!database._runningVersionchangeTransaction) {
         throw new InvalidStateError();
     }
 
-    const transaction = database._rawDatabase.transactions.find((transaction) => {
-        return transaction._active && transaction.mode === 'versionchange';
+    const transaction = database._rawDatabase.transactions.find((tx) => {
+        return tx._active && tx.mode === "versionchange";
     });
     if (!transaction) {
         throw new TransactionInactiveError();
@@ -21,7 +29,7 @@ const confirmActiveVersionchangeTransaction = (database) => {
 };
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#database-closing-steps
-const closeConnection = (connection) => {
+const closeConnection = (connection: FDBDatabase) => {
     connection._closePending = true;
 
     const transactionsComplete = connection._rawDatabase.transactions.every((transaction) => {
@@ -42,29 +50,37 @@ const closeConnection = (connection) => {
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#database-interface
 class FDBDatabase extends EventTarget {
-    constructor(rawDatabase) {
+    public _closePending = false;
+    public _closed = false;
+    public _runningVersionchangeTransaction = false;
+    public _rawDatabase: Database;
+
+    public name: string;
+    public version: number;
+    public objectStoreNames: FakeDOMStringList;
+
+    constructor(rawDatabase: Database) {
         super();
 
-        this._closePending = false;
-        this._closed = false;
-        this._runningVersionchangeTransaction = false;
         this._rawDatabase = rawDatabase;
         this._rawDatabase.connections.push(this);
 
         this.name = rawDatabase.name;
         this.version = rawDatabase.version;
-        this.objectStoreNames = FakeDOMStringList.from(Object.keys(rawDatabase.rawObjectStores).sort());
+        this.objectStoreNames = FakeDOMStringList.from(Array.from(rawDatabase.rawObjectStores.keys())).sort();
     }
 
-    createObjectStore(name, optionalParameters) {
+    public createObjectStore(
+        name: string,
+        optionalParameters: {autoIncrement?: boolean, keyPath?: KeyPath} = {},
+    ) {
         if (name === undefined) { throw new TypeError(); }
         const transaction = confirmActiveVersionchangeTransaction(this);
 
-        if (this._rawDatabase.rawObjectStores.hasOwnProperty(name)) {
+        if (this._rawDatabase.rawObjectStores.has(name)) {
             throw new ConstraintError();
         }
 
-        optionalParameters = optionalParameters || {};
         const keyPath = optionalParameters.keyPath !== undefined ? optionalParameters.keyPath : null;
         const autoIncrement = optionalParameters.autoIncrement !== undefined ? optionalParameters.autoIncrement : false;
 
@@ -72,29 +88,30 @@ class FDBDatabase extends EventTarget {
             validateKeyPath(keyPath);
         }
 
-        if (autoIncrement && (keyPath === '' || Array.isArray(keyPath))) {
+        if (autoIncrement && (keyPath === "" || Array.isArray(keyPath))) {
             throw new InvalidAccessError();
         }
 
         const objectStoreNames = this.objectStoreNames.slice();
         transaction._rollbackLog.push(() => {
             this.objectStoreNames = FakeDOMStringList.from(objectStoreNames);
-            delete this._rawDatabase.rawObjectStores[name];
+            this._rawDatabase.rawObjectStores.delete(name);
         });
 
         const objectStore = new ObjectStore(this._rawDatabase, name, keyPath, autoIncrement);
         this.objectStoreNames.push(name);
         this.objectStoreNames.sort();
-        this._rawDatabase.rawObjectStores[name] = objectStore;
+        this._rawDatabase.rawObjectStores.set(name, objectStore);
 
         return transaction.objectStore(name);
     }
 
-    deleteObjectStore(name) {
+    public deleteObjectStore(name: string) {
         if (name === undefined) { throw new TypeError(); }
         const transaction = confirmActiveVersionchangeTransaction(this);
 
-        if (!this._rawDatabase.rawObjectStores.hasOwnProperty(name)) {
+        const store = this._rawDatabase.rawObjectStores.get(name);
+        if (store === undefined) {
             throw new NotFoundError();
         }
 
@@ -102,25 +119,25 @@ class FDBDatabase extends EventTarget {
             return objectStoreName !== name;
         }));
 
-        transaction._rollbackLog.push(function (store) {
+        transaction._rollbackLog.push(() => {
             store.deleted = false;
-            this._rawDatabase.rawObjectStores[name] = store;
+            this._rawDatabase.rawObjectStores.set(name, store);
             this.objectStoreNames.push(name);
             this.objectStoreNames.sort();
-        }.bind(this, this._rawDatabase.rawObjectStores[name]));
+        });
 
-        this._rawDatabase.rawObjectStores[name].deleted = true;
-        delete this._rawDatabase.rawObjectStores[name];
+        store.deleted = true;
+        this._rawDatabase.rawObjectStores.delete(name);
     }
 
-    transaction(storeNames, mode) {
-        mode = mode !== undefined ? mode : 'readonly';
-        if (mode !== 'readonly' && mode !== 'readwrite' && mode !== 'versionchange') {
-            throw new TypeError('Invalid mode: ' + mode);
+    public transaction(storeNames: string | string[], mode?: TransactionMode) {
+        mode = mode !== undefined ? mode : "readonly";
+        if (mode !== "readonly" && mode !== "readwrite" && mode !== "versionchange") {
+            throw new TypeError("Invalid mode: " + mode);
         }
 
         const hasActiveVersionchange = this._rawDatabase.transactions.some((transaction) => {
-            return transaction._active && transaction.mode === 'versionchange';
+            return transaction._active && transaction.mode === "versionchange";
         });
         if (hasActiveVersionchange) {
             throw new InvalidStateError();
@@ -133,12 +150,12 @@ class FDBDatabase extends EventTarget {
         if (!Array.isArray(storeNames)) {
             storeNames = [storeNames];
         }
-        if (storeNames.length === 0 && mode !== 'versionchange') {
+        if (storeNames.length === 0 && mode !== "versionchange") {
             throw new InvalidAccessError();
         }
         for (const storeName of storeNames) {
             if (this.objectStoreNames.indexOf(storeName) < 0) {
-                throw new NotFoundError('No objectStore named ' + storeName + ' in this database');
+                throw new NotFoundError("No objectStore named " + storeName + " in this database");
             }
         }
 
@@ -149,13 +166,13 @@ class FDBDatabase extends EventTarget {
         return tx;
     }
 
-    close() {
+    public close() {
         closeConnection(this);
     }
 
-    toString() {
-        return '[object IDBDatabase]';
+    public toString() {
+        return "[object IDBDatabase]";
     }
 }
 
-module.exports = FDBDatabase;
+export default FDBDatabase;

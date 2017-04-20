@@ -10,8 +10,8 @@ if (!globalVar.indexedDB) {
     globalVar.indexedDB = require('.');
     globalVar.IDBCursor = require('./FDBCursor').default;
     globalVar.IDBCursorWithValue = require('./FDBCursorWithValue').default;
-    globalVar.IDBDatabase = require('./FDBDatabase');
-    globalVar.IDBFactory = require('./FDBFactory');
+    globalVar.IDBDatabase = require('./FDBDatabase').default;
+    globalVar.IDBFactory = require('./FDBFactory').default;
     globalVar.IDBIndex = require('./FDBIndex').default;
     globalVar.IDBKeyRange = require('./FDBKeyRange').default;
     globalVar.IDBObjectStore = require('./FDBObjectStore').default;

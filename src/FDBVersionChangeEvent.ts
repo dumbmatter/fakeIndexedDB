@@ -5,8 +5,8 @@ class FDBVersionChangeEvent extends Event {
     public oldVersion: number;
 
     constructor(
-        type: "blocked" | "upgradeneeded" | "versionchange",
-        parameters: {newVersion?: number, oldVersion?: number} = {},
+        type: "blocked" | "success" | "upgradeneeded" | "versionchange",
+        parameters: {newVersion?: number | null, oldVersion?: number} = {},
     ) {
         super(type);
 

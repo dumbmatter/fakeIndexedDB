@@ -1,8 +1,10 @@
 import FDBCursor from "./FDBCursor";
 import FDBCursorWithValue from "./FDBCursorWithValue";
 import FDBKeyRange from "./FDBKeyRange";
+import FDBObjectStore from "./FDBObjectStore";
 import FDBRequest from "./FDBRequest";
 const {InvalidStateError, TransactionInactiveError} = require("./lib/errors");
+import Index from "./lib/Index";
 import structuredClone from "./lib/structuredClone";
 import {FDBCursorDirection, Key, KeyPath} from "./lib/types";
 import validateKey from "./lib/validateKey";
@@ -19,14 +21,14 @@ const confirmActiveTransaction = (index: FDBIndex) => {
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#idl-def-IDBIndex
 class FDBIndex {
-    public _rawIndex: any;
+    public _rawIndex: Index;
     public name: string;
-    public objectStore: any;
+    public objectStore: FDBObjectStore;
     public keyPath: KeyPath;
     public multiEntry: boolean;
     public unique: boolean;
 
-    constructor(objectStore: any, rawIndex: any) {
+    constructor(objectStore: FDBObjectStore, rawIndex: Index) {
         this._rawIndex = rawIndex;
 
         this.name = rawIndex.name;

@@ -1,19 +1,18 @@
 import FDBKeyRange from "./FDBKeyRange";
+import FDBObjectStore from "./FDBObjectStore";
 import FDBRequest from "./FDBRequest";
 import cmp from "./lib/cmp";
 const {DataError, InvalidStateError, ReadOnlyError, TransactionInactiveError} = require("./lib/errors");
 import extractKey from "./lib/extractKey";
 import structuredClone from "./lib/structuredClone";
-import {FDBCursorDirection, Key, Value} from "./lib/types";
+import {CursorRange, CursorSource, FDBCursorDirection, Key, Value} from "./lib/types";
 import validateKey from "./lib/validateKey";
 
-type Range = Key | FDBKeyRange | void;
-
 const getEffectiveObjectStore = (cursor: FDBCursor) => {
-    if (cursor.source.hasOwnProperty("_rawIndex")) {
-        return cursor.source.objectStore;
+    if (cursor.source instanceof FDBObjectStore) {
+        return cursor.source;
     }
-    return cursor.source;
+    return cursor.source.objectStore;
 };
 
 // This takes a key range, a list of lower bounds, and a list of upper bounds and combines them all into a single key
@@ -61,16 +60,21 @@ class FDBCursor {
     public _request: FDBRequest | void;
 
     private _gotValue: boolean = false;
-    private _range: Range;
+    private _range: CursorRange;
     private _position = undefined; // Key of previously returned record
     private _objectStorePosition = undefined;
 
-    private _source: any;
+    private _source: CursorSource;
     private _direction: FDBCursorDirection;
     private _key = undefined;
     private _primaryKey: Key | void = undefined;
 
-    constructor(source: any, range: Range, direction: FDBCursorDirection = "next", request?: FDBRequest) {
+    constructor(
+        source: CursorSource,
+        range: CursorRange,
+        direction: FDBCursorDirection = "next",
+        request?: FDBRequest,
+    ) {
         this._range = range;
         this._source = source;
         this._direction = direction;
@@ -93,9 +97,14 @@ class FDBCursor {
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-iterating-a-cursor
     public _iterate(key?: Key): this | null {
-        const sourceIsObjectStore = !this.source.hasOwnProperty("_rawIndex");
+        const sourceIsObjectStore = this.source instanceof FDBObjectStore;
 
-        const records = sourceIsObjectStore ? this.source._rawObjectStore.records : this.source._rawIndex.records;
+        let records;
+        if (this.source instanceof FDBObjectStore) { // Can't use sourceIsObjectStore because TypeScript
+            records = this.source._rawObjectStore.records;
+        } else {
+            records = this.source._rawIndex.records;
+        }
 
         let foundRecord;
         if (this.direction === "next") {
@@ -233,6 +242,9 @@ class FDBCursor {
             } else {
                 this._primaryKey = structuredClone(foundRecord.value);
                 if (this.constructor.name === "FDBCursorWithValue") {
+                    if (this.source instanceof FDBObjectStore) { // Can't use sourceIsObjectStore because TypeScript
+                        throw new Error("This should never happen");
+                    }
                     const value = this.source.objectStore._rawObjectStore.getValue(foundRecord.value);
                     (this as any).value = structuredClone(value);
                 }

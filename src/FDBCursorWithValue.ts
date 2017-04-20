@@ -1,10 +1,10 @@
 import FDBCursor from "./FDBCursor";
-import {FDBCursorDirection, Value} from "./lib/types";
+import {CursorRange, CursorSource, FDBCursorDirection, Value} from "./lib/types";
 
 class FDBCursorWithValue extends FDBCursor {
     public value: Value = undefined;
 
-    constructor(source: any, range: any, direction?: FDBCursorDirection, request?: any) {
+    constructor(source: CursorSource, range: CursorRange, direction?: FDBCursorDirection, request?: any) {
         super(source, range, direction, request);
     }
 

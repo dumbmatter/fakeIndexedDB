@@ -8,19 +8,10 @@ TypeScript
 - provide type defs to consumer
 - remove eslint - all files and comments
 - remove babel
+- errors.js, index.js, shim.js
+- my tests
 - improve types
-  - Database.transactions
-  - FDBCursorWithValue any
   - types.ts any
-  - EventTarget addEventListener callback can be null?
-  - FDBRequest null/any variables
-  - ObjectStore rawDatabase, rawIndexes
-  - Index rawObjectStore, transaction any
-  - FDBCursor source any
-  - FDBIndex objectStore, rawIndex any
-  - FDBObjectStore transaction any
-  - FDBTransaction db any
-  - circular import problems (search) - define interface in types.ts
   - public APIs should accept any - errors are part of spec, not to be prevented by types?
 - make sure it's still usable by normal ES5 code, not weird exports
   - change target in tsconfig

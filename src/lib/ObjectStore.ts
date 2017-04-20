@@ -1,4 +1,6 @@
+import Database from "./Database";
 import extractKey from "./extractKey";
+import Index from "./Index";
 import KeyGenerator from "./KeyGenerator";
 import RecordStore from "./RecordStore";
 import structuredClone from "./structuredClone";
@@ -8,15 +10,15 @@ const {ConstraintError, DataError} = require("./errors");
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-object-store
 class ObjectStore {
     public deleted = false;
-    public readonly rawDatabase: any;
+    public readonly rawDatabase: Database;
     public readonly records = new RecordStore();
-    public readonly rawIndexes: {[key: string]: any} = {};
+    public readonly rawIndexes: Map<string, Index> = new Map();
     public name: string;
     public readonly keyPath: KeyPath | null;
     public readonly autoIncrement: boolean;
     public readonly keyGenerator: KeyGenerator | null;
 
-    constructor(rawDatabase: any, name: string, keyPath: KeyPath | null, autoIncrement: boolean) {
+    constructor(rawDatabase: Database, name: string, keyPath: KeyPath | null, autoIncrement: boolean) {
         this.rawDatabase = rawDatabase;
         this.keyGenerator = autoIncrement === true ? new KeyGenerator() : null;
         this.deleted = false;
@@ -102,9 +104,9 @@ class ObjectStore {
         this.records.add(newRecord);
 
         // Update indexes
-        for (const name of Object.keys(this.rawIndexes)) {
-            if (this.rawIndexes[name].initialized) {
-                this.rawIndexes[name].storeRecord(newRecord);
+        for (const rawIndex of this.rawIndexes.values()) {
+            if (rawIndex.initialized) {
+                rawIndex.storeRecord(newRecord);
             }
         }
 
@@ -125,8 +127,7 @@ class ObjectStore {
             }
         }
 
-        for (const name of Object.keys(this.rawIndexes)) {
-            const rawIndex = this.rawIndexes[name];
+        for (const rawIndex of this.rawIndexes.values()) {
             rawIndex.records.deleteByValue(key);
         }
     }
@@ -141,8 +142,7 @@ class ObjectStore {
             }
         }
 
-        for (const name of Object.keys(this.rawIndexes)) {
-            const rawIndex = this.rawIndexes[name];
+        for (const rawIndex of this.rawIndexes.values()) {
             rawIndex.records.clear();
         }
     }

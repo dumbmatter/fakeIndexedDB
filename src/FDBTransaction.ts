@@ -1,11 +1,10 @@
+import FDBDatabase from "./FDBDatabase";
 import FDBObjectStore from "./FDBObjectStore";
 import FDBRequest from "./FDBRequest";
 const {AbortError, InvalidStateError, NotFoundError, TransactionInactiveError} = require("./lib/errors");
 import Event from "./lib/Event";
 import EventTarget from "./lib/EventTarget";
-import {EventCallback, RequestObj, RollbackLog} from "./lib/types";
-
-type Mode = "readonly" | "readwrite";
+import {EventCallback, RequestObj, RollbackLog, TransactionMode} from "./lib/types";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#transaction
 class FDBTransaction extends EventTarget {
@@ -14,17 +13,20 @@ class FDBTransaction extends EventTarget {
     public _finished = false; // Set true after commit or abort
     public _rollbackLog: RollbackLog = [];
 
-    public mode: Mode;
-    public db: any;
+    public mode: TransactionMode;
+    public db: FDBDatabase;
     public error: Error | null = null;
     public onabort: EventCallback | null = null;
     public oncomplete: EventCallback | null = null;
     public onerror: EventCallback | null = null;
 
     private _scope: string[];
-    private _requests: RequestObj[] = [];
+    private _requests: Array<{
+        operation: () => void,
+        request: FDBRequest,
+    }> = [];
 
-    constructor(storeNames: string[], mode: Mode, db: any) {
+    constructor(storeNames: string[], mode: TransactionMode, db: FDBDatabase) {
         super();
 
         this._scope = storeNames;
@@ -84,7 +86,8 @@ class FDBTransaction extends EventTarget {
     }
 
     public objectStore(name: string) {
-        if (this._scope.indexOf(name) < 0) {
+        const rawObjectStore = this.db._rawDatabase.rawObjectStores.get(name);
+        if (this._scope.indexOf(name) < 0 || rawObjectStore === undefined) {
             throw new NotFoundError();
         }
 
@@ -92,7 +95,7 @@ class FDBTransaction extends EventTarget {
             throw new InvalidStateError();
         }
 
-        return new FDBObjectStore(this, this.db._rawDatabase.rawObjectStores[name]);
+        return new FDBObjectStore(this, rawObjectStore);
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-asynchronously-executing-a-request

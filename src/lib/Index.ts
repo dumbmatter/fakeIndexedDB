@@ -1,6 +1,8 @@
-import RecordStore from "./RecordStore";
+import FDBTransaction from "../FDBTransaction";
 const {ConstraintError} = require("./errors");
 import extractKey from "./extractKey";
+import ObjectStore from "./ObjectStore";
+import RecordStore from "./RecordStore";
 import {Key, KeyPath, Record} from "./types";
 import validateKey from "./validateKey";
 
@@ -10,14 +12,14 @@ class Index {
 // Initialized should be used to decide whether to throw an error or abort the versionchange transaction when there is a
 // constraint
     public initialized = false;
-    public readonly rawObjectStore: any;
+    public readonly rawObjectStore: ObjectStore;
     public readonly records = new RecordStore();
     public name: string;
     public readonly keyPath: KeyPath;
     public multiEntry: boolean;
     public unique: boolean;
 
-    constructor(rawObjectStore: any, name: string, keyPath: KeyPath, multiEntry: boolean, unique: boolean) {
+    constructor(rawObjectStore: ObjectStore, name: string, keyPath: KeyPath, multiEntry: boolean, unique: boolean) {
         this.rawObjectStore = rawObjectStore;
 
         this.name = name;
@@ -108,7 +110,7 @@ class Index {
         }
     }
 
-    public initialize(transaction: any) {
+    public initialize(transaction: FDBTransaction) {
         if (this.initialized) {
             throw new Error("Index already initialized");
         }
