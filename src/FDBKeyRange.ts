@@ -54,12 +54,12 @@ class FDBKeyRange {
         return true;
     }
 
-    public readonly lower: Key | void;
-    public readonly upper: Key | void;
+    public readonly lower: Key | undefined;
+    public readonly upper: Key | undefined;
     public readonly lowerOpen: boolean;
     public readonly upperOpen: boolean;
 
-    constructor(lower: Key | void, upper: Key | void, lowerOpen: boolean, upperOpen: boolean) {
+    constructor(lower: Key | undefined, upper: Key | undefined, lowerOpen: boolean, upperOpen: boolean) {
         this.lower = lower;
         this.upper = upper;
         this.lowerOpen = lowerOpen;

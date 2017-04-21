@@ -3,7 +3,6 @@
 binary search tree
 
 TypeScript
-- void/undefined difference?
 - make sure it's still usable by normal ES5 code, not weird exports
   - change target in tsconfig
 

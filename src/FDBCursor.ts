@@ -19,7 +19,7 @@ const getEffectiveObjectStore = (cursor: FDBCursor) => {
 // range. It does not handle gt/gte distinctions, because it doesn't really matter much anyway, since for next/prev
 // cursor iteration it'd also have to look at values to be precise, which would be complicated. This should get us 99%
 // of the way there.
-const makeKeyRange = (range: FDBKeyRange, lowers: Array<Key | void>, uppers: Array<Key | void>) => {
+const makeKeyRange = (range: FDBKeyRange, lowers: Array<Key | undefined>, uppers: Array<Key | undefined>) => {
     // Start with bounds from range
     let lower = range !== undefined ? range.lower : undefined;
     let upper = range !== undefined ? range.upper : undefined;
@@ -57,7 +57,7 @@ const makeKeyRange = (range: FDBKeyRange, lowers: Array<Key | void>, uppers: Arr
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#cursor
 class FDBCursor {
-    public _request: FDBRequest | void;
+    public _request: FDBRequest | undefined;
 
     private _gotValue: boolean = false;
     private _range: CursorRange;
@@ -67,7 +67,7 @@ class FDBCursor {
     private _source: CursorSource;
     private _direction: FDBCursorDirection;
     private _key = undefined;
-    private _primaryKey: Key | void = undefined;
+    private _primaryKey: Key | undefined = undefined;
 
     constructor(
         source: CursorSource,

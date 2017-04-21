@@ -40,7 +40,7 @@ class FDBIndex {
 
     // tslint:disable-next-line max-line-length
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBIndex-openCursor-IDBRequest-any-range-IDBCursorDirection-direction
-    public openCursor(range: FDBKeyRange | Key | null | void, direction: FDBCursorDirection) {
+    public openCursor(range: FDBKeyRange | Key | null | undefined, direction: FDBCursorDirection) {
         confirmActiveTransaction(this);
 
         if (range === null) { range = undefined; }
@@ -63,7 +63,7 @@ class FDBIndex {
 
     // tslint:disable-next-line max-line-length
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-IDBCursorDirection-direction
-    public openKeyCursor(range: FDBKeyRange | Key | null | void, direction: FDBCursorDirection) {
+    public openKeyCursor(range: FDBKeyRange | Key | null | undefined, direction: FDBCursorDirection) {
         confirmActiveTransaction(this);
 
         if (range === null) { range = undefined; }
@@ -112,7 +112,7 @@ class FDBIndex {
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBIndex-count-IDBRequest-any-key
-    public count(key: FDBKeyRange | Key | null | void) {
+    public count(key: FDBKeyRange | Key | null | undefined) {
         confirmActiveTransaction(this);
 
         if (key === null) { key = undefined; }

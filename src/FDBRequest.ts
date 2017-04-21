@@ -7,7 +7,7 @@ import {EventCallback} from "./lib/types";
 
 class FDBRequest extends EventTarget {
     public result: any = null;
-    public error: Error | null | void = null;
+    public error: Error | null | undefined = null;
     public source: FDBCursor | FDBIndex | FDBObjectStore | null = null;
     public transaction: FDBTransaction | null = null;
     public readyState: "done" | "pending" = "pending";

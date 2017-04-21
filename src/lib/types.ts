@@ -27,7 +27,7 @@ export type KeyPath = string | string[];
 
 export type Key = any;
 
-export type CursorRange =  Key | FDBKeyRange | void;
+export type CursorRange =  Key | FDBKeyRange | undefined;
 
 export type Value = any;
 
@@ -38,7 +38,7 @@ export interface Record {
 
 export interface RequestObj {
     operation: () => void;
-    request?: FDBRequest | void;
+    request?: FDBRequest | undefined;
     source?: any;
 }
 

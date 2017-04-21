@@ -69,13 +69,13 @@ abstract class EventTarget {
     public readonly listeners: Listener[] = [];
 
     // These will be overridden in individual subclasses and made not readonly
-    public readonly onabort: EventCallback | null | void;
-    public readonly onblocked: EventCallback | null | void;
-    public readonly oncomplete: EventCallback | null | void;
-    public readonly onerror: EventCallback | null | void;
-    public readonly onsuccess: EventCallback | null | void;
-    public readonly onupgradeneeded: EventCallback | null | void;
-    public readonly onversionchange: EventCallback | null | void;
+    public readonly onabort: EventCallback | null | undefined;
+    public readonly onblocked: EventCallback | null | undefined;
+    public readonly oncomplete: EventCallback | null | undefined;
+    public readonly onerror: EventCallback | null | undefined;
+    public readonly onsuccess: EventCallback | null | undefined;
+    public readonly onupgradeneeded: EventCallback | null | undefined;
+    public readonly onversionchange: EventCallback | null | undefined;
 
     public addEventListener(type: EventType, callback: EventCallback, capture = false) {
         this.listeners.push({
