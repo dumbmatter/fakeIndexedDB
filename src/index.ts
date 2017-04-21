@@ -1,6 +1,3 @@
-import "setimmediate";
-import FDBFactory from "./FDBFactory";
-
-const fakeIndexedDB = new FDBFactory();
+import fakeIndexedDB from "./fakeIndexedDB";
 
 module.exports = fakeIndexedDB;

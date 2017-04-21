@@ -3,16 +3,9 @@
 binary search tree
 
 TypeScript
-- tslint
-  - re-enable disabled rules
-- provide type defs to consumer
 - remove eslint - all files and comments
 - remove babel
-- errors.js
-- my tests
-- improve types
-  - types.ts any
-  - public APIs should accept any - errors are part of spec, not to be prevented by types?
+- void/undefined difference?
 - make sure it's still usable by normal ES5 code, not weird exports
   - change target in tsconfig
 

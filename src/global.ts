@@ -1,4 +1,4 @@
-const fakeIndexedDB = require(".");
+import fakeIndexedDB from "./fakeIndexedDB";
 import FDBCursor from "./FDBCursor";
 import FDBCursorWithValue from "./FDBCursorWithValue";
 import FDBDatabase from "./FDBDatabase";

@@ -7,7 +7,12 @@ import EventTarget from "./EventTarget";
 
 export type CursorSource = FDBIndex | FDBObjectStore;
 
-export type EventCallback = (event: Event) => void;
+interface EventInCallback extends Event {
+    target: any;
+    error: Error | null;
+}
+
+export type EventCallback = (event: EventInCallback) => void;
 
 export type EventType = "abort" | "blocked" | "complete" | "error" | "success" | "upgradeneeded" | "versionchange";
 

@@ -1,3 +1,4 @@
+import "setimmediate";
 import FDBDatabase from "./FDBDatabase";
 import FDBOpenDBRequest from "./FDBOpenDBRequest";
 import FDBVersionChangeEvent from "./FDBVersionChangeEvent";
@@ -177,7 +178,7 @@ const runVersionchangeTransaction = (
 const openDatabase = (
     databases: Map<string, Database>,
     name: string,
-    version: number,
+    version: number | undefined,
     request: FDBOpenDBRequest,
     cb: (err: Error | null, connection?: FDBDatabase) => void,
 ) => {
@@ -255,8 +256,11 @@ class FDBFactory {
 
     // tslint:disable-next-line max-line-length
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBFactory-open-IDBOpenDBRequest-DOMString-name-unsigned-long-long-version
-    public open(name: string, version: number) {
-        if (arguments.length > 1 && (isNaN(version) || version < 1 || version >= 9007199254740992)) {
+    public open(name: string, version?: number) {
+        if (arguments.length > 1 && (
+            version === undefined ||
+            (isNaN(version) || version < 1 || version >= 9007199254740992)
+        )) {
             throw new TypeError();
         }
 
