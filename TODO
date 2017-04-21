@@ -1,14 +1,13 @@
 # v2 stuff:
 
-binary search tree
-
 Run on real W3C tests
+- as close to their way as possible, in real browsers, but inject my globals
+- pull in web-platform-tests as npm dependency?
 
 IDB2 Features
+- README
 
-reevaluate all uses of setImmedaite, setTimeout, nextTick
-
-open issues
+binary search tree, or leave for later?
 
 .npmignore
 
