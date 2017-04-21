@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import {FDBDatabase} from "../../classes";
+import {FDBCursorWithValue, FDBDatabase} from "../../classes";
 import fakeIndexedDB from "../../fakeIndexedDB";
 import {TransactionMode} from "../../lib/types";
 
@@ -364,6 +364,33 @@ describe("fakeIndexedDB Tests", () => {
                 };
 
                 tx2.oncomplete = () => { done(); };
+            };
+        };
+    });
+
+    it("Properly handles compound keys (issue #18)", (done) => {
+        const request = fakeIndexedDB.open("test", 3);
+        request.onupgradeneeded = () => {
+            const db: FDBDatabase = request.result;
+            const store = db.createObjectStore("books", {keyPath: ["author", "isbn"]});
+            store.createIndex("by_title", "title", {unique: true});
+
+            store.put({title: "Quarry Memories", author: "Fred", isbn: 123456});
+            store.put({title: "Water Buffaloes", author: "Fred", isbn: 234567});
+            store.put({title: "Bedrock Nights", author: "Barney", isbn: 345678});
+        };
+        request.onsuccess = (event) => {
+            const db: FDBDatabase = event.target.result;
+
+            const tx = db.transaction("books", "readwrite");
+            const request2 = tx.objectStore("books").openCursor(["Fred", 123456]).onsuccess = (event2) => {
+                const cursor: FDBCursorWithValue = event2.target.result;
+                cursor.value.price = 5.99;
+                cursor.update(cursor.value);
+            };
+
+            tx.oncomplete = () => {
+                done();
             };
         };
     });
