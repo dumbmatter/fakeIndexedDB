@@ -73,7 +73,7 @@ describe('W3C IDBFactory.deleteDatabase Tests', function () {
             e.target.result.createObjectStore('store');
         };
         openrq.onsuccess = function(e) {
-            db = e.target.result;
+            var db = e.target.result;
 
             // Errors
             db.onversionchange = function () { throw new Error("db.versionchange"); };

@@ -14,11 +14,11 @@ import {
     TransactionInactiveError,
 } from "./lib/errors";
 import extractKey from "./lib/extractKey";
-import FakeDOMStringList from "./lib/FakeDOMStringList";
+import fakeDOMStringList from "./lib/fakeDOMStringList";
 import Index from "./lib/Index";
 import ObjectStore from "./lib/ObjectStore";
 import structuredClone from "./lib/structuredClone";
-import {FDBCursorDirection, Key, KeyPath, Value} from "./lib/types";
+import {FakeDOMStringList, FDBCursorDirection, Key, KeyPath, Value} from "./lib/types";
 import validateKey from "./lib/validateKey";
 import validateKeyPath from "./lib/validateKeyPath";
 
@@ -88,7 +88,7 @@ class FDBObjectStore {
         this.keyPath = rawObjectStore.keyPath;
         this.autoIncrement = rawObjectStore.autoIncrement;
         this.transaction = transaction;
-        this.indexNames = FakeDOMStringList.from(Array.from(rawObjectStore.rawIndexes.keys())).sort();
+        this.indexNames = fakeDOMStringList(Array.from(rawObjectStore.rawIndexes.keys())).sort();
     }
 
     public put(value: Value, key?: Key) {
@@ -218,7 +218,7 @@ class FDBObjectStore {
 
         const indexNames = this.indexNames.slice();
         this.transaction._rollbackLog.push(() => {
-            this.indexNames = FakeDOMStringList.from(indexNames);
+            this.indexNames = fakeDOMStringList(indexNames);
             this._rawObjectStore.rawIndexes.delete(name);
         });
 
@@ -276,7 +276,7 @@ class FDBObjectStore {
             this.indexNames.sort();
         });
 
-        this.indexNames = FakeDOMStringList.from(this.indexNames.filter((indexName) => {
+        this.indexNames = fakeDOMStringList(this.indexNames.filter((indexName) => {
             return indexName !== name;
         }));
         rawIndex.deleted = true; // Not sure if this is supposed to happen synchronously

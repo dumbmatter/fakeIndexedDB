@@ -22,10 +22,10 @@
   ],
   "main": "src/index.js",
   "scripts": {
-    "build": "rm -rf build && tsc",
-    "lint": "tslint  'src/**/*.ts' && eslint 'src/**/*.js'",
-    "mocha": "mocha --timeout 10000 build/test/w3c build/test/fakeIndexedDB",
-    "build-qunit": "browserify build/test/exports-qunit.js -o build/exports-qunit-bundle.js -t [ babelify --presets [ es2015 ] ] && cp src/test/indexedDBmock/index.html build/test/indexedDBmock/index.html",
+    "build": "rm -rf build && tsc && babel build --out-dir build --presets=es2015",
+    "lint": "tslint  'src/**/*.ts'",
+    "mocha": "mocha --timeout 10000 build/test/babel-fix.js build/test/w3c build/test/fakeIndexedDB",
+    "build-qunit": "browserify build/test/indexedDBmock/exports-qunit-bundle.js -o build/test/indexedDBmock/exports-qunit-bundle.js && cp src/test/indexedDBmock/index.html build/test/indexedDBmock/index.html",
     "qunit": "npm run build-qunit && node-qunit-phantomjs build/test/indexedDBmock/index.html",
     "test": "npm run lint && npm run build && npm run mocha && npm run qunit"
   },
@@ -38,11 +38,10 @@
   "devDependencies": {
     "@types/mocha": "^2.2.41",
     "@types/node": "^7.0.13",
+    "babel-cli": "^6.24.1",
     "babel-polyfill": "^6.23.0",
     "babel-preset-es2015": "^6.24.1",
-    "babelify": "^7.3.0",
     "browserify": "^14.0.0",
-    "eslint": "^3.15.0",
     "mocha": "^3.2.0",
     "node-qunit-phantomjs": "^1.5.0",
     "qunitjs": "^1.23.1",

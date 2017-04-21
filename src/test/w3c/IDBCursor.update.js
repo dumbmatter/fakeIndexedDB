@@ -93,7 +93,7 @@ describe('W3C IDBCursor.update Tests', function () {
 
         // idbcursor_update_index3
         it('attempt to modify a record in an inactive transaction', function (done) {
-            var db, cursor, record
+            var db, cursor, record,
               records = [ { pKey: "primaryKey_0", iKey: "indexKey_0" },
                           { pKey: "primaryKey_1", iKey: "indexKey_1" } ];
 

@@ -27,8 +27,6 @@ function createdb_for_multiple_tests(dbname, version) {
     Object.defineProperty(rq_open, 'setDone', {
         enumerable: false,
         value: function(d) {
-            done = d;
-
             auto_fail("upgradeneeded");
             auto_fail("success");
             auto_fail("blocked");

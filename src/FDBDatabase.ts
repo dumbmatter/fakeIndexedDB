@@ -8,9 +8,9 @@ import {
     TransactionInactiveError,
 } from "./lib/errors";
 import EventTarget from "./lib/EventTarget";
-import FakeDOMStringList from "./lib/FakeDOMStringList";
+import fakeDOMStringList from "./lib/fakeDOMStringList";
 import ObjectStore from "./lib/ObjectStore";
-import {KeyPath, TransactionMode} from "./lib/types";
+import {FakeDOMStringList, KeyPath, TransactionMode} from "./lib/types";
 import validateKeyPath from "./lib/validateKeyPath";
 
 const confirmActiveVersionchangeTransaction = (database: FDBDatabase) => {
@@ -67,7 +67,7 @@ class FDBDatabase extends EventTarget {
 
         this.name = rawDatabase.name;
         this.version = rawDatabase.version;
-        this.objectStoreNames = FakeDOMStringList.from(Array.from(rawDatabase.rawObjectStores.keys())).sort();
+        this.objectStoreNames = fakeDOMStringList(Array.from(rawDatabase.rawObjectStores.keys())).sort();
     }
 
     public createObjectStore(
@@ -94,7 +94,7 @@ class FDBDatabase extends EventTarget {
 
         const objectStoreNames = this.objectStoreNames.slice();
         transaction._rollbackLog.push(() => {
-            this.objectStoreNames = FakeDOMStringList.from(objectStoreNames);
+            this.objectStoreNames = fakeDOMStringList(objectStoreNames);
             this._rawDatabase.rawObjectStores.delete(name);
         });
 
@@ -115,7 +115,7 @@ class FDBDatabase extends EventTarget {
             throw new NotFoundError();
         }
 
-        this.objectStoreNames = FakeDOMStringList.from(this.objectStoreNames.filter((objectStoreName) => {
+        this.objectStoreNames = fakeDOMStringList(this.objectStoreNames.filter((objectStoreName) => {
             return objectStoreName !== name;
         }));
 

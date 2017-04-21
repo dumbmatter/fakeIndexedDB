@@ -139,7 +139,7 @@ describe('W3C Key Path Tests', function () {
             [ { name: "orange", type: { name: "fruit" }}, { name: "orange", type: { name: "telecom" }} ],
             [ ["orange", "fruit"], ["orange", "telecom" ] ]);
 
-        loop_array = [];
+        var loop_array = [];
         loop_array.push(loop_array);
         keypath(loop_array,
             [ "a", 1, ["k"] ],
@@ -163,7 +163,7 @@ describe('W3C Key Path Tests', function () {
                         db.createObjectStore(store_name, { keyPath: keypath })
                     }, SyntaxError, "createObjectStore with keyPath");
 
-                store = db.createObjectStore(store_name);
+                var store = db.createObjectStore(store_name);
                 assert.throws(function() {
                         store.createIndex('index', keypath);
                     }, SyntaxError, "createIndex with keyPath");

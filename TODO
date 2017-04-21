@@ -3,8 +3,6 @@
 binary search tree
 
 TypeScript
-- remove eslint - all files and comments
-- remove babel
 - void/undefined difference?
 - make sure it's still usable by normal ES5 code, not weird exports
   - change target in tsconfig
@@ -19,7 +17,7 @@ reevaluate all uses of setImmedaite, setTimeout, nextTick
 
 open issues
 
-make sure it works in node 4
+.npmignore
 
 ---
 

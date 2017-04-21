@@ -434,7 +434,7 @@ describe('W3C IDBObjectStore.createIndex Tests', function () {
 
         open_rq.onsuccess = function (event) {
             var txn = db.transaction("store", "readwrite");
-            ostore = txn.objectStore("store");
+            var ostore = txn.objectStore("store");
             assert.throws(function(){
                 ostore.createIndex("index", "indexedProperty");
             }, InvalidStateError);

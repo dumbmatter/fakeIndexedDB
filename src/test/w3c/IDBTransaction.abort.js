@@ -11,7 +11,7 @@ describe('W3C IDBTransaction.abort Tests', function () {
         open_rq.onupgradeneeded = function(e) {
             db = e.target.result;
             assert.equal(db.version, 2);
-            transaction = e.target.transaction;
+            var transaction = e.target.transaction;
             transaction.oncomplete = function () { throw new Error("unexpected transaction.complete") };
             transaction.onabort = function(e) {
                 assert.equal(e.target.db.version, 0);

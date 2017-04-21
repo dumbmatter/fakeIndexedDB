@@ -181,7 +181,7 @@ describe('W3C IDBCursor.advance Tests', function () {
             var db;
 
             before(function (done) {
-                open = fakeIndexedDB.open("testdb-" + new Date().getTime());
+                var open = fakeIndexedDB.open("testdb-" + new Date().getTime());
                 open.onupgradeneeded = function(e) {
                     db = e.target.result;
                     var objStore = db.createObjectStore("test");
@@ -407,7 +407,7 @@ describe('W3C IDBCursor.advance Tests', function () {
             var db;
 
             before(function (done) {
-                open = fakeIndexedDB.open('testdb-' + new Date().getTime());
+                var open = fakeIndexedDB.open('testdb-' + new Date().getTime());
                 open.onupgradeneeded = function(e) {
                     db = e.target.result;
                     var objStore = db.createObjectStore("test");

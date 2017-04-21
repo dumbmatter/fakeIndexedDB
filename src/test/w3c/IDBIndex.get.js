@@ -14,7 +14,7 @@ describe('W3C IDBIndex.get Tests', function () {
         open_rq.onupgradeneeded = function(e) {
             db = e.target.result;
             var objStore = db.createObjectStore("store", { keyPath: "key" });
-            index = objStore.createIndex("index", "indexedProperty");
+            var index = objStore.createIndex("index", "indexedProperty");
 
             objStore.add(record);
         }

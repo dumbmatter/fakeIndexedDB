@@ -85,15 +85,22 @@ class FDBCursor {
     get source() {
         return this._source;
     }
+    set source(val) { /* For babel */ }
+
     get direction() {
         return this._direction;
     }
+    set direction(val) { /* For babel */ }
+
     get key() {
         return this._key;
     }
+    set key(val) { /* For babel */ }
+
     get primaryKey() {
         return this._primaryKey;
     }
+    set primaryKey(val) { /* For babel */ }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-iterating-a-cursor
     public _iterate(key?: Key): this | null {
