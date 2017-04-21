@@ -2,12 +2,12 @@ import FDBDatabase from "./FDBDatabase";
 import FDBObjectStore from "./FDBObjectStore";
 import FDBRequest from "./FDBRequest";
 import {AbortError, InvalidStateError, NotFoundError, TransactionInactiveError} from "./lib/errors";
-import Event from "./lib/Event";
-import EventTarget from "./lib/EventTarget";
+import FakeEvent from "./lib/FakeEvent";
+import FakeEventTarget from "./lib/FakeEventTarget";
 import {EventCallback, RequestObj, RollbackLog, TransactionMode} from "./lib/types";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#transaction
-class FDBTransaction extends EventTarget {
+class FDBTransaction extends FakeEventTarget {
     public _started = false;
     public _active = true;
     public _finished = false; // Set true after commit or abort
@@ -54,7 +54,7 @@ class FDBTransaction extends EventTarget {
                     request.result = undefined;
                     request.error = new AbortError();
 
-                    const event = new Event("error", {
+                    const event = new FakeEvent("error", {
                         bubbles: true,
                         cancelable: true,
                     });
@@ -65,7 +65,7 @@ class FDBTransaction extends EventTarget {
         }
 
         setImmediate(() => {
-            const event = new Event("abort", {
+            const event = new FakeEvent("abort", {
                 bubbles: true,
                 cancelable: false,
             });
@@ -161,7 +161,7 @@ class FDBTransaction extends EventTarget {
 
                     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-fire-a-success-event
                     this._active = true;
-                    event = new Event("success", {
+                    event = new FakeEvent("success", {
                         bubbles: false,
                         cancelable: false,
                     });
@@ -172,7 +172,7 @@ class FDBTransaction extends EventTarget {
 
                     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-fire-an-error-event
                     this._active = true;
-                    event = new Event("error", {
+                    event = new FakeEvent("error", {
                         bubbles: true,
                         cancelable: true,
                     });
@@ -223,7 +223,7 @@ class FDBTransaction extends EventTarget {
             this._finished = true;
 
             if (!this.error) {
-                const event = new Event("complete");
+                const event = new FakeEvent("complete");
                 this.dispatchEvent(event);
             }
         }

@@ -2,12 +2,6 @@
 
 binary search tree
 
-TypeScript
-- make sure it's still usable by normal ES5 code, not weird exports
-  - change target in tsconfig
-
-Event/EventTarget -> FakeEvent/FakeEventTarget
-
 Run on real W3C tests
 
 IDB2 Features

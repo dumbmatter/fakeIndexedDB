@@ -1,6 +1,6 @@
 var assert = require('assert');
 var fakeIndexedDB = require('../..');
-var Event = require('../../lib/Event').default;
+var FakeEvent = require('../../lib/FakeEvent').default;
 var {FDBVersionChangeEvent} = require('../../classes');
 var support = require('./support');
 var createdb = support.createdb;
@@ -357,7 +357,7 @@ describe('W3C IDBFactory.open Tests', function () {
             assert.equal(db.version, 9, "db.version");
         };
         open_rq.onsuccess = function(e) {
-            assert(e instanceof Event, "e instanceof Event");
+            assert(e instanceof FakeEvent, "e instanceof FakeEvent");
             assert(!(e instanceof FDBVersionChangeEvent), "e not instanceof IDBVersionChangeEvent");
             assert.equal(e.type, "success", "event type");
 

@@ -1,8 +1,8 @@
-import EventTarget from "./EventTarget";
+import FakeEventTarget from "./FakeEventTarget";
 import {EventType} from "./types";
 
 class Event {
-    public eventPath: EventTarget[] = [];
+    public eventPath: FakeEventTarget[] = [];
     public type: EventType;
 
     public readonly NONE = 0;
@@ -17,8 +17,8 @@ class Event {
     public initialized = true;
     public dispatched = false;
 
-    public target: EventTarget | null = null;
-    public currentTarget: EventTarget | null = null;
+    public target: FakeEventTarget | null = null;
+    public currentTarget: FakeEventTarget | null = null;
 
     public eventPhase: 0 | 1 | 2 | 3 = 0;
 

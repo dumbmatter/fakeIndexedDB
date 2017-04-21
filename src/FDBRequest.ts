@@ -2,10 +2,10 @@ import FDBCursor from "./FDBCursor";
 import FDBIndex from "./FDBIndex";
 import FDBObjectStore from "./FDBObjectStore";
 import FDBTransaction from "./FDBTransaction";
-import EventTarget from "./lib/EventTarget";
+import FakeEventTarget from "./lib/FakeEventTarget";
 import {EventCallback} from "./lib/types";
 
-class FDBRequest extends EventTarget {
+class FDBRequest extends FakeEventTarget {
     public result: any = null;
     public error: Error | null | undefined = null;
     public source: FDBCursor | FDBIndex | FDBObjectStore | null = null;

@@ -2,8 +2,8 @@ import FDBIndex from "../FDBIndex";
 import FDBKeyRange from "../FDBKeyRange";
 import FDBObjectStore from "../FDBObjectStore";
 import FDBRequest from "../FDBRequest";
-import Event from "./Event";
-import EventTarget from "./EventTarget";
+import FakeEvent from "./FakeEvent";
+import FakeEventTarget from "./FakeEventTarget";
 
 export type CursorSource = FDBIndex | FDBObjectStore;
 

@@ -5,7 +5,7 @@ import FDBVersionChangeEvent from "./FDBVersionChangeEvent";
 import cmp from "./lib/cmp";
 import Database from "./lib/Database";
 import {AbortError, VersionError} from "./lib/errors";
-import Event from "./lib/Event";
+import FakeEvent from "./lib/FakeEvent";
 
 const waitForOthersClosedDelete = (
     databases: Map<string, Database>,
@@ -231,7 +231,7 @@ class FDBFactory {
                     request.error = new Error();
                     request.error.name = err.name;
 
-                    const event = new Event("error", {
+                    const event = new FakeEvent("error", {
                         bubbles: true,
                         cancelable: false,
                     });
@@ -275,7 +275,7 @@ class FDBFactory {
                     request.error = new Error();
                     request.error.name = err.name;
 
-                    const event = new Event("error", {
+                    const event = new FakeEvent("error", {
                         bubbles: true,
                         cancelable: false,
                     });
@@ -287,7 +287,7 @@ class FDBFactory {
 
                 request.result = connection;
 
-                const event = new Event("success");
+                const event = new FakeEvent("success");
                 event.eventPath = [];
                 request.dispatchEvent(event);
             });

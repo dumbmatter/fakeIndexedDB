@@ -1,5 +1,5 @@
 import {InvalidStateError} from "./errors";
-import Event from "./Event";
+import FakeEvent from "./FakeEvent";
 import {EventCallback, EventType} from "./types";
 
 type EventTypeProp = (
@@ -18,7 +18,7 @@ interface Listener {
     type: EventType;
 }
 
-const stopped = (event: Event, listener: Listener) => {
+const stopped = (event: FakeEvent, listener: Listener) => {
     return (
         event.immediatePropagationStopped ||
         (event.eventPhase === event.CAPTURING_PHASE && listener.capture === false) ||
@@ -27,7 +27,7 @@ const stopped = (event: Event, listener: Listener) => {
 };
 
 // http://www.w3.org/TR/dom/#concept-event-listener-invoke
-const invokeEventListeners = (event: Event, obj: EventTarget) => {
+const invokeEventListeners = (event: FakeEvent, obj: FakeEventTarget) => {
     event.currentTarget = obj;
 
     for (const listener of obj.listeners) {
@@ -65,7 +65,7 @@ const invokeEventListeners = (event: Event, obj: EventTarget) => {
     }
 };
 
-abstract class EventTarget {
+abstract class FakeEventTarget {
     public readonly listeners: Listener[] = [];
 
     // These will be overridden in individual subclasses and made not readonly
@@ -96,7 +96,7 @@ abstract class EventTarget {
     }
 
     // http://www.w3.org/TR/dom/#dispatching-events
-    public dispatchEvent(event: Event) {
+    public dispatchEvent(event: FakeEvent) {
         if (event.dispatched || !event.initialized) {
             throw new InvalidStateError("The object is in an invalid state.");
         }
@@ -139,4 +139,4 @@ abstract class EventTarget {
     }
 }
 
-export default EventTarget;
+export default FakeEventTarget;

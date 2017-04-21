@@ -7,8 +7,8 @@ import {
     NotFoundError,
     TransactionInactiveError,
 } from "./lib/errors";
-import EventTarget from "./lib/EventTarget";
 import fakeDOMStringList from "./lib/fakeDOMStringList";
+import FakeEventTarget from "./lib/FakeEventTarget";
 import ObjectStore from "./lib/ObjectStore";
 import {FakeDOMStringList, KeyPath, TransactionMode} from "./lib/types";
 import validateKeyPath from "./lib/validateKeyPath";
@@ -49,7 +49,7 @@ const closeConnection = (connection: FDBDatabase) => {
 };
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#database-interface
-class FDBDatabase extends EventTarget {
+class FDBDatabase extends FakeEventTarget {
     public _closePending = false;
     public _closed = false;
     public _runningVersionchangeTransaction = false;

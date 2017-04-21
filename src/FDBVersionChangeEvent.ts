@@ -1,6 +1,6 @@
-import Event from "./lib/Event";
+import FakeEvent from "./lib/FakeEvent";
 
-class FDBVersionChangeEvent extends Event {
+class FDBVersionChangeEvent extends FakeEvent {
     public newVersion: number | null;
     public oldVersion: number;
 
