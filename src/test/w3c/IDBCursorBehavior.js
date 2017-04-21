@@ -1,6 +1,6 @@
 var assert = require('assert');
 var fakeIndexedDB = require('../..');
-var FDBKeyRange = require('../../FDBKeyRange').default;
+var {FDBKeyRange} = require('../../classes');
 var support = require('./support');
 var createdb = support.createdb;
 

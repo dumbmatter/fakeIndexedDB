@@ -1,8 +1,6 @@
 var assert = require('assert');
 var fakeIndexedDB = require('../..');
-var FDBCursor = require('../../FDBCursor').default;
-var FDBCursorWithValue = require('../../FDBCursorWithValue').default;
-var FDBKeyRange = require('../../FDBKeyRange').default;
+var {FDBCursor, FDBCursorWithValue, FDBKeyRange} = require('../../classes');
 var {DataError, InvalidStateError, TransactionInactiveError} = require('../../lib/errors');
 var support = require('./support');
 var createdb = support.createdb;

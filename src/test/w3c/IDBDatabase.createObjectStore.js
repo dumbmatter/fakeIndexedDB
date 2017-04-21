@@ -1,6 +1,6 @@
 var assert = require('assert');
 var fakeIndexedDB = require('../..');
-var FDBObjectStore = require('../../FDBObjectStore').default;
+var {FDBObjectStore} = require('../../classes');
 var {ConstraintError, InvalidStateError} = require('../../lib/errors');
 var support = require('./support');
 var createdb = support.createdb;

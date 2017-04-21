@@ -1,5 +1,5 @@
 var assert = require('assert');
-var FDBIndex = require('../../FDBIndex').default;
+var {FDBIndex} = require('../../classes');
 var {ConstraintError, InvalidStateError} = require('../../lib/errors');
 var support = require('./support');
 var createdb = support.createdb;

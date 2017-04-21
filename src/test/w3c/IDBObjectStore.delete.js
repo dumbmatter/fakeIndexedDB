@@ -1,5 +1,5 @@
 var assert = require('assert');
-var FDBKeyRange = require('../../FDBKeyRange').default;
+var {FDBKeyRange} = require('../../classes');
 var {InvalidStateError, ReadOnlyError} = require('../../lib/errors');
 var support = require('./support');
 var createdb = support.createdb;

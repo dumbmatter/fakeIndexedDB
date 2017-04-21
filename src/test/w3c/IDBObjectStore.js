@@ -1,6 +1,5 @@
 var assert = require('assert');
-var FDBOpenDBRequest = require('../../FDBOpenDBRequest').default;
-var FDBTransaction = require('../../FDBTransaction').default;
+var {FDBOpenDBRequest, FDBTransaction} = require('../../classes');
 var {InvalidStateError} = require('../../lib/errors');
 var support = require('./support');
 var createdb = support.createdb;

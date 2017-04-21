@@ -1,6 +1,6 @@
 var assert = require('assert');
 var fakeIndexedDB = require('../..');
-var FDBDatabase = require('../../FDBDatabase').default;
+var {FDBDatabase} = require('../../classes');
 var support = require('./support');
 var createdb = support.createdb;
 

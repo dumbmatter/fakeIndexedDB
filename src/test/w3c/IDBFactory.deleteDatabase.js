@@ -1,6 +1,6 @@
 var assert = require('assert');
 var fakeIndexedDB = require('../..');
-var FDBVersionChangeEvent = require('../../FDBVersionChangeEvent').default;
+var {FDBVersionChangeEvent} = require('../../classes');
 var support = require('./support');
 var createdb = support.createdb;
 
