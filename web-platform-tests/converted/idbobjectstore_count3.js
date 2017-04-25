@@ -11,6 +11,7 @@ const {
     createdb,
     createdb_for_multiple_tests,
     fail,
+    format_value,
     indexeddb_test,
     setup,
     test,
@@ -22,7 +23,6 @@ const window = global;
 
     var db
 
-console.log('hi');
     createdb(async_test()).onupgradeneeded = function(e) {
         db = e.target.result
 

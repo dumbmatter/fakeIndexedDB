@@ -161,6 +161,121 @@ const fail = (test, message) => {
     test.fail(new Error(message));
 };
 
+
+const replacements = {
+    "0": "0",
+    "1": "x01",
+    "2": "x02",
+    "3": "x03",
+    "4": "x04",
+    "5": "x05",
+    "6": "x06",
+    "7": "x07",
+    "8": "b",
+    "9": "t",
+    "10": "n",
+    "11": "v",
+    "12": "f",
+    "13": "r",
+    "14": "x0e",
+    "15": "x0f",
+    "16": "x10",
+    "17": "x11",
+    "18": "x12",
+    "19": "x13",
+    "20": "x14",
+    "21": "x15",
+    "22": "x16",
+    "23": "x17",
+    "24": "x18",
+    "25": "x19",
+    "26": "x1a",
+    "27": "x1b",
+    "28": "x1c",
+    "29": "x1d",
+    "30": "x1e",
+    "31": "x1f",
+    "0xfffd": "ufffd",
+    "0xfffe": "ufffe",
+    "0xffff": "uffff",
+};
+
+function format_value(val, seen) {
+    if (!seen) {
+        seen = [];
+    }
+    if (typeof val === "object" && val !== null) {
+        if (seen.indexOf(val) >= 0) {
+            return "[...]";
+        }
+        seen.push(val);
+    }
+    if (Array.isArray(val)) {
+        return "[" + val.map(function(x) {return format_value(x, seen);}).join(", ") + "]";
+    }
+
+    switch (typeof val) {
+    case "string":
+        val = val.replace("\\", "\\\\");
+        for (var p in replacements) {
+            var replace = "\\" + replacements[p];
+            val = val.replace(RegExp(String.fromCharCode(p), "g"), replace);
+        }
+        return '"' + val.replace(/"/g, '\\"') + '"';
+    case "boolean":
+    case "undefined":
+        return String(val);
+    case "number":
+        // In JavaScript, -0 === 0 and String(-0) == "0", so we have to
+        // special-case.
+        if (val === -0 && 1/val === -Infinity) {
+            return "-0";
+        }
+        return String(val);
+    case "object":
+        if (val === null) {
+            return "null";
+        }
+
+        // Special-case Node objects, since those come up a lot in my tests.  I
+        // ignore namespaces.
+        if (is_node(val)) {
+            switch (val.nodeType) {
+            case Node.ELEMENT_NODE:
+                var ret = "<" + val.localName;
+                for (var i = 0; i < val.attributes.length; i++) {
+                    ret += " " + val.attributes[i].name + '="' + val.attributes[i].value + '"';
+                }
+                ret += ">" + val.innerHTML + "</" + val.localName + ">";
+                return "Element node " + truncate(ret, 60);
+            case Node.TEXT_NODE:
+                return 'Text node "' + truncate(val.data, 60) + '"';
+            case Node.PROCESSING_INSTRUCTION_NODE:
+                return "ProcessingInstruction node with target " + format_value(truncate(val.target, 60)) + " and data " + format_value(truncate(val.data, 60));
+            case Node.COMMENT_NODE:
+                return "Comment node <!--" + truncate(val.data, 60) + "-->";
+            case Node.DOCUMENT_NODE:
+                return "Document node with " + val.childNodes.length + (val.childNodes.length == 1 ? " child" : " children");
+            case Node.DOCUMENT_TYPE_NODE:
+                return "DocumentType node";
+            case Node.DOCUMENT_FRAGMENT_NODE:
+                return "DocumentFragment node with " + val.childNodes.length + (val.childNodes.length == 1 ? " child" : " children");
+            default:
+                return "Node object of unknown type";
+            }
+        }
+
+    /* falls through */
+    default:
+        try {
+            return typeof val + ' "' + truncate(String(val), 1000) + '"';
+        } catch(e) {
+            return ("[stringifying object threw " + String(e) +
+                    " with type " + String(typeof e) + "]");
+        }
+    }
+}
+
 const indexeddb_test = (upgrade_func, open_func, description, options) => {
     async_test(function(t) {
         options = Object.assign({upgrade_will_abort: false}, options);
@@ -210,6 +325,7 @@ module.exports = {
     createdb,
     createdb_for_multiple_tests,
     fail,
+    format_value,
     indexeddb_test,
     setup,
     test,

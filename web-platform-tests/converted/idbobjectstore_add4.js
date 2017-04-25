@@ -11,6 +11,7 @@ const {
     createdb,
     createdb_for_multiple_tests,
     fail,
+    format_value,
     indexeddb_test,
     setup,
     test,
