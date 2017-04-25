@@ -70,6 +70,7 @@ class FDBDatabase extends FakeEventTarget {
         this.objectStoreNames = fakeDOMStringList(Array.from(rawDatabase.rawObjectStores.keys())).sort();
     }
 
+    // http://w3c.github.io/IndexedDB/#dom-idbdatabase-createobjectstore
     public createObjectStore(
         name: string,
         optionalParameters: {autoIncrement?: boolean, keyPath?: KeyPath} = {},
@@ -77,15 +78,15 @@ class FDBDatabase extends FakeEventTarget {
         if (name === undefined) { throw new TypeError(); }
         const transaction = confirmActiveVersionchangeTransaction(this);
 
-        if (this._rawDatabase.rawObjectStores.has(name)) {
-            throw new ConstraintError();
-        }
-
         const keyPath = optionalParameters.keyPath !== undefined ? optionalParameters.keyPath : null;
         const autoIncrement = optionalParameters.autoIncrement !== undefined ? optionalParameters.autoIncrement : false;
 
         if (keyPath !== null) {
             validateKeyPath(keyPath);
+        }
+
+        if (this._rawDatabase.rawObjectStores.has(name)) {
+            throw new ConstraintError();
         }
 
         if (autoIncrement && (keyPath === "" || Array.isArray(keyPath))) {
