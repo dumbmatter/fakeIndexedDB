@@ -319,6 +319,34 @@ const indexeddb_test = (upgrade_func, open_func, description, options) => {
     }, description);
 };
 
+
+let active_promise_test;
+const promise_test = (func, name, properties) => {
+    var test = async_test(name, properties);
+    // If there is no promise tests queue make one.
+    if (!active_promise_test) {
+        active_promise_test = Promise.resolve();
+    }
+    active_promise_test = active_promise_test.then(function() {
+        var donePromise = new Promise(function(resolve) {
+            test.add_cleanup(resolve);
+        });
+        var promise = test.step(func, test, test);
+        test.step(function() {
+            assert_not_equals(promise, undefined);
+        });
+        Promise.resolve(promise).then(
+                function() {
+                    test.done();
+                })
+            .catch(test.step_func(
+                function(value) {
+                    throw value;
+                }));
+        return donePromise;
+    });
+}
+
 const setup = (...args) => {
     console.log("Setup", ...args);
 };
@@ -338,6 +366,7 @@ module.exports = {
     fail,
     format_value,
     indexeddb_test,
+    promise_test,
     setup,
     test,
 };

@@ -39,6 +39,7 @@ const {
     fail,
     format_value,
     indexeddb_test,
+    promise_test,
     setup,
     test,
 } = require("../support-node");
