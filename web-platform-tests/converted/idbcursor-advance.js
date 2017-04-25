@@ -5,6 +5,7 @@ const {
     assert_array_equals,
     assert_equals,
     assert_false,
+    assert_key_equals,
     assert_not_equals,
     assert_throws,
     assert_true,

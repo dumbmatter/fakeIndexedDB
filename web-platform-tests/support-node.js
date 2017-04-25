@@ -10,6 +10,10 @@ const assert_equals = (...args) => assert.equal(...args);
 
 const assert_false = (val, message) => assert.ok(!val, message);
 
+const assert_key_equals = (actual, expected, description) => {
+  assert_equals(indexedDB.cmp(actual, expected), 0, description);
+};
+
 const assert_not_equals = (...args) => assert.notEqual(...args);
 
 const assert_throws = (errName, block, message) => assert.throws(block, new RegExp(errName), message);
@@ -318,6 +322,7 @@ module.exports = {
     assert_array_equals,
     assert_equals,
     assert_false,
+    assert_key_equals,
     assert_not_equals,
     assert_throws,
     assert_true,

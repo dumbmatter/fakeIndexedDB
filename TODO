@@ -5,7 +5,6 @@ Run on real W3C tests
 - pull in web-platform-tests as npm dependency?
 - folder structure?
 - assert_unreached
-- assert_key_equals
 - idbcursor-direction-objectstore - somehow ignore error (still pass test) after t.done is called, that's how it works in browser
 
 IDB2 Features
