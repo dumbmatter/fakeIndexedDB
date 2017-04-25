@@ -364,4 +364,31 @@ describe('fakeIndexedDB Tests', function () {
             };
         };
     });
+
+    it("Properly handles compound keys (issue #18)", function(done) {
+        var request = fakeIndexedDB.open("test", 3);
+        request.onupgradeneeded = function () {
+            var db = request.result;
+            var store = db.createObjectStore("books", {keyPath: ["author", "isbn"]});
+            store.createIndex("by_title", "title", {unique: true});
+
+            store.put({title: "Quarry Memories", author: "Fred", isbn: 123456});
+            store.put({title: "Water Buffaloes", author: "Fred", isbn: 234567});
+            store.put({title: "Bedrock Nights", author: "Barney", isbn: 345678});
+        };
+        request.onsuccess = function (event) {
+            var db = event.target.result;
+
+            var tx = db.transaction("books", "readwrite");
+            tx.objectStore("books").openCursor(["Fred", 123456]).onsuccess = function(event2) {
+                var cursor = event2.target.result;
+                cursor.value.price = 5.99;
+                cursor.update(cursor.value);
+            };
+
+            tx.oncomplete = function() {
+                done();
+            };
+        };
+});
 });
