@@ -6,8 +6,6 @@ Run on real W3C tests
 - folder structure?
 - add README
 - assert_unreached
-- self.location.pathname
-- use globals rather than imports, more concise and similar
 - try pseudo worker for idb_webworkers
 
 FDBTransaction._scope to Set

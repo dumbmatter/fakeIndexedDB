@@ -1,8 +1,16 @@
+const assert = require("assert");
+require("../build/global");
+global.Event = require("../build/lib/FakeEvent").default;
+
+global.document = {};
+global.self = {
+    location: {},
+};
+global.window = global;
+
 const add_completion_callback = (...args) => {
     console.log("add_completion_callback", ...args);
 };
-
-const assert = require("assert");
 
 const assert_array_equals = (...args) => assert.deepEqual(...args);
 
@@ -369,7 +377,7 @@ const step_timeout = (fn, timeout, ...args) => {
     }, timeout);
 }
 
-module.exports = {
+const addToGlobal = {
     add_completion_callback,
     assert_array_equals,
     assert_equals,
@@ -389,3 +397,5 @@ module.exports = {
     step_timeout,
     test,
 };
+
+Object.assign(global, addToGlobal);
