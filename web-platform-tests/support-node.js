@@ -66,11 +66,17 @@ class AsyncTest {
         return this.step(fn);
     }
 
-    step_func_done(func) {
+    step_func_done(fn) {
         return (...args) => {
             fn.apply(this, args);
             this.done();
         };
+    }
+
+    step_timeout(fn, timeout, ...args) {
+        return setTimeout(this.step_func(() => {
+            return fn(...args);
+        }), timeout);
     }
 
     unreached_func(message) {
@@ -351,6 +357,12 @@ const setup = (...args) => {
     console.log("Setup", ...args);
 };
 
+const step_timeout = (fn, timeout, ...args) => {
+    return setTimeout(() => {
+        fm(...args);
+    }, timeout);
+}
+
 module.exports = {
     add_completion_callback,
     assert_array_equals,
@@ -368,5 +380,6 @@ module.exports = {
     indexeddb_test,
     promise_test,
     setup,
+    step_timeout,
     test,
 };

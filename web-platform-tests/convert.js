@@ -41,6 +41,7 @@ const {
     indexeddb_test,
     promise_test,
     setup,
+    step_timeout,
     test,
 } = require("../support-node");
 
