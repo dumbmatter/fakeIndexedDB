@@ -22,6 +22,7 @@ const window = global;
 
     var db
 
+console.log('hi');
     createdb(async_test()).onupgradeneeded = function(e) {
         db = e.target.result
 

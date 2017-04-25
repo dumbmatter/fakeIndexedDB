@@ -48,7 +48,7 @@ class AsyncTest {
 
     step(fn) {
         return (...args) => {
-            fn(...args);
+            fn.apply(this, args);
         }
     }
 
@@ -58,7 +58,7 @@ class AsyncTest {
 
     step_func_done(func) {
         return (...args) => {
-            fn(...args);
+            fn.apply(this, args);
             this.done();
         };
     }
@@ -106,20 +106,49 @@ function createdb_for_multiple_tests(dbname, version) {
     else
         rq_open = indexedDB.open(dbname);
 
-    function auto_fail(evt) {
+    /*function auto_fail(evt) {
+        rq_open['on' + evt] = function () { test.fail(new Error('Unexpected ' + evt + ' event')) };
+    }*/
+
+    function auto_fail(evt, test) {
         /* Fail handlers, if we haven't set on/whatever/, don't
          * expect to get event whatever. */
-        rq_open['on' + evt] = function () { test.fail(new Error('Unexpected ' + evt + ' event')) };
+        rq_open.manually_handled = {};
+
+        rq_open.addEventListener(evt, function(e) {
+            test.step(function() {
+                if (!rq_open.manually_handled[evt]) {
+                    assert_unreached("unexpected open." + evt + " event");
+                }
+
+                if (e.target.result + '' == '[object IDBDatabase]' &&
+                    !this.db) {
+                  this.db = e.target.result;
+
+                  this.db.onerror = fail(test, 'unexpected db.error');
+                  this.db.onabort = fail(test, 'unexpected db.abort');
+                  this.db.onversionchange =
+                      fail(test, 'unexpected db.versionchange');
+                }
+            });
+        });
+        rq_open.__defineSetter__("on" + evt, function(h) {
+            rq_open.manually_handled[evt] = true;
+            if (!h)
+                rq_open.addEventListener(evt, function() {});
+            else
+                rq_open.addEventListener(evt, test.step_func(h.bind(test)));
+        });
     }
 
     // add a .setTest method to the DB object
     Object.defineProperty(rq_open, 'setTest', {
         enumerable: false,
         value: function(test) {
-            auto_fail(test, "upgradeneeded");
-            auto_fail(test, "success");
-            auto_fail(test, "blocked");
-            auto_fail(test, "error");
+            auto_fail("upgradeneeded", test);
+            auto_fail("success", test);
+            auto_fail("blocked", test);
+            auto_fail("error", test);
 
             return this;
         }

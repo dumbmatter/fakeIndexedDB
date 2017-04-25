@@ -119,8 +119,6 @@ policies and contribution forms [3].
     }
 
     WindowTestEnvironment.prototype._dispatch = function(selector, callback_args, message_arg) {
-        console.log('_dispatch', selector, callback_args, message_arg);
-        return;
         this.dispatched_messages.push(message_arg);
         this._forEach_windows(
                 function(w, same_origin) {
@@ -218,7 +216,7 @@ policies and contribution forms [3].
 
     WindowTestEnvironment.prototype.next_default_test_name = function() {
         //Don't use document.title to work around an Opera bug in XHTML documents
-        var title = null;//document.getElementsByTagName("title")[0];
+        var title = document.getElementsByTagName("title")[0];
         var prefix = (title && title.firstChild && title.firstChild.data) || "Untitled";
         var suffix = this.name_counter > 0 ? " " + this.name_counter : "";
         this.name_counter++;
@@ -237,7 +235,7 @@ policies and contribution forms [3].
     };
 
     WindowTestEnvironment.prototype.test_timeout = function() {
-/*        var metas = document.getElementsByTagName("meta");
+        var metas = document.getElementsByTagName("meta");
         for (var i = 0; i < metas.length; i++) {
             if (metas[i].name == "timeout") {
                 if (metas[i].content == "long") {
@@ -245,7 +243,7 @@ policies and contribution forms [3].
                 }
                 break;
             }
-        }*/
+        }
         return settings.harness_timeout.normal;
     };
 
@@ -663,7 +661,7 @@ policies and contribution forms [3].
 
     function on_event(object, event, callback)
     {
-        console.log('on_event', object, event, callback);
+        object.addEventListener(event, callback, false);
     }
 
     function step_timeout(f, t) {
@@ -2121,7 +2119,26 @@ policies and contribution forms [3].
     };
 
     Output.prototype.resolve_log = function() {
-        console.log('resolve_log');
+        var output_document;
+        if (typeof this.output_document === "function") {
+            output_document = this.output_document.apply(undefined);
+        } else {
+            output_document = this.output_document;
+        }
+        if (!output_document) {
+            return;
+        }
+        var node = output_document.getElementById("log");
+        if (!node) {
+            if (!document.body || document.readyState == "loading") {
+                return;
+            }
+            node = output_document.createElement("div");
+            node.id = "log";
+            output_document.body.appendChild(node);
+        }
+        this.output_document = output_document;
+        this.output_node = node;
     };
 
     Output.prototype.show_status = function() {
@@ -2154,11 +2171,30 @@ policies and contribution forms [3].
         if (!this.enabled) {
             return;
         }
+        if (!this.output_node) {
+            this.resolve_log();
+        }
         this.phase = this.COMPLETE;
 
         var log = this.output_node;
         if (!log) {
             return;
+        }
+        var output_document = this.output_document;
+
+        while (log.lastChild) {
+            log.removeChild(log.lastChild);
+        }
+
+        var harness_url = get_harness_url();
+        if (harness_url !== undefined) {
+            var stylesheet = output_document.createElementNS(xhtml_ns, "link");
+            stylesheet.setAttribute("rel", "stylesheet");
+            stylesheet.setAttribute("href", harness_url + "testharness.css");
+            var heads = output_document.getElementsByTagName("head");
+            if (heads.length) {
+                heads[0].appendChild(stylesheet);
+            }
         }
 
         var status_text_harness = {};
@@ -2181,7 +2217,6 @@ policies and contribution forms [3].
                     } else {
                         status_number[status] = 1;
                     }
-console.log('done', test, status);
                 });
 
         function status_class(status)
@@ -2189,7 +2224,7 @@ console.log('done', test, status);
             return status.replace(/\s/g, '').toLowerCase();
         }
 
-        /*var summary_template = ["section", {"id":"summary"},
+        var summary_template = ["section", {"id":"summary"},
                                 ["h2", {}, "Summary"],
                                 function()
                                 {
@@ -2254,7 +2289,7 @@ console.log('done', test, status);
                                      style_element.parentNode.removeChild(style_element);
                                  }
                              });
-                });*/
+                });
 
         // This use of innerHTML plus manual escaping is not recommended in
         // general, but is necessary here for performance.  Using textContent
@@ -2289,7 +2324,7 @@ console.log('done', test, status);
             return '';
         }
 
-        /*log.appendChild(document.createElementNS(xhtml_ns, "section"));
+        log.appendChild(document.createElementNS(xhtml_ns, "section"));
         var assertions = has_assertions();
         var html = "<h2>Details</h2><table id='results' " + (assertions ? "class='assertions'" : "" ) + ">" +
             "<thead><tr><th>Result</th><th>Test Name</th>" +
@@ -2319,7 +2354,7 @@ console.log('done', test, status);
                .textContent = "Setting innerHTML for the log threw an exception.";
             log.appendChild(document.createElementNS(xhtml_ns, "pre"))
                .textContent = html;
-        }*/
+        }
     };
 
     /*
@@ -2483,7 +2518,7 @@ console.log('done', test, status);
 
     function render(template, substitutions, output_document)
     {
-//        return make_dom(substitute(template, substitutions), output_document);
+        return make_dom(substitute(template, substitutions), output_document);
     }
 
     /*
@@ -2750,8 +2785,8 @@ console.log('done', test, status);
         done();
     };
 
-/*    addEventListener("error", error_handler, false);
-    addEventListener("unhandledrejection", function(e){ error_handler(e.reason); }, false);*/
+    addEventListener("error", error_handler, false);
+    addEventListener("unhandledrejection", function(e){ error_handler(e.reason); }, false);
 
     test_environment.on_tests_ready();
 

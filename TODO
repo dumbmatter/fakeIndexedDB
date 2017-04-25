@@ -6,7 +6,7 @@ Run on real W3C tests
 - write converter script
   - add top boilerplate requires
   - bring inline JS to root, delete rest
-- multiple done() calls should be error?
+- auto_fail args wrong
 
 IDB2 Features
 - README
