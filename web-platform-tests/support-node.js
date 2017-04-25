@@ -178,7 +178,9 @@ function createdb_for_multiple_tests(dbname, version) {
 }
 
 const fail = (test, message) => {
-    test.fail(new Error(message));
+    return () => {
+        test.fail(new Error(message));
+    };
 };
 
 
