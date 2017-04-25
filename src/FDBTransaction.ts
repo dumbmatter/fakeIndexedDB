@@ -88,14 +88,15 @@ class FDBTransaction extends FakeEventTarget {
         this._abort(null);
     }
 
+    // http://w3c.github.io/IndexedDB/#dom-idbtransaction-objectstore
     public objectStore(name: string) {
+        if (!this._active) {
+            throw new InvalidStateError();
+        }
+
         const rawObjectStore = this.db._rawDatabase.rawObjectStores.get(name);
         if (this._scope.indexOf(name) < 0 || rawObjectStore === undefined) {
             throw new NotFoundError();
-        }
-
-        if (!this._active) {
-            throw new InvalidStateError();
         }
 
         return new FDBObjectStore(this, rawObjectStore);
