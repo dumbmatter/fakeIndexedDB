@@ -92,6 +92,7 @@ class FDBObjectStore {
     }
 
     public put(value: Value, key?: Key) {
+        if (arguments.length === 0) { throw new TypeError(); }
         const record = buildRecordAddPut(this, value, key);
 
         return this.transaction._execRequestAsync({
@@ -106,6 +107,7 @@ class FDBObjectStore {
     }
 
     public add(value: Value, key?: Key) {
+        if (arguments.length === 0) { throw new TypeError(); }
         const record = buildRecordAddPut(this, value, key);
 
         return this.transaction._execRequestAsync({
@@ -120,6 +122,7 @@ class FDBObjectStore {
     }
 
     public delete(key: Key) {
+        if (arguments.length === 0) { throw new TypeError(); }
         if (this.transaction.mode === "readonly") {
             throw new ReadOnlyError();
         }
@@ -136,6 +139,7 @@ class FDBObjectStore {
     }
 
     public get(key?: Key) {
+        if (arguments.length === 0) { throw new TypeError(); }
         confirmActiveTransaction(this);
 
         if (!(key instanceof FDBKeyRange)) {
@@ -144,6 +148,21 @@ class FDBObjectStore {
 
         return this.transaction._execRequestAsync({
             operation: this._rawObjectStore.getValue.bind(this._rawObjectStore, key),
+            source: this,
+        });
+    }
+
+    // http://w3c.github.io/IndexedDB/#dom-idbobjectstore-getkey
+    public getKey(key?: Key) {
+        if (arguments.length === 0) { throw new TypeError(); }
+        confirmActiveTransaction(this);
+
+        if (!(key instanceof FDBKeyRange)) {
+            key = structuredClone(validateKey(key));
+        }
+
+        return this.transaction._execRequestAsync({
+            operation: this._rawObjectStore.getKey.bind(this._rawObjectStore, key),
             source: this,
         });
     }
@@ -188,7 +207,7 @@ class FDBObjectStore {
         keyPath: KeyPath,
         optionalParameters: {multiEntry?: boolean, unique?: boolean} = {},
     ) {
-        if (keyPath === undefined) { throw new TypeError(); }
+        if (arguments.length < 2) { throw new TypeError(); }
 
         const multiEntry = optionalParameters.multiEntry !== undefined ? optionalParameters.multiEntry : false;
         const unique = optionalParameters.unique !== undefined ? optionalParameters.unique : false;
@@ -239,7 +258,7 @@ class FDBObjectStore {
 
     // https://w3c.github.io/IndexedDB/#dom-idbobjectstore-index
     public index(name: string) {
-        if (name === undefined) { throw new TypeError(); }
+        if (arguments.length === 0) { throw new TypeError(); }
 
         if (this._rawObjectStore.deleted || this.transaction._finished) {
             throw new InvalidStateError();
@@ -262,7 +281,7 @@ class FDBObjectStore {
     }
 
     public deleteIndex(name: string) {
-        if (name === undefined) { throw new TypeError(); }
+        if (arguments.length === 0) { throw new TypeError(); }
 
         if (this.transaction.mode !== "versionchange") {
             throw new InvalidStateError();

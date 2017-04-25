@@ -5,7 +5,7 @@ import {Key, Record} from "./types";
 class RecordStore {
     private records: Record[] = [];
 
-    public get(key: Key) {
+    public get(key: Key | FDBKeyRange) {
         if (key instanceof FDBKeyRange) {
             return this.records.find((record) => {
                 return key.includes(record.key);

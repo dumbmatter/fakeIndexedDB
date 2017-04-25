@@ -1,3 +1,4 @@
+import FDBKeyRange from "../FDBKeyRange";
 import Database from "./Database";
 import {ConstraintError, DataError} from "./errors";
 import extractKey from "./extractKey";
@@ -29,10 +30,17 @@ class ObjectStore {
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-retrieving-a-value-from-an-object-store
-    public getValue(key: Key) {
+    public getValue(key: Key | FDBKeyRange) {
         const record = this.records.get(key);
 
         return record !== undefined ? structuredClone(record.value) : undefined;
+    }
+
+    // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-retrieving-a-value-from-an-object-store
+    public getKey(key: Key | FDBKeyRange) {
+        const record = this.records.get(key);
+
+        return record !== undefined ? structuredClone(record.key) : undefined;
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-storing-a-record-into-an-object-store
