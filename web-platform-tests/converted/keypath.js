@@ -1,0 +1,154 @@
+require("../../build/global.js");
+const {
+    add_completion_callback,
+    assert_array_equals,
+    assert_equals,
+    assert_false,
+    assert_not_equals,
+    assert_throws,
+    assert_true,
+    async_test,
+    createdb,
+    createdb_for_multiple_tests,
+    fail,
+    indexeddb_test,
+    setup,
+    test,
+} = require("../support-node.js");
+
+const document = {};
+const window = global;
+
+
+
+    var global_db = createdb_for_multiple_tests();
+
+    function keypath(keypath, objects, expected_keys, desc) {
+        var db,
+            t = async_test(document.title + " - " + (desc ? desc : keypath)),
+
+            store_name = "store-"+(Date.now())+Math.random();
+
+        var open_rq = global_db.setTest(t);
+        open_rq.onupgradeneeded = function(e) {
+            db = e.target.result;
+            var objStore = db.createObjectStore(store_name, { keyPath: keypath });
+
+            for (var i = 0; i < objects.length; i++)
+                objStore.add(objects[i]);
+        };
+
+        open_rq.onsuccess = function(e) {
+            var actual_keys = [],
+              rq = db.transaction(store_name)
+                     .objectStore(store_name)
+                     .openCursor();
+
+            rq.onsuccess = t.step_func(function(e) {
+                var cursor = e.target.result;
+
+                if (cursor) {
+                    actual_keys.push(cursor.key.valueOf());
+                    cursor.continue();
+                }
+                else {
+                    assert_key_equals(actual_keys, expected_keys, "keyorder array");
+                    t.done();
+                }
+            });
+        };
+    }
+
+    keypath('my.key',
+        [ { my: { key: 10 } } ],
+        [ 10 ]);
+
+    keypath('my.køi',
+        [ { my: { køi: 5 } } ],
+        [ 5 ]);
+
+    keypath('my.key_ya',
+        [ { my: { key_ya: 10 } } ],
+        [ 10 ]);
+
+    keypath('public.key$ya',
+        [ { public: { key$ya: 10 } } ],
+        [ 10 ]);
+
+    keypath('true.$',
+        [ { true: { $: 10 } } ],
+        [ 10 ]);
+
+    keypath('my._',
+        [ { my: { _: 10 } } ],
+        [ 10 ]);
+
+    keypath('delete.a7',
+        [ { delete: { a7: 10 } } ],
+        [ 10 ]);
+
+    keypath('p.p.p.p.p.p.p.p.p.p.p.p.p.p',
+        [ {p:{p:{p:{p:{p:{p:{p:{p:{p:{p:{p:{p:{p:{p:10}}}}}}}}}}}}}} ],
+        [ 10 ]);
+
+    keypath('str.length',
+        [ { str: "pony" }, { str: "my" }, { str: "little" }, { str: "" } ],
+        [ 0, 2, 4, 6 ]);
+
+    keypath('arr.length',
+        [ {arr: [0, 0, 0, 0]}, {arr: [{}, 0, "hei", "length", Infinity, []]}, {arr: [10, 10]}, { arr: []} ],
+        [ 0, 2, 4, 6 ]);
+
+    keypath('length',
+        [ [10, 10], "123", { length: 20 } ],
+        [ 2, 3, 20 ]);
+
+    keypath('',
+        [ ["bags"], "bean", 10 ],
+        [ 10, "bean", ["bags"] ],
+        "'' uses value as key");
+
+    keypath([''],
+        [ ["bags"], "bean", 10 ],
+        [ [10], ["bean"] , [["bags"]] ],
+        "[''] uses value as [key]");
+
+    keypath(['x', 'y'],
+        [ {x:10, y:20}, {y:1.337, x:100} ],
+        [ [10, 20], [100, 1.337] ],
+        "['x', 'y']");
+
+    keypath([['x'], ['y']],
+        [ {x:10, y:20}, {y:1.337, x:100} ],
+        [ [10, 20], [100, 1.337] ],
+        "[['x'], 'y'] (stringifies)");
+
+    keypath(['x', {toString:function(){return 'y'}}],
+        [ {x:10, y:20}, {y:1.337, x:100} ],
+        [ [10, 20], [100, 1.337] ],
+        "['x', {toString->'y'}] (stringifies)");
+
+    if (false) {
+        var myblob = Blob(["Yoda"], {type:'suprawsum'});
+        keypath(['length', 'type'],
+            [ myblob ],
+            [ 4, 'suprawsum' ],
+            "[Blob.length, Blob.type]");
+    }
+
+    // File.name and File.lastModifiedDate is not testable automatically
+
+    keypath(['name', 'type'],
+        [ { name: "orange", type: "fruit" }, { name: "orange", type: ["telecom", "french"] } ],
+        [ ["orange", "fruit"], ["orange", ["telecom", "french"]] ]);
+
+    keypath(['name', 'type.name'],
+        [ { name: "orange", type: { name: "fruit" }}, { name: "orange", type: { name: "telecom" }} ],
+        [ ["orange", "fruit"], ["orange", "telecom" ] ]);
+
+    loop_array = [];
+    loop_array.push(loop_array);
+    keypath(loop_array,
+        [ "a", 1, ["k"] ],
+        [ [1], ["a"], [["k"]] ],
+        "array loop -> stringify becomes ['']");
