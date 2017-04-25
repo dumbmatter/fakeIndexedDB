@@ -218,6 +218,11 @@ class FDBObjectStore {
 
         const indexNames = this.indexNames.slice();
         this.transaction._rollbackLog.push(() => {
+            const index = this._rawObjectStore.rawIndexes.get(name);
+            if (index) {
+                index.deleted = true;
+            }
+
             this.indexNames = fakeDOMStringList(indexNames);
             this._rawObjectStore.rawIndexes.delete(name);
         });

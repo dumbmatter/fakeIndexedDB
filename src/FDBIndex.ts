@@ -10,12 +10,12 @@ import {FDBCursorDirection, Key, KeyPath} from "./lib/types";
 import validateKey from "./lib/validateKey";
 
 const confirmActiveTransaction = (index: FDBIndex) => {
-    if (!index.objectStore.transaction._active) {
-        throw new TransactionInactiveError();
-    }
-
     if (index._rawIndex.deleted || index.objectStore._rawObjectStore.deleted) {
         throw new InvalidStateError();
+    }
+
+    if (!index.objectStore.transaction._active) {
+        throw new TransactionInactiveError();
     }
 };
 

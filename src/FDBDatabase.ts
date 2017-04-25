@@ -94,6 +94,11 @@ class FDBDatabase extends FakeEventTarget {
 
         const objectStoreNames = this.objectStoreNames.slice();
         transaction._rollbackLog.push(() => {
+            const objectStore = this._rawDatabase.rawObjectStores.get(name);
+            if (objectStore) {
+                objectStore.deleted = true;
+            }
+
             this.objectStoreNames = fakeDOMStringList(objectStoreNames);
             this._rawDatabase.rawObjectStores.delete(name);
         });
