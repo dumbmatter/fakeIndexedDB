@@ -6,7 +6,11 @@ Run on real W3C tests
 - folder structure?
 - add README
 - assert_unreached
-- static FDBKeyRange.check -> non-static FDBKeyRange.includes
+- self.location.pathname
+- use globals rather than imports, more concise and similar
+- try pseudo worker for idb_webworkers
+
+FDBTransaction._scope to Set
 
 IDB2 Features
 - README

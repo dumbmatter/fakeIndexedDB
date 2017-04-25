@@ -2,9 +2,10 @@ import FDBDatabase from "./FDBDatabase";
 import FDBObjectStore from "./FDBObjectStore";
 import FDBRequest from "./FDBRequest";
 import {AbortError, InvalidStateError, NotFoundError, TransactionInactiveError} from "./lib/errors";
+import fakeDOMStringList from "./lib/fakeDOMStringList";
 import FakeEvent from "./lib/FakeEvent";
 import FakeEventTarget from "./lib/FakeEventTarget";
-import {EventCallback, RequestObj, RollbackLog, TransactionMode} from "./lib/types";
+import {EventCallback, FakeDOMStringList, RequestObj, RollbackLog, TransactionMode} from "./lib/types";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#transaction
 class FDBTransaction extends FakeEventTarget {
@@ -13,6 +14,7 @@ class FDBTransaction extends FakeEventTarget {
     public _finished = false; // Set true after commit or abort
     public _rollbackLog: RollbackLog = [];
 
+    public objectStoreNames: FakeDOMStringList;
     public mode: TransactionMode;
     public db: FDBDatabase;
     public error: Error | null = null;
@@ -20,7 +22,7 @@ class FDBTransaction extends FakeEventTarget {
     public oncomplete: EventCallback | null = null;
     public onerror: EventCallback | null = null;
 
-    private _scope: string[];
+    public _scope: string[];
     private _requests: Array<{
         operation: () => void,
         request: FDBRequest,
@@ -32,6 +34,7 @@ class FDBTransaction extends FakeEventTarget {
         this._scope = storeNames;
         this.mode = mode;
         this.db = db;
+        this.objectStoreNames = fakeDOMStringList(Array.from(new Set(this._scope)).sort());
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-aborting-a-transaction

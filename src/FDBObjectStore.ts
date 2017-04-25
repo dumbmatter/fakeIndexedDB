@@ -232,8 +232,13 @@ class FDBObjectStore {
         return new FDBIndex(this, index);
     }
 
+    // https://w3c.github.io/IndexedDB/#dom-idbobjectstore-index
     public index(name: string) {
         if (name === undefined) { throw new TypeError(); }
+
+        if (this._rawObjectStore.deleted || this.transaction._finished) {
+            throw new InvalidStateError();
+        }
 
         const rawIndex = this._rawIndexesCache.get(name);
         if (rawIndex !== undefined) {
@@ -243,10 +248,6 @@ class FDBObjectStore {
         const rawIndex2 = this._rawObjectStore.rawIndexes.get(name);
         if (this.indexNames.indexOf(name) < 0 || rawIndex2 === undefined) {
             throw new NotFoundError();
-        }
-
-        if (this._rawObjectStore.deleted) {
-            throw new InvalidStateError();
         }
 
         const index = new FDBIndex(this, rawIndex2);

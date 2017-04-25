@@ -102,6 +102,7 @@ class FDBDatabase extends FakeEventTarget {
         this.objectStoreNames.push(name);
         this.objectStoreNames.sort();
         this._rawDatabase.rawObjectStores.set(name, objectStore);
+        transaction.objectStoreNames = fakeDOMStringList(this.objectStoreNames.slice());
 
         return transaction.objectStore(name);
     }
@@ -118,6 +119,7 @@ class FDBDatabase extends FakeEventTarget {
         this.objectStoreNames = fakeDOMStringList(this.objectStoreNames.filter((objectStoreName) => {
             return objectStoreName !== name;
         }));
+        transaction.objectStoreNames = fakeDOMStringList(this.objectStoreNames.slice());
 
         transaction._rollbackLog.push(() => {
             store.deleted = false;

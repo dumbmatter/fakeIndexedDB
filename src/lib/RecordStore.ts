@@ -8,7 +8,7 @@ class RecordStore {
     public get(key: Key) {
         if (key instanceof FDBKeyRange) {
             return this.records.find((record) => {
-                return FDBKeyRange.check(key, record.key);
+                return key.includes(record.key);
             });
         }
 
@@ -52,7 +52,7 @@ class RecordStore {
         const deletedRecords: Record[] = [];
 
         this.records = this.records.filter((record) => {
-            const shouldDelete = FDBKeyRange.check(range, record.key);
+            const shouldDelete = range.includes(record.key);
 
             if (shouldDelete) {
                 deletedRecords.push(record);
@@ -70,7 +70,7 @@ class RecordStore {
         const deletedRecords: Record[] = [];
 
         this.records = this.records.filter((record) => {
-            const shouldDelete = FDBKeyRange.check(range, record.value);
+            const shouldDelete = range.includes(record.value);
 
             if (shouldDelete) {
                 deletedRecords.push(record);

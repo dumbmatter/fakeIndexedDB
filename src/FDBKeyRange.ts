@@ -6,25 +6,25 @@ import validateKey from "./lib/validateKey";
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#range-concept
 class FDBKeyRange {
     public static only(value: Key) {
-        if (value === undefined) { throw new TypeError(); }
+        if (arguments.length === 0) { throw new TypeError(); }
         validateKey(value);
         return new FDBKeyRange(value, value, false, false);
     }
 
     public static lowerBound(lower: Key, open: boolean = false) {
-        if (lower === undefined) { throw new TypeError(); }
+        if (arguments.length === 0) { throw new TypeError(); }
         validateKey(lower);
         return new FDBKeyRange(lower, undefined, open, true);
     }
 
     public static upperBound(upper: Key, open: boolean = false) {
-        if (upper === undefined) { throw new TypeError(); }
+        if (arguments.length === 0) { throw new TypeError(); }
         validateKey(upper);
         return new FDBKeyRange(undefined, upper, true, open);
     }
 
     public static bound(lower: Key, upper: Key, lowerOpen: boolean = false, upperOpen: boolean = false) {
-        if (lower === undefined || upper === undefined) { throw new TypeError(); }
+        if (arguments.length < 2) { throw new TypeError(); }
 
         const cmpResult = cmp(lower, upper);
         if (cmpResult === 1 || (cmpResult === 0 && (lowerOpen || upperOpen))) {
@@ -34,24 +34,6 @@ class FDBKeyRange {
         validateKey(lower);
         validateKey(upper);
         return new FDBKeyRange(lower, upper, lowerOpen, upperOpen);
-    }
-
-    public static check(keyRange: FDBKeyRange, key: Key) {
-        if (keyRange.lower !== undefined) {
-            const cmpResult = cmp(keyRange.lower, key);
-
-            if (cmpResult === 1 || (cmpResult === 0 && keyRange.lowerOpen)) {
-                return false;
-            }
-        }
-        if (keyRange.upper !== undefined) {
-            const cmpResult = cmp(keyRange.upper, key);
-
-            if (cmpResult === -1 || (cmpResult === 0 && keyRange.upperOpen)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public readonly lower: Key | undefined;
@@ -64,6 +46,28 @@ class FDBKeyRange {
         this.upper = upper;
         this.lowerOpen = lowerOpen;
         this.upperOpen = upperOpen;
+    }
+
+    // https://w3c.github.io/IndexedDB/#dom-idbkeyrange-includes
+    public includes(key: Key) {
+        if (arguments.length === 0) { throw new TypeError(); }
+        validateKey(key);
+
+        if (this.lower !== undefined) {
+            const cmpResult = cmp(this.lower, key);
+
+            if (cmpResult === 1 || (cmpResult === 0 && this.lowerOpen)) {
+                return false;
+            }
+        }
+        if (this.upper !== undefined) {
+            const cmpResult = cmp(this.upper, key);
+
+            if (cmpResult === -1 || (cmpResult === 0 && this.upperOpen)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public toString() {

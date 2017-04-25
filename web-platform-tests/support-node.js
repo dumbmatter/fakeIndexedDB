@@ -84,8 +84,12 @@ class AsyncTest {
     }
 
     fail(err) {
+        console.log('Failed!');
         this.complete();
-        throw err;
+
+        // `throw err` was silent
+        console.error(err);
+        process.exit(1);
     }
 
     add_cleanup(cb) {
@@ -359,7 +363,7 @@ const setup = (...args) => {
 
 const step_timeout = (fn, timeout, ...args) => {
     return setTimeout(() => {
-        fm(...args);
+        fn(...args);
     }, timeout);
 }
 

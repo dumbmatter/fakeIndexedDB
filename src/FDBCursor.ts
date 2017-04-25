@@ -137,7 +137,7 @@ class FDBCursor {
                     }
                 }
                 if (this._range !== undefined) {
-                    if (!FDBKeyRange.check(this._range, record.key)) {
+                    if (!this._range.includes(record.key)) {
                         continue;
                     }
                 }
@@ -161,7 +161,7 @@ class FDBCursor {
                     }
                 }
                 if (this._range !== undefined) {
-                    if (!FDBKeyRange.check(this._range, record.key)) {
+                    if (!this._range.includes(record.key)) {
                         continue;
                     }
                 }
@@ -191,7 +191,7 @@ class FDBCursor {
                     }
                 }
                 if (this._range !== undefined) {
-                    if (!FDBKeyRange.check(this._range, record.key)) {
+                    if (!this._range.includes(record.key)) {
                         continue;
                     }
                 }
@@ -213,7 +213,7 @@ class FDBCursor {
                     }
                 }
                 if (this._range !== undefined) {
-                    if (!FDBKeyRange.check(this._range, record.key)) {
+                    if (!this._range.includes(record.key)) {
                         continue;
                     }
                 }
