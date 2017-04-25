@@ -24,6 +24,19 @@ const assert_key_equals = (actual, expected, description) => {
 
 const assert_not_equals = (...args) => assert.notEqual(...args);
 
+
+const assert_readonly = (object, property_name, description) => {
+    var initial_value = object[property_name];
+    try {
+        //Note that this can have side effects in the case where
+        //the property has PutForwards
+        object[property_name] = initial_value + "a"; //XXX use some other value here?
+        assert.equal(object[property_name], initial_value, description);
+    } finally {
+        object[property_name] = initial_value;
+    }
+};
+
 const assert_throws = (errName, block, message) => assert.throws(block, new RegExp(errName), message);
 
 const assert_true = (...args) => assert.ok(...args);
@@ -399,6 +412,7 @@ const addToGlobal = {
     assert_false,
     assert_key_equals,
     assert_not_equals,
+    assert_readonly,
     assert_throws,
     assert_true,
     async_test,
