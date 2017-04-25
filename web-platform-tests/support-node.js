@@ -52,7 +52,13 @@ class AsyncTest {
 
     step(fn) {
         return (...args) => {
-            fn.apply(this, args);
+            try {
+                fn.apply(this, args);
+            } catch (err) {
+                if (!this.completed) {
+                    throw err;
+                }
+            }
         }
     }
 

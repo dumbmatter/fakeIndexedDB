@@ -4,8 +4,8 @@ Run on real W3C tests
 - as close to their way as possible, in real browsers, but inject my globals
 - pull in web-platform-tests as npm dependency?
 - folder structure?
+- add README
 - assert_unreached
-- idbcursor-direction-objectstore - somehow ignore error (still pass test) after t.done is called, that's how it works in browser
 
 IDB2 Features
 - README
