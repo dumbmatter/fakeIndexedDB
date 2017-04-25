@@ -1,4 +1,5 @@
-require("../../build/global.js");
+require("../../build/global");
+const Event = require("../../build/lib/FakeEvent").default;
 const {
     add_completion_callback,
     assert_array_equals,
@@ -15,7 +16,7 @@ const {
     indexeddb_test,
     setup,
     test,
-} = require("../support-node.js");
+} = require("../support-node");
 
 const document = {};
 const window = global;
