@@ -435,7 +435,7 @@ module.exports = function (source, range, direction, request) {
                 tempKey = extractKey(effectiveObjectStore.keyPath, value);
             } catch (err) { /* Handled immediately below */ }
 
-            if (tempKey !== effectiveKey) {
+            if (cmp(tempKey, effectiveKey) !== 0) {
                 throw new DataError();
             }
         }
