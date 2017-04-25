@@ -185,6 +185,21 @@ function createdb_for_multiple_tests(dbname, version) {
     return rq_open;
 }
 
+// Call with a Test and an array of expected results in order. Returns
+// a function; call the function when a result arrives and when the
+// expected number appear the order will be asserted and test
+// completed.
+const expect = (t, expected) => {
+    var results = [];
+    return (result) => {
+        results.push(result);
+        if (results.length === expected.length) {
+            assert_array_equals(results, expected);
+            t.done();
+        }
+    };
+};
+
 const fail = (test, message) => {
     return () => {
         test.fail(new Error(message));
@@ -389,6 +404,7 @@ const addToGlobal = {
     async_test,
     createdb,
     createdb_for_multiple_tests,
+    expect,
     fail,
     format_value,
     indexeddb_test,
