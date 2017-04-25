@@ -16,13 +16,12 @@ class KeyGenerator {
         return this.num;
     }
 
+    // https://w3c.github.io/IndexedDB/#possibly-update-the-key-generator
     public setIfLarger(num: number) {
-        if (num > MAX_KEY) {
-            throw new ConstraintError();
-        }
+        const value = Math.floor(Math.min(num, MAX_KEY)) - 1;
 
-        if (num > this.num) {
-            this.num = Math.floor(num);
+        if (value >= this.num) {
+            this.num = value + 1;
         }
     }
 }
