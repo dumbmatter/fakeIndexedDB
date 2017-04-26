@@ -147,7 +147,7 @@ describe("getAllKeys", () => {
         };
     });
 
-/*    it("should work on object store", (done) => {
+    it("should work on object store", (done) => {
         const request = db.transaction("store").objectStore("store").getAllKeys();
         request.onsuccess = (e) => {
             assert.equal(e.target.result.length, 10);
@@ -242,5 +242,5 @@ describe("getAllKeys", () => {
         assert.throws(() => {
             db.transaction("store").objectStore("store").getAllKeys(NaN);
         }, /DataError/);
-    });*/
+    });
 });

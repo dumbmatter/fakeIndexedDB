@@ -124,6 +124,18 @@ class FDBIndex {
         });
     }
 
+    // http://w3c.github.io/IndexedDB/#dom-idbindex-getallkeys
+    public getAllKeys(query?: FDBKeyRange | Key, count?: number) {
+        confirmActiveTransaction(this);
+
+        const range = valueToKeyRange(query);
+
+        return this.objectStore.transaction._execRequestAsync({
+            operation: this._rawIndex.getAllKeys.bind(this._rawIndex, range, count),
+            source: this,
+        });
+    }
+
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBIndex-count-IDBRequest-any-key
     public count(key: FDBKeyRange | Key | null | undefined) {
         confirmActiveTransaction(this);

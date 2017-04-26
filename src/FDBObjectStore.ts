@@ -180,6 +180,18 @@ class FDBObjectStore {
         });
     }
 
+    // http://w3c.github.io/IndexedDB/#dom-idbobjectstore-getallkeys
+    public getAllKeys(query?: FDBKeyRange | Key, count?: number) {
+        confirmActiveTransaction(this);
+
+        const range = valueToKeyRange(query);
+
+        return this.transaction._execRequestAsync({
+            operation: this._rawObjectStore.getAllKeys.bind(this._rawObjectStore, range, count),
+            source: this,
+        });
+    }
+
     public clear() {
         if (this.transaction.mode === "readonly") {
             throw new ReadOnlyError();

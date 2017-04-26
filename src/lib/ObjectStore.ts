@@ -30,6 +30,30 @@ class ObjectStore {
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-retrieving-a-value-from-an-object-store
+    public getKey(key: FDBKeyRange | Key) {
+        const record = this.records.get(key);
+
+        return record !== undefined ? structuredClone(record.key) : undefined;
+    }
+
+    // http://w3c.github.io/IndexedDB/#retrieve-multiple-keys-from-an-object-store
+    public getAllKeys(range: FDBKeyRange, count?: number) {
+        if (count === undefined || count === 0) {
+            count = Infinity;
+        }
+
+        const records = [];
+        for (const record of this.records.values(range)) {
+            records.push(structuredClone(record.key));
+            if (records.length >= count) {
+                break;
+            }
+        }
+
+        return records;
+    }
+
+    // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-retrieving-a-value-from-an-object-store
     public getValue(key: FDBKeyRange | Key) {
         const record = this.records.get(key);
 
@@ -51,13 +75,6 @@ class ObjectStore {
         }
 
         return records;
-    }
-
-    // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-retrieving-a-value-from-an-object-store
-    public getKey(key: FDBKeyRange | Key) {
-        const record = this.records.get(key);
-
-        return record !== undefined ? structuredClone(record.key) : undefined;
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-storing-a-record-into-an-object-store
