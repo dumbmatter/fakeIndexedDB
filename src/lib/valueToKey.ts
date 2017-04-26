@@ -1,47 +1,48 @@
 import {DataError} from "./errors";
+import {Key} from "./types";
 
-// https://w3c.github.io/IndexedDB/#convert-a-value-to-a-key
-const valueToKey = (key: any, seen?: Set<object>) => {
-    if (typeof key === "number") {
-        if (isNaN(key)) {
+// https://w3c.github.io/IndexedDB/#convert-a-value-to-a-input
+const valueToKey = (input: any, seen?: Set<object>): Key | Key[] => {
+    if (typeof input === "number") {
+        if (isNaN(input)) {
             throw new DataError();
         }
-        return key;
-    } else if (key instanceof Date) {
-        const ms = key.valueOf();
+        return input;
+    } else if (input instanceof Date) {
+        const ms = input.valueOf();
         if (isNaN(ms)) {
             throw new DataError();
         }
         return new Date(ms);
-    } else if (typeof key === "string") {
-        return key;
+    } else if (typeof input === "string") {
+        return input;
     } else if (
-        (key instanceof ArrayBuffer) ||
-        (typeof ArrayBuffer !== "undefined" && ArrayBuffer.isView && ArrayBuffer.isView(key))
+        (input instanceof ArrayBuffer) ||
+        (typeof ArrayBuffer !== "undefined" && ArrayBuffer.isView && ArrayBuffer.isView(input))
     ) {
-        if (key instanceof ArrayBuffer) {
-            return new Uint8Array(key).buffer;
+        if (input instanceof ArrayBuffer) {
+            return new Uint8Array(input).buffer;
         }
-        return new Uint8Array(key.buffer).buffer;
-    } else if (Array.isArray(key)) {
-        seen = seen !== undefined ? seen : new Set();
-        for (const x of key) {
-            // Only need to test objects, because otherwise [0, 0] shows up as circular
-            if (typeof x === "object" && seen.has(x)) {
-                throw new DataError();
-            }
-            seen.add(x);
-        }
-
-        let count = 0;
-        key = key.map((item) => {
-            count += 1;
-            return valueToKey(item, seen);
-        });
-        if (count !== key.length) {
+        return new Uint8Array(input.buffer).buffer;
+    } else if (Array.isArray(input)) {
+        if (seen === undefined) {
+            seen = new Set();
+        } else if (seen.has(input)) {
             throw new DataError();
         }
-        return key;
+        seen.add(input);
+
+        const keys = [];
+        for (let i = 0; i < input.length; i++) {
+            const hop = input.hasOwnProperty(i);
+            if (!hop) {
+                throw new DataError();
+            }
+            const entry = input[i];
+            const key = valueToKey(entry, seen);
+            keys.push(key);
+        }
+        return keys;
     } else {
         throw new DataError();
     }
