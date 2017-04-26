@@ -3,6 +3,7 @@
 Run on real W3C tests
 - folder structure?
 - for idbobjectstore-rename-store, need FDBTransaction.objectStoresCache like FDBObjectStore.indexesCache to return same instance
+- for keygenerator-inject, need to fix step 11 http://w3c.github.io/IndexedDB/#dom-idbobjectstore-put probably by rewriting extractKey based on current spec
 
 changelog
 - Fully implements the [IndexedDB 2.0 API](https://hacks.mozilla.org/2016/10/whats-new-in-indexeddb-2-0/) (which technically still is a draft, but is probably not going to substantially change).
