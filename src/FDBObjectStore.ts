@@ -20,8 +20,8 @@ import Index from "./lib/Index";
 import ObjectStore from "./lib/ObjectStore";
 import structuredClone from "./lib/structuredClone";
 import {FakeDOMStringList, FDBCursorDirection, Key, KeyPath, Value} from "./lib/types";
-import validateKey from "./lib/validateKey";
 import validateKeyPath from "./lib/validateKeyPath";
+import valueToKey from "./lib/valueToKey";
 import valueToKeyRange from "./lib/valueToKeyRange";
 
 const confirmActiveTransaction = (objectStore: FDBObjectStore) => {
@@ -35,11 +35,11 @@ const confirmActiveTransaction = (objectStore: FDBObjectStore) => {
 };
 
 const buildRecordAddPut = (objectStore: FDBObjectStore, value: Value, key: Key) => {
+    confirmActiveTransaction(objectStore);
+
     if (objectStore.transaction.mode === "readonly") {
         throw new ReadOnlyError();
     }
-
-    confirmActiveTransaction(objectStore);
 
     if (objectStore.keyPath !== null) {
         if (key !== undefined) {
@@ -49,7 +49,7 @@ const buildRecordAddPut = (objectStore: FDBObjectStore, value: Value, key: Key) 
         const tempKey = extractKey(objectStore.keyPath, value);
 
         if (tempKey !== undefined) {
-            validateKey(tempKey);
+            valueToKey(tempKey);
         } else {
             if (!objectStore._rawObjectStore.keyGenerator) {
                 throw new DataError();
@@ -62,11 +62,11 @@ const buildRecordAddPut = (objectStore: FDBObjectStore, value: Value, key: Key) 
     }
 
     if (key !== undefined) {
-        validateKey(key);
+        key = valueToKey(key);
     }
 
     return {
-        key: structuredClone(key),
+        key,
         value: structuredClone(value),
     };
 };
@@ -125,13 +125,14 @@ class FDBObjectStore {
 
     public delete(key: Key) {
         if (arguments.length === 0) { throw new TypeError(); }
+        confirmActiveTransaction(this);
+
         if (this.transaction.mode === "readonly") {
             throw new ReadOnlyError();
         }
-        confirmActiveTransaction(this);
 
         if (!(key instanceof FDBKeyRange)) {
-            key = structuredClone(validateKey(key));
+            key = valueToKey(key);
         }
 
         return this.transaction._execRequestAsync({
@@ -145,7 +146,7 @@ class FDBObjectStore {
         confirmActiveTransaction(this);
 
         if (!(key instanceof FDBKeyRange)) {
-            key = structuredClone(validateKey(key));
+            key = valueToKey(key);
         }
 
         return this.transaction._execRequestAsync({
@@ -175,7 +176,7 @@ class FDBObjectStore {
         confirmActiveTransaction(this);
 
         if (!(key instanceof FDBKeyRange)) {
-            key = structuredClone(validateKey(key));
+            key = valueToKey(key);
         }
 
         return this.transaction._execRequestAsync({
@@ -200,10 +201,11 @@ class FDBObjectStore {
     }
 
     public clear() {
+        confirmActiveTransaction(this);
+
         if (this.transaction.mode === "readonly") {
             throw new ReadOnlyError();
         }
-        confirmActiveTransaction(this);
 
         return this.transaction._execRequestAsync({
             operation: this._rawObjectStore.clear.bind(this._rawObjectStore, this.transaction._rollbackLog),
@@ -216,7 +218,7 @@ class FDBObjectStore {
 
         if (range === null) { range = undefined; }
         if (range !== undefined && !(range instanceof FDBKeyRange)) {
-            range = FDBKeyRange.only(structuredClone(validateKey(range)));
+            range = FDBKeyRange.only(valueToKey(range));
         }
 
         const request = new FDBRequest();
@@ -224,6 +226,27 @@ class FDBObjectStore {
         request.transaction = this.transaction;
 
         const cursor = new FDBCursorWithValue(this, range, direction, request);
+
+        return this.transaction._execRequestAsync({
+            operation: cursor._iterate.bind(cursor),
+            request,
+            source: this,
+        });
+    }
+
+    public openKeyCursor(range: FDBKeyRange | Key, direction?: FDBCursorDirection) {
+        confirmActiveTransaction(this);
+
+        if (range === null) { range = undefined; }
+        if (range !== undefined && !(range instanceof FDBKeyRange)) {
+            range = FDBKeyRange.only(valueToKey(range));
+        }
+
+        const request = new FDBRequest();
+        request.source = this;
+        request.transaction = this.transaction;
+
+        const cursor = new FDBCursor(this, range, direction, request, true);
 
         return this.transaction._execRequestAsync({
             operation: cursor._iterate.bind(cursor),
@@ -352,7 +375,7 @@ class FDBObjectStore {
 
         if (key === null) { key = undefined; }
         if (key !== undefined && !(key instanceof FDBKeyRange)) {
-            key = FDBKeyRange.only(structuredClone(validateKey(key)));
+            key = FDBKeyRange.only(valueToKey(key));
         }
 
         return this.transaction._execRequestAsync({

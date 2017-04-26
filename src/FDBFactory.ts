@@ -234,7 +234,7 @@ class FDBFactory {
 
                     const event = new FakeEvent("error", {
                         bubbles: true,
-                        cancelable: false,
+                        cancelable: true,
                     });
                     event.eventPath = [];
                     request.dispatchEvent(event);
@@ -280,7 +280,7 @@ class FDBFactory {
 
                     const event = new FakeEvent("error", {
                         bubbles: true,
-                        cancelable: false,
+                        cancelable: true,
                     });
                     event.eventPath = [];
                     request.dispatchEvent(event);

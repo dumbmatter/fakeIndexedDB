@@ -6,9 +6,8 @@ import FDBRequest from "./FDBRequest";
 import enforceRange from "./lib/enforceRange";
 import {InvalidStateError, TransactionInactiveError} from "./lib/errors";
 import Index from "./lib/Index";
-import structuredClone from "./lib/structuredClone";
 import {FDBCursorDirection, Key, KeyPath} from "./lib/types";
-import validateKey from "./lib/validateKey";
+import valueToKey from "./lib/valueToKey";
 import valueToKeyRange from "./lib/valueToKeyRange";
 
 const confirmActiveTransaction = (index: FDBIndex) => {
@@ -47,7 +46,7 @@ class FDBIndex {
 
         if (range === null) { range = undefined; }
         if (range !== undefined && !(range instanceof FDBKeyRange)) {
-            range = FDBKeyRange.only(structuredClone(validateKey(range)));
+            range = FDBKeyRange.only(valueToKey(range));
         }
 
         const request = new FDBRequest();
@@ -70,14 +69,14 @@ class FDBIndex {
 
         if (range === null) { range = undefined; }
         if (range !== undefined && !(range instanceof FDBKeyRange)) {
-            range = FDBKeyRange.only(structuredClone(validateKey(range)));
+            range = FDBKeyRange.only(valueToKey(range));
         }
 
         const request = new FDBRequest();
         request.source = this;
         request.transaction = this.objectStore.transaction;
 
-        const cursor = new FDBCursor(this, range, direction, request);
+        const cursor = new FDBCursor(this, range, direction, request, true);
 
         return this.objectStore.transaction._execRequestAsync({
             operation: cursor._iterate.bind(cursor),
@@ -90,7 +89,7 @@ class FDBIndex {
         confirmActiveTransaction(this);
 
         if (!(key instanceof FDBKeyRange)) {
-            key = structuredClone(validateKey(key));
+            key = valueToKey(key);
         }
 
         return this.objectStore.transaction._execRequestAsync({
@@ -119,7 +118,7 @@ class FDBIndex {
         confirmActiveTransaction(this);
 
         if (!(key instanceof FDBKeyRange)) {
-            key = structuredClone(validateKey(key));
+            key = valueToKey(key);
         }
 
         return this.objectStore.transaction._execRequestAsync({
@@ -149,7 +148,7 @@ class FDBIndex {
 
         if (key === null) { key = undefined; }
         if (key !== undefined && !(key instanceof FDBKeyRange)) {
-            key = FDBKeyRange.only(structuredClone(validateKey(key)));
+            key = FDBKeyRange.only(valueToKey(key));
         }
 
         return this.objectStore.transaction._execRequestAsync({

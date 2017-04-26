@@ -12,7 +12,7 @@ require("../support-node");
     var open_rq = createdb(t);
     open_rq.onupgradeneeded = function(e) {
         db = e.target.result;
-        t.add_cleanup(function() { db.close(); indexedDB.delete(db.name); });
+        t.add_cleanup(function() { db.close(); indexedDB.deleteDatabase(db.name); });
         var objStore = db.createObjectStore("test", {keyPath:"pKey"});
 
         for (var i = 0; i < records.length; i++)

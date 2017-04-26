@@ -1,25 +1,25 @@
 import cmp from "./lib/cmp";
 import {DataError} from "./lib/errors";
 import {Key} from "./lib/types";
-import validateKey from "./lib/validateKey";
+import valueToKey from "./lib/valueToKey";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#range-concept
 class FDBKeyRange {
     public static only(value: Key) {
         if (arguments.length === 0) { throw new TypeError(); }
-        validateKey(value);
+        value = valueToKey(value);
         return new FDBKeyRange(value, value, false, false);
     }
 
     public static lowerBound(lower: Key, open: boolean = false) {
         if (arguments.length === 0) { throw new TypeError(); }
-        validateKey(lower);
+        lower = valueToKey(lower);
         return new FDBKeyRange(lower, undefined, open, true);
     }
 
     public static upperBound(upper: Key, open: boolean = false) {
         if (arguments.length === 0) { throw new TypeError(); }
-        validateKey(upper);
+        upper = valueToKey(upper);
         return new FDBKeyRange(undefined, upper, true, open);
     }
 
@@ -31,8 +31,8 @@ class FDBKeyRange {
             throw new DataError();
         }
 
-        validateKey(lower);
-        validateKey(upper);
+        lower = valueToKey(lower);
+        upper = valueToKey(upper);
         return new FDBKeyRange(lower, upper, lowerOpen, upperOpen);
     }
 
@@ -51,7 +51,7 @@ class FDBKeyRange {
     // https://w3c.github.io/IndexedDB/#dom-idbkeyrange-includes
     public includes(key: Key) {
         if (arguments.length === 0) { throw new TypeError(); }
-        validateKey(key);
+        key = valueToKey(key);
 
         if (this.lower !== undefined) {
             const cmpResult = cmp(this.lower, key);

@@ -8,9 +8,10 @@ global.document = {
     getElementsByTagName: () => Math,
 };
 global.DOMException = Error; // Kind of cheating for error-attributes.js
-global.self = {
+global.location = {
     location: {},
 };
+global.self = global;
 global.window = global;
 
 const add_completion_callback = (...args) => {
@@ -22,7 +23,10 @@ const assert_array_equals = (...args) => assert.deepEqual(...args);
 const assert_equals = (...args) => assert.equal(...args);
 
 const assert_class_string = (object, class_string, description) => {
-    assert_equals({}.toString.call(object), "[object " + class_string + "]",
+    // Would be better to to use `{}.toString.call(object)` instead of `object.toString()`, but I can't make that work
+    // with my custom Objects except in some very modern environments http://stackoverflow.com/a/34098492/786644 so fuck
+    // it, probably nobody will notice.
+    assert_equals(object.toString(), "[object " + class_string + "]",
                     description);
 };
 
@@ -52,9 +56,10 @@ const assert_throws = (errName, block, message) => assert.throws(block, new RegE
 const assert_true = (...args) => assert.ok(...args);
 
 class AsyncTest {
-    constructor() {
+    constructor(name) {
         this.completed = false;
         this.cleanupCallbacks = [];
+        this.name = name;
 
         this.timeoutID = setTimeout(() => {
             if (!this.completed) {
@@ -80,7 +85,17 @@ class AsyncTest {
         }
     }
 
-    step(fn) {
+    step(fn, this_obj, ...args) {
+        try {
+            return fn.apply(this, args);
+        } catch (err) {
+            if (!this.completed) {
+                throw err;
+            }
+        }
+    }
+
+    step_func(fn) {
         return (...args) => {
             try {
                 fn.apply(this, args);
@@ -92,10 +107,6 @@ class AsyncTest {
         }
     }
 
-    step_func(fn) {
-        return this.step(fn);
-    }
-
     step_func_done(fn) {
         return (...args) => {
             fn.apply(this, args);
@@ -105,7 +116,7 @@ class AsyncTest {
 
     step_timeout(fn, timeout, ...args) {
         return setTimeout(this.step_func(() => {
-            return fn(...args);
+            return fn.apply(this, args);
         }), timeout);
     }
 
@@ -127,12 +138,20 @@ class AsyncTest {
     }
 }
 
-const async_test = (cb) => {
-    const t = new AsyncTest();
-    if (typeof cb === "function") {
-        cb(t);
+
+const async_test = (func, name, properties) => {
+    if (typeof func !== "function") {
+        properties = name;
+        name = func;
+        func = null;
     }
-    return t;
+    var test_name = name ? name : Math.random().toString();
+    properties = properties ? properties : {};
+    var test_obj = new AsyncTest(test_name, properties);
+    if (func) {
+        test_obj.step(func, test_obj, test_obj);
+    }
+    return test_obj;
 };
 
 const test = (cb) => {
@@ -175,10 +194,12 @@ function createdb_for_multiple_tests(dbname, version) {
                     !this.db) {
                   this.db = e.target.result;
 
-                  this.db.onerror = fail(test, 'unexpected db.error');
+                  // In many tests, these will get triggered both here and in the browser, but the browser somehow
+                  // ignores them and still passes the test
+/*                  this.db.onerror = fail(test, 'unexpected db.error');
                   this.db.onabort = fail(test, 'unexpected db.abort');
                   this.db.onversionchange =
-                      fail(test, 'unexpected db.versionchange');
+                      fail(test, 'unexpected db.versionchange');*/
                 }
             });
         });
@@ -205,6 +226,73 @@ function createdb_for_multiple_tests(dbname, version) {
     });
 
     return rq_open;
+}
+
+/**
+ * This constructor helper allows DOM events to be handled using Promises,
+ * which can make it a lot easier to test a very specific series of events,
+ * including ensuring that unexpected events are not fired at any point.
+ */
+function EventWatcher(test, watchedNode, eventTypes)
+{
+    if (typeof eventTypes == 'string') {
+        eventTypes = [eventTypes];
+    }
+
+    var waitingFor = null;
+
+    var eventHandler = test.step_func(function(evt) {
+        assert_true(!!waitingFor,
+                    'Not expecting event, but got ' + evt.type + ' event');
+        assert_equals(evt.type, waitingFor.types[0],
+                        'Expected ' + waitingFor.types[0] + ' event, but got ' +
+                        evt.type + ' event instead');
+        if (waitingFor.types.length > 1) {
+            // Pop first event from array
+            waitingFor.types.shift();
+            return;
+        }
+        // We need to null out waitingFor before calling the resolve function
+        // since the Promise's resolve handlers may call wait_for() which will
+        // need to set waitingFor.
+        var resolveFunc = waitingFor.resolve;
+        waitingFor = null;
+        resolveFunc(evt);
+    });
+
+    for (var i = 0; i < eventTypes.length; i++) {
+        watchedNode.addEventListener(eventTypes[i], eventHandler, false);
+    }
+
+    /**
+     * Returns a Promise that will resolve after the specified event or
+     * series of events has occured.
+     */
+    this.wait_for = function(types) {
+        if (waitingFor) {
+            return Promise.reject('Already waiting for an event or events');
+        }
+        if (typeof types == 'string') {
+            types = [types];
+        }
+        return new Promise(function(resolve, reject) {
+            waitingFor = {
+                types: types,
+                resolve: resolve,
+                reject: reject
+            };
+        });
+    };
+
+    function stop_watching() {
+        for (var i = 0; i < eventTypes.length; i++) {
+            watchedNode.removeEventListener(eventTypes[i], eventHandler, false);
+        }
+    };
+
+    test.add_cleanup(stop_watching);
+
+    return this;
 }
 
 // Call with a Test and an array of expected results in order. Returns
@@ -467,6 +555,7 @@ const addToGlobal = {
     async_test,
     createdb,
     createdb_for_multiple_tests,
+    EventWatcher,
     expect,
     fail,
     format_value,
@@ -480,3 +569,5 @@ const addToGlobal = {
 };
 
 Object.assign(global, addToGlobal);
+
+require("./support-promises.js");

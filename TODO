@@ -1,13 +1,12 @@
 # v2 stuff:
 
 Run on real W3C tests
-- as close to their way as possible, in real browsers, but inject my globals
-- pull in web-platform-tests as npm dependency?
 - folder structure?
 - add README
 - assert_unreached
-- test bugs to fix
-  - indexedDB.delete(
+
+valueToKey
+- not quite to spec for dates
 
 changelog
 - Fully implements the [IndexedDB 2.0 API](https://hacks.mozilla.org/2016/10/whats-new-in-indexeddb-2-0/) (which technically still is a draft, but is probably not going to substantially change).
@@ -16,6 +15,10 @@ changelog
 
 FDBTransaction._scope to Set
 
+revisit setImmediate
+- *-exception-order race condition
+  - on some it's not even a race condition, like idbcursor ones seem to always fail, but idbobjectstore ones are intermittent
+
 README
 - IDB2 Features
 - describe different tests better
@@ -23,6 +26,8 @@ README
 binary search tree, or leave for later?
 
 .npmignore
+
+backwards compatible API?
 
 ---
 

@@ -1,6 +1,6 @@
 import structuredClone from "./structuredClone";
 import {Key, KeyPath, Value} from "./types";
-import validateKey from "./validateKey";
+import valueToKey from "./valueToKey";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-extracting-a-key-from-a-value-using-a-key-path
 const extractKey = (keyPath: KeyPath, value: Value) => {
@@ -13,7 +13,7 @@ const extractKey = (keyPath: KeyPath, value: Value) => {
             if (item !== undefined && item !== null && typeof item !== "string" && (item as any).toString) {
                 item = (item as any).toString();
             }
-            result.push(structuredClone(validateKey(extractKey(item, value))));
+            result.push(valueToKey(extractKey(item, value)));
         }
 
         return result;

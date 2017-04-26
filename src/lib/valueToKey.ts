@@ -1,15 +1,28 @@
 import {DataError} from "./errors";
 
-// http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-valid-key
-const validateKey = (key: any, seen?: Set<object>) => {
+// https://w3c.github.io/IndexedDB/#convert-a-value-to-a-key
+const valueToKey = (key: any, seen?: Set<object>) => {
     if (typeof key === "number") {
         if (isNaN(key)) {
             throw new DataError();
         }
+        return key;
     } else if (key instanceof Date) {
-        if (isNaN(key.valueOf())) {
+        const ms = key.valueOf();
+        if (isNaN(ms)) {
             throw new DataError();
         }
+        return new Date(ms);
+    } else if (typeof key === "string") {
+        return key;
+    } else if (
+        (key instanceof ArrayBuffer) ||
+        (typeof ArrayBuffer !== "undefined" && ArrayBuffer.isView && ArrayBuffer.isView(key))
+    ) {
+        if (key instanceof ArrayBuffer) {
+            return new Uint8Array(key).buffer;
+        }
+        return new Uint8Array(key.buffer).buffer;
     } else if (Array.isArray(key)) {
         seen = seen !== undefined ? seen : new Set();
         for (const x of key) {
@@ -23,17 +36,15 @@ const validateKey = (key: any, seen?: Set<object>) => {
         let count = 0;
         key = key.map((item) => {
             count += 1;
-            return validateKey(item, seen);
+            return valueToKey(item, seen);
         });
         if (count !== key.length) {
             throw new DataError();
         }
         return key;
-    } else if (typeof key !== "string") {
+    } else {
         throw new DataError();
     }
-
-    return key;
 };
 
-export default validateKey;
+export default valueToKey;

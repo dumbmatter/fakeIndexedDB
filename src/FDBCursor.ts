@@ -2,11 +2,11 @@ import FDBKeyRange from "./FDBKeyRange";
 import FDBObjectStore from "./FDBObjectStore";
 import FDBRequest from "./FDBRequest";
 import cmp from "./lib/cmp";
-import {DataError, InvalidStateError, ReadOnlyError, TransactionInactiveError} from "./lib/errors";
+import {DataError, InvalidAccessError, InvalidStateError, ReadOnlyError, TransactionInactiveError} from "./lib/errors";
 import extractKey from "./lib/extractKey";
 import structuredClone from "./lib/structuredClone";
 import {CursorRange, CursorSource, FDBCursorDirection, Key, Value} from "./lib/types";
-import validateKey from "./lib/validateKey";
+import valueToKey from "./lib/valueToKey";
 
 const getEffectiveObjectStore = (cursor: FDBCursor) => {
     if (cursor.source instanceof FDBObjectStore) {
@@ -63,6 +63,7 @@ class FDBCursor {
     private _range: CursorRange;
     private _position = undefined; // Key of previously returned record
     private _objectStorePosition = undefined;
+    private _keyOnly: boolean = false;
 
     private _source: CursorSource;
     private _direction: FDBCursorDirection;
@@ -74,11 +75,13 @@ class FDBCursor {
         range: CursorRange,
         direction: FDBCursorDirection = "next",
         request?: FDBRequest,
+        keyOnly: boolean = false,
     ) {
         this._range = range;
         this._source = source;
         this._direction = direction;
         this._request = request;
+        this._keyOnly = keyOnly;
     }
 
     // Read only properties
@@ -102,8 +105,8 @@ class FDBCursor {
     }
     set primaryKey(val) { /* For babel */ }
 
-    // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-iterating-a-cursor
-    public _iterate(key?: Key): this | null {
+    // https://w3c.github.io/IndexedDB/#iterate-a-cursor
+    public _iterate(key?: Key, primaryKey?: Key): this | null {
         const sourceIsObjectStore = this.source instanceof FDBObjectStore;
 
         let records;
@@ -117,22 +120,32 @@ class FDBCursor {
         if (this.direction === "next") {
             const range = makeKeyRange(this._range, [key, this._position], []);
             for (const record of records.values(range)) {
+                const cmpResultKey = key !== undefined ? cmp(record.key, key) : undefined;
+                const cmpResultPosition = this._position !== undefined ? cmp(record.key, this._position) : undefined;
                 if (key !== undefined) {
-                    if (cmp(record.key, key) === -1) {
+                    if (cmpResultKey === -1) {
+                        continue;
+                    }
+                }
+                if (primaryKey !== undefined) {
+                    if (cmpResultKey === -1) {
+                        continue;
+                    }
+                    const cmpResultPrimaryKey = cmp(record.value, primaryKey);
+                    if (cmpResultKey === 0 && cmpResultPrimaryKey === -1) {
                         continue;
                     }
                 }
                 if (this._position !== undefined && sourceIsObjectStore) {
-                    if (cmp(record.key, this._position) !== 1) {
+                    if (cmpResultPosition !== 1) {
                         continue;
                     }
                 }
                 if (this._position !== undefined && !sourceIsObjectStore) {
-                    const cmpResult = cmp(record.key, this._position);
-                    if (cmpResult === -1) {
+                    if (cmpResultPosition === -1) {
                         continue;
                     }
-                    if (cmpResult === 0 && cmp(record.value, this._objectStorePosition) !== 1) {
+                    if (cmpResultPosition === 0 && cmp(record.value, this._objectStorePosition) !== 1) {
                         continue;
                     }
                 }
@@ -171,22 +184,32 @@ class FDBCursor {
         } else if (this.direction === "prev") {
             const range = makeKeyRange(this._range, [], [key, this._position]);
             for (const record of records.values(range, "prev")) {
+                const cmpResultKey = key !== undefined ? cmp(record.key, key) : undefined;
+                const cmpResultPosition = this._position !== undefined ? cmp(record.key, this._position) : undefined;
                 if (key !== undefined) {
-                    if (cmp(record.key, key) === 1) {
+                    if (cmpResultKey === 1) {
+                        continue;
+                    }
+                }
+                if (primaryKey !== undefined) {
+                    if (cmpResultKey === 1) {
+                        continue;
+                    }
+                    const cmpResultPrimaryKey = cmp(record.value, primaryKey);
+                    if (cmpResultKey === 0 && cmpResultPrimaryKey === 1) {
                         continue;
                     }
                 }
                 if (this._position !== undefined && sourceIsObjectStore) {
-                    if (cmp(record.key, this._position) !== -1) {
+                    if (cmpResultPosition !== -1) {
                         continue;
                     }
                 }
                 if (this._position !== undefined && !sourceIsObjectStore) {
-                    const cmpResult = cmp(record.key, this._position);
-                    if (cmpResult === 1) {
+                    if (cmpResultPosition === 1) {
                         continue;
                     }
-                    if (cmpResult === 0 && cmp(record.value, this._objectStorePosition) !== -1) {
+                    if (cmpResultPosition === 0 && cmp(record.value, this._objectStorePosition) !== -1) {
                         continue;
                     }
                 }
@@ -233,7 +256,7 @@ class FDBCursor {
 
             // "this instanceof FDBCursorWithValue" would be better and not require (this as any), but causes runtime
             // error due to circular dependency.
-            if (this.constructor.name === "FDBCursorWithValue") {
+            if (!this._keyOnly && this.constructor.name === "FDBCursorWithValue") {
                 (this as any).value = undefined;
             }
             result = null;
@@ -243,12 +266,12 @@ class FDBCursor {
             this._key = foundRecord.key;
             if (sourceIsObjectStore) {
                 this._primaryKey = structuredClone(foundRecord.key);
-                if (this.constructor.name === "FDBCursorWithValue") {
+                if (!this._keyOnly && this.constructor.name === "FDBCursorWithValue") {
                     (this as any).value = structuredClone(foundRecord.value);
                 }
             } else {
                 this._primaryKey = structuredClone(foundRecord.value);
-                if (this.constructor.name === "FDBCursorWithValue") {
+                if (!this._keyOnly && this.constructor.name === "FDBCursorWithValue") {
                     if (this.source instanceof FDBObjectStore) { // Can't use sourceIsObjectStore because TypeScript
                         throw new Error("This should never happen");
                     }
@@ -271,15 +294,18 @@ class FDBCursor {
         const effectiveKey = this.source.hasOwnProperty("_rawIndex") ? this.primaryKey : this._position;
         const transaction = effectiveObjectStore.transaction;
 
-        if (transaction.mode === "readonly") {
-            throw new ReadOnlyError();
-        }
-
         if (!transaction._active) {
             throw new TransactionInactiveError();
         }
 
+        if (transaction.mode === "readonly") {
+            throw new ReadOnlyError();
+        }
+
         if (effectiveObjectStore._rawObjectStore.deleted) {
+            throw new InvalidStateError();
+        }
+        if (!(this.source instanceof FDBObjectStore) && this.source._rawIndex.deleted) {
             throw new InvalidStateError();
         }
 
@@ -329,6 +355,9 @@ class FDBCursor {
         if (effectiveObjectStore._rawObjectStore.deleted) {
             throw new InvalidStateError();
         }
+        if (!(this.source instanceof FDBObjectStore) && this.source._rawIndex.deleted) {
+            throw new InvalidStateError();
+        }
 
         if (!this._gotValue) {
             throw new InvalidStateError();
@@ -369,13 +398,16 @@ class FDBCursor {
         if (effectiveObjectStore._rawObjectStore.deleted) {
             throw new InvalidStateError();
         }
+        if (!(this.source instanceof FDBObjectStore) && this.source._rawIndex.deleted) {
+            throw new InvalidStateError();
+        }
 
         if (!this._gotValue) {
             throw new InvalidStateError();
         }
 
         if (key !== undefined) {
-            validateKey(key);
+            key = valueToKey(key);
 
             const cmpResult = cmp(key, this._position);
 
@@ -397,20 +429,76 @@ class FDBCursor {
         this._gotValue = false;
     }
 
-    public delete() {
+    // hthttps://w3c.github.io/IndexedDB/#dom-idbcursor-continueprimarykey
+    public continuePrimaryKey(key: Key, primaryKey: Key) {
         const effectiveObjectStore = getEffectiveObjectStore(this);
-        const effectiveKey = this.source.hasOwnProperty("_rawIndex") ? this.primaryKey : this._position;
         const transaction = effectiveObjectStore.transaction;
-
-        if (transaction.mode === "readonly") {
-            throw new ReadOnlyError();
-        }
 
         if (!transaction._active) {
             throw new TransactionInactiveError();
         }
 
         if (effectiveObjectStore._rawObjectStore.deleted) {
+            throw new InvalidStateError();
+        }
+        if (!(this.source instanceof FDBObjectStore) && this.source._rawIndex.deleted) {
+            throw new InvalidStateError();
+        }
+
+        if (this.source instanceof FDBObjectStore || (this.direction !== "next" && this.direction !== "prev")) {
+            throw new InvalidAccessError();
+        }
+
+        if (!this._gotValue) {
+            throw new InvalidStateError();
+        }
+
+        // Not sure about this
+        if (key === undefined || primaryKey === undefined) {
+            throw new DataError();
+        }
+
+        key = valueToKey(key);
+        const cmpResult = cmp(key, this._position);
+        if ((cmpResult === -1 && this.direction === "next") || (cmpResult === 1 && this.direction === "prev")) {
+            throw new DataError();
+        }
+        const cmpResult2 = cmp(primaryKey, this._objectStorePosition);
+        if (cmpResult === 0) {
+            if ((cmpResult2 <= 0 && this.direction === "next") || (cmpResult2 >= 0 && this.direction === "prev")) {
+                throw new DataError();
+            }
+        }
+
+        if (this._request) {
+            this._request.readyState = "pending";
+        }
+        transaction._execRequestAsync({
+            operation: this._iterate.bind(this, key, primaryKey),
+            request: this._request,
+            source: this.source,
+        });
+
+        this._gotValue = false;
+    }
+
+    public delete() {
+        const effectiveObjectStore = getEffectiveObjectStore(this);
+        const effectiveKey = this.source.hasOwnProperty("_rawIndex") ? this.primaryKey : this._position;
+        const transaction = effectiveObjectStore.transaction;
+
+        if (!transaction._active) {
+            throw new TransactionInactiveError();
+        }
+
+        if (transaction.mode === "readonly") {
+            throw new ReadOnlyError();
+        }
+
+        if (effectiveObjectStore._rawObjectStore.deleted) {
+            throw new InvalidStateError();
+        }
+        if (!(this.source instanceof FDBObjectStore) && this.source._rawIndex.deleted) {
             throw new InvalidStateError();
         }
 

@@ -1,5 +1,5 @@
 import {DataError} from "./errors";
-import validateKey from "./validateKey";
+import valueToKey from "./valueToKey";
 
 const getType = (x: any) => {
     if (typeof x === "number") {
@@ -14,22 +14,28 @@ const getType = (x: any) => {
     if (typeof x === "string") {
         return "String";
     }
+    if (x instanceof ArrayBuffer) {
+        return "Binary";
+    }
 
     throw new DataError();
 };
 
-// http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBFactory-cmp-short-any-first-any-second
+// https://w3c.github.io/IndexedDB/#compare-two-keys
 const cmp = (first: any, second: any): -1 | 0 | 1 => {
     if (second === undefined) { throw new TypeError(); }
 
-    validateKey(first);
-    validateKey(second);
+    first = valueToKey(first);
+    second = valueToKey(second);
 
     const t1 = getType(first);
     const t2 = getType(second);
 
     if (t1 !== t2) {
         if (t1 === "Array") {
+            return 1;
+        }
+        if (t1 === "Binary" && (t2 === "String" || t2 === "Date" || t2 === "Number")) {
             return 1;
         }
         if (t1 === "String" && (t2 === "Date" || t2 === "Number")) {
@@ -41,7 +47,12 @@ const cmp = (first: any, second: any): -1 | 0 | 1 => {
         return -1;
     }
 
-    if (t1 === "Array") {
+    if (t1 === "Binary") {
+        first = new Uint8Array(first);
+        second = new Uint8Array(second);
+    }
+
+    if (t1 === "Array" || t1 === "Binary") {
         const length = Math.min(first.length, second.length);
         for (let i = 0; i < length; i++) {
             const result = cmp(first[i], second[i]);
@@ -69,6 +80,7 @@ const cmp = (first: any, second: any): -1 | 0 | 1 => {
             return 0;
         }
     }
+
     return first > second ? 1 : -1;
 };
 

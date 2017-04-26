@@ -6,7 +6,7 @@ import ObjectStore from "./ObjectStore";
 import RecordStore from "./RecordStore";
 import structuredClone from "./structuredClone";
 import {Key, KeyPath, Record} from "./types";
-import validateKey from "./validateKey";
+import valueToKey from "./valueToKey";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-index
 class Index {
@@ -94,7 +94,7 @@ class Index {
 
         if (!this.multiEntry || !Array.isArray(indexKey)) {
             try {
-                validateKey(indexKey);
+                valueToKey(indexKey);
             } catch (e) {
                 return;
             }
@@ -105,8 +105,7 @@ class Index {
             for (const part of indexKey) {
                 if (keep.indexOf(part) < 0) {
                     try {
-                        validateKey(part);
-                        keep.push(part);
+                        keep.push(valueToKey(part));
                     } catch (err) { /* Do nothing */ }
                 }
             }
