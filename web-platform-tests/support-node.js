@@ -20,6 +20,11 @@ const assert_array_equals = (...args) => assert.deepEqual(...args);
 
 const assert_equals = (...args) => assert.equal(...args);
 
+const assert_class_string = (object, class_string, description) => {
+    assert_equals({}.toString.call(object), "[object " + class_string + "]",
+                    description);
+};
+
 const assert_false = (val, message) => assert.ok(!val, message);
 
 const assert_key_equals = (actual, expected, description) => {
@@ -412,6 +417,7 @@ const step_timeout = (fn, timeout, ...args) => {
 const addToGlobal = {
     add_completion_callback,
     assert_array_equals,
+    assert_class_string,
     assert_equals,
     assert_false,
     assert_key_equals,
