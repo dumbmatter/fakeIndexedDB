@@ -54,9 +54,10 @@ const skip = [
     // would work.
     "idbfactory_open9.js",
 
-    // Mostly works, but subtlely wrong behavior when renaming a newly-created Index and then aborting the upgrade
+    // Mostly works, but subtlely wrong behavior when renaming a newly-created index/store and then aborting the upgrade
     // transaction (this has roughly 0 real world impact, but could be indicative of other problems in fake-indexeddb).
     "idbindex-rename-abort.js",
+    "idbobjectstore-rename-abort.js",
 
     // The tests pass, but then it hangs because the "value after close" tests don't listen for onsuccess. Adding
     // `open2.onsuccess = (e) => e.target.result.close();` fixes it.

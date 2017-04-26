@@ -76,20 +76,78 @@ class FDBObjectStore {
     public _rawObjectStore: ObjectStore;
     public _indexesCache: Map<string, FDBIndex> = new Map();
 
-    public name: string;
     public keyPath: KeyPath | null;
     public autoIncrement: boolean;
     public transaction: FDBTransaction;
     public indexNames: FakeDOMStringList;
 
+    private _name: string;
+
     constructor(transaction: FDBTransaction, rawObjectStore: ObjectStore) {
         this._rawObjectStore = rawObjectStore;
 
-        this.name = rawObjectStore.name;
+        this._name = rawObjectStore.name;
         this.keyPath = rawObjectStore.keyPath;
         this.autoIncrement = rawObjectStore.autoIncrement;
         this.transaction = transaction;
         this.indexNames = fakeDOMStringList(Array.from(rawObjectStore.rawIndexes.keys())).sort();
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    // http://w3c.github.io/IndexedDB/#dom-idbobjectstore-name
+    set name(name: any) {
+        const transaction = this.transaction;
+
+        if (!transaction.db._runningVersionchangeTransaction) {
+            throw new InvalidStateError();
+        }
+
+        confirmActiveTransaction(this);
+
+        name = String(name);
+
+        if (name === this._name) {
+            return;
+        }
+
+        if (this._rawObjectStore.rawDatabase.rawObjectStores.has(name)) {
+            throw new ConstraintError();
+        }
+
+        const oldName = this._name;
+        const oldObjectStoreNames = transaction.db.objectStoreNames.slice();
+
+        this._name = name;
+        this._rawObjectStore.name = name;
+        this._rawObjectStore.rawDatabase.rawObjectStores.delete(oldName);
+        this._rawObjectStore.rawDatabase.rawObjectStores.set(name, this._rawObjectStore);
+        transaction.db.objectStoreNames = fakeDOMStringList(
+            Array.from(this._rawObjectStore.rawDatabase.rawObjectStores.keys())
+                .filter((objectStoreName) => {
+                    const objectStore = this._rawObjectStore.rawDatabase.rawObjectStores.get(objectStoreName);
+                    return objectStore && !objectStore.deleted;
+                }),
+        ).sort();
+
+        const oldScope = transaction._scope.slice();
+        const oldTransactionObjectStoreNames = transaction.objectStoreNames.slice();
+        transaction._scope = this.transaction._scope.filter((name2) => name2 !== oldName);
+        transaction._scope.push(name);
+        transaction.objectStoreNames = fakeDOMStringList(Array.from(new Set(transaction._scope)).sort());
+
+        transaction._rollbackLog.push(() => {
+            this._name = oldName;
+            this._rawObjectStore.name = oldName;
+            this._rawObjectStore.rawDatabase.rawObjectStores.delete(name);
+            this._rawObjectStore.rawDatabase.rawObjectStores.set(oldName, this._rawObjectStore);
+            transaction.db.objectStoreNames = fakeDOMStringList(oldObjectStoreNames);
+
+            transaction._scope = oldScope;
+            transaction.objectStoreNames = fakeDOMStringList(oldTransactionObjectStoreNames);
+        });
     }
 
     public put(value: Value, key?: Key) {
