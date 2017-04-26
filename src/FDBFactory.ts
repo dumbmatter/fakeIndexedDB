@@ -4,6 +4,7 @@ import FDBOpenDBRequest from "./FDBOpenDBRequest";
 import FDBVersionChangeEvent from "./FDBVersionChangeEvent";
 import cmp from "./lib/cmp";
 import Database from "./lib/Database";
+import enforceRange from "./lib/enforceRange";
 import {AbortError, VersionError} from "./lib/errors";
 import FakeEvent from "./lib/FakeEvent";
 
@@ -257,10 +258,12 @@ class FDBFactory {
     // tslint:disable-next-line max-line-length
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBFactory-open-IDBOpenDBRequest-DOMString-name-unsigned-long-long-version
     public open(name: string, version?: number) {
-        if (arguments.length > 1 && (
-            version === undefined ||
-            (isNaN(version) || version < 1 || version >= 9007199254740992)
-        )) {
+        if (arguments.length > 1 && version !== undefined) {
+            // Based on spec, not sure why "MAX_SAFE_INTEGER" instead of "unsigned long long", but it's needed to pass
+            // tests
+            version = enforceRange(version, "MAX_SAFE_INTEGER");
+        }
+        if (version === 0) {
             throw new TypeError();
         }
 

@@ -3,6 +3,7 @@ import FDBCursorWithValue from "./FDBCursorWithValue";
 import FDBKeyRange from "./FDBKeyRange";
 import FDBObjectStore from "./FDBObjectStore";
 import FDBRequest from "./FDBRequest";
+import enforceRange from "./lib/enforceRange";
 import {InvalidStateError, TransactionInactiveError} from "./lib/errors";
 import Index from "./lib/Index";
 import structuredClone from "./lib/structuredClone";
@@ -100,6 +101,9 @@ class FDBIndex {
 
     // http://w3c.github.io/IndexedDB/#dom-idbindex-getall
     public getAll(query?: FDBKeyRange | Key, count?: number) {
+        if (arguments.length > 1 && count !== undefined) {
+            count = enforceRange(count, "unsigned long");
+        }
         confirmActiveTransaction(this);
 
         const range = valueToKeyRange(query);
@@ -126,6 +130,9 @@ class FDBIndex {
 
     // http://w3c.github.io/IndexedDB/#dom-idbindex-getallkeys
     public getAllKeys(query?: FDBKeyRange | Key, count?: number) {
+        if (arguments.length > 1 && count !== undefined) {
+            count = enforceRange(count, "unsigned long");
+        }
         confirmActiveTransaction(this);
 
         const range = valueToKeyRange(query);

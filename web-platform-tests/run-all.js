@@ -9,6 +9,10 @@ let failed = 0;
 let skipped = 0;
 
 const skip = [
+    // Hangs because `dbname` is the same for all the async tests. If `dbname` was different for each async test, it
+    // would work.
+    "idbfactory_open9.js",
+
     // The tests pass, but then it hangs because the "value after close" tests don't listen for onsuccess. Adding
     // `open2.onsuccess = (e) => e.target.result.close();` fixes it.
     "idbtransaction_objectStoreNames.js",

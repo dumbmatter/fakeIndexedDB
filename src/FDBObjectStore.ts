@@ -4,6 +4,7 @@ import FDBIndex from "./FDBIndex";
 import FDBKeyRange from "./FDBKeyRange";
 import FDBRequest from "./FDBRequest";
 import FDBTransaction from "./FDBTransaction";
+import enforceRange from "./lib/enforceRange";
 import {
     ConstraintError,
     DataError,
@@ -155,6 +156,9 @@ class FDBObjectStore {
 
     // http://w3c.github.io/IndexedDB/#dom-idbobjectstore-getall
     public getAll(query?: FDBKeyRange | Key, count?: number) {
+        if (arguments.length > 1 && count !== undefined) {
+            count = enforceRange(count, "unsigned long");
+        }
         confirmActiveTransaction(this);
 
         const range = valueToKeyRange(query);
@@ -182,6 +186,9 @@ class FDBObjectStore {
 
     // http://w3c.github.io/IndexedDB/#dom-idbobjectstore-getallkeys
     public getAllKeys(query?: FDBKeyRange | Key, count?: number) {
+        if (arguments.length > 1 && count !== undefined) {
+            count = enforceRange(count, "unsigned long");
+        }
         confirmActiveTransaction(this);
 
         const range = valueToKeyRange(query);

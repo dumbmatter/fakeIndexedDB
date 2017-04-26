@@ -169,12 +169,11 @@ describe('W3C IDBFactory.open Tests', function () {
         should_throw(0)
         should_throw(0.5)
         should_throw(0.8)
-        should_throw(0x20000000000000)
+        should_throw(0x20000000000000)  // Number.MAX_SAFE_INTEGER + 1
         should_throw(NaN)
         should_throw(Infinity)
         should_throw(-Infinity)
         should_throw("foo")
-        should_throw(undefined)
         should_throw(null)
         should_throw(false)
 
