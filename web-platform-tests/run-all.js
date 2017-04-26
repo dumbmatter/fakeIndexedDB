@@ -20,6 +20,12 @@ const skip = [
     // should.
     "event-dispatch-active-flag.js",
 
+    // No Web Worker in Node.js
+    "idb-binary-key-detached.js",
+
+    // No Web Worker in Node.js
+    "idb_webworkers.js",
+
     // Hangs because `dbname` is the same for all the async tests. If `dbname` was different for each async test, it
     // would work.
     "idbfactory_open9.js",
@@ -40,7 +46,10 @@ for (const filename of filenames) {
     console.log(`Running ${filename}...`);
     try {
         const output = execSync(`node ${path.join(testFolder, filename)}`, {cwd: testFolder});
-        console.log(output.toString());
+        if (output.toString().length > 0) {
+            console.log(output.toString());
+        }
+        console.log("Success!\n");
         passed += 1;
     } catch (err) {
         console.log("");

@@ -75,7 +75,6 @@ class AsyncTest {
     done() {
         if (!this.completed) {
             this.complete();
-            console.log("Success!");
         } else {
             throw new Error("AsyncTest.done() called multiple times");
         }
@@ -138,7 +137,6 @@ const async_test = (cb) => {
 
 const test = (cb) => {
     cb();
-    console.log('Success!');
 };
 
 function createdb(test, dbname, version)
