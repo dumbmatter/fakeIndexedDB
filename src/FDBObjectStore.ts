@@ -74,14 +74,13 @@ const buildRecordAddPut = (objectStore: FDBObjectStore, value: Value, key: Key) 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#object-store
 class FDBObjectStore {
     public _rawObjectStore: ObjectStore;
+    public _indexesCache: Map<string, FDBIndex> = new Map();
 
     public name: string;
     public keyPath: KeyPath | null;
     public autoIncrement: boolean;
     public transaction: FDBTransaction;
     public indexNames: FakeDOMStringList;
-
-    private _rawIndexesCache: Map<string, FDBIndex> = new Map();
 
     constructor(transaction: FDBTransaction, rawObjectStore: ObjectStore) {
         this._rawObjectStore = rawObjectStore;
@@ -319,7 +318,7 @@ class FDBObjectStore {
             throw new InvalidStateError();
         }
 
-        const rawIndex = this._rawIndexesCache.get(name);
+        const rawIndex = this._indexesCache.get(name);
         if (rawIndex !== undefined) {
             return rawIndex;
         }
@@ -330,7 +329,7 @@ class FDBObjectStore {
         }
 
         const index = new FDBIndex(this, rawIndex2);
-        this._rawIndexesCache.set(name, index);
+        this._indexesCache.set(name, index);
 
         return index;
     }
@@ -363,7 +362,13 @@ class FDBObjectStore {
 
         this.transaction._execRequestAsync({
             operation: () => {
-                this._rawObjectStore.rawIndexes.delete(name);
+                const rawIndex2 = this._rawObjectStore.rawIndexes.get(name);
+
+                // Hack in case another index is given this name before this async request is processed. It'd be better
+                // to have a real unique ID for each index.
+                if (rawIndex === rawIndex2) {
+                    this._rawObjectStore.rawIndexes.delete(name);
+                }
             },
             source: this,
         });

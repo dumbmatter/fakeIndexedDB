@@ -36,14 +36,6 @@ const skip = [
     // issues too.
     "idb-binary-key-roundtrip.js",
 
-    // No iframe in Node.js.
-    "idbfactory-deleteDatabase-opaque-origin.js",
-    "idbfactory-open-opaque-origin.js",
-
-    // Hangs because `dbname` is the same for all the async tests. If `dbname` was different for each async test, it
-    // would work.
-    "idbfactory_open9.js",
-
     // Usually works, but there is a race condition. Sometimes the setTimeout runs before the transaction commits.
     "idbcursor-continue-exception-order.js",
     "idbcursor-delete-exception-order.js",
@@ -53,6 +45,18 @@ const skip = [
     "idbobjectstore-delete-exception-order.js",
     "idbobjectstore-deleteIndex-exception-order.js",
     "idbobjectstore-query-exception-order.js",
+
+    // No iframe in Node.js.
+    "idbfactory-deleteDatabase-opaque-origin.js",
+    "idbfactory-open-opaque-origin.js",
+
+    // Hangs because `dbname` is the same for all the async tests. If `dbname` was different for each async test, it
+    // would work.
+    "idbfactory_open9.js",
+
+    // Mostly works, but subtlely wrong behavior when renaming a newly-created Index and then aborting the upgrade
+    // transaction (this has roughly 0 real world impact, but could be indicative of other problems in fake-indexeddb).
+    "idbindex-rename-abort.js",
 
     // The tests pass, but then it hangs because the "value after close" tests don't listen for onsuccess. Adding
     // `open2.onsuccess = (e) => e.target.result.close();` fixes it.

@@ -27,6 +27,10 @@ binary search tree, or leave for later?
 
 .npmignore
 
+purpose of _rawIndexesCache - same as just _rawObjectStore.rawIndexes?
+
+generic functions to update indexNames and objectStoreNames
+
 backwards compatible API?
 
 ---

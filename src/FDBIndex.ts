@@ -4,7 +4,8 @@ import FDBKeyRange from "./FDBKeyRange";
 import FDBObjectStore from "./FDBObjectStore";
 import FDBRequest from "./FDBRequest";
 import enforceRange from "./lib/enforceRange";
-import {InvalidStateError, TransactionInactiveError} from "./lib/errors";
+import {ConstraintError, InvalidStateError, TransactionInactiveError} from "./lib/errors";
+import fakeDOMStringList from "./lib/fakeDOMStringList";
 import Index from "./lib/Index";
 import {FDBCursorDirection, Key, KeyPath} from "./lib/types";
 import valueToKey from "./lib/valueToKey";
@@ -23,20 +24,79 @@ const confirmActiveTransaction = (index: FDBIndex) => {
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#idl-def-IDBIndex
 class FDBIndex {
     public _rawIndex: Index;
-    public name: string;
     public objectStore: FDBObjectStore;
     public keyPath: KeyPath;
     public multiEntry: boolean;
     public unique: boolean;
 
+    private _name: string;
+
     constructor(objectStore: FDBObjectStore, rawIndex: Index) {
         this._rawIndex = rawIndex;
 
-        this.name = rawIndex.name;
+        this._name = rawIndex.name;
         this.objectStore = objectStore;
         this.keyPath = rawIndex.keyPath;
         this.multiEntry = rawIndex.multiEntry;
         this.unique = rawIndex.unique;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    // https://w3c.github.io/IndexedDB/#dom-idbindex-name
+    set name(name: any) {
+        const transaction = this.objectStore.transaction;
+
+        if (!transaction.db._runningVersionchangeTransaction) {
+            throw new InvalidStateError();
+        }
+
+        if (!transaction._active) {
+            throw new TransactionInactiveError();
+        }
+
+        if (this._rawIndex.deleted || this.objectStore._rawObjectStore.deleted) {
+            throw new InvalidStateError();
+        }
+
+        name = String(name);
+
+        if (name === this._name) {
+            return;
+        }
+
+        if (this.objectStore.indexNames.indexOf(name) >= 0) {
+            throw new ConstraintError();
+        }
+
+        const oldName = this._name;
+        const oldIndexNames = this.objectStore.indexNames.slice();
+
+        this._name = name;
+        this._rawIndex.name = name;
+        this.objectStore._indexesCache.delete(oldName);
+        this.objectStore._indexesCache.set(name, this);
+        this.objectStore._rawObjectStore.rawIndexes.delete(oldName);
+        this.objectStore._rawObjectStore.rawIndexes.set(name, this._rawIndex);
+        this.objectStore.indexNames = fakeDOMStringList(
+            Array.from(this.objectStore._rawObjectStore.rawIndexes.keys())
+                .filter((indexName) => {
+                    const index = this.objectStore._rawObjectStore.rawIndexes.get(indexName);
+                    return index && !index.deleted;
+                }),
+        ).sort();
+
+        transaction._rollbackLog.push(() => {
+            this._name = oldName;
+            this._rawIndex.name = oldName;
+            this.objectStore._indexesCache.delete(name);
+            this.objectStore._indexesCache.set(oldName, this);
+            this.objectStore._rawObjectStore.rawIndexes.delete(name);
+            this.objectStore._rawObjectStore.rawIndexes.set(oldName, this._rawIndex);
+            this.objectStore.indexNames = fakeDOMStringList(oldIndexNames);
+        });
     }
 
     // tslint:disable-next-line max-line-length
