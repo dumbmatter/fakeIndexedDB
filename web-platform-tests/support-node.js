@@ -137,6 +137,7 @@ const async_test = (cb) => {
 
 const test = (cb) => {
     cb();
+    console.log('Success!');
 };
 
 function createdb(test, dbname, version)
