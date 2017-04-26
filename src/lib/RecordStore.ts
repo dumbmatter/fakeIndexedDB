@@ -95,14 +95,22 @@ class RecordStore {
                 if (direction === "next") {
                     i = 0;
                     if (range !== undefined && range.lower !== undefined) {
-                        while (this.records[i] !== undefined && cmp(this.records[i].key, range.lower) === -1) {
+                        while (this.records[i] !== undefined) {
+                            const cmpResult = cmp(this.records[i].key, range.lower);
+                            if (cmpResult === 1 || (cmpResult === 0 && !range.lowerOpen)) {
+                                break;
+                            }
                             i += 1;
                         }
                     }
                 } else {
                     i = this.records.length - 1;
                     if (range !== undefined && range.upper !== undefined) {
-                        while (this.records[i] !== undefined && cmp(this.records[i].key, range.upper) === 1) {
+                        while (this.records[i] !== undefined) {
+                            const cmpResult = cmp(this.records[i].key, range.upper);
+                            if (cmpResult === -1 || (cmpResult === 0 && !range.upperOpen)) {
+                                break;
+                            }
                             i -= 1;
                         }
                     }
@@ -118,7 +126,8 @@ class RecordStore {
                             i += 1;
 
                             if (!done && range !== undefined && range.upper !== undefined) {
-                                done = cmp(value.key, range.upper) === 1;
+                                const cmpResult = cmp(value.key, range.upper);
+                                done = cmpResult === 1 || (cmpResult === 0 && range.upperOpen);
                                 if (done) {
                                     value = undefined;
                                 }
@@ -129,7 +138,8 @@ class RecordStore {
                             i -= 1;
 
                             if (!done && range !== undefined && range.lower !== undefined) {
-                                done = cmp(value.key, range.lower) === -1;
+                                const cmpResult = cmp(value.key, range.lower);
+                                done = cmpResult === -1 || (cmpResult === 0 && range.lowerOpen);
                                 if (done) {
                                     value = undefined;
                                 }
