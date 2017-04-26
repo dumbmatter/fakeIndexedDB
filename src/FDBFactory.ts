@@ -131,6 +131,7 @@ const runVersionchangeTransaction = (
 // Get rid of this setImmediate?
         const transaction = connection.transaction(connection.objectStoreNames, "versionchange");
         request.result = connection;
+        request.readyState = "done";
         request.transaction = transaction;
 
         transaction._rollbackLog.push(() => {
@@ -143,8 +144,6 @@ const runVersionchangeTransaction = (
             oldVersion,
         });
         request.dispatchEvent(event);
-
-        request.readyState = "done";
 
         transaction.addEventListener("error", () => {
             connection._runningVersionchangeTransaction = false;
@@ -231,6 +230,7 @@ class FDBFactory {
                 if (err) {
                     request.error = new Error();
                     request.error.name = err.name;
+                    request.readyState = "done";
 
                     const event = new FakeEvent("error", {
                         bubbles: true,
@@ -243,6 +243,7 @@ class FDBFactory {
                 }
 
                 request.result = undefined;
+                request.readyState = "done";
 
                 const event = new FDBVersionChangeEvent("success", {
                     newVersion: null,
@@ -274,6 +275,7 @@ class FDBFactory {
             openDatabase(this._databases, name, version, request, (err, connection) => {
                 if (err) {
                     request.result = undefined;
+                    request.readyState = "done";
 
                     request.error = new Error();
                     request.error.name = err.name;
@@ -289,6 +291,7 @@ class FDBFactory {
                 }
 
                 request.result = connection;
+                request.readyState = "done";
 
                 const event = new FakeEvent("success");
                 event.eventPath = [];
