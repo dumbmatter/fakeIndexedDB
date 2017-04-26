@@ -45,7 +45,7 @@ class Index {
 
         const records = [];
         for (const record of this.records.values(range)) {
-            records.push(structuredClone(record.key));
+            records.push(structuredClone(record.value));
             if (records.length >= count) {
                 break;
             }
@@ -69,7 +69,7 @@ class Index {
 
         const records = [];
         for (const record of this.records.values(range)) {
-            records.push(structuredClone(record.value));
+            records.push(this.rawObjectStore.getValue(record.value));
             if (records.length >= count) {
                 break;
             }

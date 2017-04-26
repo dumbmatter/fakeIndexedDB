@@ -2,11 +2,6 @@
 
 Run on real W3C tests
 - folder structure?
-- add README
-- assert_unreached
-
-valueToKey
-- not quite to spec for dates
 
 changelog
 - Fully implements the [IndexedDB 2.0 API](https://hacks.mozilla.org/2016/10/whats-new-in-indexeddb-2-0/) (which technically still is a draft, but is probably not going to substantially change).
