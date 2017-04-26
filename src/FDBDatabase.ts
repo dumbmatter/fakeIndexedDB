@@ -73,13 +73,13 @@ class FDBDatabase extends FakeEventTarget {
     // http://w3c.github.io/IndexedDB/#dom-idbdatabase-createobjectstore
     public createObjectStore(
         name: string,
-        optionalParameters: {autoIncrement?: boolean, keyPath?: KeyPath} = {},
+        options: {autoIncrement?: boolean, keyPath?: KeyPath} | null = {},
     ) {
         if (name === undefined) { throw new TypeError(); }
         const transaction = confirmActiveVersionchangeTransaction(this);
 
-        const keyPath = optionalParameters.keyPath !== undefined ? optionalParameters.keyPath : null;
-        const autoIncrement = optionalParameters.autoIncrement !== undefined ? optionalParameters.autoIncrement : false;
+        const keyPath = options !== null && options.keyPath !== undefined ? options.keyPath : null;
+        const autoIncrement = options !== null && options.autoIncrement !== undefined ? options.autoIncrement : false;
 
         if (keyPath !== null) {
             validateKeyPath(keyPath);
