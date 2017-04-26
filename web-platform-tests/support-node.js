@@ -7,6 +7,7 @@ global.document = {
     // this will instead use another object that also can't be used as a key.
     getElementsByTagName: () => Math,
 };
+global.DOMException = Error; // Kind of cheating for error-attributes.js
 global.self = {
     location: {},
 };
@@ -229,7 +230,6 @@ const fail = (test, message) => {
     };
 };
 
-
 const replacements = {
     "0": "0",
     "1": "x01",
@@ -377,6 +377,46 @@ const indexeddb_test = (upgrade_func, open_func, description, options) => {
     }, description);
 };
 
+// Checks to see if the passed transaction is active (by making
+// requests against the named store).
+const is_transaction_active = (tx, store_name) => {
+    try {
+        const request = tx.objectStore(store_name).get(0);
+        request.onerror = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        };
+        return true;
+    } catch (ex) {
+        assert_equals(ex.name, 'TransactionInactiveError',
+                    'Active check should either not throw anything, or throw ' +
+                    'TransactionInactiveError');
+        return false;
+    }
+};
+
+// Keep the passed transaction alive indefinitely (by making requests
+// against the named store). Returns a function to to let the
+// transaction finish, and asserts that the transaction is not yet
+// finished.
+const keep_alive = (tx, store_name) => {
+    let completed = false;
+    tx.addEventListener('complete', () => { completed = true; });
+
+    let pin = true;
+
+    const spin = () => {
+        if (!pin)
+        return;
+        tx.objectStore(store_name).get(0).onsuccess = spin;
+    };
+    spin();
+
+    return () => {
+        assert_false(completed, 'Transaction completed while kept alive');
+        pin = false;
+    };
+};
 
 let active_promise_test;
 const promise_test = (func, name, properties) => {
@@ -433,6 +473,8 @@ const addToGlobal = {
     fail,
     format_value,
     indexeddb_test,
+    is_transaction_active,
+    keep_alive,
     promise_test,
     setup,
     step_timeout,

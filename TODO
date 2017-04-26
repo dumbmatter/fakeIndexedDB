@@ -15,8 +15,9 @@ changelog
 
 FDBTransaction._scope to Set
 
-IDB2 Features
-- README
+README
+- IDB2 Features
+- describe different tests better
 
 binary search tree, or leave for later?
 
