@@ -21,6 +21,7 @@ import structuredClone from "./lib/structuredClone";
 import {FakeDOMStringList, FDBCursorDirection, Key, KeyPath, Value} from "./lib/types";
 import validateKey from "./lib/validateKey";
 import validateKeyPath from "./lib/validateKeyPath";
+import valueToKeyRange from "./lib/valueToKeyRange";
 
 const confirmActiveTransaction = (objectStore: FDBObjectStore) => {
     if (objectStore._rawObjectStore.deleted) {
@@ -138,7 +139,7 @@ class FDBObjectStore {
         });
     }
 
-    public get(key?: Key) {
+    public get(key?: FDBKeyRange | Key) {
         if (arguments.length === 0) { throw new TypeError(); }
         confirmActiveTransaction(this);
 
@@ -152,8 +153,20 @@ class FDBObjectStore {
         });
     }
 
+    // http://w3c.github.io/IndexedDB/#dom-idbobjectstore-getall
+    public getAll(query?: FDBKeyRange | Key, count?: number) {
+        confirmActiveTransaction(this);
+
+        const range = valueToKeyRange(query);
+
+        return this.transaction._execRequestAsync({
+            operation: this._rawObjectStore.getAllValues.bind(this._rawObjectStore, range, count),
+            source: this,
+        });
+    }
+
     // http://w3c.github.io/IndexedDB/#dom-idbobjectstore-getkey
-    public getKey(key?: Key) {
+    public getKey(key?: FDBKeyRange | Key) {
         if (arguments.length === 0) { throw new TypeError(); }
         confirmActiveTransaction(this);
 

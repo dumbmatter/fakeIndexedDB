@@ -30,14 +30,31 @@ class ObjectStore {
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-retrieving-a-value-from-an-object-store
-    public getValue(key: Key | FDBKeyRange) {
+    public getValue(key: FDBKeyRange | Key) {
         const record = this.records.get(key);
 
         return record !== undefined ? structuredClone(record.value) : undefined;
     }
 
+    // http://w3c.github.io/IndexedDB/#retrieve-multiple-values-from-an-object-store
+    public getAllValues(range: FDBKeyRange, count?: number) {
+        if (count === undefined || count === 0) {
+            count = Infinity;
+        }
+
+        const records = [];
+        for (const record of this.records.values(range)) {
+            records.push(structuredClone(record.value));
+            if (records.length >= count) {
+                break;
+            }
+        }
+
+        return records;
+    }
+
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-retrieving-a-value-from-an-object-store
-    public getKey(key: Key | FDBKeyRange) {
+    public getKey(key: FDBKeyRange | Key) {
         const record = this.records.get(key);
 
         return record !== undefined ? structuredClone(record.key) : undefined;

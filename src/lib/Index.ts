@@ -1,8 +1,10 @@
+import FDBKeyRange from "../FDBKeyRange";
 import FDBTransaction from "../FDBTransaction";
 import {ConstraintError} from "./errors";
 import extractKey from "./extractKey";
 import ObjectStore from "./ObjectStore";
 import RecordStore from "./RecordStore";
+import structuredClone from "./structuredClone";
 import {Key, KeyPath, Record} from "./types";
 import validateKey from "./validateKey";
 
@@ -29,14 +31,31 @@ class Index {
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-retrieving-a-value-from-an-index
-    public getKey(key: Key) {
+    public getKey(key: FDBKeyRange | Key) {
         const record = this.records.get(key);
 
         return record !== undefined ? record.value : undefined;
     }
 
+    // http://w3c.github.io/IndexedDB/#retrieve-multiple-referenced-values-from-an-index
+    public getAllValues(range: FDBKeyRange, count?: number) {
+        if (count === undefined || count === 0) {
+            count = Infinity;
+        }
+
+        const records = [];
+        for (const record of this.records.values(range)) {
+            records.push(structuredClone(record.value));
+            if (records.length >= count) {
+                break;
+            }
+        }
+
+        return records;
+    }
+
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#index-referenced-value-retrieval-operation
-    public getValue(key: Key) {
+    public getValue(key: FDBKeyRange | Key) {
         const record = this.records.get(key);
 
         return record !== undefined ? this.rawObjectStore.getValue(record.value) : undefined;

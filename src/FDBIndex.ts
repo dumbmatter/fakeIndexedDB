@@ -8,6 +8,7 @@ import Index from "./lib/Index";
 import structuredClone from "./lib/structuredClone";
 import {FDBCursorDirection, Key, KeyPath} from "./lib/types";
 import validateKey from "./lib/validateKey";
+import valueToKeyRange from "./lib/valueToKeyRange";
 
 const confirmActiveTransaction = (index: FDBIndex) => {
     if (index._rawIndex.deleted || index.objectStore._rawObjectStore.deleted) {
@@ -93,6 +94,18 @@ class FDBIndex {
 
         return this.objectStore.transaction._execRequestAsync({
             operation: this._rawIndex.getValue.bind(this._rawIndex, key),
+            source: this,
+        });
+    }
+
+    // http://w3c.github.io/IndexedDB/#dom-idbindex-getall
+    public getAll(query?: FDBKeyRange | Key, count?: number) {
+        confirmActiveTransaction(this);
+
+        const range = valueToKeyRange(query);
+
+        return this.objectStore.transaction._execRequestAsync({
+            operation: this._rawIndex.getAllValues.bind(this._rawIndex, range, count),
             source: this,
         });
     }
