@@ -1,8 +1,5 @@
 # v2 stuff:
 
-node 4
-- some web-platform tests won't run in node 4, and typescript doesn't like some of the files. just don't run these tests in node 4, then?
-
 changelog
 - Fully implements the [IndexedDB 2.0 API](https://hacks.mozilla.org/2016/10/whats-new-in-indexeddb-2-0/) (which technically still is a draft, but is probably not going to substantially change).
 - Ported to TypeScript, which hopefully means less bugs.
