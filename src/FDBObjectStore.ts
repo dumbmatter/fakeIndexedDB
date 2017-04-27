@@ -122,6 +122,8 @@ class FDBObjectStore {
 
         this._name = name;
         this._rawObjectStore.name = name;
+        this.transaction._objectStoresCache.delete(oldName);
+        this.transaction._objectStoresCache.set(name, this);
         this._rawObjectStore.rawDatabase.rawObjectStores.delete(oldName);
         this._rawObjectStore.rawDatabase.rawObjectStores.set(name, this._rawObjectStore);
         transaction.db.objectStoreNames = fakeDOMStringList(
@@ -141,6 +143,8 @@ class FDBObjectStore {
         transaction._rollbackLog.push(() => {
             this._name = oldName;
             this._rawObjectStore.name = oldName;
+            this.transaction._objectStoresCache.delete(name);
+            this.transaction._objectStoresCache.set(oldName, this);
             this._rawObjectStore.rawDatabase.rawObjectStores.delete(name);
             this._rawObjectStore.rawDatabase.rawObjectStores.set(oldName, this._rawObjectStore);
             transaction.db.objectStoreNames = fakeDOMStringList(oldObjectStoreNames);
@@ -376,20 +380,20 @@ class FDBObjectStore {
             throw new InvalidStateError();
         }
 
-        const rawIndex = this._indexesCache.get(name);
-        if (rawIndex !== undefined) {
-            return rawIndex;
+        const index = this._indexesCache.get(name);
+        if (index !== undefined) {
+            return index;
         }
 
-        const rawIndex2 = this._rawObjectStore.rawIndexes.get(name);
-        if (this.indexNames.indexOf(name) < 0 || rawIndex2 === undefined) {
+        const rawIndex = this._rawObjectStore.rawIndexes.get(name);
+        if (this.indexNames.indexOf(name) < 0 || rawIndex === undefined) {
             throw new NotFoundError();
         }
 
-        const index = new FDBIndex(this, rawIndex2);
-        this._indexesCache.set(name, index);
+        const index2 = new FDBIndex(this, rawIndex);
+        this._indexesCache.set(name, index2);
 
-        return index;
+        return index2;
     }
 
     public deleteIndex(name: string) {

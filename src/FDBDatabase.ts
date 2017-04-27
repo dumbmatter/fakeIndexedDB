@@ -104,12 +104,11 @@ class FDBDatabase extends FakeEventTarget {
             this._rawDatabase.rawObjectStores.delete(name);
         });
 
-        const objectStore = new ObjectStore(this._rawDatabase, name, keyPath, autoIncrement);
+        const rawObjectStore = new ObjectStore(this._rawDatabase, name, keyPath, autoIncrement);
         this.objectStoreNames.push(name);
         this.objectStoreNames.sort();
-        this._rawDatabase.rawObjectStores.set(name, objectStore);
+        this._rawDatabase.rawObjectStores.set(name, rawObjectStore);
         transaction.objectStoreNames = fakeDOMStringList(this.objectStoreNames.slice());
-
         return transaction.objectStore(name);
     }
 
@@ -136,6 +135,7 @@ class FDBDatabase extends FakeEventTarget {
 
         store.deleted = true;
         this._rawDatabase.rawObjectStores.delete(name);
+        transaction._objectStoresCache.delete(name);
     }
 
     public transaction(storeNames: string | string[], mode?: TransactionMode) {

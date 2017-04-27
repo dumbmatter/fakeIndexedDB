@@ -13,6 +13,7 @@ class FDBTransaction extends FakeEventTarget {
     public _active = true;
     public _finished = false; // Set true after commit or abort
     public _rollbackLog: RollbackLog = [];
+    public _objectStoresCache: Map<string, FDBObjectStore> = new Map();
 
     public objectStoreNames: FakeDOMStringList;
     public mode: TransactionMode;
@@ -94,12 +95,21 @@ class FDBTransaction extends FakeEventTarget {
             throw new InvalidStateError();
         }
 
+        const objectStore = this._objectStoresCache.get(name);
+        if (objectStore !== undefined) {
+            return objectStore;
+        }
+
         const rawObjectStore = this.db._rawDatabase.rawObjectStores.get(name);
         if (this._scope.indexOf(name) < 0 || rawObjectStore === undefined) {
             throw new NotFoundError();
         }
 
-        return new FDBObjectStore(this, rawObjectStore);
+        const objectStore2 = new FDBObjectStore(this, rawObjectStore);
+        this._objectStoresCache.set(name, objectStore2);
+
+        return objectStore2;
+
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-asynchronously-executing-a-request

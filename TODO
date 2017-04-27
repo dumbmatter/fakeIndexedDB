@@ -2,7 +2,6 @@
 
 Run on real W3C tests
 - folder structure?
-- idbobjectstore-rename-store, need FDBTransaction.objectStoresCache like FDBObjectStore.indexesCache to return same instance
 - interleaved-cursors, works but too slow (30 secs, hits timeout)
 - keygenerator-inject, need to fix step 11 http://w3c.github.io/IndexedDB/#dom-idbobjectstore-put probably by rewriting extractKey based on current spec
   - in valueToKey, used DataError for invalid
