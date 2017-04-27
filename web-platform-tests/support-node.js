@@ -69,7 +69,7 @@ class AsyncTest {
                 this.completed = true;
                 throw new Error("Timed out!");
             }
-        }, 1000);
+        }, 60 * 1000);
     }
 
     complete() {

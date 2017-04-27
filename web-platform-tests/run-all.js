@@ -80,7 +80,7 @@ const skip = [
     // All kinds of fucked up.
     "open-request-queue.js",
 
-    // Usually works, but sometimes fails .Not sure why.
+    // Usually works, but sometimes fails. Not sure why.
     "parallel-cursors-upgrade.js",
 
     // Did not investigate in great detail.
