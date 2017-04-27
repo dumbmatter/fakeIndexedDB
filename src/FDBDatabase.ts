@@ -18,10 +18,17 @@ const confirmActiveVersionchangeTransaction = (database: FDBDatabase) => {
         throw new InvalidStateError();
     }
 
-    const transaction = database._rawDatabase.transactions.find((tx) => {
-        return tx._active && tx.mode === "versionchange";
+    // Find the latest versionchange transaction
+    const transactions = database._rawDatabase.transactions.filter((tx) => {
+        return tx.mode === "versionchange";
     });
-    if (!transaction) {
+    const transaction = transactions[transactions.length - 1];
+
+    if (!transaction || transaction._finished) {
+        throw new InvalidStateError();
+    }
+
+    if (!transaction._active) {
         throw new TransactionInactiveError();
     }
 

@@ -3,7 +3,6 @@
 Run on real W3C tests
 - folder structure?
 - interleaved-cursors, works but too slow (30 secs, hits timeout)
-- upgrade-transaction-lifecycle-committed, maybe fix with change to confirmActiveVersionchangeTransaction but it affects other tests
 
 changelog
 - Fully implements the [IndexedDB 2.0 API](https://hacks.mozilla.org/2016/10/whats-new-in-indexeddb-2-0/) (which technically still is a draft, but is probably not going to substantially change).
