@@ -1,6 +1,14 @@
+"use strict";
+
 const fs = require("fs");
-const {execSync} = require("child_process");
+const execSync = require("child_process").execSync;
 const path = require("path");
+const semver = require("semver");
+
+if (semver.lte(process.version, "6.0.0")) {
+    console.log("web-platform-tests only run in Node 6 or higher, but fake-indexeddb should still work in Node 4 and possibly older versions.");
+    process.exit(0);
+}
 
 const testFolder = path.join(__dirname, "converted");
 
