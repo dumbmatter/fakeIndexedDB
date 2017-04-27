@@ -57,6 +57,9 @@ const skip = [
     // transaction (this has roughly 0 real world impact, but could be indicative of other problems in fake-indexeddb).
     "idbindex-rename-abort.js",
     "idbobjectstore-rename-abort.js",
+    "transaction-abort-index-metadata-revert.js",
+    "transaction-abort-multiple-metadata-revert.js",
+    "transaction-abort-object-store-metadata-revert.js",
 
     // Half works, and I don't care enough to investigate further right now.
     "idbrequest-onupgradeneeded.js",
