@@ -23,6 +23,7 @@
   "main": "build/index.js",
   "scripts": {
     "build": "rm -rf build && tsc",
+    "prepublish": "npm run build",
     "lint": "tslint  'src/**/*.ts'",
     "test-mocha": "mocha --timeout 10000 build/test/fakeIndexedDB",
     "build-qunit": "browserify build/test/indexedDBmock/exports-qunit-bundle.js -o build/test/indexedDBmock/exports-qunit-bundle.js && cp src/test/indexedDBmock/index.html build/test/indexedDBmock/index.html",
@@ -32,6 +33,9 @@
   },
   "author": "Jeremy Scheff <jdscheff@gmail.com> (http://dumbmatter.com/)",
   "license": "Apache-2.0",
+  "files": [
+    "build"
+  ],
   "dependencies": {
     "realistic-structured-clone": "^1.0.1",
     "setimmediate": "^1.0.5"
