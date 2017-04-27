@@ -7,12 +7,12 @@ const fakeDOMStringList = (arr: string[]): FakeDOMStringList => {
 
     Object.defineProperty(arr2, "contains", {
         // tslint:disable-next-line object-literal-shorthand
-        value: function(value: string) { return this.indexOf(value) >= 0; },
+        value: (value: string) => arr2.indexOf(value) >= 0,
     });
 
     Object.defineProperty(arr2, "item", {
         // tslint:disable-next-line object-literal-shorthand
-        value: function(i: number) { return this[i]; },
+        value: (i: number) => arr2[i],
     });
 
     return arr2 as FakeDOMStringList;

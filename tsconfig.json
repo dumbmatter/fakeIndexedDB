@@ -3,13 +3,12 @@
         "rootDir": "./src",
         "outDir": "./build",
         "target": "es5",
+        "lib": ["dom", "es6"],
         "module": "commonjs",
         "allowJs": true,
-        "noEmitOnError": true,
-        "noImplicitAny": true,
-        "strictNullChecks": true,
         "downlevelIteration": true,
-        "lib": ["dom", "es6"]
+        "noEmitOnError": true,
+        "strict": true
     },
     "exclude": [
         "node_modules",
