@@ -1,6 +1,6 @@
 const assert = require("assert");
-require("../build/global");
-global.Event = require("../build/lib/FakeEvent").default;
+require("../../../build/global");
+global.Event = require("../../../build/lib/FakeEvent").default;
 
 global.document = {
     // Kind of cheating for key_invalid.js: It wants to test using a DOM node as a key, but that can't work in Node, so
