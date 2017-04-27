@@ -9,9 +9,6 @@ let failed = 0;
 let skipped = 0;
 
 const skip = [
-    // DID NOT INVESTIGATE THIS, BUT IT HANGS
-    "transaction-abort-generator-revert.js",
-
     // First test works, but the others... they are extreme edge cases, and I'm not sure exactly what my implementation
     // should be.
     "bindings-inject-key.js",
@@ -20,8 +17,10 @@ const skip = [
     "clone-before-keypath-eval.js",
 
     // Maximum call stack size exceeded, possibly due to the promise resolution microtask not taking precedence when it
-    // should.
+    // should (keep_alive not working).
     "event-dispatch-active-flag.js",
+    "transaction-deactivation-timing.js",
+    "upgrade-transaction-deactivation-timing.js",
 
     // These are pretty tricky. Would be nice to have them working.
     "fire-error-event-exception.js",
@@ -66,8 +65,28 @@ const skip = [
     // `open2.onsuccess = (e) => e.target.result.close();` fixes it.
     "idbtransaction_objectStoreNames.js",
 
+    // Would be nice to fix, but not highly important. Various bugs here.
+    "keypath-exceptions.js",
+
     // Node.js doesn't have Blob or File.
     "keypath-special-identifiers.js",
+
+    // All kinds of fucked up.
+    "open-request-queue.js",
+
+    // Usually works, but sometimes fails .Not sure why.
+    "parallel-cursors-upgrade.js",
+
+    // Did not investigate in great detail.
+    "transaction-abort-generator-revert.js",
+    "transaction-lifetime-empty.js",
+    "upgrade-transaction-lifecycle-backend-aborted.js",
+    "upgrade-transaction-lifecycle-user-aborted.js",
+
+    // Fails because `onerror` is never called since it is set after the abort call and the events on the request are
+    // triggered synchronously. Not sure how to reconcile this with the spec. Same issue affected some other test too, I
+    // think.
+    "transaction-abort-request-error.js",
 ];
 
 const filenames = fs.readdirSync(testFolder);

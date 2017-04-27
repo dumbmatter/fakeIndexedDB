@@ -287,6 +287,7 @@ const addToGlobal = {
     checkStoreContents,
     checkAuthorIndexContents,
     checkTitleIndexContents,
+    BOOKS_RECORD_DATA,
 };
 
 Object.assign(global, addToGlobal);
