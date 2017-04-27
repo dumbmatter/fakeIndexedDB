@@ -4,6 +4,7 @@ import FDBIndex from "./FDBIndex";
 import FDBKeyRange from "./FDBKeyRange";
 import FDBRequest from "./FDBRequest";
 import FDBTransaction from "./FDBTransaction";
+import canInjectKey from "./lib/canInjectKey";
 import enforceRange from "./lib/enforceRange";
 import {
     ConstraintError,
@@ -45,13 +46,19 @@ const buildRecordAddPut = (objectStore: FDBObjectStore, value: Value, key: Key) 
         if (key !== undefined) {
             throw new DataError();
         }
+    }
 
+    const clone = structuredClone(value);
+
+    if (objectStore.keyPath !== null) {
         const tempKey = extractKey(objectStore.keyPath, value);
 
         if (tempKey !== undefined) {
             valueToKey(tempKey);
         } else {
             if (!objectStore._rawObjectStore.keyGenerator) {
+                throw new DataError();
+            } else if (!canInjectKey(objectStore.keyPath, clone)) {
                 throw new DataError();
             }
         }
@@ -67,7 +74,7 @@ const buildRecordAddPut = (objectStore: FDBObjectStore, value: Value, key: Key) 
 
     return {
         key,
-        value: structuredClone(value),
+        value: clone,
     };
 };
 
