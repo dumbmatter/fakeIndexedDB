@@ -68,6 +68,9 @@ const skip = [
     // `open2.onsuccess = (e) => e.target.result.close();` fixes it.
     "idbtransaction_objectStoreNames.js",
 
+    // Looks complicated to get running in Node.js, but would be nice.
+    "interfaces.js",
+
     // Would be nice to fix, but not highly important. Various bugs here.
     "keypath-exceptions.js",
 
