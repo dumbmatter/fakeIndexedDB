@@ -141,11 +141,11 @@ class FDBObjectStore {
                 }),
         ).sort();
 
-        const oldScope = transaction._scope.slice();
+        const oldScope = new Set(transaction._scope);
         const oldTransactionObjectStoreNames = transaction.objectStoreNames.slice();
-        transaction._scope = this.transaction._scope.filter((name2) => name2 !== oldName);
-        transaction._scope.push(name);
-        transaction.objectStoreNames = fakeDOMStringList(Array.from(new Set(transaction._scope)).sort());
+        this.transaction._scope.delete(oldName);
+        transaction._scope.add(name);
+        transaction.objectStoreNames = fakeDOMStringList(Array.from(transaction._scope).sort());
 
         transaction._rollbackLog.push(() => {
             this._name = oldName;

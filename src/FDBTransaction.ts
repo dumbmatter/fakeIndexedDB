@@ -23,7 +23,7 @@ class FDBTransaction extends FakeEventTarget {
     public oncomplete: EventCallback | null = null;
     public onerror: EventCallback | null = null;
 
-    public _scope: string[];
+    public _scope: Set<string>;
     private _requests: Array<{
         operation: () => void,
         request: FDBRequest,
@@ -32,10 +32,10 @@ class FDBTransaction extends FakeEventTarget {
     constructor(storeNames: string[], mode: TransactionMode, db: FDBDatabase) {
         super();
 
-        this._scope = storeNames;
+        this._scope = new Set(storeNames);
         this.mode = mode;
         this.db = db;
-        this.objectStoreNames = fakeDOMStringList(Array.from(new Set(this._scope)).sort());
+        this.objectStoreNames = fakeDOMStringList(Array.from(this._scope).sort());
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-aborting-a-transaction
@@ -101,7 +101,7 @@ class FDBTransaction extends FakeEventTarget {
         }
 
         const rawObjectStore = this.db._rawDatabase.rawObjectStores.get(name);
-        if (this._scope.indexOf(name) < 0 || rawObjectStore === undefined) {
+        if (!this._scope.has(name) || rawObjectStore === undefined) {
             throw new NotFoundError();
         }
 

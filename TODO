@@ -5,21 +5,20 @@ changelog
 - Ported to TypeScript, which hopefully means less bugs.
 - Dynamically runs [the W3C web-platform-tests](https://github.com/w3c/web-platform-tests/tree/master/IndexedDB) rather than using manually ported tests. This means it's easy to run new tests, and the tests written since the original release of fake-indexeddb turned up several minor bugs which have now been fixed.
 
-FDBTransaction._scope to Set
-
-revisit setImmediate
-- *-exception-order race condition
-  - on some it's not even a race condition, like idbcursor ones seem to always fail, but idbobjectstore ones are intermittent
-
 README
 - IDB2 Features
 - describe different tests better, including how to update web-platform-tests
 
 binary search tree, or leave for later?
+- at a minimum, prepare RecordStore
 
 generic functions to update indexNames and objectStoreNames
 
 ---
+
+revisit setImmediate
+- *-exception-order race condition
+  - on some it's not even a race condition, like idbcursor ones seem to always fail, but idbobjectstore ones are intermittent
 
 test that IDBObjectStore.index returns the same or different IDBIndex depending on situation http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBObjectStore-index-IDBIndex-DOMString-name
 

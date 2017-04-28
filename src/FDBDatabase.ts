@@ -108,12 +108,14 @@ class FDBDatabase extends FakeEventTarget {
             }
 
             this.objectStoreNames = fakeDOMStringList(objectStoreNames);
+            transaction._scope.delete(name);
             this._rawDatabase.rawObjectStores.delete(name);
         });
 
         const rawObjectStore = new ObjectStore(this._rawDatabase, name, keyPath, autoIncrement);
         this.objectStoreNames.push(name);
         this.objectStoreNames.sort();
+        transaction._scope.add(name);
         this._rawDatabase.rawObjectStores.set(name, rawObjectStore);
         transaction.objectStoreNames = fakeDOMStringList(this.objectStoreNames.slice());
         return transaction.objectStore(name);
