@@ -1,2 +1,2 @@
 window.indexedDBmock = require('../..');
-window.IDBKeyRangemock = require('../../classes').FDBKeyRange;
+window.IDBKeyRangemock = require('../../lib/FDBKeyRange');

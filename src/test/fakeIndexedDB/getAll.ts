@@ -1,7 +1,8 @@
-
 import * as assert from "assert";
-import {FDBDatabase, FDBKeyRange, FDBObjectStore} from "../../classes";
 import fakeIndexedDB from "../../fakeIndexedDB";
+import FDBDatabase from "../../FDBDatabase";
+import FDBKeyRange from "../../FDBKeyRange";
+import FDBObjectStore from "../../FDBObjectStore";
 
 // Tests taken from https://github.com/dumbmatter/IndexedDB-getAll-shim
 

@@ -19,8 +19,6 @@ binary search tree, or leave for later?
 
 generic functions to update indexNames and objectStoreNames
 
-backwards compatible API?
-
 ---
 
 test that IDBObjectStore.index returns the same or different IDBIndex depending on situation http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBObjectStore-index-IDBIndex-DOMString-name

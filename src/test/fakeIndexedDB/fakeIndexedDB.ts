@@ -1,6 +1,7 @@
 import * as assert from "assert";
-import {FDBCursorWithValue, FDBDatabase} from "../../classes";
 import fakeIndexedDB from "../../fakeIndexedDB";
+import FDBCursorWithValue from "../../FDBCursorWithValue";
+import FDBDatabase from "../../FDBDatabase";
 import {TransactionMode} from "../../lib/types";
 
 describe("fakeIndexedDB Tests", () => {
