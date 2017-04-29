@@ -1,8 +1,6 @@
-# Fake IndexedDB [![Build Status](https://travis-ci.org/dumbmatter/fakeIndexedDB.svg?branch=master)](https://travis-ci.org/dumbmatter/fakeIndexedDB)
+# fake-indexeddb [![Build Status](https://travis-ci.org/dumbmatter/fakeIndexedDB.svg?branch=master)](https://travis-ci.org/dumbmatter/fakeIndexedDB)
 
-This is a pure JS in-memory implementation of [the IndexedDB API](http://www.w3.org/TR/2015/REC-IndexedDB-20150108/).
-
-It passes [the W3C IndexedDB test suite](https://github.com/w3c/web-platform-tests/tree/master/IndexedDB) (a feat that all browsers except Chrome fail) plus a couple hundred more tests just to be sure. It also works well enough to run [fairly complex IndexedDB-based software](https://github.com/dumbmatter/basketball-gm/tree/fakeIndexedDB).
+This is a pure JS in-memory implementation of [the IndexedDB 2.0 API](https://w3c.github.io/IndexedDB/) (which technically still is a draft, but is probably not going to substantially change). Its main utility is for testing IndexedDB-dependent code in Node.js.
 
 ## Installation
 
@@ -14,12 +12,12 @@ npm install fake-indexeddb
 
 Functionally, it works exactly like IndexedDB except data is not persisted to disk.
 
-Import `fake-indexeddb/global` to have it write (or overwrite) all the default IndexedDB variables like `indexedDB`, `IDBKeyRange`, etc.
+Import `fake-indexeddb/global` to have it create (or overwrite) all the default IndexedDB variables like `indexedDB`, `IDBKeyRange`, etc.
 
 ```js
-require('fake-indexeddb/global');
+require("fake-indexeddb/global");
 
-var request = indexedDB.open('test', 3);
+var request = indexedDB.open("test", 3);
 request.onupgradeneeded = function () {
     var db = request.result;
     var store = db.createObjectStore("books", {keyPath: "isbn"});
@@ -34,18 +32,18 @@ request.onsuccess = function (event) {
 
     var tx = db.transaction("books");
 
-    tx.objectStore("books").index("by_title").get("Quarry Memories").addEventListener('success', function (event) {
-        console.log('From index:', event.target.result);
+    tx.objectStore("books").index("by_title").get("Quarry Memories").addEventListener("success", function (event) {
+        console.log("From index:", event.target.result);
     });
     tx.objectStore("books").openCursor(IDBKeyRange.lowerBound(200000)).onsuccess = function (event) {
         var cursor = event.target.result;
         if (cursor) {
-            console.log('From cursor:', cursor.value);
+            console.log("From cursor:", cursor.value);
             cursor.continue();
         }
     };
     tx.oncomplete = function () {
-        console.log('All done!');
+        console.log("All done!");
     };
 };
 ```
@@ -53,11 +51,27 @@ request.onsuccess = function (event) {
 Or you can import individual functions directly. Variable names of all the objects are like the normal IndexedDB ones except with F replacing I, e.g. `FDBIndex` instead of `IDBIndex`.
 
 ```js
-var fakeIndexedDB = require('fake-indexeddb');
-var FDBKeyRange = require('fake-indexeddb/lib/FDBKeyRange');
+var fakeIndexedDB = require("fake-indexeddb");
+var FDBKeyRange = require("fake-indexeddb/lib/FDBKeyRange");
 
 // ...same code as last example, but fakeIndexedDB instead of indexedDB and FDBKeyRange instead of IDBKeyRange
 ```
+
+## Quality
+
+Here's a comparison of fake-indexeddb and real browser IndexedDB implementations on [the W3C IndexedDB test suite](https://github.com/w3c/web-platform-tests/tree/master/IndexedDB):
+
+Implementation | Percentage of files that pass tests
+--- | ---
+Firefox 53 | 93%
+Chrome 57 | 92%
+fake-indexeddb 2.0 | 88%
+Safari 10 | 83%
+Edge 14 | 59%
+
+For browsers, I ran http://w3c-test.org/tools/runner/index.html and counted the passes. For fake-indexeddb, I ran `npm run test-w3c`.
+
+88% is pretty good, right? Also consider that some of the tests fail for stupid reasons with fake-indexeddb because it runs in Node.js where failure is guaranteed for tests involving browser APIs like Web Workers. However there are definitley still some weak points of fake-indexeddb, all described in `src/test/web-platform-tests/run-all.js`. Your app will probably run fine, though.
 
 ## Potential applications:
 

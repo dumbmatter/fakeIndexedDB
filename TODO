@@ -1,21 +1,3 @@
-# v2 stuff:
-
-changelog
-- Fully implements the [IndexedDB 2.0 API](https://hacks.mozilla.org/2016/10/whats-new-in-indexeddb-2-0/) (which technically still is a draft, but is probably not going to substantially change).
-- Ported to TypeScript, which hopefully means less bugs.
-- Dynamically runs [the W3C web-platform-tests](https://github.com/w3c/web-platform-tests/tree/master/IndexedDB) rather than using manually ported tests. This means it's easy to run new tests, and the tests written since the original release of fake-indexeddb turned up several minor bugs which have now been fixed.
-
-README
-- IDB2 Features
-- describe different tests better, including how to update web-platform-tests
-
-binary search tree, or leave for later?
-- at a minimum, prepare RecordStore
-
-generic functions to update indexNames and objectStoreNames
-
----
-
 revisit setImmediate
 - *-exception-order race condition
   - on some it's not even a race condition, like idbcursor ones seem to always fail, but idbobjectstore ones are intermittent
@@ -35,6 +17,7 @@ readonly properties need to actually be readonly
 
 share some code between Index and ObjectStore, like getValue, confirmActiveTransaction, count
 - similar thing between open and deleteDatabase
+- generic functions to update indexNames and objectStoreNames
 
 break events stuff into separate module, maybe fakeDOMEvents
 - readonly properties? hidden/non-enumerable properties?
