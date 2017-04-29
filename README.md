@@ -59,9 +59,9 @@ var FDBKeyRange = require("fake-indexeddb/lib/FDBKeyRange");
 
 ## Quality
 
-Here's a comparison of fake-indexeddb and real browser IndexedDB implementations on [the W3C IndexedDB test suite](https://github.com/w3c/web-platform-tests/tree/master/IndexedDB):
+Here's a comparison of fake-indexeddb and real browser IndexedDB implementations on [the W3C IndexedDB test suite](https://github.com/w3c/web-platform-tests/tree/master/IndexedDB) as of April 28, 2017:
 
-Implementation | Percentage of files that pass tests
+Implementation | Percentage of files that pass completely
 --- | ---
 Firefox 53 | 93%
 Chrome 57 | 92%
@@ -71,7 +71,7 @@ Edge 14 | 59%
 
 For browsers, I ran http://w3c-test.org/tools/runner/index.html and counted the passes. For fake-indexeddb, I ran `npm run test-w3c`.
 
-88% is pretty good, right? Also consider that some of the tests fail for stupid reasons with fake-indexeddb because it runs in Node.js where failure is guaranteed for tests involving browser APIs like Web Workers. However there are definitley still some weak points of fake-indexeddb, all described in `src/test/web-platform-tests/run-all.js`. Your app will probably run fine, though.
+88% is pretty good, right? Consider that some of the tests fail for stupid reasons with fake-indexeddb, because it runs in Node.js where failure is guaranteed for tests involving browser APIs like Web Workers. There are definitley still some weak points of fake-indexeddb, all described in `src/test/web-platform-tests/run-all.js`. Your app will probably run fine, though.
 
 ## Potential applications:
 
