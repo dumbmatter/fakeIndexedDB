@@ -1,4 +1,8 @@
-# 2.0 (2017-04-29)
+# 2.0.1 (2017-04-29)
+
+* Minor updates to README
+
+# 2.0.0 (2017-04-29)
 
 * Fully implements the [IndexedDB 2.0 API](https://hacks.mozilla.org/2016/10/whats-new-in-indexeddb-2-0/) (which technically still is a draft, but is probably not going to substantially change).
 * Ported to TypeScript, which hopefully means less bugs.

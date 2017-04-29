@@ -12,8 +12,6 @@ npm install fake-indexeddb
 
 Functionally, it works exactly like IndexedDB except data is not persisted to disk.
 
-Import `fake-indexeddb/global` to have it create (or overwrite) all the default IndexedDB variables like `indexedDB`, `IDBKeyRange`, etc.
-
 ```js
 var indexedDB = require("fake-indexeddb");
 var IDBKeyRange = require("fake-indexeddb/lib/FDBKeyRange");
@@ -49,7 +47,7 @@ request.onsuccess = function (event) {
 };
 ```
 
-When importing individual classes directly (like `var IDBKeyRange = require("fake-indexeddb/lib/FDBKeyRange");` above), variable names of all the objects are like the normal IndexedDB ones except with F replacing I, e.g. `FDBIndex` instead of `IDBIndex`.
+When importing individual classes directly (like `var IDBKeyRange = require("fake-indexeddb/lib/FDBKeyRange");` above), file names of all the objects are like the normal IndexedDB ones except with F replacing I, e.g. `FDBIndex` instead of `IDBIndex`.
 
 ## Quality
 
@@ -65,7 +63,7 @@ Edge 14 | 59%
 
 For browsers, I ran http://w3c-test.org/tools/runner/index.html and counted the passes. For fake-indexeddb, I ran `npm run test-w3c`.
 
-88% is pretty good, right? Consider that some of the tests fail for stupid reasons with fake-indexeddb, because it runs in Node.js where failure is guaranteed for tests involving browser APIs like Web Workers. There are definitley still some weak points of fake-indexeddb, all described in `src/test/web-platform-tests/run-all.js`. Your app will probably run fine, though.
+88% is pretty good, right? Especially considering that fake-indexeddb runs in Node.js where failure is guaranteed for tests involving browser APIs like Web Workers. There are definitley still some weak points of fake-indexeddb, all described in `src/test/web-platform-tests/run-all.js`. Your app will probably run fine, though.
 
 ## Potential applications:
 
