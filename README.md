@@ -15,7 +15,8 @@ Functionally, it works exactly like IndexedDB except data is not persisted to di
 Import `fake-indexeddb/global` to have it create (or overwrite) all the default IndexedDB variables like `indexedDB`, `IDBKeyRange`, etc.
 
 ```js
-require("fake-indexeddb/global");
+var indexedDB = require("fake-indexeddb");
+var IDBKeyRange = require("fake-indexeddb/lib/FDBKeyRange");
 
 var request = indexedDB.open("test", 3);
 request.onupgradeneeded = function () {
@@ -48,14 +49,7 @@ request.onsuccess = function (event) {
 };
 ```
 
-Or you can import individual functions directly. Variable names of all the objects are like the normal IndexedDB ones except with F replacing I, e.g. `FDBIndex` instead of `IDBIndex`.
-
-```js
-var fakeIndexedDB = require("fake-indexeddb");
-var FDBKeyRange = require("fake-indexeddb/lib/FDBKeyRange");
-
-// ...same code as last example, but fakeIndexedDB instead of indexedDB and FDBKeyRange instead of IDBKeyRange
-```
+When importing individual classes directly (like `var IDBKeyRange = require("fake-indexeddb/lib/FDBKeyRange");` above), variable names of all the objects are like the normal IndexedDB ones except with F replacing I, e.g. `FDBIndex` instead of `IDBIndex`.
 
 ## Quality
 
