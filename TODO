@@ -1,3 +1,13 @@
+# binary tree
+
+write tests for RecordStore, including benchmarks
+
+implement
+
+balance?
+
+---
+
 revisit setImmediate
 - *-exception-order race condition
   - on some it's not even a race condition, like idbcursor ones seem to always fail, but idbobjectstore ones are intermittent

@@ -1,3 +1,7 @@
+# 2.0.2 (2017-05-01)
+
+* Include core-js by default to make it work more easily in old environments like PhantomJS
+
 # 2.0.1 (2017-04-29)
 
 * Minor updates to README

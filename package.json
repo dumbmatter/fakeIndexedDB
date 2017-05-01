@@ -38,13 +38,13 @@
     "lib"
   ],
   "dependencies": {
+    "core-js": "^2.4.1",
     "realistic-structured-clone": "^1.0.1",
     "setimmediate": "^1.0.5"
   },
   "devDependencies": {
     "@types/mocha": "^2.2.41",
     "@types/node": "^7.0.13",
-    "babel-polyfill": "^6.23.0",
     "browserify": "^14.0.0",
     "mocha": "^3.2.0",
     "node-qunit-phantomjs": "^1.5.0",
