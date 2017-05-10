@@ -369,7 +369,7 @@ describe("fakeIndexedDB Tests", () => {
         };
     });
 
-    it("Properly handles compound keys (issue #18)", (done) => {
+    it("properly handles compound keys (issue #18)", (done) => {
         const request = fakeIndexedDB.open("test", 3);
         request.onupgradeneeded = () => {
             const db: FDBDatabase = request.result;
@@ -394,5 +394,45 @@ describe("fakeIndexedDB Tests", () => {
                 done();
             };
         };
+    });
+
+    it("iterates correctly regardless of add order (issue #20)", (done) => {
+        const request = fakeIndexedDB.open(`test${Math.random()}`);
+        request.onupgradeneeded = (e) => {
+            const db2 = e.target.result;
+            const collStore = db2.createObjectStore("store", {keyPath: "id"});
+
+            collStore.createIndex("_status", "_status", {unique: false});
+
+            collStore.add({id: "5", _status: "created"});
+            collStore.add({id: "0", _status: "created"});
+        };
+        request.onsuccess = (e) => {
+            const db: FDBDatabase = e.target.result;
+
+            const txn = db.transaction(["store"]);
+            const store = txn.objectStore("store");
+            const request2 = store.index("_status").openCursor();
+            const expected = ["0", "5"];
+            request2.onsuccess = (event) => {
+                const cursor: FDBCursorWithValue = event.target.result;
+                if (!cursor) {
+                    assert.equal(expected.length, 0);
+                    done();
+                    return;
+                }
+                const {key, value} = cursor;
+                const expectedID = expected.shift();
+                assert.equal(value.id, expectedID);
+                cursor.continue();
+            };
+            request2.onerror = (e2) => {
+                done(e2.target.error);
+            };
+        };
+        request.onerror = (e) => {
+            done(e.target.error);
+        };
+
     });
 });

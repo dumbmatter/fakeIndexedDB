@@ -24,7 +24,9 @@ class RecordStore {
             i = 0;
         } else {
             i = this.records.findIndex((record) => {
-                return cmp(record.key, newRecord.key) === 1;
+                // cmp will only return 0 for an index. For an object store, any matching key has already been deleted,
+                // but we still need to look for cmp = 1 to find where to insert.
+                return cmp(record.key, newRecord.key) >= 0;
             });
 
             if (i === -1) {

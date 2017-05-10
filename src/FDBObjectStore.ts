@@ -281,7 +281,7 @@ class FDBObjectStore {
         });
     }
 
-    public openCursor(range: FDBKeyRange | Key, direction?: FDBCursorDirection) {
+    public openCursor(range?: FDBKeyRange | Key, direction?: FDBCursorDirection) {
         confirmActiveTransaction(this);
 
         if (range === null) { range = undefined; }
@@ -302,7 +302,7 @@ class FDBObjectStore {
         });
     }
 
-    public openKeyCursor(range: FDBKeyRange | Key, direction?: FDBCursorDirection) {
+    public openKeyCursor(range?: FDBKeyRange | Key, direction?: FDBCursorDirection) {
         confirmActiveTransaction(this);
 
         if (range === null) { range = undefined; }
