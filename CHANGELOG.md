@@ -1,3 +1,7 @@
+# 2.0.3 (2017-05-09)
+
+* Fixed issue #20 related to iterating over cursors with non-unique keys
+
 # 2.0.2 (2017-05-01)
 
 * Include core-js by default to make it work more easily in old environments like PhantomJS
