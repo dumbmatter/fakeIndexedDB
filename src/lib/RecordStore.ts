@@ -153,8 +153,8 @@ class RecordStore {
                         // https://github.com/Microsoft/TypeScript/issues/2983
                         // tslint:disable-next-line no-object-literal-type-assertion
                         return {
-                            value,
                             done,
+                            value,
                         } as IteratorResult<Record>;
                     },
                 };

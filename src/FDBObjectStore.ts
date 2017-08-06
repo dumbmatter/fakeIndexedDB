@@ -360,9 +360,9 @@ class FDBObjectStore {
 
         const indexNames = this.indexNames.slice();
         this.transaction._rollbackLog.push(() => {
-            const index = this._rawObjectStore.rawIndexes.get(name);
-            if (index) {
-                index.deleted = true;
+            const index2 = this._rawObjectStore.rawIndexes.get(name);
+            if (index2) {
+                index2.deleted = true;
             }
 
             this.indexNames = fakeDOMStringList(indexNames);

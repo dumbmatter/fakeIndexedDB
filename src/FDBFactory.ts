@@ -14,8 +14,8 @@ const waitForOthersClosedDelete = (
     openDatabases: FDBDatabase[],
     cb: (err: Error | null) => void,
 ) => {
-    const anyOpen = openDatabases.some((openDatabase) => {
-        return !openDatabase._closed;
+    const anyOpen = openDatabases.some((openDatabase2) => {
+        return !openDatabase2._closed;
     });
 
     if (anyOpen) {
@@ -48,18 +48,18 @@ const deleteDatabase = (
             return !connection._closed;
         });
 
-        for (const openDatabase of openDatabases) {
-            if (!openDatabase._closePending) {
+        for (const openDatabase2 of openDatabases) {
+            if (!openDatabase2._closePending) {
                 const event = new FDBVersionChangeEvent("versionchange", {
                     newVersion: null,
                     oldVersion: db.version,
                 });
-                openDatabase.dispatchEvent(event);
+                openDatabase2.dispatchEvent(event);
             }
         }
 
-        const anyOpen = openDatabases.some((openDatabase) => {
-            return !openDatabase._closed;
+        const anyOpen = openDatabases.some((openDatabase3) => {
+            return !openDatabase3._closed;
         });
 
         if (request && anyOpen) {
@@ -91,18 +91,18 @@ const runVersionchangeTransaction = (
         return connection !== otherDatabase;
     });
 
-    for (const openDatabase of openDatabases) {
-        if (!openDatabase._closed) {
+    for (const openDatabase2 of openDatabases) {
+        if (!openDatabase2._closed) {
             const event = new FDBVersionChangeEvent("versionchange", {
-                oldVersion,
                 newVersion: version,
+                oldVersion,
             });
-            openDatabase.dispatchEvent(event);
+            openDatabase2.dispatchEvent(event);
         }
     }
 
-    const anyOpen = openDatabases.some((openDatabase) => {
-        return !openDatabase._closed;
+    const anyOpen = openDatabases.some((openDatabase3) => {
+        return !openDatabase3._closed;
     });
 
     if (anyOpen) {
@@ -114,8 +114,8 @@ const runVersionchangeTransaction = (
     }
 
     const waitForOthersClosed = () => {
-        const anyOpen2 = openDatabases.some((openDatabase) => {
-            return !openDatabase._closed;
+        const anyOpen2 = openDatabases.some((openDatabase2) => {
+            return !openDatabase2._closed;
         });
 
         if (anyOpen2) {
@@ -245,11 +245,11 @@ class FDBFactory {
                 request.result = undefined;
                 request.readyState = "done";
 
-                const event = new FDBVersionChangeEvent("success", {
+                const event2 = new FDBVersionChangeEvent("success", {
                     newVersion: null,
                     oldVersion,
                 });
-                request.dispatchEvent(event);
+                request.dispatchEvent(event2);
             });
         });
 
@@ -293,9 +293,9 @@ class FDBFactory {
                 request.result = connection;
                 request.readyState = "done";
 
-                const event = new FakeEvent("success");
-                event.eventPath = [];
-                request.dispatchEvent(event);
+                const event2 = new FakeEvent("success");
+                event2.eventPath = [];
+                request.dispatchEvent(event2);
             });
         });
 

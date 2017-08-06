@@ -109,12 +109,9 @@ class FDBCursor {
     public _iterate(key?: Key, primaryKey?: Key): this | null {
         const sourceIsObjectStore = this.source instanceof FDBObjectStore;
 
-        let records;
-        if (this.source instanceof FDBObjectStore) { // Can't use sourceIsObjectStore because TypeScript
-            records = this.source._rawObjectStore.records;
-        } else {
-            records = this.source._rawIndex.records;
-        }
+        // Can't use sourceIsObjectStore because TypeScript
+        const records = this.source instanceof FDBObjectStore ?
+            this.source._rawObjectStore.records : this.source._rawIndex.records;
 
         let foundRecord;
         if (this.direction === "next") {

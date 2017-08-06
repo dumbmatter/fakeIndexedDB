@@ -135,8 +135,8 @@ class FDBTransaction extends FakeEventTarget {
         }
 
         this._requests.push({
-            request,
             operation,
+            request,
         });
 
         return request;
