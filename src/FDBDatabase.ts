@@ -154,7 +154,7 @@ class FDBDatabase extends FakeEventTarget {
         }
 
         const hasActiveVersionchange = this._rawDatabase.transactions.some((transaction) => {
-            return transaction._active && transaction.mode === "versionchange";
+            return transaction._active && transaction.mode === "versionchange" && transaction.db === this;
         });
         if (hasActiveVersionchange) {
             throw new InvalidStateError();

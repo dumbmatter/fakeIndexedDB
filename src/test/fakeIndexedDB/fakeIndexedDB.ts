@@ -433,6 +433,30 @@ describe("fakeIndexedDB Tests", () => {
         request.onerror = (e) => {
             done(e.target.error);
         };
+    });
 
+    it("handles two open requests at the same time (issue #22)", (done) => {
+        const name = `test${Math.random()}`;
+
+        const openDb = (cb?: (db: FDBDatabase) => void) => {
+            const request = fakeIndexedDB.open(name, 3);
+            request.onupgradeneeded = () => {
+                const db = request.result;
+                db.createObjectStore("books", {keyPath: "isbn"});
+            };
+            request.onsuccess = (event) => {
+                const db: FDBDatabase = event.target.result;
+                if (cb) {
+                    cb(db);
+                }
+            };
+        };
+
+        openDb();
+
+        openDb((db) => {
+            db.transaction("books");
+            done();
+        });
     });
 });
