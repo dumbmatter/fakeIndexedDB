@@ -1,3 +1,7 @@
+# 2.0.4 (2018-02-22)
+
+* Improved structured cloning, which fixes bugs when used with strange objects like https://github.com/dumbmatter/realistic-structured-clone/issues/5
+
 # 2.0.3 (2017-05-09)
 
 * Fixed issue #20 related to iterating over cursors with non-unique keys
