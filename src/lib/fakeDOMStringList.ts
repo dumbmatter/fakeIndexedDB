@@ -1,4 +1,4 @@
-import {FakeDOMStringList} from "./types";
+import { FakeDOMStringList } from "./types";
 
 // Would be nicer to sublcass Array, but I'd have to sacrifice Node 4 support to do that.
 

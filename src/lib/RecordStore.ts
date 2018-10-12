@@ -1,18 +1,18 @@
 import FDBKeyRange from "../FDBKeyRange";
 import cmp from "./cmp";
-import {Key, Record} from "./types";
+import { Key, Record } from "./types";
 
 class RecordStore {
     private records: Record[] = [];
 
     public get(key: Key | FDBKeyRange) {
         if (key instanceof FDBKeyRange) {
-            return this.records.find((record) => {
+            return this.records.find(record => {
                 return key.includes(record.key);
             });
         }
 
-        return this.records.find((record) => {
+        return this.records.find(record => {
             return cmp(record.key, key) === 0;
         });
     }
@@ -23,7 +23,7 @@ class RecordStore {
         if (this.records.length === 0) {
             i = 0;
         } else {
-            i = this.records.findIndex((record) => {
+            i = this.records.findIndex(record => {
                 // cmp will only return 0 for an index. For an object store, any matching key has already been deleted,
                 // but we still need to look for cmp = 1 to find where to insert.
                 return cmp(record.key, newRecord.key) >= 0;
@@ -34,7 +34,10 @@ class RecordStore {
                 i = this.records.length;
             } else {
                 // If matching key, advance to appropriate position based on value (used in indexes)
-                while (i < this.records.length && cmp(this.records[i].key, newRecord.key) === 0) {
+                while (
+                    i < this.records.length &&
+                    cmp(this.records[i].key, newRecord.key) === 0
+                ) {
                     if (cmp(this.records[i].value, newRecord.value) !== -1) {
                         // Record value >= newRecord value, so insert here
                         break;
@@ -53,7 +56,7 @@ class RecordStore {
 
         const deletedRecords: Record[] = [];
 
-        this.records = this.records.filter((record) => {
+        this.records = this.records.filter(record => {
             const shouldDelete = range.includes(record.key);
 
             if (shouldDelete) {
@@ -71,7 +74,7 @@ class RecordStore {
 
         const deletedRecords: Record[] = [];
 
-        this.records = this.records.filter((record) => {
+        this.records = this.records.filter(record => {
             const shouldDelete = range.includes(record.value);
 
             if (shouldDelete) {
@@ -98,8 +101,14 @@ class RecordStore {
                     i = 0;
                     if (range !== undefined && range.lower !== undefined) {
                         while (this.records[i] !== undefined) {
-                            const cmpResult = cmp(this.records[i].key, range.lower);
-                            if (cmpResult === 1 || (cmpResult === 0 && !range.lowerOpen)) {
+                            const cmpResult = cmp(
+                                this.records[i].key,
+                                range.lower,
+                            );
+                            if (
+                                cmpResult === 1 ||
+                                (cmpResult === 0 && !range.lowerOpen)
+                            ) {
                                 break;
                             }
                             i += 1;
@@ -109,8 +118,14 @@ class RecordStore {
                     i = this.records.length - 1;
                     if (range !== undefined && range.upper !== undefined) {
                         while (this.records[i] !== undefined) {
-                            const cmpResult = cmp(this.records[i].key, range.upper);
-                            if (cmpResult === -1 || (cmpResult === 0 && !range.upperOpen)) {
+                            const cmpResult = cmp(
+                                this.records[i].key,
+                                range.upper,
+                            );
+                            if (
+                                cmpResult === -1 ||
+                                (cmpResult === 0 && !range.upperOpen)
+                            ) {
                                 break;
                             }
                             i -= 1;
@@ -127,9 +142,15 @@ class RecordStore {
                             done = i >= this.records.length;
                             i += 1;
 
-                            if (!done && range !== undefined && range.upper !== undefined) {
+                            if (
+                                !done &&
+                                range !== undefined &&
+                                range.upper !== undefined
+                            ) {
                                 const cmpResult = cmp(value.key, range.upper);
-                                done = cmpResult === 1 || (cmpResult === 0 && range.upperOpen);
+                                done =
+                                    cmpResult === 1 ||
+                                    (cmpResult === 0 && range.upperOpen);
                                 if (done) {
                                     value = undefined;
                                 }
@@ -139,9 +160,15 @@ class RecordStore {
                             done = i < 0;
                             i -= 1;
 
-                            if (!done && range !== undefined && range.lower !== undefined) {
+                            if (
+                                !done &&
+                                range !== undefined &&
+                                range.lower !== undefined
+                            ) {
                                 const cmpResult = cmp(value.key, range.lower);
-                                done = cmpResult === -1 || (cmpResult === 0 && range.lowerOpen);
+                                done =
+                                    cmpResult === -1 ||
+                                    (cmpResult === 0 && range.lowerOpen);
                                 if (done) {
                                     value = undefined;
                                 }

@@ -1,4 +1,4 @@
-import {DataError} from "./errors";
+import { DataError } from "./errors";
 import valueToKey from "./valueToKey";
 
 const getType = (x: any) => {
@@ -23,7 +23,9 @@ const getType = (x: any) => {
 
 // https://w3c.github.io/IndexedDB/#compare-two-keys
 const cmp = (first: any, second: any): -1 | 0 | 1 => {
-    if (second === undefined) { throw new TypeError(); }
+    if (second === undefined) {
+        throw new TypeError();
+    }
 
     first = valueToKey(first);
     second = valueToKey(second);
@@ -35,7 +37,10 @@ const cmp = (first: any, second: any): -1 | 0 | 1 => {
         if (t1 === "Array") {
             return 1;
         }
-        if (t1 === "Binary" && (t2 === "String" || t2 === "Date" || t2 === "Number")) {
+        if (
+            t1 === "Binary" &&
+            (t2 === "String" || t2 === "Date" || t2 === "Number")
+        ) {
             return 1;
         }
         if (t1 === "String" && (t2 === "Date" || t2 === "Number")) {

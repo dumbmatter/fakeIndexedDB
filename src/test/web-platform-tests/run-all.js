@@ -6,7 +6,9 @@ const path = require("path");
 const semver = require("semver");
 
 if (semver.lte(process.version, "6.0.0")) {
-    console.log("web-platform-tests only run in Node 6 or higher, but fake-indexeddb should still work in Node 4 and possibly older versions.");
+    console.log(
+        "web-platform-tests only run in Node 6 or higher, but fake-indexeddb should still work in Node 4 and possibly older versions.",
+    );
     process.exit(0);
 }
 
@@ -113,7 +115,9 @@ for (const filename of filenames) {
 
     console.log(`Running ${filename}...`);
     try {
-        const output = execSync(`node ${path.join(testFolder, filename)}`, {cwd: testFolder});
+        const output = execSync(`node ${path.join(testFolder, filename)}`, {
+            cwd: testFolder,
+        });
         if (output.toString().length > 0) {
             console.log(output.toString());
         }
@@ -126,13 +130,21 @@ for (const filename of filenames) {
 }
 
 if (skipped !== skip.length) {
-    throw new Error(`Skipped ${skipped} tests, but skip.length is ${skip.length}. Missing file?`);
+    throw new Error(
+        `Skipped ${skipped} tests, but skip.length is ${
+            skip.length
+        }. Missing file?`,
+    );
 }
 
 console.log(`Passed: ${passed}`);
 console.log(`Failed: ${failed}`);
 console.log(`Skipped: ${skipped}\n`);
-console.log(`Success Rate: ${Math.round(100 * passed / (passed + failed + skipped))}%`);
+console.log(
+    `Success Rate: ${Math.round(
+        (100 * passed) / (passed + failed + skipped),
+    )}%`,
+);
 
 if (failed > 0) {
     process.exit(1);

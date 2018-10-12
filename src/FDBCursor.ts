@@ -2,10 +2,22 @@ import FDBKeyRange from "./FDBKeyRange";
 import FDBObjectStore from "./FDBObjectStore";
 import FDBRequest from "./FDBRequest";
 import cmp from "./lib/cmp";
-import {DataError, InvalidAccessError, InvalidStateError, ReadOnlyError, TransactionInactiveError} from "./lib/errors";
+import {
+    DataError,
+    InvalidAccessError,
+    InvalidStateError,
+    ReadOnlyError,
+    TransactionInactiveError,
+} from "./lib/errors";
 import extractKey from "./lib/extractKey";
 import structuredClone from "./lib/structuredClone";
-import {CursorRange, CursorSource, FDBCursorDirection, Key, Value} from "./lib/types";
+import {
+    CursorRange,
+    CursorSource,
+    FDBCursorDirection,
+    Key,
+    Value,
+} from "./lib/types";
 import valueToKey from "./lib/valueToKey";
 
 const getEffectiveObjectStore = (cursor: FDBCursor) => {
@@ -19,7 +31,11 @@ const getEffectiveObjectStore = (cursor: FDBCursor) => {
 // range. It does not handle gt/gte distinctions, because it doesn't really matter much anyway, since for next/prev
 // cursor iteration it'd also have to look at values to be precise, which would be complicated. This should get us 99%
 // of the way there.
-const makeKeyRange = (range: FDBKeyRange, lowers: Array<Key | undefined>, uppers: Array<Key | undefined>) => {
+const makeKeyRange = (
+    range: FDBKeyRange,
+    lowers: Array<Key | undefined>,
+    uppers: Array<Key | undefined>,
+) => {
     // Start with bounds from range
     let lower = range !== undefined ? range.lower : undefined;
     let upper = range !== undefined ? range.upper : undefined;
@@ -88,37 +104,51 @@ class FDBCursor {
     get source() {
         return this._source;
     }
-    set source(val) { /* For babel */ }
+    set source(val) {
+        /* For babel */
+    }
 
     get direction() {
         return this._direction;
     }
-    set direction(val) { /* For babel */ }
+    set direction(val) {
+        /* For babel */
+    }
 
     get key() {
         return this._key;
     }
-    set key(val) { /* For babel */ }
+    set key(val) {
+        /* For babel */
+    }
 
     get primaryKey() {
         return this._primaryKey;
     }
-    set primaryKey(val) { /* For babel */ }
+    set primaryKey(val) {
+        /* For babel */
+    }
 
     // https://w3c.github.io/IndexedDB/#iterate-a-cursor
     public _iterate(key?: Key, primaryKey?: Key): this | null {
         const sourceIsObjectStore = this.source instanceof FDBObjectStore;
 
         // Can't use sourceIsObjectStore because TypeScript
-        const records = this.source instanceof FDBObjectStore ?
-            this.source._rawObjectStore.records : this.source._rawIndex.records;
+        const records =
+            this.source instanceof FDBObjectStore
+                ? this.source._rawObjectStore.records
+                : this.source._rawIndex.records;
 
         let foundRecord;
         if (this.direction === "next") {
             const range = makeKeyRange(this._range, [key, this._position], []);
             for (const record of records.values(range)) {
-                const cmpResultKey = key !== undefined ? cmp(record.key, key) : undefined;
-                const cmpResultPosition = this._position !== undefined ? cmp(record.key, this._position) : undefined;
+                const cmpResultKey =
+                    key !== undefined ? cmp(record.key, key) : undefined;
+                const cmpResultPosition =
+                    this._position !== undefined
+                        ? cmp(record.key, this._position)
+                        : undefined;
                 if (key !== undefined) {
                     if (cmpResultKey === -1) {
                         continue;
@@ -142,7 +172,10 @@ class FDBCursor {
                     if (cmpResultPosition === -1) {
                         continue;
                     }
-                    if (cmpResultPosition === 0 && cmp(record.value, this._objectStorePosition) !== 1) {
+                    if (
+                        cmpResultPosition === 0 &&
+                        cmp(record.value, this._objectStorePosition) !== 1
+                    ) {
                         continue;
                     }
                 }
@@ -181,8 +214,12 @@ class FDBCursor {
         } else if (this.direction === "prev") {
             const range = makeKeyRange(this._range, [], [key, this._position]);
             for (const record of records.values(range, "prev")) {
-                const cmpResultKey = key !== undefined ? cmp(record.key, key) : undefined;
-                const cmpResultPosition = this._position !== undefined ? cmp(record.key, this._position) : undefined;
+                const cmpResultKey =
+                    key !== undefined ? cmp(record.key, key) : undefined;
+                const cmpResultPosition =
+                    this._position !== undefined
+                        ? cmp(record.key, this._position)
+                        : undefined;
                 if (key !== undefined) {
                     if (cmpResultKey === 1) {
                         continue;
@@ -206,7 +243,10 @@ class FDBCursor {
                     if (cmpResultPosition === 1) {
                         continue;
                     }
-                    if (cmpResultPosition === 0 && cmp(record.value, this._objectStorePosition) !== -1) {
+                    if (
+                        cmpResultPosition === 0 &&
+                        cmp(record.value, this._objectStorePosition) !== -1
+                    ) {
                         continue;
                     }
                 }
@@ -249,30 +289,46 @@ class FDBCursor {
         let result;
         if (!foundRecord) {
             this._key = undefined;
-            if (!sourceIsObjectStore) { this._objectStorePosition = undefined; }
+            if (!sourceIsObjectStore) {
+                this._objectStorePosition = undefined;
+            }
 
             // "this instanceof FDBCursorWithValue" would be better and not require (this as any), but causes runtime
             // error due to circular dependency.
-            if (!this._keyOnly && this.constructor.name === "FDBCursorWithValue") {
+            if (
+                !this._keyOnly &&
+                this.constructor.name === "FDBCursorWithValue"
+            ) {
                 (this as any).value = undefined;
             }
             result = null;
         } else {
             this._position = foundRecord.key;
-            if (!sourceIsObjectStore) { this._objectStorePosition = foundRecord.value; }
+            if (!sourceIsObjectStore) {
+                this._objectStorePosition = foundRecord.value;
+            }
             this._key = foundRecord.key;
             if (sourceIsObjectStore) {
                 this._primaryKey = structuredClone(foundRecord.key);
-                if (!this._keyOnly && this.constructor.name === "FDBCursorWithValue") {
+                if (
+                    !this._keyOnly &&
+                    this.constructor.name === "FDBCursorWithValue"
+                ) {
                     (this as any).value = structuredClone(foundRecord.value);
                 }
             } else {
                 this._primaryKey = structuredClone(foundRecord.value);
-                if (!this._keyOnly && this.constructor.name === "FDBCursorWithValue") {
-                    if (this.source instanceof FDBObjectStore) { // Can't use sourceIsObjectStore because TypeScript
+                if (
+                    !this._keyOnly &&
+                    this.constructor.name === "FDBCursorWithValue"
+                ) {
+                    if (this.source instanceof FDBObjectStore) {
+                        // Can't use sourceIsObjectStore because TypeScript
                         throw new Error("This should never happen");
                     }
-                    const value = this.source.objectStore._rawObjectStore.getValue(foundRecord.value);
+                    const value = this.source.objectStore._rawObjectStore.getValue(
+                        foundRecord.value,
+                    );
                     (this as any).value = structuredClone(value);
                 }
             }
@@ -285,10 +341,14 @@ class FDBCursor {
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBCursor-update-IDBRequest-any-value
     public update(value: Value) {
-        if (value === undefined) { throw new TypeError(); }
+        if (value === undefined) {
+            throw new TypeError();
+        }
 
         const effectiveObjectStore = getEffectiveObjectStore(this);
-        const effectiveKey = this.source.hasOwnProperty("_rawIndex") ? this.primaryKey : this._position;
+        const effectiveKey = this.source.hasOwnProperty("_rawIndex")
+            ? this.primaryKey
+            : this._position;
         const transaction = effectiveObjectStore.transaction;
 
         if (!transaction._active) {
@@ -302,7 +362,10 @@ class FDBCursor {
         if (effectiveObjectStore._rawObjectStore.deleted) {
             throw new InvalidStateError();
         }
-        if (!(this.source instanceof FDBObjectStore) && this.source._rawIndex.deleted) {
+        if (
+            !(this.source instanceof FDBObjectStore) &&
+            this.source._rawIndex.deleted
+        ) {
             throw new InvalidStateError();
         }
 
@@ -315,7 +378,9 @@ class FDBCursor {
 
             try {
                 tempKey = extractKey(effectiveObjectStore.keyPath, value);
-            } catch (err) { /* Handled immediately below */ }
+            } catch (err) {
+                /* Handled immediately below */
+            }
 
             if (cmp(tempKey, effectiveKey) !== 0) {
                 throw new DataError();
@@ -340,7 +405,9 @@ class FDBCursor {
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBCursor-advance-void-unsigned-long-count
     public advance(count: number) {
-        if (!Number.isInteger(count) || count <= 0) { throw new TypeError(); }
+        if (!Number.isInteger(count) || count <= 0) {
+            throw new TypeError();
+        }
 
         const effectiveObjectStore = getEffectiveObjectStore(this);
         const transaction = effectiveObjectStore.transaction;
@@ -352,7 +419,10 @@ class FDBCursor {
         if (effectiveObjectStore._rawObjectStore.deleted) {
             throw new InvalidStateError();
         }
-        if (!(this.source instanceof FDBObjectStore) && this.source._rawIndex.deleted) {
+        if (
+            !(this.source instanceof FDBObjectStore) &&
+            this.source._rawIndex.deleted
+        ) {
             throw new InvalidStateError();
         }
 
@@ -395,7 +465,10 @@ class FDBCursor {
         if (effectiveObjectStore._rawObjectStore.deleted) {
             throw new InvalidStateError();
         }
-        if (!(this.source instanceof FDBObjectStore) && this.source._rawIndex.deleted) {
+        if (
+            !(this.source instanceof FDBObjectStore) &&
+            this.source._rawIndex.deleted
+        ) {
             throw new InvalidStateError();
         }
 
@@ -408,8 +481,14 @@ class FDBCursor {
 
             const cmpResult = cmp(key, this._position);
 
-            if ((cmpResult <= 0 && (this.direction === "next" || this.direction === "nextunique")) ||
-                (cmpResult >= 0 && (this.direction === "prev" || this.direction === "prevunique"))) {
+            if (
+                (cmpResult <= 0 &&
+                    (this.direction === "next" ||
+                        this.direction === "nextunique")) ||
+                (cmpResult >= 0 &&
+                    (this.direction === "prev" ||
+                        this.direction === "prevunique"))
+            ) {
                 throw new DataError();
             }
         }
@@ -438,11 +517,17 @@ class FDBCursor {
         if (effectiveObjectStore._rawObjectStore.deleted) {
             throw new InvalidStateError();
         }
-        if (!(this.source instanceof FDBObjectStore) && this.source._rawIndex.deleted) {
+        if (
+            !(this.source instanceof FDBObjectStore) &&
+            this.source._rawIndex.deleted
+        ) {
             throw new InvalidStateError();
         }
 
-        if (this.source instanceof FDBObjectStore || (this.direction !== "next" && this.direction !== "prev")) {
+        if (
+            this.source instanceof FDBObjectStore ||
+            (this.direction !== "next" && this.direction !== "prev")
+        ) {
             throw new InvalidAccessError();
         }
 
@@ -457,12 +542,18 @@ class FDBCursor {
 
         key = valueToKey(key);
         const cmpResult = cmp(key, this._position);
-        if ((cmpResult === -1 && this.direction === "next") || (cmpResult === 1 && this.direction === "prev")) {
+        if (
+            (cmpResult === -1 && this.direction === "next") ||
+            (cmpResult === 1 && this.direction === "prev")
+        ) {
             throw new DataError();
         }
         const cmpResult2 = cmp(primaryKey, this._objectStorePosition);
         if (cmpResult === 0) {
-            if ((cmpResult2 <= 0 && this.direction === "next") || (cmpResult2 >= 0 && this.direction === "prev")) {
+            if (
+                (cmpResult2 <= 0 && this.direction === "next") ||
+                (cmpResult2 >= 0 && this.direction === "prev")
+            ) {
                 throw new DataError();
             }
         }
@@ -481,7 +572,9 @@ class FDBCursor {
 
     public delete() {
         const effectiveObjectStore = getEffectiveObjectStore(this);
-        const effectiveKey = this.source.hasOwnProperty("_rawIndex") ? this.primaryKey : this._position;
+        const effectiveKey = this.source.hasOwnProperty("_rawIndex")
+            ? this.primaryKey
+            : this._position;
         const transaction = effectiveObjectStore.transaction;
 
         if (!transaction._active) {
@@ -495,7 +588,10 @@ class FDBCursor {
         if (effectiveObjectStore._rawObjectStore.deleted) {
             throw new InvalidStateError();
         }
-        if (!(this.source instanceof FDBObjectStore) && this.source._rawIndex.deleted) {
+        if (
+            !(this.source instanceof FDBObjectStore) &&
+            this.source._rawIndex.deleted
+        ) {
             throw new InvalidStateError();
         }
 

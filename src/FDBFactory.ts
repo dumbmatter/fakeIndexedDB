@@ -5,7 +5,7 @@ import FDBVersionChangeEvent from "./FDBVersionChangeEvent";
 import cmp from "./lib/cmp";
 import Database from "./lib/Database";
 import enforceRange from "./lib/enforceRange";
-import {AbortError, VersionError} from "./lib/errors";
+import { AbortError, VersionError } from "./lib/errors";
 import FakeEvent from "./lib/FakeEvent";
 
 const waitForOthersClosedDelete = (
@@ -14,12 +14,14 @@ const waitForOthersClosedDelete = (
     openDatabases: FDBDatabase[],
     cb: (err: Error | null) => void,
 ) => {
-    const anyOpen = openDatabases.some((openDatabase2) => {
+    const anyOpen = openDatabases.some(openDatabase2 => {
         return !openDatabase2._closed;
     });
 
     if (anyOpen) {
-        setImmediate(() => waitForOthersClosedDelete(databases, name, openDatabases, cb));
+        setImmediate(() =>
+            waitForOthersClosedDelete(databases, name, openDatabases, cb),
+        );
         return;
     }
 
@@ -44,7 +46,7 @@ const deleteDatabase = (
 
         db.deletePending = true;
 
-        const openDatabases = db.connections.filter((connection) => {
+        const openDatabases = db.connections.filter(connection => {
             return !connection._closed;
         });
 
@@ -58,7 +60,7 @@ const deleteDatabase = (
             }
         }
 
-        const anyOpen = openDatabases.some((openDatabase3) => {
+        const anyOpen = openDatabases.some(openDatabase3 => {
             return !openDatabase3._closed;
         });
 
@@ -87,9 +89,11 @@ const runVersionchangeTransaction = (
 
     const oldVersion = connection.version;
 
-    const openDatabases = connection._rawDatabase.connections.filter((otherDatabase) => {
-        return connection !== otherDatabase;
-    });
+    const openDatabases = connection._rawDatabase.connections.filter(
+        otherDatabase => {
+            return connection !== otherDatabase;
+        },
+    );
 
     for (const openDatabase2 of openDatabases) {
         if (!openDatabase2._closed) {
@@ -101,7 +105,7 @@ const runVersionchangeTransaction = (
         }
     }
 
-    const anyOpen = openDatabases.some((openDatabase3) => {
+    const anyOpen = openDatabases.some(openDatabase3 => {
         return !openDatabase3._closed;
     });
 
@@ -114,7 +118,7 @@ const runVersionchangeTransaction = (
     }
 
     const waitForOthersClosed = () => {
-        const anyOpen2 = openDatabases.some((openDatabase2) => {
+        const anyOpen2 = openDatabases.some(openDatabase2 => {
             return !openDatabase2._closed;
         });
 
@@ -128,8 +132,11 @@ const runVersionchangeTransaction = (
         connection._rawDatabase.version = version;
         connection.version = version;
 
-// Get rid of this setImmediate?
-        const transaction = connection.transaction(connection.objectStoreNames, "versionchange");
+        // Get rid of this setImmediate?
+        const transaction = connection.transaction(
+            connection.objectStoreNames,
+            "versionchange",
+        );
         request.result = connection;
         request.readyState = "done";
         request.transaction = transaction;
@@ -147,8 +154,8 @@ const runVersionchangeTransaction = (
 
         transaction.addEventListener("error", () => {
             connection._runningVersionchangeTransaction = false;
-// throw arguments[0].target.error;
-// console.log("error in versionchange transaction - not sure if anything needs to be done here", e.target.error.name);
+            // throw arguments[0].target.error;
+            // console.log("error in versionchange transaction - not sure if anything needs to be done here", e.target.error.name);
         });
         transaction.addEventListener("abort", () => {
             connection._runningVersionchangeTransaction = false;
@@ -199,10 +206,10 @@ const openDatabase = (
     const connection = new FDBDatabase(db);
 
     if (db.version < version) {
-        runVersionchangeTransaction(connection, version, request, (err) => {
+        runVersionchangeTransaction(connection, version, request, err => {
             if (err) {
-// DO THIS HERE: ensure that connection is closed by running the steps for closing a database connection before these
-// steps are aborted.
+                // DO THIS HERE: ensure that connection is closed by running the steps for closing a database connection before these
+                // steps are aborted.
                 return cb(err);
             }
 
@@ -226,7 +233,7 @@ class FDBFactory {
             const db = this._databases.get(name);
             const oldVersion = db !== undefined ? db.version : 0;
 
-            deleteDatabase(this._databases, name, request, (err) => {
+            deleteDatabase(this._databases, name, request, err => {
                 if (err) {
                     request.error = new Error();
                     request.error.name = err.name;
@@ -272,31 +279,37 @@ class FDBFactory {
         request.source = null;
 
         setImmediate(() => {
-            openDatabase(this._databases, name, version, request, (err, connection) => {
-                if (err) {
-                    request.result = undefined;
+            openDatabase(
+                this._databases,
+                name,
+                version,
+                request,
+                (err, connection) => {
+                    if (err) {
+                        request.result = undefined;
+                        request.readyState = "done";
+
+                        request.error = new Error();
+                        request.error.name = err.name;
+
+                        const event = new FakeEvent("error", {
+                            bubbles: true,
+                            cancelable: true,
+                        });
+                        event.eventPath = [];
+                        request.dispatchEvent(event);
+
+                        return;
+                    }
+
+                    request.result = connection;
                     request.readyState = "done";
 
-                    request.error = new Error();
-                    request.error.name = err.name;
-
-                    const event = new FakeEvent("error", {
-                        bubbles: true,
-                        cancelable: true,
-                    });
-                    event.eventPath = [];
-                    request.dispatchEvent(event);
-
-                    return;
-                }
-
-                request.result = connection;
-                request.readyState = "done";
-
-                const event2 = new FakeEvent("success");
-                event2.eventPath = [];
-                request.dispatchEvent(event2);
-            });
+                    const event2 = new FakeEvent("success");
+                    event2.eventPath = [];
+                    request.dispatchEvent(event2);
+                },
+            );
         });
 
         return request;

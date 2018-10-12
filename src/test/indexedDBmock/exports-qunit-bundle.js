@@ -1,2 +1,2 @@
-window.indexedDBmock = require('../..');
-window.IDBKeyRangemock = require('../../FDBKeyRange').default;
+window.indexedDBmock = require("../..");
+window.IDBKeyRangemock = require("../../FDBKeyRange").default;

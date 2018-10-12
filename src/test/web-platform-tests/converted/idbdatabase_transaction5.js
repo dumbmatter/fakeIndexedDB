@@ -7,6 +7,8 @@ var db,
 open_rq.onupgradeneeded = function() {};
 open_rq.onsuccess = function(e) {
     db = e.target.result;
-    assert_throws('InvalidAccessError', function() { db.transaction([]); });
+    assert_throws("InvalidAccessError", function() {
+        db.transaction([]);
+    });
     t.done();
 };

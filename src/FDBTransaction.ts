@@ -1,11 +1,22 @@
 import FDBDatabase from "./FDBDatabase";
 import FDBObjectStore from "./FDBObjectStore";
 import FDBRequest from "./FDBRequest";
-import {AbortError, InvalidStateError, NotFoundError, TransactionInactiveError} from "./lib/errors";
+import {
+    AbortError,
+    InvalidStateError,
+    NotFoundError,
+    TransactionInactiveError,
+} from "./lib/errors";
 import fakeDOMStringList from "./lib/fakeDOMStringList";
 import FakeEvent from "./lib/FakeEvent";
 import FakeEventTarget from "./lib/FakeEventTarget";
-import {EventCallback, FakeDOMStringList, RequestObj, RollbackLog, TransactionMode} from "./lib/types";
+import {
+    EventCallback,
+    FakeDOMStringList,
+    RequestObj,
+    RollbackLog,
+    TransactionMode,
+} from "./lib/types";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#transaction
 class FDBTransaction extends FakeEventTarget {
@@ -25,8 +36,8 @@ class FDBTransaction extends FakeEventTarget {
 
     public _scope: Set<string>;
     private _requests: Array<{
-        operation: () => void,
-        request: FDBRequest,
+        operation: () => void;
+        request: FDBRequest;
     }> = [];
 
     constructor(storeNames: string[], mode: TransactionMode, db: FDBDatabase) {
@@ -35,7 +46,9 @@ class FDBTransaction extends FakeEventTarget {
         this._scope = new Set(storeNames);
         this.mode = mode;
         this.db = db;
-        this.objectStoreNames = fakeDOMStringList(Array.from(this._scope).sort());
+        this.objectStoreNames = fakeDOMStringList(
+            Array.from(this._scope).sort(),
+        );
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-aborting-a-transaction
@@ -50,8 +63,8 @@ class FDBTransaction extends FakeEventTarget {
             this.error = e;
         }
 
-// Should this directly remove from _requests?
-        for (const {request} of this._requests) {
+        // Should this directly remove from _requests?
+        for (const { request } of this._requests) {
             if (request.readyState !== "done") {
                 request.readyState = "done"; // This will cancel execution of this request's operation
                 if (request.source) {
@@ -109,7 +122,6 @@ class FDBTransaction extends FakeEventTarget {
         this._objectStoresCache.set(name, objectStore2);
 
         return objectStore2;
-
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-asynchronously-executing-a-request
@@ -208,7 +220,7 @@ class FDBTransaction extends FakeEventTarget {
                     // transaction/promise interactions wonky.
                     // this._active = false;
                 } catch (err) {
-// console.error(err);
+                    // console.error(err);
                     this._abort("AbortError");
                     throw err;
                 }
@@ -232,7 +244,8 @@ class FDBTransaction extends FakeEventTarget {
         }
 
         // Check if transaction complete event needs to be fired
-        if (!this._finished) { // Either aborted or committed already
+        if (!this._finished) {
+            // Either aborted or committed already
             this._active = false;
             this._finished = true;
 

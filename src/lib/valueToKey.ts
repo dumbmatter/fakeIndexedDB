@@ -1,5 +1,5 @@
-import {DataError} from "./errors";
-import {Key} from "./types";
+import { DataError } from "./errors";
+import { Key } from "./types";
 
 // https://w3c.github.io/IndexedDB/#convert-a-value-to-a-input
 const valueToKey = (input: any, seen?: Set<object>): Key | Key[] => {
@@ -17,8 +17,10 @@ const valueToKey = (input: any, seen?: Set<object>): Key | Key[] => {
     } else if (typeof input === "string") {
         return input;
     } else if (
-        (input instanceof ArrayBuffer) ||
-        (typeof ArrayBuffer !== "undefined" && ArrayBuffer.isView && ArrayBuffer.isView(input))
+        input instanceof ArrayBuffer ||
+        (typeof ArrayBuffer !== "undefined" &&
+            ArrayBuffer.isView &&
+            ArrayBuffer.isView(input))
     ) {
         if (input instanceof ArrayBuffer) {
             return new Uint8Array(input).buffer;

@@ -14,7 +14,14 @@ interface EventInCallback extends Event {
 
 export type EventCallback = (event: EventInCallback) => void;
 
-export type EventType = "abort" | "blocked" | "complete" | "error" | "success" | "upgradeneeded" | "versionchange";
+export type EventType =
+    | "abort"
+    | "blocked"
+    | "complete"
+    | "error"
+    | "success"
+    | "upgradeneeded"
+    | "versionchange";
 
 export interface FakeDOMStringList extends Array<string> {
     contains: (value: string) => boolean;
@@ -27,7 +34,7 @@ export type KeyPath = string | string[];
 
 export type Key = any;
 
-export type CursorRange =  Key | FDBKeyRange | undefined;
+export type CursorRange = Key | FDBKeyRange | undefined;
 
 export type Value = any;
 

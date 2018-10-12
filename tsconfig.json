@@ -10,10 +10,5 @@
         "noEmitOnError": true,
         "strict": true
     },
-    "exclude": [
-        "node_modules",
-        "build",
-        "lib",
-        "src/test/web-platform-tests"
-    ]
+    "exclude": ["node_modules", "build", "lib", "src/test/web-platform-tests"]
 }

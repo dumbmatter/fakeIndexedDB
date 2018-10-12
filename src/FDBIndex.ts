@@ -4,10 +4,14 @@ import FDBKeyRange from "./FDBKeyRange";
 import FDBObjectStore from "./FDBObjectStore";
 import FDBRequest from "./FDBRequest";
 import enforceRange from "./lib/enforceRange";
-import {ConstraintError, InvalidStateError, TransactionInactiveError} from "./lib/errors";
+import {
+    ConstraintError,
+    InvalidStateError,
+    TransactionInactiveError,
+} from "./lib/errors";
 import fakeDOMStringList from "./lib/fakeDOMStringList";
 import Index from "./lib/Index";
-import {FDBCursorDirection, Key, KeyPath} from "./lib/types";
+import { FDBCursorDirection, Key, KeyPath } from "./lib/types";
 import valueToKey from "./lib/valueToKey";
 import valueToKeyRange from "./lib/valueToKeyRange";
 
@@ -57,7 +61,10 @@ class FDBIndex {
             throw new TransactionInactiveError();
         }
 
-        if (this._rawIndex.deleted || this.objectStore._rawObjectStore.deleted) {
+        if (
+            this._rawIndex.deleted ||
+            this.objectStore._rawObjectStore.deleted
+        ) {
             throw new InvalidStateError();
         }
 
@@ -81,11 +88,14 @@ class FDBIndex {
         this.objectStore._rawObjectStore.rawIndexes.delete(oldName);
         this.objectStore._rawObjectStore.rawIndexes.set(name, this._rawIndex);
         this.objectStore.indexNames = fakeDOMStringList(
-            Array.from(this.objectStore._rawObjectStore.rawIndexes.keys())
-                .filter((indexName) => {
-                    const index = this.objectStore._rawObjectStore.rawIndexes.get(indexName);
-                    return index && !index.deleted;
-                }),
+            Array.from(
+                this.objectStore._rawObjectStore.rawIndexes.keys(),
+            ).filter(indexName => {
+                const index = this.objectStore._rawObjectStore.rawIndexes.get(
+                    indexName,
+                );
+                return index && !index.deleted;
+            }),
         ).sort();
 
         transaction._rollbackLog.push(() => {
@@ -94,17 +104,25 @@ class FDBIndex {
             this.objectStore._indexesCache.delete(name);
             this.objectStore._indexesCache.set(oldName, this);
             this.objectStore._rawObjectStore.rawIndexes.delete(name);
-            this.objectStore._rawObjectStore.rawIndexes.set(oldName, this._rawIndex);
+            this.objectStore._rawObjectStore.rawIndexes.set(
+                oldName,
+                this._rawIndex,
+            );
             this.objectStore.indexNames = fakeDOMStringList(oldIndexNames);
         });
     }
 
     // tslint:disable-next-line max-line-length
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBIndex-openCursor-IDBRequest-any-range-IDBCursorDirection-direction
-    public openCursor(range?: FDBKeyRange | Key | null | undefined, direction?: FDBCursorDirection) {
+    public openCursor(
+        range?: FDBKeyRange | Key | null | undefined,
+        direction?: FDBCursorDirection,
+    ) {
         confirmActiveTransaction(this);
 
-        if (range === null) { range = undefined; }
+        if (range === null) {
+            range = undefined;
+        }
         if (range !== undefined && !(range instanceof FDBKeyRange)) {
             range = FDBKeyRange.only(valueToKey(range));
         }
@@ -124,10 +142,15 @@ class FDBIndex {
 
     // tslint:disable-next-line max-line-length
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-IDBCursorDirection-direction
-    public openKeyCursor(range?: FDBKeyRange | Key | null | undefined, direction?: FDBCursorDirection) {
+    public openKeyCursor(
+        range?: FDBKeyRange | Key | null | undefined,
+        direction?: FDBCursorDirection,
+    ) {
         confirmActiveTransaction(this);
 
-        if (range === null) { range = undefined; }
+        if (range === null) {
+            range = undefined;
+        }
         if (range !== undefined && !(range instanceof FDBKeyRange)) {
             range = FDBKeyRange.only(valueToKey(range));
         }
@@ -168,7 +191,11 @@ class FDBIndex {
         const range = valueToKeyRange(query);
 
         return this.objectStore.transaction._execRequestAsync({
-            operation: this._rawIndex.getAllValues.bind(this._rawIndex, range, count),
+            operation: this._rawIndex.getAllValues.bind(
+                this._rawIndex,
+                range,
+                count,
+            ),
             source: this,
         });
     }
@@ -197,7 +224,11 @@ class FDBIndex {
         const range = valueToKeyRange(query);
 
         return this.objectStore.transaction._execRequestAsync({
-            operation: this._rawIndex.getAllKeys.bind(this._rawIndex, range, count),
+            operation: this._rawIndex.getAllKeys.bind(
+                this._rawIndex,
+                range,
+                count,
+            ),
             source: this,
         });
     }
@@ -206,7 +237,9 @@ class FDBIndex {
     public count(key: FDBKeyRange | Key | null | undefined) {
         confirmActiveTransaction(this);
 
-        if (key === null) { key = undefined; }
+        if (key === null) {
+            key = undefined;
+        }
         if (key !== undefined && !(key instanceof FDBKeyRange)) {
             key = FDBKeyRange.only(valueToKey(key));
         }

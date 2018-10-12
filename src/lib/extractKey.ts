@@ -1,5 +1,5 @@
 import structuredClone from "./structuredClone";
-import {Key, KeyPath, Value} from "./types";
+import { Key, KeyPath, Value } from "./types";
 import valueToKey from "./valueToKey";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-extracting-a-key-from-a-value-using-a-key-path
@@ -10,7 +10,12 @@ const extractKey = (keyPath: KeyPath, value: Value) => {
         for (let item of keyPath) {
             // This doesn't make sense to me based on the spec, but it is needed to pass the W3C KeyPath tests (see same
             // comment in validateKeyPath)
-            if (item !== undefined && item !== null && typeof item !== "string" && (item as any).toString) {
+            if (
+                item !== undefined &&
+                item !== null &&
+                typeof item !== "string" &&
+                (item as any).toString
+            ) {
                 item = (item as any).toString();
             }
             result.push(valueToKey(extractKey(item, value)));

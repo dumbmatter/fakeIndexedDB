@@ -1,5 +1,5 @@
 import FakeEventTarget from "./FakeEventTarget";
-import {EventType} from "./types";
+import { EventType } from "./types";
 
 class Event {
     public eventPath: FakeEventTarget[] = [];
@@ -30,11 +30,18 @@ class Event {
     public bubbles: boolean;
     public cancelable: boolean;
 
-    constructor(type: EventType, eventInitDict: {bubbles?: boolean, cancelable?: boolean} = {}) {
+    constructor(
+        type: EventType,
+        eventInitDict: { bubbles?: boolean; cancelable?: boolean } = {},
+    ) {
         this.type = type;
 
-        this.bubbles = eventInitDict.bubbles !== undefined ? eventInitDict.bubbles : false;
-        this.cancelable = eventInitDict.cancelable !== undefined ? eventInitDict.cancelable : false;
+        this.bubbles =
+            eventInitDict.bubbles !== undefined ? eventInitDict.bubbles : false;
+        this.cancelable =
+            eventInitDict.cancelable !== undefined
+                ? eventInitDict.cancelable
+                : false;
     }
 
     public preventDefault() {

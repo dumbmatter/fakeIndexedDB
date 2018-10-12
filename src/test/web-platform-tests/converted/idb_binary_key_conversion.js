@@ -1,15 +1,15 @@
 require("../support-node");
 
-  test(function() {
+test(function() {
     let binary = new ArrayBuffer(0);
     let key = IDBKeyRange.lowerBound(binary).lower;
 
     assert_true(key instanceof ArrayBuffer);
     assert_equals(key.byteLength, 0);
     assert_equals(key.byteLength, binary.byteLength);
-  }, "Empty ArrayBuffer");
+}, "Empty ArrayBuffer");
 
-  test(function() {
+test(function() {
     let binary = new ArrayBuffer(4);
     let dataView = new DataView(binary);
     dataView.setUint32(0, 1234567890);
@@ -19,9 +19,9 @@ require("../support-node");
     assert_true(key instanceof ArrayBuffer);
     assert_equals(key.byteLength, 4);
     assert_equals(dataView.getUint32(0), new DataView(key).getUint32(0));
-  }, "ArrayBuffer");
+}, "ArrayBuffer");
 
-  test(function() {
+test(function() {
     let binary = new ArrayBuffer(4);
     let dataView = new DataView(binary);
     dataView.setUint32(0, 1234567890);
@@ -31,9 +31,9 @@ require("../support-node");
     assert_true(key instanceof ArrayBuffer);
     assert_equals(key.byteLength, 4);
     assert_equals(dataView.getUint32(0), new DataView(key).getUint32(0));
-  }, "DataView");
+}, "DataView");
 
-  test(function() {
+test(function() {
     let binary = new ArrayBuffer(4);
     let dataView = new DataView(binary);
     let int8Array = new Int8Array(binary);
@@ -44,12 +44,12 @@ require("../support-node");
 
     assert_true(key instanceof ArrayBuffer);
     assert_equals(key.byteLength, 4);
-    for(let i = 0; i < int8Array.length; i++) {
-      assert_equals(keyInInt8Array[i], int8Array[i]);
+    for (let i = 0; i < int8Array.length; i++) {
+        assert_equals(keyInInt8Array[i], int8Array[i]);
     }
-  }, "TypedArray(Int8Array)");
+}, "TypedArray(Int8Array)");
 
-  test(function() {
+test(function() {
     let binary = new ArrayBuffer(4);
     let dataView = new DataView(binary);
     let int8Array = new Int8Array(binary);
@@ -63,7 +63,7 @@ require("../support-node");
 
     let keyInInt8Array = new Int8Array(key[0]);
 
-    for(let i = 0; i < int8Array.length; i++) {
-      assert_equals(keyInInt8Array[i], int8Array[i]);
+    for (let i = 0; i < int8Array.length; i++) {
+        assert_equals(keyInInt8Array[i], int8Array[i]);
     }
-  }, "Array of TypedArray(Int8Array)");
+}, "Array of TypedArray(Int8Array)");

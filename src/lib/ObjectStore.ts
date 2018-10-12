@@ -1,12 +1,12 @@
 import FDBKeyRange from "../FDBKeyRange";
 import Database from "./Database";
-import {ConstraintError, DataError} from "./errors";
+import { ConstraintError, DataError } from "./errors";
 import extractKey from "./extractKey";
 import Index from "./Index";
 import KeyGenerator from "./KeyGenerator";
 import RecordStore from "./RecordStore";
 import structuredClone from "./structuredClone";
-import {Key, KeyPath, Record, RollbackLog} from "./types";
+import { Key, KeyPath, Record, RollbackLog } from "./types";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-object-store
 class ObjectStore {
@@ -19,7 +19,12 @@ class ObjectStore {
     public readonly autoIncrement: boolean;
     public readonly keyGenerator: KeyGenerator | null;
 
-    constructor(rawDatabase: Database, name: string, keyPath: KeyPath | null, autoIncrement: boolean) {
+    constructor(
+        rawDatabase: Database,
+        name: string,
+        keyPath: KeyPath | null,
+        autoIncrement: boolean,
+    ) {
         this.rawDatabase = rawDatabase;
         this.keyGenerator = autoIncrement === true ? new KeyGenerator() : null;
         this.deleted = false;
@@ -78,7 +83,11 @@ class ObjectStore {
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-storing-a-record-into-an-object-store
-    public storeRecord(newRecord: Record, noOverwrite: boolean, rollbackLog: RollbackLog) {
+    public storeRecord(
+        newRecord: Record,
+        noOverwrite: boolean,
+        rollbackLog: RollbackLog,
+    ) {
         if (this.keyPath !== null) {
             const key = extractKey(this.keyPath, newRecord.value);
             if (key !== undefined) {
@@ -102,7 +111,9 @@ class ObjectStore {
             // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-to-assign-a-key-to-a-value-using-a-key-path
             if (this.keyPath !== null) {
                 if (Array.isArray(this.keyPath)) {
-                    throw new Error("Cannot have an array key path in an object store with a key generator");
+                    throw new Error(
+                        "Cannot have an array key path in an object store with a key generator",
+                    );
                 }
                 let remainingKeyPath = this.keyPath;
                 let object = newRecord.value;
@@ -131,7 +142,10 @@ class ObjectStore {
 
                 object[identifier] = newRecord.key;
             }
-        } else if (this.keyGenerator !== null && typeof newRecord.key === "number") {
+        } else if (
+            this.keyGenerator !== null &&
+            typeof newRecord.key === "number"
+        ) {
             this.keyGenerator.setIfLarger(newRecord.key);
         }
 

@@ -1,6 +1,5 @@
 require("../support-node");
 
-
 // Call with a test object and array of expected values. Returns a
 // function to call with each actual value. Once the expected number
 // of values is seen, asserts that the value orders match and completes
@@ -18,67 +17,72 @@ function expect(t, expected) {
 
 indexeddb_test(
     (t, db) => {
-        db.createObjectStore('store');
+        db.createObjectStore("store");
     },
     (t, db) => {
-        var saw = expect(t, ['rq1.onsuccess',
-                           'rq2.onsuccess',
-                           'tx1.oncomplete',
-                           'tx2.oncomplete']);
+        var saw = expect(t, [
+            "rq1.onsuccess",
+            "rq2.onsuccess",
+            "tx1.oncomplete",
+            "tx2.oncomplete",
+        ]);
 
-        var tx1 = db.transaction('store', 'readwrite');
-        tx1.onabort = t.unreached_func('transaction should commit');
-        tx1.oncomplete = t.step_func(() => saw('tx1.oncomplete'));
+        var tx1 = db.transaction("store", "readwrite");
+        tx1.onabort = t.unreached_func("transaction should commit");
+        tx1.oncomplete = t.step_func(() => saw("tx1.oncomplete"));
 
-        var store = tx1.objectStore('store');
-        var rq1 = store.put('a', 1);
-        rq1.onerror = t.unreached_func('put should succeed');
+        var store = tx1.objectStore("store");
+        var rq1 = store.put("a", 1);
+        rq1.onerror = t.unreached_func("put should succeed");
         rq1.onsuccess = t.step_func(() => {
-            saw('rq1.onsuccess');
+            saw("rq1.onsuccess");
 
-            var tx2 = db.transaction('store', 'readonly');
-            tx2.onabort = t.unreached_func('transaction should commit');
-            tx2.oncomplete = t.step_func(() => saw('tx2.oncomplete'));
+            var tx2 = db.transaction("store", "readonly");
+            tx2.onabort = t.unreached_func("transaction should commit");
+            tx2.oncomplete = t.step_func(() => saw("tx2.oncomplete"));
 
-            var rq2 = store.put('b', 2);
-            rq2.onsuccess = t.step_func(() => saw('rq2.onsuccess'));
-            rq2.onerror = t.unreached_func('request should succeed');
+            var rq2 = store.put("b", 2);
+            rq2.onsuccess = t.step_func(() => saw("rq2.onsuccess"));
+            rq2.onerror = t.unreached_func("request should succeed");
         });
-
     },
-    'Transactions without requests complete in the expected order');
+    "Transactions without requests complete in the expected order",
+);
 
 indexeddb_test(
     (t, db) => {
-        db.createObjectStore('store');
+        db.createObjectStore("store");
     },
     (t, db) => {
-        var saw = expect(t, ['rq1.onsuccess',
-                           'rq2.onsuccess',
-                           'tx1.oncomplete',
-                           'tx2.oncomplete',
-                           'tx3.oncomplete']);
-        var tx1 = db.transaction('store', 'readwrite');
-        tx1.onabort = t.unreached_func('transaction should commit');
-        tx1.oncomplete = t.step_func(() => saw('tx1.oncomplete'));
+        var saw = expect(t, [
+            "rq1.onsuccess",
+            "rq2.onsuccess",
+            "tx1.oncomplete",
+            "tx2.oncomplete",
+            "tx3.oncomplete",
+        ]);
+        var tx1 = db.transaction("store", "readwrite");
+        tx1.onabort = t.unreached_func("transaction should commit");
+        tx1.oncomplete = t.step_func(() => saw("tx1.oncomplete"));
 
-        var store = tx1.objectStore('store');
-        var rq1 = store.put('a', 1);
-        rq1.onerror = t.unreached_func('put should succeed');
+        var store = tx1.objectStore("store");
+        var rq1 = store.put("a", 1);
+        rq1.onerror = t.unreached_func("put should succeed");
         rq1.onsuccess = t.step_func(() => {
-            saw('rq1.onsuccess');
+            saw("rq1.onsuccess");
 
-            var tx2 = db.transaction('store', 'readonly');
-            tx2.onabort = t.unreached_func('transaction should commit');
-            tx2.oncomplete = t.step_func(() => saw('tx2.oncomplete'));
+            var tx2 = db.transaction("store", "readonly");
+            tx2.onabort = t.unreached_func("transaction should commit");
+            tx2.oncomplete = t.step_func(() => saw("tx2.oncomplete"));
 
-            var tx3 = db.transaction('store', 'readonly');
-            tx3.onabort = t.unreached_func('transaction should commit');
-            tx3.oncomplete = t.step_func(() => saw('tx3.oncomplete'));
+            var tx3 = db.transaction("store", "readonly");
+            tx3.onabort = t.unreached_func("transaction should commit");
+            tx3.oncomplete = t.step_func(() => saw("tx3.oncomplete"));
 
-            var rq2 = store.put('b', 2);
-            rq2.onsuccess = t.step_func(() => saw('rq2.onsuccess'));
-            rq2.onerror = t.unreached_func('request should succeed');
+            var rq2 = store.put("b", 2);
+            rq2.onsuccess = t.step_func(() => saw("rq2.onsuccess"));
+            rq2.onerror = t.unreached_func("request should succeed");
         });
     },
-    'Multiple transactions without requests complete in the expected order');
+    "Multiple transactions without requests complete in the expected order",
+);

@@ -1,18 +1,18 @@
 import FDBKeyRange from "../FDBKeyRange";
 import FDBTransaction from "../FDBTransaction";
-import {ConstraintError} from "./errors";
+import { ConstraintError } from "./errors";
 import extractKey from "./extractKey";
 import ObjectStore from "./ObjectStore";
 import RecordStore from "./RecordStore";
 import structuredClone from "./structuredClone";
-import {Key, KeyPath, Record} from "./types";
+import { Key, KeyPath, Record } from "./types";
 import valueToKey from "./valueToKey";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-index
 class Index {
     public deleted = false;
-// Initialized should be used to decide whether to throw an error or abort the versionchange transaction when there is a
-// constraint
+    // Initialized should be used to decide whether to throw an error or abort the versionchange transaction when there is a
+    // constraint
     public initialized = false;
     public readonly rawObjectStore: ObjectStore;
     public readonly records = new RecordStore();
@@ -21,7 +21,13 @@ class Index {
     public multiEntry: boolean;
     public unique: boolean;
 
-    constructor(rawObjectStore: ObjectStore, name: string, keyPath: KeyPath, multiEntry: boolean, unique: boolean) {
+    constructor(
+        rawObjectStore: ObjectStore,
+        name: string,
+        keyPath: KeyPath,
+        multiEntry: boolean,
+        unique: boolean,
+    ) {
         this.rawObjectStore = rawObjectStore;
 
         this.name = name;
@@ -58,7 +64,9 @@ class Index {
     public getValue(key: FDBKeyRange | Key) {
         const record = this.records.get(key);
 
-        return record !== undefined ? this.rawObjectStore.getValue(record.value) : undefined;
+        return record !== undefined
+            ? this.rawObjectStore.getValue(record.value)
+            : undefined;
     }
 
     // http://w3c.github.io/IndexedDB/#retrieve-multiple-referenced-values-from-an-index
@@ -106,7 +114,9 @@ class Index {
                 if (keep.indexOf(part) < 0) {
                     try {
                         keep.push(valueToKey(part));
-                    } catch (err) { /* Do nothing */ }
+                    } catch (err) {
+                        /* Do nothing */
+                    }
                 }
             }
             indexKey = keep;
@@ -160,7 +170,7 @@ class Index {
 
                     this.initialized = true;
                 } catch (err) {
-// console.error(err);
+                    // console.error(err);
                     transaction._abort(err.name);
                 }
             },

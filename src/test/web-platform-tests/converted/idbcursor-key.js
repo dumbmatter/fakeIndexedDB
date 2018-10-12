@@ -1,48 +1,46 @@
 require("../support-node");
 
+function cursor_key(key) {
+    var db,
+        t = async_test(document.title + " - " + key);
 
-    function cursor_key(key)
-    {
-        var db,
-          t = async_test(document.title + " - " + key);
+    var open_rq = createdb(t);
+    open_rq.onupgradeneeded = function(e) {
+        db = e.target.result;
+        var objStore = db.createObjectStore("test");
 
-        var open_rq = createdb(t);
-        open_rq.onupgradeneeded = function(e) {
-            db = e.target.result;
-            var objStore = db.createObjectStore("test");
+        objStore.add("data", key);
+    };
 
-            objStore.add("data", key);
-        };
+    open_rq.onsuccess = t.step_func(function(e) {
+        var cursor_rq = db
+            .transaction("test")
+            .objectStore("test")
+            .openCursor();
 
-        open_rq.onsuccess = t.step_func(function(e) {
-            var cursor_rq = db.transaction("test")
-                              .objectStore("test")
-                              .openCursor();
+        cursor_rq.onsuccess = t.step_func(function(e) {
+            var cursor = e.target.result;
+            assert_equals(cursor.value, "data", "prequisite cursor.value");
 
-            cursor_rq.onsuccess = t.step_func(function(e) {
-                var cursor = e.target.result;
-                assert_equals(cursor.value, "data", "prequisite cursor.value");
+            assert_key_equals(cursor.key, key, "key");
+            assert_readonly(cursor, "key");
 
-                assert_key_equals(cursor.key, key, 'key');
-                assert_readonly(cursor, 'key');
+            if (key instanceof Array) {
+                cursor.key.push("new");
+                key.push("new");
 
-                if (key instanceof Array) {
-                    cursor.key.push("new");
-                    key.push("new");
+                assert_key_equals(cursor.key, key, "key after array push");
 
-                    assert_key_equals(cursor.key, key, 'key after array push');
+                // But we can not change key (like readonly, just a bit different)
+                cursor.key = 10;
+                assert_key_equals(cursor.key, key, "key after assignment");
+            }
 
-                    // But we can not change key (like readonly, just a bit different)
-                    cursor.key = 10;
-                    assert_key_equals(cursor.key, key, 'key after assignment');
-                }
-
-                t.done();
-            });
+            t.done();
         });
-    }
+    });
+}
 
-    cursor_key(1);
-    cursor_key("key");
-    cursor_key(["my", "key"]);
-
+cursor_key(1);
+cursor_key("key");
+cursor_key(["my", "key"]);

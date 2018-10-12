@@ -7,18 +7,17 @@ function value(value, _instanceof) {
     });
 
     createdb(t).onupgradeneeded = function(e) {
-        e.target.result
-                .createObjectStore("store")
-                .add(value, 1);
+        e.target.result.createObjectStore("store").add(value, 1);
 
         e.target.onsuccess = t.step_func(function(e) {
             e.target.result
-                    .transaction("store")
-                    .objectStore("store")
-                    .get(1)
-                    .onsuccess = t.step_func(function(e)
-            {
-                assert_true(e.target.result instanceof _instanceof, "instanceof")
+                .transaction("store")
+                .objectStore("store")
+                .get(1).onsuccess = t.step_func(function(e) {
+                assert_true(
+                    e.target.result instanceof _instanceof,
+                    "instanceof",
+                );
                 t.done();
             });
         });
@@ -27,4 +26,3 @@ function value(value, _instanceof) {
 
 value(new Date(), Date);
 value(new Array(), Array);
-

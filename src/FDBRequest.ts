@@ -2,9 +2,9 @@ import FDBCursor from "./FDBCursor";
 import FDBIndex from "./FDBIndex";
 import FDBObjectStore from "./FDBObjectStore";
 import FDBTransaction from "./FDBTransaction";
-import {InvalidStateError} from "./lib/errors";
+import { InvalidStateError } from "./lib/errors";
 import FakeEventTarget from "./lib/FakeEventTarget";
-import {EventCallback} from "./lib/types";
+import { EventCallback } from "./lib/types";
 
 class FDBRequest extends FakeEventTarget {
     public _result: any = null;

@@ -21,12 +21,12 @@ class Database {
 
     public processTransactions() {
         setImmediate(() => {
-            const anyRunning = this.transactions.some((transaction) => {
+            const anyRunning = this.transactions.some(transaction => {
                 return transaction._started && !transaction._finished;
             });
 
             if (!anyRunning) {
-                const next = this.transactions.find((transaction) => {
+                const next = this.transactions.find(transaction => {
                     return !transaction._started && !transaction._finished;
                 });
 

@@ -1,16 +1,15 @@
-import {InvalidStateError} from "./errors";
+import { InvalidStateError } from "./errors";
 import FakeEvent from "./FakeEvent";
-import {EventCallback, EventType} from "./types";
+import { EventCallback, EventType } from "./types";
 
-type EventTypeProp = (
-    "onabort" |
-    "onblocked" |
-    "oncomplete" |
-    "onerror" |
-    "onsuccess" |
-    "onupgradeneeded" |
-    "onversionchange"
-);
+type EventTypeProp =
+    | "onabort"
+    | "onblocked"
+    | "oncomplete"
+    | "onerror"
+    | "onsuccess"
+    | "onupgradeneeded"
+    | "onversionchange";
 
 interface Listener {
     callback: EventCallback;
@@ -21,7 +20,8 @@ interface Listener {
 const stopped = (event: FakeEvent, listener: Listener) => {
     return (
         event.immediatePropagationStopped ||
-        (event.eventPhase === event.CAPTURING_PHASE && listener.capture === false) ||
+        (event.eventPhase === event.CAPTURING_PHASE &&
+            listener.capture === false) ||
         (event.eventPhase === event.BUBBLING_PHASE && listener.capture === true)
     );
 };
@@ -38,7 +38,7 @@ const invokeEventListeners = (event: FakeEvent, obj: FakeEventTarget) => {
         listener.callback.call(event.currentTarget, event);
     }
 
-    const typeToProp: {[key in EventType]: EventTypeProp} = {
+    const typeToProp: { [key in EventType]: EventTypeProp } = {
         abort: "onabort",
         blocked: "onblocked",
         complete: "oncomplete",
@@ -77,7 +77,11 @@ abstract class FakeEventTarget {
     public readonly onupgradeneeded: EventCallback | null | undefined;
     public readonly onversionchange: EventCallback | null | undefined;
 
-    public addEventListener(type: EventType, callback: EventCallback, capture = false) {
+    public addEventListener(
+        type: EventType,
+        callback: EventCallback,
+        capture = false,
+    ) {
         this.listeners.push({
             callback,
             capture,
@@ -85,11 +89,17 @@ abstract class FakeEventTarget {
         });
     }
 
-    public removeEventListener(type: EventType, callback: EventCallback, capture = false) {
-        const i = this.listeners.findIndex((listener) => {
-            return listener.type === type &&
-                   listener.callback === callback &&
-                   listener.capture === capture;
+    public removeEventListener(
+        type: EventType,
+        callback: EventCallback,
+        capture = false,
+    ) {
+        const i = this.listeners.findIndex(listener => {
+            return (
+                listener.type === type &&
+                listener.callback === callback &&
+                listener.capture === capture
+            );
         });
 
         this.listeners.splice(i, 1);
@@ -104,7 +114,7 @@ abstract class FakeEventTarget {
 
         event.dispatched = true;
         event.target = this;
-// NOT SURE WHEN THIS SHOULD BE SET        event.eventPath = [];
+        // NOT SURE WHEN THIS SHOULD BE SET        event.eventPath = [];
 
         event.eventPhase = event.CAPTURING_PHASE;
         for (const obj of event.eventPath) {

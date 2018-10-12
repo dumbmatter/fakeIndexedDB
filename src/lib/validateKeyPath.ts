@@ -1,4 +1,4 @@
-import {KeyPath} from "./types";
+import { KeyPath } from "./types";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-valid-key-path
 const validateKeyPath = (keyPath: KeyPath, parent?: "array" | "string") => {
@@ -30,14 +30,18 @@ const validateKeyPath = (keyPath: KeyPath, parent?: "array" | "string") => {
             throw new SyntaxError(err.message);
         }
         if (keyPath.indexOf(" ") >= 0) {
-            throw new SyntaxError("The keypath argument contains an invalid key path (no spaces allowed).");
+            throw new SyntaxError(
+                "The keypath argument contains an invalid key path (no spaces allowed).",
+            );
         }
     }
 
     if (Array.isArray(keyPath) && keyPath.length > 0) {
         if (parent) {
             // No nested arrays
-            throw new SyntaxError("The keypath argument contains an invalid key path (nested arrays).");
+            throw new SyntaxError(
+                "The keypath argument contains an invalid key path (nested arrays).",
+            );
         }
         for (const part of keyPath) {
             validateKeyPath(part, "array");

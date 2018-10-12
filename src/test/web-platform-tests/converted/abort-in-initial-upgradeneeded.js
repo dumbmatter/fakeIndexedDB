@@ -1,7 +1,7 @@
 require("../support-node");
 
-
-var db, open_rq = createdb(async_test(), undefined, 2);
+var db,
+    open_rq = createdb(async_test(), undefined, 2);
 
 open_rq.onupgradeneeded = function(e) {
     db = e.target.result;
@@ -10,11 +10,11 @@ open_rq.onupgradeneeded = function(e) {
     transaction.oncomplete = fail(this, "unexpected transaction.complete");
     transaction.onabort = function(e) {
         assert_equals(e.target.db.version, 0);
-    }
-    db.onabort = function() {}
+    };
+    db.onabort = function() {};
 
     transaction.abort();
-}
+};
 
 open_rq.onerror = function(e) {
     assert_equals(open_rq, e.target);
@@ -23,4 +23,4 @@ open_rq.onerror = function(e) {
     assert_equals(db.version, 0);
     assert_equals(open_rq.transaction, null);
     this.done();
-}
+};

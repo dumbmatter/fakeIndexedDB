@@ -20,7 +20,13 @@ import fakeDOMStringList from "./lib/fakeDOMStringList";
 import Index from "./lib/Index";
 import ObjectStore from "./lib/ObjectStore";
 import structuredClone from "./lib/structuredClone";
-import {FakeDOMStringList, FDBCursorDirection, Key, KeyPath, Value} from "./lib/types";
+import {
+    FakeDOMStringList,
+    FDBCursorDirection,
+    Key,
+    KeyPath,
+    Value,
+} from "./lib/types";
 import validateKeyPath from "./lib/validateKeyPath";
 import valueToKey from "./lib/valueToKey";
 import valueToKeyRange from "./lib/valueToKeyRange";
@@ -35,7 +41,11 @@ const confirmActiveTransaction = (objectStore: FDBObjectStore) => {
     }
 };
 
-const buildRecordAddPut = (objectStore: FDBObjectStore, value: Value, key: Key) => {
+const buildRecordAddPut = (
+    objectStore: FDBObjectStore,
+    value: Value,
+    key: Key,
+) => {
     confirmActiveTransaction(objectStore);
 
     if (objectStore.transaction.mode === "readonly") {
@@ -64,7 +74,11 @@ const buildRecordAddPut = (objectStore: FDBObjectStore, value: Value, key: Key) 
         }
     }
 
-    if (objectStore.keyPath === null && objectStore._rawObjectStore.keyGenerator === null && key === undefined) {
+    if (
+        objectStore.keyPath === null &&
+        objectStore._rawObjectStore.keyGenerator === null &&
+        key === undefined
+    ) {
         throw new DataError();
     }
 
@@ -97,7 +111,9 @@ class FDBObjectStore {
         this.keyPath = rawObjectStore.keyPath;
         this.autoIncrement = rawObjectStore.autoIncrement;
         this.transaction = transaction;
-        this.indexNames = fakeDOMStringList(Array.from(rawObjectStore.rawIndexes.keys())).sort();
+        this.indexNames = fakeDOMStringList(
+            Array.from(rawObjectStore.rawIndexes.keys()),
+        ).sort();
     }
 
     get name() {
@@ -132,20 +148,28 @@ class FDBObjectStore {
         this.transaction._objectStoresCache.delete(oldName);
         this.transaction._objectStoresCache.set(name, this);
         this._rawObjectStore.rawDatabase.rawObjectStores.delete(oldName);
-        this._rawObjectStore.rawDatabase.rawObjectStores.set(name, this._rawObjectStore);
+        this._rawObjectStore.rawDatabase.rawObjectStores.set(
+            name,
+            this._rawObjectStore,
+        );
         transaction.db.objectStoreNames = fakeDOMStringList(
-            Array.from(this._rawObjectStore.rawDatabase.rawObjectStores.keys())
-                .filter((objectStoreName) => {
-                    const objectStore = this._rawObjectStore.rawDatabase.rawObjectStores.get(objectStoreName);
-                    return objectStore && !objectStore.deleted;
-                }),
+            Array.from(
+                this._rawObjectStore.rawDatabase.rawObjectStores.keys(),
+            ).filter(objectStoreName => {
+                const objectStore = this._rawObjectStore.rawDatabase.rawObjectStores.get(
+                    objectStoreName,
+                );
+                return objectStore && !objectStore.deleted;
+            }),
         ).sort();
 
         const oldScope = new Set(transaction._scope);
         const oldTransactionObjectStoreNames = transaction.objectStoreNames.slice();
         this.transaction._scope.delete(oldName);
         transaction._scope.add(name);
-        transaction.objectStoreNames = fakeDOMStringList(Array.from(transaction._scope).sort());
+        transaction.objectStoreNames = fakeDOMStringList(
+            Array.from(transaction._scope).sort(),
+        );
 
         transaction._rollbackLog.push(() => {
             this._name = oldName;
@@ -153,16 +177,25 @@ class FDBObjectStore {
             this.transaction._objectStoresCache.delete(name);
             this.transaction._objectStoresCache.set(oldName, this);
             this._rawObjectStore.rawDatabase.rawObjectStores.delete(name);
-            this._rawObjectStore.rawDatabase.rawObjectStores.set(oldName, this._rawObjectStore);
-            transaction.db.objectStoreNames = fakeDOMStringList(oldObjectStoreNames);
+            this._rawObjectStore.rawDatabase.rawObjectStores.set(
+                oldName,
+                this._rawObjectStore,
+            );
+            transaction.db.objectStoreNames = fakeDOMStringList(
+                oldObjectStoreNames,
+            );
 
             transaction._scope = oldScope;
-            transaction.objectStoreNames = fakeDOMStringList(oldTransactionObjectStoreNames);
+            transaction.objectStoreNames = fakeDOMStringList(
+                oldTransactionObjectStoreNames,
+            );
         });
     }
 
     public put(value: Value, key?: Key) {
-        if (arguments.length === 0) { throw new TypeError(); }
+        if (arguments.length === 0) {
+            throw new TypeError();
+        }
         const record = buildRecordAddPut(this, value, key);
 
         return this.transaction._execRequestAsync({
@@ -177,7 +210,9 @@ class FDBObjectStore {
     }
 
     public add(value: Value, key?: Key) {
-        if (arguments.length === 0) { throw new TypeError(); }
+        if (arguments.length === 0) {
+            throw new TypeError();
+        }
         const record = buildRecordAddPut(this, value, key);
 
         return this.transaction._execRequestAsync({
@@ -192,7 +227,9 @@ class FDBObjectStore {
     }
 
     public delete(key: Key) {
-        if (arguments.length === 0) { throw new TypeError(); }
+        if (arguments.length === 0) {
+            throw new TypeError();
+        }
         confirmActiveTransaction(this);
 
         if (this.transaction.mode === "readonly") {
@@ -204,13 +241,19 @@ class FDBObjectStore {
         }
 
         return this.transaction._execRequestAsync({
-            operation: this._rawObjectStore.deleteRecord.bind(this._rawObjectStore, key, this.transaction._rollbackLog),
+            operation: this._rawObjectStore.deleteRecord.bind(
+                this._rawObjectStore,
+                key,
+                this.transaction._rollbackLog,
+            ),
             source: this,
         });
     }
 
     public get(key?: FDBKeyRange | Key) {
-        if (arguments.length === 0) { throw new TypeError(); }
+        if (arguments.length === 0) {
+            throw new TypeError();
+        }
         confirmActiveTransaction(this);
 
         if (!(key instanceof FDBKeyRange)) {
@@ -218,7 +261,10 @@ class FDBObjectStore {
         }
 
         return this.transaction._execRequestAsync({
-            operation: this._rawObjectStore.getValue.bind(this._rawObjectStore, key),
+            operation: this._rawObjectStore.getValue.bind(
+                this._rawObjectStore,
+                key,
+            ),
             source: this,
         });
     }
@@ -233,14 +279,20 @@ class FDBObjectStore {
         const range = valueToKeyRange(query);
 
         return this.transaction._execRequestAsync({
-            operation: this._rawObjectStore.getAllValues.bind(this._rawObjectStore, range, count),
+            operation: this._rawObjectStore.getAllValues.bind(
+                this._rawObjectStore,
+                range,
+                count,
+            ),
             source: this,
         });
     }
 
     // http://w3c.github.io/IndexedDB/#dom-idbobjectstore-getkey
     public getKey(key?: FDBKeyRange | Key) {
-        if (arguments.length === 0) { throw new TypeError(); }
+        if (arguments.length === 0) {
+            throw new TypeError();
+        }
         confirmActiveTransaction(this);
 
         if (!(key instanceof FDBKeyRange)) {
@@ -248,7 +300,10 @@ class FDBObjectStore {
         }
 
         return this.transaction._execRequestAsync({
-            operation: this._rawObjectStore.getKey.bind(this._rawObjectStore, key),
+            operation: this._rawObjectStore.getKey.bind(
+                this._rawObjectStore,
+                key,
+            ),
             source: this,
         });
     }
@@ -263,7 +318,11 @@ class FDBObjectStore {
         const range = valueToKeyRange(query);
 
         return this.transaction._execRequestAsync({
-            operation: this._rawObjectStore.getAllKeys.bind(this._rawObjectStore, range, count),
+            operation: this._rawObjectStore.getAllKeys.bind(
+                this._rawObjectStore,
+                range,
+                count,
+            ),
             source: this,
         });
     }
@@ -276,15 +335,23 @@ class FDBObjectStore {
         }
 
         return this.transaction._execRequestAsync({
-            operation: this._rawObjectStore.clear.bind(this._rawObjectStore, this.transaction._rollbackLog),
+            operation: this._rawObjectStore.clear.bind(
+                this._rawObjectStore,
+                this.transaction._rollbackLog,
+            ),
             source: this,
         });
     }
 
-    public openCursor(range?: FDBKeyRange | Key, direction?: FDBCursorDirection) {
+    public openCursor(
+        range?: FDBKeyRange | Key,
+        direction?: FDBCursorDirection,
+    ) {
         confirmActiveTransaction(this);
 
-        if (range === null) { range = undefined; }
+        if (range === null) {
+            range = undefined;
+        }
         if (range !== undefined && !(range instanceof FDBKeyRange)) {
             range = FDBKeyRange.only(valueToKey(range));
         }
@@ -302,10 +369,15 @@ class FDBObjectStore {
         });
     }
 
-    public openKeyCursor(range?: FDBKeyRange | Key, direction?: FDBCursorDirection) {
+    public openKeyCursor(
+        range?: FDBKeyRange | Key,
+        direction?: FDBCursorDirection,
+    ) {
         confirmActiveTransaction(this);
 
-        if (range === null) { range = undefined; }
+        if (range === null) {
+            range = undefined;
+        }
         if (range !== undefined && !(range instanceof FDBKeyRange)) {
             range = FDBKeyRange.only(valueToKey(range));
         }
@@ -328,12 +400,20 @@ class FDBObjectStore {
     public createIndex(
         name: string,
         keyPath: KeyPath,
-        optionalParameters: {multiEntry?: boolean, unique?: boolean} = {},
+        optionalParameters: { multiEntry?: boolean; unique?: boolean } = {},
     ) {
-        if (arguments.length < 2) { throw new TypeError(); }
+        if (arguments.length < 2) {
+            throw new TypeError();
+        }
 
-        const multiEntry = optionalParameters.multiEntry !== undefined ? optionalParameters.multiEntry : false;
-        const unique = optionalParameters.unique !== undefined ? optionalParameters.unique : false;
+        const multiEntry =
+            optionalParameters.multiEntry !== undefined
+                ? optionalParameters.multiEntry
+                : false;
+        const unique =
+            optionalParameters.unique !== undefined
+                ? optionalParameters.unique
+                : false;
 
         if (this.transaction.mode !== "versionchange") {
             throw new InvalidStateError();
@@ -369,7 +449,13 @@ class FDBObjectStore {
             this._rawObjectStore.rawIndexes.delete(name);
         });
 
-        const index = new Index(this._rawObjectStore, name, keyPath, multiEntry, unique);
+        const index = new Index(
+            this._rawObjectStore,
+            name,
+            keyPath,
+            multiEntry,
+            unique,
+        );
         this.indexNames.push(name);
         this.indexNames.sort();
         this._rawObjectStore.rawIndexes.set(name, index);
@@ -381,7 +467,9 @@ class FDBObjectStore {
 
     // https://w3c.github.io/IndexedDB/#dom-idbobjectstore-index
     public index(name: string) {
-        if (arguments.length === 0) { throw new TypeError(); }
+        if (arguments.length === 0) {
+            throw new TypeError();
+        }
 
         if (this._rawObjectStore.deleted || this.transaction._finished) {
             throw new InvalidStateError();
@@ -404,7 +492,9 @@ class FDBObjectStore {
     }
 
     public deleteIndex(name: string) {
-        if (arguments.length === 0) { throw new TypeError(); }
+        if (arguments.length === 0) {
+            throw new TypeError();
+        }
 
         if (this.transaction.mode !== "versionchange") {
             throw new InvalidStateError();
@@ -424,9 +514,11 @@ class FDBObjectStore {
             this.indexNames.sort();
         });
 
-        this.indexNames = fakeDOMStringList(this.indexNames.filter((indexName) => {
-            return indexName !== name;
-        }));
+        this.indexNames = fakeDOMStringList(
+            this.indexNames.filter(indexName => {
+                return indexName !== name;
+            }),
+        );
         rawIndex.deleted = true; // Not sure if this is supposed to happen synchronously
 
         this.transaction._execRequestAsync({
@@ -447,7 +539,9 @@ class FDBObjectStore {
     public count(key?: Key | FDBKeyRange) {
         confirmActiveTransaction(this);
 
-        if (key === null) { key = undefined; }
+        if (key === null) {
+            key = undefined;
+        }
         if (key !== undefined && !(key instanceof FDBKeyRange)) {
             key = FDBKeyRange.only(valueToKey(key));
         }

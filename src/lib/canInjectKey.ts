@@ -1,10 +1,12 @@
-import {KeyPath, Value} from "./types";
+import { KeyPath, Value } from "./types";
 
 // http://w3c.github.io/IndexedDB/#check-that-a-key-could-be-injected-into-a-value
 const canInjectKey = (keyPath: KeyPath, value: Value) => {
     if (Array.isArray(keyPath)) {
         // tslint:disable-next-line max-line-length
-        throw new Error("The key paths used in this section are always strings and never sequences, since it is not possible to create a object store which has a key generator and also has a key path that is a sequence.");
+        throw new Error(
+            "The key paths used in this section are always strings and never sequences, since it is not possible to create a object store which has a key generator and also has a key path that is a sequence.",
+        );
     }
 
     const identifiers = keyPath.split(".");

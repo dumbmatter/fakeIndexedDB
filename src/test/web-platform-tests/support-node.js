@@ -29,18 +29,20 @@ const assert_class_string = (object, class_string, description) => {
     if (class_string === "Array") {
         return Array.isArray(object);
     }
-    assert_equals(object.toString(), "[object " + class_string + "]",
-                    description);
+    assert_equals(
+        object.toString(),
+        "[object " + class_string + "]",
+        description,
+    );
 };
 
 const assert_false = (val, message) => assert.ok(!val, message);
 
 const assert_key_equals = (actual, expected, description) => {
-  assert_equals(indexedDB.cmp(actual, expected), 0, description);
+    assert_equals(indexedDB.cmp(actual, expected), 0, description);
 };
 
 const assert_not_equals = (...args) => assert.notEqual(...args);
-
 
 const assert_readonly = (object, property_name, description) => {
     var initial_value = object[property_name];
@@ -54,7 +56,8 @@ const assert_readonly = (object, property_name, description) => {
     }
 };
 
-const assert_throws = (errName, block, message) => assert.throws(block, new RegExp(errName), message);
+const assert_throws = (errName, block, message) =>
+    assert.throws(block, new RegExp(errName), message);
 
 const assert_true = (...args) => assert.ok(...args);
 
@@ -107,7 +110,7 @@ class AsyncTest {
                     throw err;
                 }
             }
-        }
+        };
     }
 
     step_func_done(fn) {
@@ -118,9 +121,12 @@ class AsyncTest {
     }
 
     step_timeout(fn, timeout, ...args) {
-        return setTimeout(this.step_func(() => {
-            return fn.apply(this, args);
-        }), timeout);
+        return setTimeout(
+            this.step_func(() => {
+                return fn.apply(this, args);
+            }),
+            timeout,
+        );
     }
 
     unreached_func(message) {
@@ -128,7 +134,7 @@ class AsyncTest {
     }
 
     fail(err) {
-        console.log('Failed!');
+        console.log("Failed!");
         this.complete();
 
         // `throw err` was silent
@@ -140,7 +146,6 @@ class AsyncTest {
         this.cleanupCallbacks.push(cb);
     }
 }
-
 
 const async_test = (func, name, properties) => {
     if (typeof func !== "function") {
@@ -157,12 +162,11 @@ const async_test = (func, name, properties) => {
     return test_obj;
 };
 
-const test = (cb) => {
+const test = cb => {
     cb();
 };
 
-function createdb(test, dbname, version)
-{
+function createdb(test, dbname, version) {
     var rq_open = createdb_for_multiple_tests(dbname, version);
     return rq_open.setTest(test);
 }
@@ -171,12 +175,12 @@ function createdb_for_multiple_tests(dbname, version) {
     var rq_open,
         fake_open = {},
         test = null,
-        dbname = (dbname ? dbname : "testdb-" + new Date().getTime() + Math.random() );
+        dbname = dbname
+            ? dbname
+            : "testdb-" + new Date().getTime() + Math.random();
 
-    if (version)
-        rq_open = indexedDB.open(dbname, version);
-    else
-        rq_open = indexedDB.open(dbname);
+    if (version) rq_open = indexedDB.open(dbname, version);
+    else rq_open = indexedDB.open(dbname);
 
     /*function auto_fail(evt) {
         rq_open['on' + evt] = function () { test.fail(new Error('Unexpected ' + evt + ' event')) };
@@ -193,13 +197,15 @@ function createdb_for_multiple_tests(dbname, version) {
                     assert_unreached("unexpected open." + evt + " event");
                 }
 
-                if (e.target.result + '' == '[object IDBDatabase]' &&
-                    !this.db) {
-                  this.db = e.target.result;
+                if (
+                    e.target.result + "" == "[object IDBDatabase]" &&
+                    !this.db
+                ) {
+                    this.db = e.target.result;
 
-                  // In many tests, these will get triggered both here and in the browser, but the browser somehow
-                  // ignores them and still passes the test
-/*                  this.db.onerror = fail(test, 'unexpected db.error');
+                    // In many tests, these will get triggered both here and in the browser, but the browser somehow
+                    // ignores them and still passes the test
+                    /*                  this.db.onerror = fail(test, 'unexpected db.error');
                   this.db.onabort = fail(test, 'unexpected db.abort');
                   this.db.onversionchange =
                       fail(test, 'unexpected db.versionchange');*/
@@ -208,15 +214,13 @@ function createdb_for_multiple_tests(dbname, version) {
         });
         rq_open.__defineSetter__("on" + evt, function(h) {
             rq_open.manually_handled[evt] = true;
-            if (!h)
-                rq_open.addEventListener(evt, function() {});
-            else
-                rq_open.addEventListener(evt, test.step_func(h.bind(test)));
+            if (!h) rq_open.addEventListener(evt, function() {});
+            else rq_open.addEventListener(evt, test.step_func(h.bind(test)));
         });
     }
 
     // add a .setTest method to the DB object
-    Object.defineProperty(rq_open, 'setTest', {
+    Object.defineProperty(rq_open, "setTest", {
         enumerable: false,
         value: function(test) {
             auto_fail("upgradeneeded", test);
@@ -225,7 +229,7 @@ function createdb_for_multiple_tests(dbname, version) {
             auto_fail("error", test);
 
             return this;
-        }
+        },
     });
 
     return rq_open;
@@ -236,20 +240,27 @@ function createdb_for_multiple_tests(dbname, version) {
  * which can make it a lot easier to test a very specific series of events,
  * including ensuring that unexpected events are not fired at any point.
  */
-function EventWatcher(test, watchedNode, eventTypes)
-{
-    if (typeof eventTypes == 'string') {
+function EventWatcher(test, watchedNode, eventTypes) {
+    if (typeof eventTypes == "string") {
         eventTypes = [eventTypes];
     }
 
     var waitingFor = null;
 
     var eventHandler = test.step_func(function(evt) {
-        assert_true(!!waitingFor,
-                    'Not expecting event, but got ' + evt.type + ' event');
-        assert_equals(evt.type, waitingFor.types[0],
-                        'Expected ' + waitingFor.types[0] + ' event, but got ' +
-                        evt.type + ' event instead');
+        assert_true(
+            !!waitingFor,
+            "Not expecting event, but got " + evt.type + " event",
+        );
+        assert_equals(
+            evt.type,
+            waitingFor.types[0],
+            "Expected " +
+                waitingFor.types[0] +
+                " event, but got " +
+                evt.type +
+                " event instead",
+        );
         if (waitingFor.types.length > 1) {
             // Pop first event from array
             waitingFor.types.shift();
@@ -273,16 +284,16 @@ function EventWatcher(test, watchedNode, eventTypes)
      */
     this.wait_for = function(types) {
         if (waitingFor) {
-            return Promise.reject('Already waiting for an event or events');
+            return Promise.reject("Already waiting for an event or events");
         }
-        if (typeof types == 'string') {
+        if (typeof types == "string") {
             types = [types];
         }
         return new Promise(function(resolve, reject) {
             waitingFor = {
                 types: types,
                 resolve: resolve,
-                reject: reject
+                reject: reject,
             };
         });
     };
@@ -291,7 +302,7 @@ function EventWatcher(test, watchedNode, eventTypes)
         for (var i = 0; i < eventTypes.length; i++) {
             watchedNode.removeEventListener(eventTypes[i], eventHandler, false);
         }
-    };
+    }
 
     test.add_cleanup(stop_watching);
 
@@ -304,7 +315,7 @@ function EventWatcher(test, watchedNode, eventTypes)
 // completed.
 const expect = (t, expected) => {
     var results = [];
-    return (result) => {
+    return result => {
         results.push(result);
         if (results.length === expected.length) {
             assert_array_equals(results, expected);
@@ -368,77 +379,114 @@ function format_value(val, seen) {
         seen.push(val);
     }
     if (Array.isArray(val)) {
-        return "[" + val.map(function(x) {return format_value(x, seen);}).join(", ") + "]";
+        return (
+            "[" +
+            val
+                .map(function(x) {
+                    return format_value(x, seen);
+                })
+                .join(", ") +
+            "]"
+        );
     }
 
     switch (typeof val) {
-    case "string":
-        val = val.replace("\\", "\\\\");
-        for (var p in replacements) {
-            var replace = "\\" + replacements[p];
-            val = val.replace(RegExp(String.fromCharCode(p), "g"), replace);
-        }
-        return '"' + val.replace(/"/g, '\\"') + '"';
-    case "boolean":
-    case "undefined":
-        return String(val);
-    case "number":
-        // In JavaScript, -0 === 0 and String(-0) == "0", so we have to
-        // special-case.
-        if (val === -0 && 1/val === -Infinity) {
-            return "-0";
-        }
-        return String(val);
-    case "object":
-        if (val === null) {
-            return "null";
-        }
-
-        // Special-case Node objects, since those come up a lot in my tests.  I
-        // ignore namespaces.
-        if (is_node(val)) {
-            switch (val.nodeType) {
-            case Node.ELEMENT_NODE:
-                var ret = "<" + val.localName;
-                for (var i = 0; i < val.attributes.length; i++) {
-                    ret += " " + val.attributes[i].name + '="' + val.attributes[i].value + '"';
-                }
-                ret += ">" + val.innerHTML + "</" + val.localName + ">";
-                return "Element node " + truncate(ret, 60);
-            case Node.TEXT_NODE:
-                return 'Text node "' + truncate(val.data, 60) + '"';
-            case Node.PROCESSING_INSTRUCTION_NODE:
-                return "ProcessingInstruction node with target " + format_value(truncate(val.target, 60)) + " and data " + format_value(truncate(val.data, 60));
-            case Node.COMMENT_NODE:
-                return "Comment node <!--" + truncate(val.data, 60) + "-->";
-            case Node.DOCUMENT_NODE:
-                return "Document node with " + val.childNodes.length + (val.childNodes.length == 1 ? " child" : " children");
-            case Node.DOCUMENT_TYPE_NODE:
-                return "DocumentType node";
-            case Node.DOCUMENT_FRAGMENT_NODE:
-                return "DocumentFragment node with " + val.childNodes.length + (val.childNodes.length == 1 ? " child" : " children");
-            default:
-                return "Node object of unknown type";
+        case "string":
+            val = val.replace("\\", "\\\\");
+            for (var p in replacements) {
+                var replace = "\\" + replacements[p];
+                val = val.replace(RegExp(String.fromCharCode(p), "g"), replace);
             }
-        }
+            return '"' + val.replace(/"/g, '\\"') + '"';
+        case "boolean":
+        case "undefined":
+            return String(val);
+        case "number":
+            // In JavaScript, -0 === 0 and String(-0) == "0", so we have to
+            // special-case.
+            if (val === -0 && 1 / val === -Infinity) {
+                return "-0";
+            }
+            return String(val);
+        case "object":
+            if (val === null) {
+                return "null";
+            }
 
-    /* falls through */
-    default:
-        try {
-            return typeof val + ' "' + truncate(String(val), 1000) + '"';
-        } catch(e) {
-            return ("[stringifying object threw " + String(e) +
-                    " with type " + String(typeof e) + "]");
-        }
+            // Special-case Node objects, since those come up a lot in my tests.  I
+            // ignore namespaces.
+            if (is_node(val)) {
+                switch (val.nodeType) {
+                    case Node.ELEMENT_NODE:
+                        var ret = "<" + val.localName;
+                        for (var i = 0; i < val.attributes.length; i++) {
+                            ret +=
+                                " " +
+                                val.attributes[i].name +
+                                '="' +
+                                val.attributes[i].value +
+                                '"';
+                        }
+                        ret += ">" + val.innerHTML + "</" + val.localName + ">";
+                        return "Element node " + truncate(ret, 60);
+                    case Node.TEXT_NODE:
+                        return 'Text node "' + truncate(val.data, 60) + '"';
+                    case Node.PROCESSING_INSTRUCTION_NODE:
+                        return (
+                            "ProcessingInstruction node with target " +
+                            format_value(truncate(val.target, 60)) +
+                            " and data " +
+                            format_value(truncate(val.data, 60))
+                        );
+                    case Node.COMMENT_NODE:
+                        return (
+                            "Comment node <!--" + truncate(val.data, 60) + "-->"
+                        );
+                    case Node.DOCUMENT_NODE:
+                        return (
+                            "Document node with " +
+                            val.childNodes.length +
+                            (val.childNodes.length == 1
+                                ? " child"
+                                : " children")
+                        );
+                    case Node.DOCUMENT_TYPE_NODE:
+                        return "DocumentType node";
+                    case Node.DOCUMENT_FRAGMENT_NODE:
+                        return (
+                            "DocumentFragment node with " +
+                            val.childNodes.length +
+                            (val.childNodes.length == 1
+                                ? " child"
+                                : " children")
+                        );
+                    default:
+                        return "Node object of unknown type";
+                }
+            }
+
+        /* falls through */
+        default:
+            try {
+                return typeof val + ' "' + truncate(String(val), 1000) + '"';
+            } catch (e) {
+                return (
+                    "[stringifying object threw " +
+                    String(e) +
+                    " with type " +
+                    String(typeof e) +
+                    "]"
+                );
+            }
     }
 }
 
 const indexeddb_test = (upgrade_func, open_func, description, options) => {
     async_test(function(t) {
-        options = Object.assign({upgrade_will_abort: false}, options);
+        options = Object.assign({ upgrade_will_abort: false }, options);
         var dbname = "testdb-" + new Date().getTime() + Math.random();
         var del = indexedDB.deleteDatabase(dbname);
-        del.onerror = t.unreached_func('deleteDatabase should succeed');
+        del.onerror = t.unreached_func("deleteDatabase should succeed");
         var open = indexedDB.open(dbname, 1);
         open.onupgradeneeded = t.step_func(function() {
             var db = open.result;
@@ -454,13 +502,12 @@ const indexeddb_test = (upgrade_func, open_func, description, options) => {
             upgrade_func(t, db, tx);
         });
         if (options.upgrade_will_abort) {
-            open.onsuccess = t.unreached_func('open should not succeed');
+            open.onsuccess = t.unreached_func("open should not succeed");
         } else {
-            open.onerror = t.unreached_func('open should succeed');
+            open.onerror = t.unreached_func("open should succeed");
             open.onsuccess = t.step_func(function() {
                 var db = open.result;
-                if (open_func)
-                    open_func(t, db);
+                if (open_func) open_func(t, db);
             });
         }
     }, description);
@@ -471,15 +518,18 @@ const indexeddb_test = (upgrade_func, open_func, description, options) => {
 const is_transaction_active = (tx, store_name) => {
     try {
         const request = tx.objectStore(store_name).get(0);
-        request.onerror = (e) => {
+        request.onerror = e => {
             e.preventDefault();
             e.stopPropagation();
         };
         return true;
     } catch (ex) {
-        assert_equals(ex.name, 'TransactionInactiveError',
-                    'Active check should either not throw anything, or throw ' +
-                    'TransactionInactiveError');
+        assert_equals(
+            ex.name,
+            "TransactionInactiveError",
+            "Active check should either not throw anything, or throw " +
+                "TransactionInactiveError",
+        );
         return false;
     }
 };
@@ -490,19 +540,20 @@ const is_transaction_active = (tx, store_name) => {
 // finished.
 const keep_alive = (tx, store_name) => {
     let completed = false;
-    tx.addEventListener('complete', () => { completed = true; });
+    tx.addEventListener("complete", () => {
+        completed = true;
+    });
 
     let pin = true;
 
     const spin = () => {
-        if (!pin)
-        return;
+        if (!pin) return;
         tx.objectStore(store_name).get(0).onsuccess = spin;
     };
     spin();
 
     return () => {
-        assert_false(completed, 'Transaction completed while kept alive');
+        assert_false(completed, "Transaction completed while kept alive");
         pin = false;
     };
 };
@@ -522,17 +573,18 @@ const promise_test = (func, name, properties) => {
         test.step(function() {
             assert_not_equals(promise, undefined);
         });
-        Promise.resolve(promise).then(
-                function() {
-                    test.done();
-                })
-            .catch(test.step_func(
-                function(value) {
+        Promise.resolve(promise)
+            .then(function() {
+                test.done();
+            })
+            .catch(
+                test.step_func(function(value) {
                     throw value;
-                }));
+                }),
+            );
         return donePromise;
     });
-}
+};
 
 const setup = (...args) => {
     console.log("Setup", ...args);
@@ -542,7 +594,7 @@ const step_timeout = (fn, timeout, ...args) => {
     return setTimeout(() => {
         fn(...args);
     }, timeout);
-}
+};
 
 const addToGlobal = {
     add_completion_callback,
