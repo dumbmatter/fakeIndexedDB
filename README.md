@@ -5,7 +5,13 @@ This is a pure JS in-memory implementation of [the IndexedDB 2.0 API](https://w3
 ## Installation
 
 ```sh
-npm install fake-indexeddb
+npm install --save-dev fake-indexeddb
+```
+
+or
+
+```sh
+yarn add --dev fake-indexeddb
 ```
 
 ## Use
