@@ -2,6 +2,7 @@
     "extends": ["tslint:latest", "tslint-config-prettier"],
     "rules": {
         "interface-name": [true, "never-prefix"],
-        "variable-name": false
+        "variable-name": false,
+        "no-submodule-imports": false
     }
 }

@@ -1,4 +1,4 @@
-import "core-js";
+import "core-js/shim";
 import fakeIndexedDB from "./fakeIndexedDB";
 import FDBCursor from "./FDBCursor";
 import FDBCursorWithValue from "./FDBCursorWithValue";
