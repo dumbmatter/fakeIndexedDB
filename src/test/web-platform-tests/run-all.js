@@ -5,9 +5,9 @@ const execSync = require("child_process").execSync;
 const path = require("path");
 const semver = require("semver");
 
-if (semver.lte(process.version, "6.0.0")) {
+if (semver.lte(process.version, "8.0.0")) {
     const errorMsg =
-        "web-platform-tests only run in Node 6 or higher, but fake-indexeddb should still work in Node 4 and possibly older versions.";
+        "web-platform-tests only run in Node 8 or higher, but fake-indexeddb should still work in Node 4 and possibly older versions.";
     console.log(errorMsg);
     process.exit(0);
 }
