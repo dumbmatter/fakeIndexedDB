@@ -1,3 +1,7 @@
+# 2.0.5 (2019-02-07)
+
+* Fixed issue #25 by importing core-js/shim rather than all of core-js.
+
 # 2.0.4 (2018-02-22)
 
 * Improved structured cloning, which fixes bugs when used with strange objects like https://github.com/dumbmatter/realistic-structured-clone/issues/5
