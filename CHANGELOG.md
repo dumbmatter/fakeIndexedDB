@@ -1,8 +1,6 @@
-# NEXT
+# 2.0.6 (2019-03-14)
 
-* Fixed issue #26, where event handlers were inappropriately not being
-  called if they added or removed other handlers to the invoking
-  listener in their callbacks.
+* Fixed issue #26, where event handlers were inappropriately not being called if they added or removed other handlers to the invoking listener in their callbacks.
 
 # 2.0.5 (2019-02-07)
 
