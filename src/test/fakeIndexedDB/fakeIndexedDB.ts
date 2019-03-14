@@ -534,4 +534,43 @@ describe("fakeIndexedDB Tests", () => {
             done();
         });
     });
+
+    describe("Events", () => {
+        it("doesn't call listeners added during a callback for the event that triggered the callback", done => {
+            const name =`test${Math.random()}`;
+            let called = false;
+            const dummy = () => {
+                called = true;
+            };
+            const handler = () => {
+                request.addEventListener("upgradeneeded", dummy);
+            };
+
+            const request = fakeIndexedDB.open(name, 3);
+            request.addEventListener("upgradeneeded", handler);
+            request.addEventListener("success", () => {
+                assert(!called);
+                done();
+            });
+        });
+
+        it("doesn't get confused by removeEventListener during callbacks", done => {
+            const name =`test${Math.random()}`;
+            let called = false;
+            const dummy = () => {
+                called = true;
+            };
+            const handler = () => {
+                request.removeEventListener("upgradeneeded", handler);
+            };
+
+            const request = fakeIndexedDB.open(name, 3);
+            request.addEventListener("upgradeneeded", handler);
+            request.addEventListener("upgradeneeded", dummy);
+            request.addEventListener("success", () => {
+                assert(called);
+                done();
+            });
+        });
+    });
 });

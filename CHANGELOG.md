@@ -1,3 +1,9 @@
+# NEXT
+
+* Fixed issue #26, where event handlers were inappropriately not being
+  called if they added or removed other handlers to the invoking
+  listener in their callbacks.
+
 # 2.0.5 (2019-02-07)
 
 * Fixed issue #25 by importing core-js/shim rather than all of core-js.
