@@ -2,6 +2,7 @@
 
 const fs = require("fs");
 const execSync = require("child_process").execSync;
+const glob = require("glob");
 const path = require("path");
 const semver = require("semver");
 
@@ -105,8 +106,9 @@ const skip = [
     "transaction-abort-request-error.js",
 ];
 
-const filenames = fs.readdirSync(testFolder);
-for (const filename of filenames) {
+const filenames = glob.sync("/**/*.js", { root: testFolder });
+for (const absFilename of filenames) {
+    const filename = path.relative(testFolder, absFilename);
     if (skip.includes(filename)) {
         console.log(`Skipping ${filename}...\n`);
         skipped += 1;
