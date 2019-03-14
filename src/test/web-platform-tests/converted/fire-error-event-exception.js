@@ -1,210 +1,392 @@
-require("../support-node");
+require("../wpt-env.js");
 
-setup({ allow_uncaught_exception: true });
+/* Delete created databases
+ *
+ * Go through each finished test, see if it has an associated database. Close
+ * that and delete the database. */
+add_completion_callback(function(tests)
+{
+    for (var i in tests)
+    {
+        if(tests[i].db)
+        {
+            tests[i].db.close();
+            self.indexedDB.deleteDatabase(tests[i].db.name);
+        }
+    }
+});
+
+function fail(test, desc) {
+    return test.step_func(function(e) {
+        if (e && e.message && e.target.error)
+            assert_unreached(desc + " (" + e.target.error.name + ": " + e.message + ")");
+        else if (e && e.message)
+            assert_unreached(desc + " (" + e.message + ")");
+        else if (e && e.target.readyState === 'done' && e.target.error)
+            assert_unreached(desc + " (" + e.target.error.name + ")");
+        else
+            assert_unreached(desc);
+    });
+}
+
+function createdb(test, dbname, version)
+{
+    var rq_open = createdb_for_multiple_tests(dbname, version);
+    return rq_open.setTest(test);
+}
+
+function createdb_for_multiple_tests(dbname, version) {
+    var rq_open,
+        fake_open = {},
+        test = null,
+        dbname = (dbname ? dbname : "testdb-" + new Date().getTime() + Math.random() );
+
+    if (version)
+        rq_open = self.indexedDB.open(dbname, version);
+    else
+        rq_open = self.indexedDB.open(dbname);
+
+    function auto_fail(evt, current_test) {
+        /* Fail handlers, if we haven't set on/whatever/, don't
+         * expect to get event whatever. */
+        rq_open.manually_handled = {};
+
+        rq_open.addEventListener(evt, function(e) {
+            if (current_test !== test) {
+                return;
+            }
+
+            test.step(function() {
+                if (!rq_open.manually_handled[evt]) {
+                    assert_unreached("unexpected open." + evt + " event");
+                }
+
+                if (e.target.result + '' == '[object IDBDatabase]' &&
+                    !this.db) {
+                  this.db = e.target.result;
+
+                  this.db.onerror = fail(test, 'unexpected db.error');
+                  this.db.onabort = fail(test, 'unexpected db.abort');
+                  this.db.onversionchange =
+                      fail(test, 'unexpected db.versionchange');
+                }
+            });
+        });
+        rq_open.__defineSetter__("on" + evt, function(h) {
+            rq_open.manually_handled[evt] = true;
+            if (!h)
+                rq_open.addEventListener(evt, function() {});
+            else
+                rq_open.addEventListener(evt, test.step_func(h));
+        });
+    }
+
+    // add a .setTest method to the IDBOpenDBRequest object
+    Object.defineProperty(rq_open, 'setTest', {
+        enumerable: false,
+        value: function(t) {
+            test = t;
+
+            auto_fail("upgradeneeded", test);
+            auto_fail("success", test);
+            auto_fail("blocked", test);
+            auto_fail("error", test);
+
+            return this;
+        }
+    });
+
+    return rq_open;
+}
+
+function assert_key_equals(actual, expected, description) {
+  assert_equals(indexedDB.cmp(actual, expected), 0, description);
+}
+
+function indexeddb_test(upgrade_func, open_func, description, options) {
+  async_test(function(t) {
+    options = Object.assign({upgrade_will_abort: false}, options);
+    var dbname = location + '-' + t.name;
+    var del = indexedDB.deleteDatabase(dbname);
+    del.onerror = t.unreached_func('deleteDatabase should succeed');
+    var open = indexedDB.open(dbname, 1);
+    open.onupgradeneeded = t.step_func(function() {
+      var db = open.result;
+      t.add_cleanup(function() {
+        // If open didn't succeed already, ignore the error.
+        open.onerror = function(e) {
+          e.preventDefault();
+        };
+        db.close();
+        indexedDB.deleteDatabase(db.name);
+      });
+      var tx = open.transaction;
+      upgrade_func(t, db, tx, open);
+    });
+    if (options.upgrade_will_abort) {
+      open.onsuccess = t.unreached_func('open should not succeed');
+    } else {
+      open.onerror = t.unreached_func('open should succeed');
+      open.onsuccess = t.step_func(function() {
+        var db = open.result;
+        if (open_func)
+          open_func(t, db, open);
+      });
+    }
+  }, description);
+}
+
+// Call with a Test and an array of expected results in order. Returns
+// a function; call the function when a result arrives and when the
+// expected number appear the order will be asserted and test
+// completed.
+function expect(t, expected) {
+  var results = [];
+  return result => {
+    results.push(result);
+    if (results.length === expected.length) {
+      assert_array_equals(results, expected);
+      t.done();
+    }
+  };
+}
+
+// Checks to see if the passed transaction is active (by making
+// requests against the named store).
+function is_transaction_active(tx, store_name) {
+  try {
+    const request = tx.objectStore(store_name).get(0);
+    request.onerror = e => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+    return true;
+  } catch (ex) {
+    assert_equals(ex.name, 'TransactionInactiveError',
+                  'Active check should either not throw anything, or throw ' +
+                  'TransactionInactiveError');
+    return false;
+  }
+}
+
+// Keeps the passed transaction alive indefinitely (by making requests
+// against the named store). Returns a function that asserts that the
+// transaction has not already completed and then ends the request loop so that
+// the transaction may autocommit and complete.
+function keep_alive(tx, store_name) {
+  let completed = false;
+  tx.addEventListener('complete', () => { completed = true; });
+
+  let keepSpinning = true;
+
+  function spin() {
+    if (!keepSpinning)
+      return;
+    tx.objectStore(store_name).get(0).onsuccess = spin;
+  }
+  spin();
+
+  return () => {
+    assert_false(completed, 'Transaction completed while kept alive');
+    keepSpinning = false;
+  };
+}
+
+
+
+setup({allow_uncaught_exception:true});
 
 function fire_error_event_test(func, description) {
-    indexeddb_test(
-        (t, db) => {
-            db.createObjectStore("s");
-        },
-        (t, db) => {
-            const tx = db.transaction("s", "readwrite");
-            tx.oncomplete = t.unreached_func("transaction should abort");
-            const store = tx.objectStore("s");
-            store.put(0, 0);
-            const request = store.add(0, 0);
-            request.onsuccess = t.unreached_func("request should fail");
-            func(t, db, tx, request);
-        },
-        description,
-    );
+  indexeddb_test(
+    (t, db) => {
+      db.createObjectStore('s');
+    },
+    (t, db) => {
+      const tx = db.transaction('s', 'readwrite');
+      tx.oncomplete = t.unreached_func('transaction should abort');
+      const store = tx.objectStore('s');
+      store.put(0, 0);
+      const request = store.add(0, 0);
+      request.onsuccess = t.unreached_func('request should fail');
+      func(t, db, tx, request);
+    },
+    description);
 }
 
 // Listeners on the request.
 
 fire_error_event_test((t, db, tx, request) => {
-    request.onerror = () => {
-        throw Error();
-    };
-    tx.onabort = t.step_func_done(() => {
-        assert_equals(tx.error.name, "AbortError");
-    });
-}, "Exception in error event handler on request");
+  request.onerror = () => {
+    throw Error();
+  };
+  tx.onabort = t.step_func_done(() => {
+    assert_equals(tx.error.name, 'AbortError');
+  });
+}, 'Exception in error event handler on request');
 
 fire_error_event_test((t, db, tx, request) => {
-    request.onerror = e => {
-        e.preventDefault();
-        throw Error();
-    };
-    tx.onabort = t.step_func_done(() => {
-        assert_equals(tx.error.name, "AbortError");
-    });
-}, "Exception in error event handler on request, with preventDefault");
+  request.onerror = e => {
+    e.preventDefault();
+    throw Error();
+  };
+  tx.onabort = t.step_func_done(() => {
+    assert_equals(tx.error.name, 'AbortError');
+  });
+}, 'Exception in error event handler on request, with preventDefault');
 
 fire_error_event_test((t, db, tx, request) => {
-    request.addEventListener("error", () => {
-        throw Error();
-    });
-    tx.onabort = t.step_func_done(() => {
-        assert_equals(tx.error.name, "AbortError");
-    });
-}, "Exception in error event listener on request");
+  request.addEventListener('error', () => {
+    throw Error();
+  });
+  tx.onabort = t.step_func_done(() => {
+    assert_equals(tx.error.name, 'AbortError');
+  });
+}, 'Exception in error event listener on request');
 
 fire_error_event_test((t, db, tx, request) => {
-    request.addEventListener("error", () => {
-        // no-op
-    });
-    request.addEventListener("error", () => {
-        throw Error();
-    });
-    tx.onabort = t.step_func_done(() => {
-        assert_equals(tx.error.name, "AbortError");
-    });
-}, "Exception in second error event listener on request");
+  request.addEventListener('error', () => {
+    // no-op
+  });
+  request.addEventListener('error', () => {
+    throw Error();
+  });
+  tx.onabort = t.step_func_done(() => {
+    assert_equals(tx.error.name, 'AbortError');
+  });
+}, 'Exception in second error event listener on request');
 
 fire_error_event_test((t, db, tx, request) => {
-    let second_listener_called = false;
-    request.addEventListener("error", () => {
-        throw Error();
-    });
-    request.addEventListener(
-        "error",
-        t.step_func(() => {
-            second_listener_called = true;
-            assert_true(
-                is_transaction_active(tx, "s"),
-                "Transaction should be active until dispatch completes",
-            );
-        }),
-    );
-    tx.onabort = t.step_func_done(() => {
-        assert_true(second_listener_called);
-        assert_equals(tx.error.name, "AbortError");
-    });
-}, "Exception in first error event listener on request, " + "transaction active in second");
+  let second_listener_called = false;
+  request.addEventListener('error', () => {
+    throw Error();
+  });
+  request.addEventListener('error', t.step_func(() => {
+    second_listener_called = true;
+    assert_true(is_transaction_active(tx, 's'),
+                'Transaction should be active until dispatch completes');
+  }));
+  tx.onabort = t.step_func_done(() => {
+    assert_true(second_listener_called);
+    assert_equals(tx.error.name, 'AbortError');
+  });
+}, 'Exception in first error event listener on request, ' +
+   'transaction active in second');
 
 // Listeners on the transaction.
 
 fire_error_event_test((t, db, tx, request) => {
-    tx.onerror = () => {
-        throw Error();
-    };
-    tx.onabort = t.step_func_done(() => {
-        assert_equals(tx.error.name, "AbortError");
-    });
-}, "Exception in error event handler on transaction");
+  tx.onerror = () => {
+    throw Error();
+  };
+  tx.onabort = t.step_func_done(() => {
+    assert_equals(tx.error.name, 'AbortError');
+  });
+}, 'Exception in error event handler on transaction');
 
 fire_error_event_test((t, db, tx, request) => {
-    tx.onerror = e => {
-        e.preventDefault();
-        throw Error();
-    };
-    tx.onabort = t.step_func_done(() => {
-        assert_equals(tx.error.name, "AbortError");
-    });
-}, "Exception in error event handler on transaction, with preventDefault");
+  tx.onerror = e => {
+    e.preventDefault();
+    throw Error();
+  };
+  tx.onabort = t.step_func_done(() => {
+    assert_equals(tx.error.name, 'AbortError');
+  });
+}, 'Exception in error event handler on transaction, with preventDefault');
 
 fire_error_event_test((t, db, tx, request) => {
-    tx.addEventListener("error", () => {
-        throw Error();
-    });
-    tx.onabort = t.step_func_done(() => {
-        assert_equals(tx.error.name, "AbortError");
-    });
-}, "Exception in error event listener on transaction");
+  tx.addEventListener('error', () => {
+    throw Error();
+  });
+  tx.onabort = t.step_func_done(() => {
+    assert_equals(tx.error.name, 'AbortError');
+  });
+}, 'Exception in error event listener on transaction');
 
 fire_error_event_test((t, db, tx, request) => {
-    tx.addEventListener("error", () => {
-        // no-op
-    });
-    tx.addEventListener("error", () => {
-        throw Error();
-    });
-    tx.onabort = t.step_func_done(() => {
-        assert_equals(tx.error.name, "AbortError");
-    });
-}, "Exception in second error event listener on transaction");
+  tx.addEventListener('error', () => {
+    // no-op
+  });
+  tx.addEventListener('error', () => {
+    throw Error();
+  });
+  tx.onabort = t.step_func_done(() => {
+    assert_equals(tx.error.name, 'AbortError');
+  });
+}, 'Exception in second error event listener on transaction');
 
 fire_error_event_test((t, db, tx, request) => {
-    let second_listener_called = false;
-    tx.addEventListener("error", () => {
-        throw Error();
-    });
-    tx.addEventListener(
-        "error",
-        t.step_func(() => {
-            second_listener_called = true;
-            assert_true(
-                is_transaction_active(tx, "s"),
-                "Transaction should be active until dispatch completes",
-            );
-        }),
-    );
-    tx.onabort = t.step_func_done(() => {
-        assert_true(second_listener_called);
-        assert_equals(tx.error.name, "AbortError");
-    });
-}, "Exception in first error event listener on transaction, " + "transaction active in second");
+  let second_listener_called = false;
+  tx.addEventListener('error', () => {
+    throw Error();
+  });
+  tx.addEventListener('error', t.step_func(() => {
+    second_listener_called = true;
+    assert_true(is_transaction_active(tx, 's'),
+                'Transaction should be active until dispatch completes');
+  }));
+  tx.onabort = t.step_func_done(() => {
+    assert_true(second_listener_called);
+    assert_equals(tx.error.name, 'AbortError');
+  });
+}, 'Exception in first error event listener on transaction, ' +
+   'transaction active in second');
 
 // Listeners on the connection.
 
 fire_error_event_test((t, db, tx, request) => {
-    db.onerror = () => {
-        throw Error();
-    };
-    tx.onabort = t.step_func_done(() => {
-        assert_equals(tx.error.name, "AbortError");
-    });
-}, "Exception in error event handler on connection");
+  db.onerror = () => {
+    throw Error();
+  };
+  tx.onabort = t.step_func_done(() => {
+    assert_equals(tx.error.name, 'AbortError');
+  });
+}, 'Exception in error event handler on connection');
 
 fire_error_event_test((t, db, tx, request) => {
-    db.onerror = e => {
-        e.preventDefault();
-        throw Error();
-    };
-    tx.onabort = t.step_func_done(() => {
-        assert_equals(tx.error.name, "AbortError");
-    });
-}, "Exception in error event handler on connection, with preventDefault");
+  db.onerror = e => {
+    e.preventDefault()
+    throw Error();
+  };
+  tx.onabort = t.step_func_done(() => {
+    assert_equals(tx.error.name, 'AbortError');
+  });
+}, 'Exception in error event handler on connection, with preventDefault');
 
 fire_error_event_test((t, db, tx, request) => {
-    db.addEventListener("error", () => {
-        throw Error();
-    });
-    tx.onabort = t.step_func_done(() => {
-        assert_equals(tx.error.name, "AbortError");
-    });
-}, "Exception in error event listener on connection");
+  db.addEventListener('error', () => {
+    throw Error();
+  });
+  tx.onabort = t.step_func_done(() => {
+    assert_equals(tx.error.name, 'AbortError');
+  });
+}, 'Exception in error event listener on connection');
 
 fire_error_event_test((t, db, tx, request) => {
-    db.addEventListener("error", () => {
-        // no-op
-    });
-    db.addEventListener("error", () => {
-        throw Error();
-    });
-    tx.onabort = t.step_func_done(() => {
-        assert_equals(tx.error.name, "AbortError");
-    });
-}, "Exception in second error event listener on connection");
+  db.addEventListener('error', () => {
+    // no-op
+  });
+  db.addEventListener('error', () => {
+    throw Error();
+  });
+  tx.onabort = t.step_func_done(() => {
+    assert_equals(tx.error.name, 'AbortError');
+  });
+}, 'Exception in second error event listener on connection');
 
 fire_error_event_test((t, db, tx, request) => {
-    let second_listener_called = false;
-    db.addEventListener("error", () => {
-        throw Error();
-    });
-    db.addEventListener(
-        "error",
-        t.step_func(() => {
-            second_listener_called = true;
-            assert_true(
-                is_transaction_active(tx, "s"),
-                "Transaction should be active until dispatch completes",
-            );
-        }),
-    );
-    tx.onabort = t.step_func_done(() => {
-        assert_true(second_listener_called);
-        assert_equals(tx.error.name, "AbortError");
-    });
-}, "Exception in first error event listener on connection, " + "transaction active in second");
+  let second_listener_called = false;
+  db.addEventListener('error', () => {
+    throw Error();
+  });
+  db.addEventListener('error', t.step_func(() => {
+    second_listener_called = true;
+    assert_true(is_transaction_active(tx, 's'),
+                'Transaction should be active until dispatch completes');
+  }));
+  tx.onabort = t.step_func_done(() => {
+    assert_true(second_listener_called);
+    assert_equals(tx.error.name, 'AbortError');
+  });
+}, 'Exception in first error event listener on connection, ' +
+   'transaction active in second');
+
