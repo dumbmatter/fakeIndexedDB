@@ -119,9 +119,6 @@ abstract class FakeEventTarget {
         event.target = this;
         // NOT SURE WHEN THIS SHOULD BE SET        event.eventPath = [];
 
-        // TODO: do we need to copy the listeners array to prevent
-        // cross-phase mutation?
-
         event.eventPhase = event.CAPTURING_PHASE;
         for (const obj of event.eventPath) {
             if (!event.propagationStopped) {
