@@ -20,10 +20,6 @@ let failed = 0;
 let skipped = 0;
 
 const skip = [
-    // First test works, but the others... they are extreme edge cases, and I'm not sure exactly what my implementation
-    // should be.
-    "bindings-inject-key.js",
-
     // realistic-structured-clone isn't realistic enough, and even if it was, I doubt this test would pass.
     "clone-before-keypath-eval.js",
 
@@ -79,14 +75,12 @@ const skip = [
     // `open2.onsuccess = (e) => e.target.result.close();` fixes it.
     "idbtransaction_objectStoreNames.js",
 
-    // Looks complicated to get running in Node.js, but would be nice.
-    "interfaces.js",
-
     // Would be nice to fix, but not highly important. Various bugs here.
     "keypath-exceptions.js",
 
     // Node.js doesn't have Blob or File.
     "keypath-special-identifiers.js",
+    "nested-cloning-large-multiple.js",
 
     // All kinds of fucked up.
     "open-request-queue.js",
@@ -95,6 +89,20 @@ const skip = [
     "parallel-cursors-upgrade.js",
 
     // Did not investigate in great detail.
+    "bindings-inject-keys-bypass-setters.js",
+    "bindings-inject-values-bypass-setters.js",
+    "get-databases.any.js",
+    "idb-explicit-commit.any.js",
+    "idb-explicit-commit-throw.any.js",
+    "idbfactory-databases-opaque-origin.js",
+    "idbfactory_open11.js",
+    "idbindex_get8.js",
+    "idbindex_getKey8.js",
+    "idbindex_openCursor3.js",
+    "idbindex_openKeyCursor4.js",
+    "nested-cloning-large.js",
+    "nested-cloning-small.js",
+    "request-event-ordering.js",
     "transaction-abort-generator-revert.js",
     "transaction-lifetime-empty.js",
     "upgrade-transaction-lifecycle-backend-aborted.js",

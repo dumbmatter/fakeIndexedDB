@@ -20,6 +20,10 @@ const add_completion_callback = (...args) => {
 
 const assert_array_equals = (...args) => assert.deepEqual(...args);
 
+const assert_object_equals = (...args) => assert.deepEqual(...args);
+
+const assert_unreached = (msg) => assert.fail(msg);
+
 const assert_equals = (...args) => assert.equal(...args);
 
 const assert_class_string = (object, class_string, description) => {
@@ -436,10 +440,12 @@ const addToGlobal = {
     assert_equals,
     assert_false,
     assert_key_equals,
+    assert_object_equals,
     assert_not_equals,
     assert_readonly,
     assert_throws,
     assert_true,
+    assert_unreached,
     async_test,
     EventWatcher,
     format_value,
