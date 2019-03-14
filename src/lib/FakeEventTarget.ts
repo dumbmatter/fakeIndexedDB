@@ -30,7 +30,10 @@ const stopped = (event: FakeEvent, listener: Listener) => {
 const invokeEventListeners = (event: FakeEvent, obj: FakeEventTarget) => {
     event.currentTarget = obj;
 
-    for (const listener of obj.listeners) {
+    // The callback might cause obj.listeners to mutate as we traverse it.
+    // Take a copy of the array so that nothing sneaks in and we don't lose
+    // our place.
+    for (const listener of obj.listeners.slice()) {
         if (event.type !== listener.type || stopped(event, listener)) {
             continue;
         }
@@ -115,6 +118,9 @@ abstract class FakeEventTarget {
         event.dispatched = true;
         event.target = this;
         // NOT SURE WHEN THIS SHOULD BE SET        event.eventPath = [];
+
+        // TODO: do we need to copy the listeners array to prevent
+        // cross-phase mutation?
 
         event.eventPhase = event.CAPTURING_PHASE;
         for (const obj of event.eventPath) {
