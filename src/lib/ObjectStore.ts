@@ -86,7 +86,7 @@ class ObjectStore {
     public storeRecord(
         newRecord: Record,
         noOverwrite: boolean,
-        rollbackLog: RollbackLog,
+        rollbackLog?: RollbackLog,
     ) {
         if (this.keyPath !== null) {
             const key = extractKey(this.keyPath, newRecord.value);
@@ -167,19 +167,23 @@ class ObjectStore {
         }
 
         if (rollbackLog) {
-            rollbackLog.push(this.deleteRecord.bind(this, newRecord.key));
+            rollbackLog.push(() => {
+                this.deleteRecord(this, newRecord.key);
+            });
         }
 
         return newRecord.key;
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-deleting-records-from-an-object-store
-    public deleteRecord(key: Key, rollbackLog: RollbackLog) {
+    public deleteRecord(key: Key, rollbackLog?: RollbackLog) {
         const deletedRecords = this.records.delete(key);
 
         if (rollbackLog) {
             for (const record of deletedRecords) {
-                rollbackLog.push(this.storeRecord.bind(this, record, true));
+                rollbackLog.push(() => {
+                    this.storeRecord(record, true);
+                });
             }
         }
 
@@ -194,7 +198,9 @@ class ObjectStore {
 
         if (rollbackLog) {
             for (const record of deletedRecords) {
-                rollbackLog.push(this.storeRecord.bind(this, record, true));
+                rollbackLog.push(() => {
+                    this.storeRecord(record, true);
+                });
             }
         }
 

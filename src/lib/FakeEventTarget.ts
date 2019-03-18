@@ -38,6 +38,7 @@ const invokeEventListeners = (event: FakeEvent, obj: FakeEventTarget) => {
             continue;
         }
 
+        // @ts-ignore
         listener.callback.call(event.currentTarget, event);
     }
 
@@ -63,6 +64,7 @@ const invokeEventListeners = (event: FakeEvent, obj: FakeEventTarget) => {
             type: event.type,
         };
         if (!stopped(event, listener)) {
+            // @ts-ignore
             listener.callback.call(event.currentTarget, event);
         }
     }
