@@ -1,3 +1,9 @@
+# 2.1.0 (2019-03-18)
+
+* Added the ability to include `fake-indexeddb/auto` and have it populate all the global variables.
+* Added support for `IDBTransaction.commit()` and `IDBFactory.databases()`.
+* Fixed a couple minor edge cases to improve performance on the web platform tests from 85% to 87%.
+
 # 2.0.6 (2019-03-14)
 
 * Fixed issue #26, where event handlers were inappropriately not being called if they added or removed other handlers to the invoking listener in their callbacks.

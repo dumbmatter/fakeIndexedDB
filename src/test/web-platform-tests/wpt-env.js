@@ -1,5 +1,5 @@
 const assert = require("assert");
-require("../../../build/global");
+require("../../../auto");
 global.Event = require("../../../build/lib/FakeEvent").default;
 
 global.Blob = function(parts, options = {}) {

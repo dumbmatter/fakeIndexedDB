@@ -1,21 +1,19 @@
-import "core-js/shim";
-import fakeIndexedDB from "./fakeIndexedDB";
-import FDBCursor from "./FDBCursor";
-import FDBCursorWithValue from "./FDBCursorWithValue";
-import FDBDatabase from "./FDBDatabase";
-import FDBFactory from "./FDBFactory";
-import FDBIndex from "./FDBIndex";
-import FDBKeyRange from "./FDBKeyRange";
-import FDBObjectStore from "./FDBObjectStore";
-import FDBOpenDBRequest from "./FDBOpenDBRequest";
-import FDBRequest from "./FDBRequest";
-import FDBTransaction from "./FDBTransaction";
-import FDBVersionChangeEvent from "./FDBVersionChangeEvent";
-
-declare const WorkerGlobalScope: any;
+require("core-js/shim");
+var fakeIndexedDB = require("./build/fakeIndexedDB").default;
+var FDBCursor = require("./build/FDBCursor").default;
+var FDBCursorWithValue = require("./build/FDBCursorWithValue").default;
+var FDBDatabase = require("./build/FDBDatabase").default;
+var FDBFactory = require("./build/FDBFactory").default;
+var FDBIndex = require("./build/FDBIndex").default;
+var FDBKeyRange = require("./build/FDBKeyRange").default;
+var FDBObjectStore = require("./build/FDBObjectStore").default;
+var FDBOpenDBRequest = require("./build/FDBOpenDBRequest").default;
+var FDBRequest = require("./build/FDBRequest").default;
+var FDBTransaction = require("./build/FDBTransaction").default;
+var FDBVersionChangeEvent = require("./build/FDBVersionChangeEvent").default;
 
 // http://stackoverflow.com/a/33268326/786644 - works in browser, worker, and Node.js
-const globalVar =
+var globalVar =
     typeof window !== "undefined"
         ? window
         : typeof WorkerGlobalScope !== "undefined"

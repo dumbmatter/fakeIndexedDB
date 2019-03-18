@@ -18,9 +18,10 @@ yarn add --dev fake-indexeddb
 
 Functionally, it works exactly like IndexedDB except data is not persisted to disk.
 
+The easiest way to use it is to import `fake-indexeddb/auto`, which will put all the IndexedDB objects in the global scope:
+
 ```js
-var indexedDB = require("fake-indexeddb");
-var IDBKeyRange = require("fake-indexeddb/lib/FDBKeyRange");
+require("fake-indexeddb/auto");
 
 var request = indexedDB.open("test", 3);
 request.onupgradeneeded = function () {
@@ -53,6 +54,15 @@ request.onsuccess = function (event) {
 };
 ```
 
+Alternatively, you can import individual objects:
+
+```js
+var indexedDB = require("fake-indexeddb");
+var IDBKeyRange = require("fake-indexeddb/lib/FDBKeyRange");
+
+// The rest is the same as above.
+```
+
 When importing individual classes directly (like `var IDBKeyRange = require("fake-indexeddb/lib/FDBKeyRange");` above), file names of all the objects are like the normal IndexedDB ones except with F replacing I, e.g. `FDBIndex` instead of `IDBIndex`.
 
 ## Quality
@@ -64,7 +74,7 @@ Implementation | Percentage of files that pass completely
 Chrome 73 | 99%
 Firefox 65 | 97%
 Safari 12 | 92%
-fake-indexeddb 2 | 87%
+fake-indexeddb 2.1.0 | 87%
 Edge 18 | 61%
 
 For browsers, I ran http://w3c-test.org/tools/runner/index.html and counted the passes. For fake-indexeddb, I ran `npm run test-w3c`.
