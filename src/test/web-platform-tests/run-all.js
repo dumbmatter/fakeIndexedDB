@@ -45,7 +45,7 @@ const skip = [
     // Mostly works, but keepAlive results in an infinite loop
     "idb-explicit-commit.any.js",
 
-    //
+    // Not sure how to do this weird error silencing in Node.js.
     "idb-explicit-commit-throw.any.js",
 
     // Usually works, but there is a race condition. Sometimes the setTimeout runs before the transaction commits.
@@ -93,7 +93,9 @@ const skip = [
     "idbtransaction_objectStoreNames.js",
 
     // Node.js doesn't have Blob or File, and my simple mocks aren't good enough for these tests.
+    "nested-cloning-large.js",
     "nested-cloning-large-multiple.js",
+    "nested-cloning-small.js",
 
     // All kinds of fucked up.
     "open-request-queue.js",
@@ -105,8 +107,6 @@ const skip = [
     "bindings-inject-keys-bypass-setters.js",
     "bindings-inject-values-bypass-setters.js",
     "idbfactory-databases-opaque-origin.js",
-    "nested-cloning-large.js",
-    "nested-cloning-small.js",
     "request-event-ordering.js",
     "transaction-abort-generator-revert.js",
     "transaction-lifetime-empty.js",

@@ -212,19 +212,10 @@ class FDBTransaction extends FakeEventTarget {
                 try {
                     event.eventPath = [this.db, this];
                     request.dispatchEvent(event);
-
-                    // You're supposed to set this._active to false here, but I'm skipping that.
-                    // Why? Because scheduling gets tricky when promises are involved. I know that
-                    // promises and IndexedDB transactions in general are tricky
-                    // https://lists.w3.org/Archives/Public/public-webapps/2015AprJun/0126.html but
-                    // for some reason I still tend to do it. So this line is commented out for me,
-                    // and for any other masochists who do similar things. It doesn't seem to break
-                    // any tests or functionality, and in fact if I uncomment this line it does make
-                    // transaction/promise interactions wonky.
-                    // this._active = false;
                 } catch (err) {
-                    // console.error(err);
-                    this._abort("AbortError");
+                    if (this._state !== "committing") {
+                        this._abort("AbortError");
+                    }
                     throw err;
                 }
 
