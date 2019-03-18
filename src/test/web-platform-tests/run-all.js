@@ -81,12 +81,10 @@ const skip = [
     // Half works, and I don't care enough to investigate further right now.
     "idbrequest-onupgradeneeded.js",
 
-    // The tests pass, but then it hangs because the "value after close" tests don't listen for onsuccess. Adding
-    // `open2.onsuccess = (e) => e.target.result.close();` fixes it.
+    // db2.close() sets _closePending flag, and then that's checked in runVersionchangeTransaction resulting in an
+    // AbortError. Based on https://w3c.github.io/IndexedDB/#opening this seems corret, so I'm not sure why this test is
+    // supposed to work.
     "idbtransaction_objectStoreNames.js",
-
-    // Would be nice to fix, but not highly important. Various bugs here.
-    "keypath-exceptions.js",
 
     // Node.js doesn't have Blob or File.
     "keypath-special-identifiers.js",
