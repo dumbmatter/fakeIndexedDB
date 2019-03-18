@@ -1,6 +1,6 @@
 # fake-indexeddb [![Build Status](https://travis-ci.org/dumbmatter/fakeIndexedDB.svg?branch=master)](https://travis-ci.org/dumbmatter/fakeIndexedDB)
 
-This is a pure JS in-memory implementation of [the IndexedDB 2.0 API](https://w3c.github.io/IndexedDB/) (which technically still is a draft, but is probably not going to substantially change). Its main utility is for testing IndexedDB-dependent code in Node.js.
+This is a pure JS in-memory implementation of [the IndexedDB API](https://w3c.github.io/IndexedDB/). Its main utility is for testing IndexedDB-dependent code in Node.js.
 
 ## Installation
 
@@ -57,19 +57,19 @@ When importing individual classes directly (like `var IDBKeyRange = require("fak
 
 ## Quality
 
-Here's a comparison of fake-indexeddb and real browser IndexedDB implementations on [the W3C IndexedDB test suite](https://github.com/w3c/web-platform-tests/tree/master/IndexedDB) as of March 14, 2019:
+Here's a comparison of fake-indexeddb and real browser IndexedDB implementations on [the W3C IndexedDB test suite](https://github.com/w3c/web-platform-tests/tree/master/IndexedDB) as of March 18, 2019:
 
 Implementation | Percentage of files that pass completely
 --- | ---
 Chrome 73 | 99%
 Firefox 65 | 97%
 Safari 12 | 92%
-fake-indexeddb 2 | 85%
+fake-indexeddb 2 | 87%
 Edge 18 | 61%
 
 For browsers, I ran http://w3c-test.org/tools/runner/index.html and counted the passes. For fake-indexeddb, I ran `npm run test-w3c`.
 
-85% is pretty good, right? Especially considering that fake-indexeddb runs in Node.js where failure is guaranteed for tests involving browser APIs like Web Workers. There are definitley still some weak points of fake-indexeddb, most of which are described in `src/test/web-platform-tests/run-all.js`. Your app will probably run fine, though.
+87% is pretty good, right? Especially considering that fake-indexeddb runs in Node.js where failure is guaranteed for tests involving browser APIs like Web Workers. There are definitley still some weak points of fake-indexeddb, most of which are described in `src/test/web-platform-tests/run-all.js`. Your app will probably run fine, though.
 
 ## Potential applications:
 
