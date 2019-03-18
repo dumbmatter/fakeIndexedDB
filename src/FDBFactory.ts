@@ -315,6 +315,20 @@ class FDBFactory {
         return request;
     }
 
+    // https://w3c.github.io/IndexedDB/#dom-idbfactory-databases
+    public databases() {
+        return new Promise(resolve => {
+            const result = [];
+            for (const [name, database] of this._databases) {
+                result.push({
+                    name,
+                    version: database.version,
+                });
+            }
+            resolve(result);
+        });
+    }
+
     public toString() {
         return "[object IDBFactory]";
     }

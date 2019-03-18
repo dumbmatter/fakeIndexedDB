@@ -34,6 +34,9 @@ const skip = [
     "fire-success-event-exception.js",
     "fire-upgradeneeded-event-exception.js",
 
+    // Mostly works, except the last test which is edge cases
+    "get-databases.any.js",
+
     // No Web Worker in Node.js.
     "idb-binary-key-detached.js",
     "idb_webworkers.js",
@@ -105,7 +108,6 @@ const skip = [
     // Did not investigate in great detail.
     "bindings-inject-keys-bypass-setters.js",
     "bindings-inject-values-bypass-setters.js",
-    "get-databases.any.js",
     "idb-explicit-commit.any.js",
     "idb-explicit-commit-throw.any.js",
     "idbfactory-databases-opaque-origin.js",
