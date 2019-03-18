@@ -61,7 +61,7 @@ const buildRecordAddPut = (
     const clone = structuredClone(value);
 
     if (objectStore.keyPath !== null) {
-        const tempKey = extractKey(objectStore.keyPath, value);
+        const tempKey = extractKey(objectStore.keyPath, clone);
 
         if (tempKey !== undefined) {
             valueToKey(tempKey);

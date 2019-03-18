@@ -373,11 +373,13 @@ class FDBCursor {
             throw new InvalidStateError();
         }
 
+        const clone = structuredClone(value);
+
         if (effectiveObjectStore.keyPath !== null) {
             let tempKey;
 
             try {
-                tempKey = extractKey(effectiveObjectStore.keyPath, value);
+                tempKey = extractKey(effectiveObjectStore.keyPath, clone);
             } catch (err) {
                 /* Handled immediately below */
             }
@@ -389,7 +391,7 @@ class FDBCursor {
 
         const record = {
             key: effectiveKey,
-            value: structuredClone(value),
+            value: clone,
         };
 
         return transaction._execRequestAsync({

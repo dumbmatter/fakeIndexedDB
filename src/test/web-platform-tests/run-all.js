@@ -20,9 +20,6 @@ let failed = 0;
 let skipped = 0;
 
 const skip = [
-    // realistic-structured-clone isn't realistic enough, and even if it was, I doubt this test would pass.
-    "clone-before-keypath-eval.js",
-
     // Maximum call stack size exceeded, possibly due to the promise resolution microtask not taking precedence when it
     // should (keep_alive not working).
     "event-dispatch-active-flag.js",
