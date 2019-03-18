@@ -351,7 +351,7 @@ class FDBCursor {
             : this._position;
         const transaction = effectiveObjectStore.transaction;
 
-        if (!transaction._active) {
+        if (transaction._state !== "active") {
             throw new TransactionInactiveError();
         }
 
@@ -414,7 +414,7 @@ class FDBCursor {
         const effectiveObjectStore = getEffectiveObjectStore(this);
         const transaction = effectiveObjectStore.transaction;
 
-        if (!transaction._active) {
+        if (transaction._state !== "active") {
             throw new TransactionInactiveError();
         }
 
@@ -460,7 +460,7 @@ class FDBCursor {
         const effectiveObjectStore = getEffectiveObjectStore(this);
         const transaction = effectiveObjectStore.transaction;
 
-        if (!transaction._active) {
+        if (transaction._state !== "active") {
             throw new TransactionInactiveError();
         }
 
@@ -512,7 +512,7 @@ class FDBCursor {
         const effectiveObjectStore = getEffectiveObjectStore(this);
         const transaction = effectiveObjectStore.transaction;
 
-        if (!transaction._active) {
+        if (transaction._state !== "active") {
             throw new TransactionInactiveError();
         }
 
@@ -579,7 +579,7 @@ class FDBCursor {
             : this._position;
         const transaction = effectiveObjectStore.transaction;
 
-        if (!transaction._active) {
+        if (transaction._state !== "active") {
             throw new TransactionInactiveError();
         }
 

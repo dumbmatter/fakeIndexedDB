@@ -20,9 +20,8 @@ import {
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#transaction
 class FDBTransaction extends FakeEventTarget {
+    public _state: "active" | "inactive" | "committing" | "finished" = "active";
     public _started = false;
-    public _active = true;
-    public _finished = false; // Set true after commit or abort
     public _rollbackLog: RollbackLog = [];
     public _objectStoresCache: Map<string, FDBObjectStore> = new Map();
 
@@ -90,21 +89,21 @@ class FDBTransaction extends FakeEventTarget {
             this.dispatchEvent(event);
         });
 
-        this._finished = true;
+        this._state = "finished";
     }
 
     public abort() {
-        if (this._finished) {
+        if (this._state === "committing" || this._state === "finished") {
             throw new InvalidStateError();
         }
-        this._active = false;
+        this._state = "active";
 
         this._abort(null);
     }
 
     // http://w3c.github.io/IndexedDB/#dom-idbtransaction-objectstore
     public objectStore(name: string) {
-        if (!this._active) {
+        if (this._state !== "active") {
             throw new InvalidStateError();
         }
 
@@ -130,7 +129,7 @@ class FDBTransaction extends FakeEventTarget {
         const operation = obj.operation;
         let request = obj.hasOwnProperty("request") ? obj.request : null;
 
-        if (!this._active) {
+        if (this._state !== "active") {
             throw new TransactionInactiveError();
         }
 
@@ -186,7 +185,9 @@ class FDBTransaction extends FakeEventTarget {
                     request.error = undefined;
 
                     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-fire-a-success-event
-                    this._active = true;
+                    if (this._state === "inactive") {
+                        this._state = "active";
+                    }
                     event = new FakeEvent("success", {
                         bubbles: false,
                         cancelable: false,
@@ -197,7 +198,9 @@ class FDBTransaction extends FakeEventTarget {
                     request.error = err;
 
                     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-fire-an-error-event
-                    this._active = true;
+                    if (this._state === "inactive") {
+                        this._state = "active";
+                    }
                     event = new FakeEvent("error", {
                         bubbles: true,
                         cancelable: true,
@@ -244,16 +247,23 @@ class FDBTransaction extends FakeEventTarget {
         }
 
         // Check if transaction complete event needs to be fired
-        if (!this._finished) {
+        if (this._state !== "finished") {
             // Either aborted or committed already
-            this._active = false;
-            this._finished = true;
+            this._state = "finished";
 
             if (!this.error) {
                 const event = new FakeEvent("complete");
                 this.dispatchEvent(event);
             }
         }
+    }
+
+    public commit() {
+        if (this._state !== "active") {
+            throw new InvalidStateError();
+        }
+
+        this._state = "committing";
     }
 
     public toString() {

@@ -22,12 +22,17 @@ class Database {
     public processTransactions() {
         setImmediate(() => {
             const anyRunning = this.transactions.some(transaction => {
-                return transaction._started && !transaction._finished;
+                return (
+                    transaction._started && transaction._state !== "finished"
+                );
             });
 
             if (!anyRunning) {
                 const next = this.transactions.find(transaction => {
-                    return !transaction._started && !transaction._finished;
+                    return (
+                        !transaction._started &&
+                        transaction._state !== "finished"
+                    );
                 });
 
                 if (next) {

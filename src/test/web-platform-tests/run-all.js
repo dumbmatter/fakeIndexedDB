@@ -42,8 +42,10 @@ const skip = [
     // issues too.
     "idb-binary-key-roundtrip.js",
 
-    // FDBTransaction.commit() is not implemented yet.
+    // Mostly works, but keepAlive results in an infinite loop
     "idb-explicit-commit.any.js",
+
+    //
     "idb-explicit-commit-throw.any.js",
 
     // Usually works, but there is a race condition. Sometimes the setTimeout runs before the transaction commits.

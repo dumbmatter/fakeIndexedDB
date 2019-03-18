@@ -24,11 +24,11 @@ const confirmActiveVersionchangeTransaction = (database: FDBDatabase) => {
     });
     const transaction = transactions[transactions.length - 1];
 
-    if (!transaction || transaction._finished) {
+    if (!transaction || transaction._state === "finished") {
         throw new InvalidStateError();
     }
 
-    if (!transaction._active) {
+    if (transaction._state !== "active") {
         throw new TransactionInactiveError();
     }
 
@@ -41,7 +41,7 @@ const closeConnection = (connection: FDBDatabase) => {
 
     const transactionsComplete = connection._rawDatabase.transactions.every(
         transaction => {
-            return transaction._finished;
+            return transaction._state === "finished";
         },
     );
 
@@ -187,7 +187,7 @@ class FDBDatabase extends FakeEventTarget {
         const hasActiveVersionchange = this._rawDatabase.transactions.some(
             transaction => {
                 return (
-                    transaction._active &&
+                    transaction._state === "active" &&
                     transaction.mode === "versionchange" &&
                     transaction.db === this
                 );

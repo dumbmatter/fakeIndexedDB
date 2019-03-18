@@ -36,7 +36,7 @@ const confirmActiveTransaction = (objectStore: FDBObjectStore) => {
         throw new InvalidStateError();
     }
 
-    if (!objectStore.transaction._active) {
+    if (objectStore.transaction._state !== "active") {
         throw new TransactionInactiveError();
     }
 };
@@ -471,7 +471,10 @@ class FDBObjectStore {
             throw new TypeError();
         }
 
-        if (this._rawObjectStore.deleted || this.transaction._finished) {
+        if (
+            this._rawObjectStore.deleted ||
+            this.transaction._state === "finished"
+        ) {
             throw new InvalidStateError();
         }
 

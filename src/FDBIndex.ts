@@ -20,7 +20,7 @@ const confirmActiveTransaction = (index: FDBIndex) => {
         throw new InvalidStateError();
     }
 
-    if (!index.objectStore.transaction._active) {
+    if (index.objectStore.transaction._state !== "active") {
         throw new TransactionInactiveError();
     }
 };
@@ -57,7 +57,7 @@ class FDBIndex {
             throw new InvalidStateError();
         }
 
-        if (!transaction._active) {
+        if (transaction._state !== "active") {
             throw new TransactionInactiveError();
         }
 
