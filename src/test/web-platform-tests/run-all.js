@@ -42,6 +42,10 @@ const skip = [
     // issues too.
     "idb-binary-key-roundtrip.js",
 
+    // FDBTransaction.commit() is not implemented yet.
+    "idb-explicit-commit.any.js",
+    "idb-explicit-commit-throw.any.js",
+
     // Usually works, but there is a race condition. Sometimes the setTimeout runs before the transaction commits.
     "idbcursor-continue-exception-order.js",
     "idbcursor-delete-exception-order.js",
@@ -98,8 +102,6 @@ const skip = [
     // Did not investigate in great detail.
     "bindings-inject-keys-bypass-setters.js",
     "bindings-inject-values-bypass-setters.js",
-    "idb-explicit-commit.any.js",
-    "idb-explicit-commit-throw.any.js",
     "idbfactory-databases-opaque-origin.js",
     "nested-cloning-large.js",
     "nested-cloning-small.js",
