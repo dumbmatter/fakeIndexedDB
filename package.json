@@ -35,6 +35,7 @@
     "author": "Jeremy Scheff <jdscheff@gmail.com> (http://dumbmatter.com/)",
     "license": "Apache-2.0",
     "files": [
+        "auto.js",
         "build",
         "lib"
     ],
