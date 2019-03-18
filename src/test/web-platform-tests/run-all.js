@@ -86,8 +86,7 @@ const skip = [
     // supposed to work.
     "idbtransaction_objectStoreNames.js",
 
-    // Node.js doesn't have Blob or File.
-    "keypath-special-identifiers.js",
+    // Node.js doesn't have Blob or File, and my simple mocks aren't good enough for these tests.
     "nested-cloning-large-multiple.js",
 
     // All kinds of fucked up.

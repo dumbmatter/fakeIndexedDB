@@ -2,6 +2,18 @@ const assert = require("assert");
 require("../../../build/global");
 global.Event = require("../../../build/lib/FakeEvent").default;
 
+global.Blob = function(parts, options = {}) {
+    this.size = 0;
+    Object.assign(this, options);
+    return this;
+};
+
+global.File = function(bits, name, options = {}) {
+    this.name = name;
+    Object.assign(this, options);
+    return this;
+};
+
 global.document = {
     // Kind of cheating for key_invalid.js: It wants to test using a DOM node as a key, but that can't work in Node, so
     // this will instead use another object that also can't be used as a key.
@@ -22,7 +34,7 @@ const assert_array_equals = (...args) => assert.deepEqual(...args);
 
 const assert_object_equals = (...args) => assert.deepEqual(...args);
 
-const assert_unreached = (msg) => assert.fail(msg);
+const assert_unreached = msg => assert.fail(msg);
 
 const assert_equals = (...args) => assert.equal(...args);
 
