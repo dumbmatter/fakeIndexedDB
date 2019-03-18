@@ -88,10 +88,6 @@ const skip = [
     // `open2.onsuccess = (e) => e.target.result.close();` fixes it.
     "idbtransaction_objectStoreNames.js",
 
-    // Fails because versionchange is called on the prior database connection which is already closed. Need to look in
-    // FDBDatabase._connections.
-    "idbfactory_open11.js",
-
     // Would be nice to fix, but not highly important. Various bugs here.
     "keypath-exceptions.js",
 

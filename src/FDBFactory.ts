@@ -15,7 +15,7 @@ const waitForOthersClosedDelete = (
     cb: (err: Error | null) => void,
 ) => {
     const anyOpen = openDatabases.some(openDatabase2 => {
-        return !openDatabase2._closed;
+        return !openDatabase2._closed && !openDatabase2._closePending;
     });
 
     if (anyOpen) {
@@ -47,7 +47,7 @@ const deleteDatabase = (
         db.deletePending = true;
 
         const openDatabases = db.connections.filter(connection => {
-            return !connection._closed;
+            return !connection._closed && !connection._closePending;
         });
 
         for (const openDatabase2 of openDatabases) {
@@ -61,7 +61,7 @@ const deleteDatabase = (
         }
 
         const anyOpen = openDatabases.some(openDatabase3 => {
-            return !openDatabase3._closed;
+            return !openDatabase3._closed && !openDatabase3._closePending;
         });
 
         if (request && anyOpen) {
@@ -96,7 +96,7 @@ const runVersionchangeTransaction = (
     );
 
     for (const openDatabase2 of openDatabases) {
-        if (!openDatabase2._closed) {
+        if (!openDatabase2._closed && !openDatabase2._closePending) {
             const event = new FDBVersionChangeEvent("versionchange", {
                 newVersion: version,
                 oldVersion,
@@ -106,7 +106,7 @@ const runVersionchangeTransaction = (
     }
 
     const anyOpen = openDatabases.some(openDatabase3 => {
-        return !openDatabase3._closed;
+        return !openDatabase3._closed && !openDatabase3._closePending;
     });
 
     if (anyOpen) {
@@ -119,7 +119,7 @@ const runVersionchangeTransaction = (
 
     const waitForOthersClosed = () => {
         const anyOpen2 = openDatabases.some(openDatabase2 => {
-            return !openDatabase2._closed;
+            return !openDatabase2._closed && !openDatabase2._closePending;
         });
 
         if (anyOpen2) {
