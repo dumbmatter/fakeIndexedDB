@@ -60,6 +60,16 @@ const skip = [
     // would work.
     "idbfactory_open9.js",
 
+    // Fails because FDBTransaction._abort synchronously sends out error events to open requests, when it should be
+    // asynchronous according to the spec. Making it asynchronous causes other tests to fail though. Need to be more
+    // careful about making sure other asynchronous things are actually asynchronous, and also "asynchronous" doesn't
+    // just mean "wrap in setImmediate", in this context it means to wait until prior requests are complete and then
+    // execute.
+    "idbindex_get8.js",
+    "idbindex_getKey8.js",
+    "idbindex_openCursor3.js",
+    "idbindex_openKeyCursor4.js",
+
     // Mostly works, but subtlely wrong behavior when renaming a newly-created index/store and then aborting the upgrade
     // transaction (this has roughly 0 real world impact, but could be indicative of other problems in fake-indexeddb).
     "idbindex-rename-abort.js",
@@ -74,6 +84,10 @@ const skip = [
     // The tests pass, but then it hangs because the "value after close" tests don't listen for onsuccess. Adding
     // `open2.onsuccess = (e) => e.target.result.close();` fixes it.
     "idbtransaction_objectStoreNames.js",
+
+    // Fails because versionchange is called on the prior database connection which is already closed. Need to look in
+    // FDBDatabase._connections.
+    "idbfactory_open11.js",
 
     // Would be nice to fix, but not highly important. Various bugs here.
     "keypath-exceptions.js",
@@ -95,11 +109,6 @@ const skip = [
     "idb-explicit-commit.any.js",
     "idb-explicit-commit-throw.any.js",
     "idbfactory-databases-opaque-origin.js",
-    "idbfactory_open11.js",
-    "idbindex_get8.js",
-    "idbindex_getKey8.js",
-    "idbindex_openCursor3.js",
-    "idbindex_openKeyCursor4.js",
     "nested-cloning-large.js",
     "nested-cloning-small.js",
     "request-event-ordering.js",
