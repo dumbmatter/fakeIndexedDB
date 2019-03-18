@@ -168,7 +168,7 @@ class ObjectStore {
 
         if (rollbackLog) {
             rollbackLog.push(() => {
-                this.deleteRecord(this, newRecord.key);
+                this.deleteRecord(newRecord.key);
             });
         }
 
