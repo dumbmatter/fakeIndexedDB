@@ -21,6 +21,7 @@
         "shim"
     ],
     "main": "build/index.js",
+    "types": "build/index.d.ts",
     "scripts": {
         "build": "rm -rf build && tsc",
         "prepublish": "npm run build && rm -rf build/test",

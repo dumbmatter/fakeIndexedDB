@@ -8,7 +8,8 @@
         "allowJs": true,
         "downlevelIteration": true,
         "noEmitOnError": true,
-        "strict": true
+        "strict": true,
+        "declaration": true
     },
     "exclude": [
         "node_modules",
