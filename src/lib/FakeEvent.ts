@@ -25,7 +25,7 @@ class Event {
     public defaultPrevented = false;
 
     public isTrusted = false;
-    public timestamp = Date.now();
+    public timeStamp = Date.now();
 
     public bubbles: boolean;
     public cancelable: boolean;
