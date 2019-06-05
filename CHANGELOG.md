@@ -1,3 +1,7 @@
+# 2.1.1 (2019-06-05)
+
+* #30 - Fixed typo in the name of the `Event.timeStamp` property.
+
 # 2.1.0 (2019-03-18)
 
 * Added the ability to include `fake-indexeddb/auto` and have it populate all the global variables.
