@@ -40,7 +40,7 @@
         "lib"
     ],
     "dependencies": {
-        "core-js": "^2.4.1",
+        "core-js": "^3.4.1",
         "realistic-structured-clone": "^2.0.1",
         "setimmediate": "^1.0.5"
     },

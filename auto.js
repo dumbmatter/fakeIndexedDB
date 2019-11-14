@@ -1,4 +1,4 @@
-require("core-js/shim");
+require("core-js/stable");
 var fakeIndexedDB = require("./build/fakeIndexedDB").default;
 var FDBCursor = require("./build/FDBCursor").default;
 var FDBCursorWithValue = require("./build/FDBCursorWithValue").default;
@@ -17,10 +17,10 @@ var globalVar =
     typeof window !== "undefined"
         ? window
         : typeof WorkerGlobalScope !== "undefined"
-            ? self
-            : typeof global !== "undefined"
-                ? global
-                : Function("return this;")();
+        ? self
+        : typeof global !== "undefined"
+        ? global
+        : Function("return this;")();
 
 globalVar.indexedDB = fakeIndexedDB;
 globalVar.IDBCursor = FDBCursor;
