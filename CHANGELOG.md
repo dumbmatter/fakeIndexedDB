@@ -1,6 +1,6 @@
 # 3.0.0 (2019-11-15)
 
-* Stop including core-js by default. This means that, for people using fake-indexeddb in really old environments like PhantomJS, they will now need to import core-js like `require("core-js/stable");` (or something similar) before importing fake-indexeddb.
+* Stopped importing core-js by default. This means that, for people using fake-indexeddb in really old environments like PhantomJS, they will now need to import core-js like `require("core-js/stable");` (or something similar) before importing fake-indexeddb.
 
 # 2.1.1 (2019-06-05)
 

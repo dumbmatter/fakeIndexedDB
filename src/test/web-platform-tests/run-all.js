@@ -6,7 +6,7 @@ const glob = require("glob");
 const path = require("path");
 const semver = require("semver");
 
-if (semver.lte(process.version, "8.0.0")) {
+if (!semver.gte(process.version, "8.0.0")) {
     const errorMsg =
         "web-platform-tests only run in Node 8 or higher, but fake-indexeddb should still work in Node 4 and possibly older versions.";
     console.log(errorMsg);
@@ -119,6 +119,11 @@ const skip = [
     "transaction-abort-request-error.js",
 ];
 
+// Only works in Node.js v10 or higher
+if (!semver.gte(process.version, "10.0.0")) {
+    skip.push("bigint_value.js");
+}
+
 const filenames = glob.sync("/**/*.js", { root: testFolder });
 for (const absFilename of filenames) {
     const filename = path.relative(testFolder, absFilename);
@@ -145,9 +150,7 @@ for (const absFilename of filenames) {
 }
 
 if (skipped !== skip.length) {
-    const errorMsg = `Skipped ${skipped} tests, but skip.length is ${
-        skip.length
-    }. Missing file?`;
+    const errorMsg = `Skipped ${skipped} tests, but skip.length is ${skip.length}. Missing file?`;
     throw new Error(errorMsg);
 }
 
