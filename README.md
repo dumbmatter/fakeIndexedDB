@@ -83,7 +83,7 @@ To use it on all Jest tests without having to require it in each file, add the a
 }
 ```
 
-#### PhantomJS and other really old environments
+#### With PhantomJS and other really old environments
 
 PhantomJS (and other really old environments) are missing tons of modern JavaScript features. In fact, that may be why you use fake-indexeddb in such an environment! Prior to v3.0.0, fake-indexeddb imported core-js and automatically applied its polyfills. However, since most fake-indexeddb users are not using really old environments, I got rid of that runtime dependency in v3.0.0. To work around that, you can import core-js yourself before you import fake-indexeddb, like:
 
