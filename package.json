@@ -30,7 +30,7 @@
         "build-qunit": "browserify build/test/indexedDBmock/exports-qunit-bundle.js -o build/test/indexedDBmock/exports-qunit-bundle.js && cp src/test/indexedDBmock/index.html build/test/indexedDBmock/index.html",
         "test-qunit": "npm run build-qunit && node-qunit-phantomjs build/test/indexedDBmock/index.html",
         "test-w3c": "node src/test/web-platform-tests/run-all.js",
-        "test": "npm run lint && npm run build && npm run test-w3c && npm run test-mocha && npm run test-qunit"
+        "test": "npm run lint && npm run build && node test/test.js && npm run test-w3c && npm run test-mocha && npm run test-qunit"
     },
     "author": "Jeremy Scheff <jdscheff@gmail.com> (http://dumbmatter.com/)",
     "license": "Apache-2.0",

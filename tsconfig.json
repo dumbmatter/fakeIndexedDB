@@ -15,6 +15,7 @@
         "build",
         "lib",
         "src/test/web-platform-tests",
-        "auto.js"
+        "auto.js",
+        "test"
     ]
 }
