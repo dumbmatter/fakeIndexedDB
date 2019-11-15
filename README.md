@@ -63,7 +63,25 @@ var IDBKeyRange = require("fake-indexeddb/lib/FDBKeyRange");
 // The rest is the same as above.
 ```
 
-When importing individual classes directly (like `var IDBKeyRange = require("fake-indexeddb/lib/FDBKeyRange");` above), file names of all the objects are like the normal IndexedDB ones except with F replacing I, e.g. `FDBIndex` instead of `IDBIndex`.
+When importing individual classes directly (like `var IDBKeyRange =
+require("fake-indexeddb/lib/FDBKeyRange");` above), file names of all the objects are like the
+normal IndexedDB ones except with F replacing I, e.g. `FDBIndex` instead of `IDBIndex`.
+
+### With Jest
+
+To use this on a single Jest test suite, require `fake-indexeddb/auto` at the beginning of the test
+file, as described above.
+
+To use it on all Jest tests without having to require it in each file, add the auto setup script to the `setupFiles` in your Jest config:
+
+```json
+"jest": {
+    ...
+    "setupFiles": [
+        "fake-indexeddb/auto"
+    ]
+}
+```
 
 #### PhantomJS and other really old environments
 
@@ -78,13 +96,13 @@ var indexedDB = require("fake-indexeddb");
 
 Here's a comparison of fake-indexeddb and real browser IndexedDB implementations on [the W3C IndexedDB test suite](https://github.com/w3c/web-platform-tests/tree/master/IndexedDB) as of March 18, 2019:
 
-Implementation | Percentage of files that pass completely
---- | ---
-Chrome 73 | 99%
-Firefox 65 | 97%
-Safari 12 | 92%
-fake-indexeddb 2.1.0 | 87%
-Edge 18 | 61%
+| Implementation       | Percentage of files that pass completely |
+| -------------------- | ---------------------------------------- |
+| Chrome 73            | 99%                                      |
+| Firefox 65           | 97%                                      |
+| Safari 12            | 92%                                      |
+| fake-indexeddb 2.1.0 | 87%                                      |
+| Edge 18              | 61%                                      |
 
 For browsers, I ran http://w3c-test.org/tools/runner/index.html and counted the passes. For fake-indexeddb, I ran `npm run test-w3c`.
 
