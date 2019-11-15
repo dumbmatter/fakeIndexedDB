@@ -40,7 +40,6 @@
         "lib"
     ],
     "dependencies": {
-        "core-js": "^2.6.10",
         "realistic-structured-clone": "^2.0.1",
         "setimmediate": "^1.0.5"
     },
@@ -48,6 +47,7 @@
         "@types/mocha": "^5.2.7",
         "@types/node": "^12.12.7",
         "browserify": "^16.5.0",
+        "core-js": "^3.4.1",
         "glob": "^7.1.6",
         "husky": "^3.0.9",
         "lint-staged": "^9.4.3",

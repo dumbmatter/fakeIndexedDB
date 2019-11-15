@@ -65,6 +65,15 @@ var IDBKeyRange = require("fake-indexeddb/lib/FDBKeyRange");
 
 When importing individual classes directly (like `var IDBKeyRange = require("fake-indexeddb/lib/FDBKeyRange");` above), file names of all the objects are like the normal IndexedDB ones except with F replacing I, e.g. `FDBIndex` instead of `IDBIndex`.
 
+#### PhantomJS and other really old environments
+
+PhantomJS (and other really old environments) are missing tons of modern JavaScript features. In fact, that may be why you use fake-indexeddb in such an environment! Prior to v3.0.0, fake-indexeddb imported core-js and automatically applied its polyfills. However, since most fake-indexeddb users are not using really old environments, I got rid of that runtime dependency in v3.0.0. To work around that, you can import core-js yourself before you import fake-indexeddb, like:
+
+```js
+require("core-js/stable");
+var indexedDB = require("fake-indexeddb");
+```
+
 ## Quality
 
 Here's a comparison of fake-indexeddb and real browser IndexedDB implementations on [the W3C IndexedDB test suite](https://github.com/w3c/web-platform-tests/tree/master/IndexedDB) as of March 18, 2019:
