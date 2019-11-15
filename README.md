@@ -101,7 +101,7 @@ Here's a comparison of fake-indexeddb and real browser IndexedDB implementations
 | Chrome 73            | 99%                                      |
 | Firefox 65           | 97%                                      |
 | Safari 12            | 92%                                      |
-| fake-indexeddb 2.1.0 | 87%                                      |
+| fake-indexeddb 3.0.0 | 87%                                      |
 | Edge 18              | 61%                                      |
 
 For browsers, I ran http://w3c-test.org/tools/runner/index.html and counted the passes. For fake-indexeddb, I ran `npm run test-w3c`.
