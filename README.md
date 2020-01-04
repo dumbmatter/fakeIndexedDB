@@ -78,7 +78,7 @@ require("fake-indexeddb/auto");
 const db = new Dexie("MyDatabase");
 ```
 
-Alternatively, f you don't want to modify the global scope, then you need to explicitly pass the objects to Dexie::
+Alternatively, if you don't want to modify the global scope, then you need to explicitly pass the objects to Dexie::
 
 ```js
 const Dexie = require("dexie");
