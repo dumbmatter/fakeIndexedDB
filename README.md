@@ -67,7 +67,7 @@ When importing individual classes directly (like `var IDBKeyRange =
 require("fake-indexeddb/lib/FDBKeyRange");` above), file names of all the objects are like the
 normal IndexedDB ones except with F replacing I, e.g. `FDBIndex` instead of `IDBIndex`.
 
-### With Dexie
+### With Dexie and other IndexedDB API wrappers
 
 If you import `fake-indexeddb/auto` before calling `new Dexie()`, it should work:
 
@@ -77,6 +77,8 @@ require("fake-indexeddb/auto");
 
 const db = new Dexie("MyDatabase");
 ```
+
+The same likely holds true for other IndexedDB API wrappers like idb.
 
 Alternatively, if you don't want to modify the global scope, then you need to explicitly pass the objects to Dexie::
 
