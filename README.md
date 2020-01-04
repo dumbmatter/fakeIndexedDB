@@ -67,6 +67,27 @@ When importing individual classes directly (like `var IDBKeyRange =
 require("fake-indexeddb/lib/FDBKeyRange");` above), file names of all the objects are like the
 normal IndexedDB ones except with F replacing I, e.g. `FDBIndex` instead of `IDBIndex`.
 
+### With Dexie
+
+If you import `fake-indexeddb/auto` before calling `new Dexie()`, it should work:
+
+```js
+const Dexie = require("dexie");
+require("fake-indexeddb/auto");
+
+const db = new Dexie("MyDatabase");
+```
+
+Alternatively, f you don't want to modify the global scope, then you need to explicitly pass the objects to Dexie::
+
+```js
+const Dexie = require("dexie");
+const indexedDB = require("fake-indexeddb");
+const IDBKeyRange = require("fake-indexeddb/lib/FDBKeyRange");
+
+const db = new Dexie("MyDatabase", { indexedDB: indexedDB, IDBKeyRange: IDBKeyRange });
+```
+
 ### With Jest
 
 To use this on a single Jest test suite, require `fake-indexeddb/auto` at the beginning of the test
