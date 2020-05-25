@@ -23,7 +23,7 @@
     "main": "build/index.js",
     "scripts": {
         "build": "rm -rf build && tsc",
-        "prepublish": "npm run build && rm -rf build/test",
+        "prepublishOnly": "npm run build && rm -rf build/test",
         "lint": "tslint  'src/**/*.ts'",
         "prettier": "prettier --write *.json  'src/**/*.{js,ts}'",
         "test-mocha": "mocha --timeout 10000 build/test/fakeIndexedDB",
