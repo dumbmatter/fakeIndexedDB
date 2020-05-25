@@ -535,9 +535,66 @@ describe("fakeIndexedDB Tests", () => {
         });
     });
 
+    it("correctly rolls back adding record to store when index constraint error occurs (issue #41)", async () => {
+        function setup() {
+            /* Create database, object store, and unique index */
+            return new Promise(resolve => {
+                fakeIndexedDB.deleteDatabase("mydb").onsuccess = () => {
+                    const openreq = fakeIndexedDB.open("mydb");
+
+                    openreq.onupgradeneeded = event => {
+                        const db: FDBDatabase = event.target.result;
+                        const store = db.createObjectStore("mystore", {
+                            autoIncrement: true,
+                        });
+                        store.createIndex("myindex", "indexed_attr", {
+                            unique: true,
+                        });
+                    };
+
+                    openreq.onsuccess = _event => resolve();
+                };
+            });
+        }
+
+        const my_object = { indexed_attr: "xxx" };
+
+        function put() {
+            /* Put `my_object` into the db. */
+            return new Promise(resolve => {
+                fakeIndexedDB.open("mydb").onsuccess = event => {
+                    const db: FDBDatabase = event.target.result;
+                    const tx = db.transaction(["mystore"], "readwrite");
+                    const store = tx.objectStore("mystore");
+                    const addreq = store.add(my_object);
+                    addreq.onsuccess = _event => resolve("succ");
+                    addreq.onerror = _event => resolve("fail");
+                };
+            });
+        }
+
+        function read() {
+            /* Return list of all objects in the db */
+            return new Promise<any[]>(resolve => {
+                fakeIndexedDB.open("mydb").onsuccess = event => {
+                    const db: FDBDatabase = event.target.result;
+                    const tx = db.transaction(["mystore"], "readonly");
+                    const store = tx.objectStore("mystore");
+                    store.getAll().onsuccess = event2 =>
+                        resolve(event2.target.result);
+                };
+            });
+        }
+
+        await setup();
+        assert.equal(await put(), "succ"); // returns 'succ', as expected
+        assert.equal(await put(), "fail"); // returns 'fail', as expected
+        assert.equal((await read()).length, 1); // previously returned [my_object, my_object] instead of just [my_object]
+    });
+
     describe("Events", () => {
         it("doesn't call listeners added during a callback for the event that triggered the callback", done => {
-            const name =`test${Math.random()}`;
+            const name = `test${Math.random()}`;
             let called = false;
             const dummy = () => {
                 called = true;
@@ -555,7 +612,7 @@ describe("fakeIndexedDB Tests", () => {
         });
 
         it("doesn't get confused by removeEventListener during callbacks", done => {
-            const name =`test${Math.random()}`;
+            const name = `test${Math.random()}`;
             let called = false;
             const dummy = () => {
                 called = true;

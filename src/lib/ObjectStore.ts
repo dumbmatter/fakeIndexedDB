@@ -159,17 +159,17 @@ class ObjectStore {
 
         this.records.add(newRecord);
 
+        if (rollbackLog) {
+            rollbackLog.push(() => {
+                this.deleteRecord(newRecord.key);
+            });
+        }
+
         // Update indexes
         for (const rawIndex of this.rawIndexes.values()) {
             if (rawIndex.initialized) {
                 rawIndex.storeRecord(newRecord);
             }
-        }
-
-        if (rollbackLog) {
-            rollbackLog.push(() => {
-                this.deleteRecord(newRecord.key);
-            });
         }
 
         return newRecord.key;

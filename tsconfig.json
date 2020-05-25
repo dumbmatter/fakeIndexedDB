@@ -16,6 +16,7 @@
         "lib",
         "src/test/web-platform-tests",
         "auto.js",
-        "test"
+        "test",
+        "test.js"
     ]
 }
