@@ -1,3 +1,7 @@
+# 3.0.1 (2020-05-25)
+
+* #41 - Correctly roll back a record added to a store when an index constraint error occurs.
+
 # 3.0.0 (2019-11-15)
 
 * Stopped importing core-js by default. This means that, for people using fake-indexeddb in really old environments like PhantomJS, they will now need to import core-js like `require("core-js/stable");` (or something similar) before importing fake-indexeddb.
