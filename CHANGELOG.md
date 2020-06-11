@@ -1,3 +1,7 @@
+# 3.0.2 (2020-06-10)
+
+* #45 - Fix synchronous event firing in a transaction, which led to a stack overflow when used with Dexie's waitFor function.
+
 # 3.0.1 (2020-05-25)
 
 * #41 - Correctly roll back a record added to a store when an index constraint error occurs.
