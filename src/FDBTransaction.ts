@@ -227,13 +227,8 @@ class FDBTransaction extends FakeEventTarget {
                 }
             }
 
-            // On to the next one
-            if (this._requests.length > 0) {
-                this._start();
-            } else {
-                // Give it another chance for new handlers to be set before finishing
-                setImmediate(this._start.bind(this));
-            }
+            // Give it another chance for new handlers to be set before finishing
+            setImmediate(this._start.bind(this));
             return;
         }
 
