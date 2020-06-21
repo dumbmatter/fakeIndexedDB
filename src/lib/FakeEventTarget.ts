@@ -1,4 +1,4 @@
-import { InvalidStateError } from "./errors";
+import { newInvalidStateError } from "./errors";
 import FakeEvent from "./FakeEvent";
 import { EventCallback, EventType } from "./types";
 
@@ -113,7 +113,7 @@ abstract class FakeEventTarget {
     // http://www.w3.org/TR/dom/#dispatching-events
     public dispatchEvent(event: FakeEvent) {
         if (event.dispatched || !event.initialized) {
-            throw new InvalidStateError("The object is in an invalid state.");
+            throw newInvalidStateError("The object is in an invalid state.");
         }
         event.isTrusted = false;
 

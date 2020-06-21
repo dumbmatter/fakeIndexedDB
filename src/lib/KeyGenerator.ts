@@ -1,4 +1,4 @@
-import { ConstraintError } from "./errors";
+import { newConstraintError } from "./errors";
 
 const MAX_KEY = 9007199254740992;
 
@@ -8,7 +8,7 @@ class KeyGenerator {
 
     public next() {
         if (this.num >= MAX_KEY) {
-            throw new ConstraintError();
+            throw newConstraintError();
         }
 
         this.num += 1;

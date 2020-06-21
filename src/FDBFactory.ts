@@ -5,7 +5,7 @@ import FDBVersionChangeEvent from "./FDBVersionChangeEvent";
 import cmp from "./lib/cmp";
 import Database from "./lib/Database";
 import enforceRange from "./lib/enforceRange";
-import { AbortError, VersionError } from "./lib/errors";
+import { newAbortError, newVersionError } from "./lib/errors";
 import FakeEvent from "./lib/FakeEvent";
 
 const waitForOthersClosedDelete = (
@@ -161,7 +161,7 @@ const runVersionchangeTransaction = (
             connection._runningVersionchangeTransaction = false;
             request.transaction = null;
             setImmediate(() => {
-                cb(new AbortError());
+                cb(newAbortError());
             });
         });
         transaction.addEventListener("complete", () => {
@@ -170,7 +170,7 @@ const runVersionchangeTransaction = (
             // Let other complete event handlers run before continuing
             setImmediate(() => {
                 if (connection._closePending) {
-                    cb(new AbortError());
+                    cb(newAbortError());
                 } else {
                     cb(null);
                 }
@@ -200,7 +200,7 @@ const openDatabase = (
     }
 
     if (db.version > version) {
-        return cb(new VersionError());
+        return cb(newVersionError());
     }
 
     const connection = new FDBDatabase(db);

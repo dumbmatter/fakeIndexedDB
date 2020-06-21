@@ -1,5 +1,5 @@
 import FDBKeyRange from "../FDBKeyRange";
-import { DataError } from "./errors";
+import { newDataError } from "./errors";
 import valueToKey from "./valueToKey";
 
 // http://w3c.github.io/IndexedDB/#convert-a-value-to-a-key-range
@@ -10,7 +10,7 @@ const valueToKeyRange = (value: any, nullDisallowedFlag: boolean = false) => {
 
     if (value === null || value === undefined) {
         if (nullDisallowedFlag) {
-            throw new DataError();
+            throw newDataError();
         }
         return new FDBKeyRange(undefined, undefined, false, false);
     }

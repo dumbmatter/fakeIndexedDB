@@ -1,4 +1,5 @@
 const assert = require("assert");
+const DOMException = require("domexception");
 require("../../../auto");
 global.Event = require("../../../build/lib/FakeEvent").default;
 
@@ -19,7 +20,7 @@ global.document = {
     // this will instead use another object that also can't be used as a key.
     getElementsByTagName: () => Math,
 };
-global.DOMException = Error; // Kind of cheating for error-attributes.js
+global.DOMException = DOMException;
 global.location = {
     location: {},
 };

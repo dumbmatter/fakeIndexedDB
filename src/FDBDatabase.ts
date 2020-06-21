@@ -1,11 +1,11 @@
 import FDBTransaction from "./FDBTransaction";
 import Database from "./lib/Database";
 import {
-    ConstraintError,
-    InvalidAccessError,
-    InvalidStateError,
-    NotFoundError,
-    TransactionInactiveError,
+    newConstraintError,
+    newInvalidAccessError,
+    newInvalidStateError,
+    newNotFoundError,
+    newTransactionInactiveError,
 } from "./lib/errors";
 import fakeDOMStringList from "./lib/fakeDOMStringList";
 import FakeEventTarget from "./lib/FakeEventTarget";
@@ -15,7 +15,7 @@ import validateKeyPath from "./lib/validateKeyPath";
 
 const confirmActiveVersionchangeTransaction = (database: FDBDatabase) => {
     if (!database._runningVersionchangeTransaction) {
-        throw new InvalidStateError();
+        throw newInvalidStateError();
     }
 
     // Find the latest versionchange transaction
@@ -25,11 +25,11 @@ const confirmActiveVersionchangeTransaction = (database: FDBDatabase) => {
     const transaction = transactions[transactions.length - 1];
 
     if (!transaction || transaction._state === "finished") {
-        throw new InvalidStateError();
+        throw newInvalidStateError();
     }
 
     if (transaction._state !== "active") {
-        throw new TransactionInactiveError();
+        throw newTransactionInactiveError();
     }
 
     return transaction;
@@ -107,11 +107,11 @@ class FDBDatabase extends FakeEventTarget {
         }
 
         if (this._rawDatabase.rawObjectStores.has(name)) {
-            throw new ConstraintError();
+            throw newConstraintError();
         }
 
         if (autoIncrement && (keyPath === "" || Array.isArray(keyPath))) {
-            throw new InvalidAccessError();
+            throw newInvalidAccessError();
         }
 
         const objectStoreNames = this.objectStoreNames.slice();
@@ -150,7 +150,7 @@ class FDBDatabase extends FakeEventTarget {
 
         const store = this._rawDatabase.rawObjectStores.get(name);
         if (store === undefined) {
-            throw new NotFoundError();
+            throw newNotFoundError();
         }
 
         this.objectStoreNames = fakeDOMStringList(
@@ -194,22 +194,22 @@ class FDBDatabase extends FakeEventTarget {
             },
         );
         if (hasActiveVersionchange) {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
 
         if (this._closePending) {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
 
         if (!Array.isArray(storeNames)) {
             storeNames = [storeNames];
         }
         if (storeNames.length === 0 && mode !== "versionchange") {
-            throw new InvalidAccessError();
+            throw newInvalidAccessError();
         }
         for (const storeName of storeNames) {
             if (this.objectStoreNames.indexOf(storeName) < 0) {
-                throw new NotFoundError(
+                throw newNotFoundError(
                     "No objectStore named " + storeName + " in this database",
                 );
             }

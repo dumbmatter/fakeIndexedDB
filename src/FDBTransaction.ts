@@ -2,10 +2,10 @@ import FDBDatabase from "./FDBDatabase";
 import FDBObjectStore from "./FDBObjectStore";
 import FDBRequest from "./FDBRequest";
 import {
-    AbortError,
-    InvalidStateError,
-    NotFoundError,
-    TransactionInactiveError,
+    newAbortError,
+    newInvalidStateError,
+    newNotFoundError,
+    newTransactionInactiveError,
 } from "./lib/errors";
 import fakeDOMStringList from "./lib/fakeDOMStringList";
 import FakeEvent from "./lib/FakeEvent";
@@ -68,7 +68,7 @@ class FDBTransaction extends FakeEventTarget {
                 request.readyState = "done"; // This will cancel execution of this request's operation
                 if (request.source) {
                     request.result = undefined;
-                    request.error = new AbortError();
+                    request.error = newAbortError();
 
                     const event = new FakeEvent("error", {
                         bubbles: true,
@@ -94,7 +94,7 @@ class FDBTransaction extends FakeEventTarget {
 
     public abort() {
         if (this._state === "committing" || this._state === "finished") {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
         this._state = "active";
 
@@ -104,7 +104,7 @@ class FDBTransaction extends FakeEventTarget {
     // http://w3c.github.io/IndexedDB/#dom-idbtransaction-objectstore
     public objectStore(name: string) {
         if (this._state !== "active") {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
 
         const objectStore = this._objectStoresCache.get(name);
@@ -114,7 +114,7 @@ class FDBTransaction extends FakeEventTarget {
 
         const rawObjectStore = this.db._rawDatabase.rawObjectStores.get(name);
         if (!this._scope.has(name) || rawObjectStore === undefined) {
-            throw new NotFoundError();
+            throw newNotFoundError();
         }
 
         const objectStore2 = new FDBObjectStore(this, rawObjectStore);
@@ -130,7 +130,7 @@ class FDBTransaction extends FakeEventTarget {
         let request = obj.hasOwnProperty("request") ? obj.request : null;
 
         if (this._state !== "active") {
-            throw new TransactionInactiveError();
+            throw newTransactionInactiveError();
         }
 
         // Request should only be passed for cursors
@@ -214,7 +214,7 @@ class FDBTransaction extends FakeEventTarget {
                     request.dispatchEvent(event);
                 } catch (err) {
                     if (this._state !== "committing") {
-                        this._abort("AbortError");
+                        this._abort("newAbortError");
                     }
                     throw err;
                 }
@@ -246,7 +246,7 @@ class FDBTransaction extends FakeEventTarget {
 
     public commit() {
         if (this._state !== "active") {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
 
         this._state = "committing";

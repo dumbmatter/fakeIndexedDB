@@ -5,9 +5,9 @@ import FDBObjectStore from "./FDBObjectStore";
 import FDBRequest from "./FDBRequest";
 import enforceRange from "./lib/enforceRange";
 import {
-    ConstraintError,
-    InvalidStateError,
-    TransactionInactiveError,
+    newConstraintError,
+    newInvalidStateError,
+    newTransactionInactiveError,
 } from "./lib/errors";
 import fakeDOMStringList from "./lib/fakeDOMStringList";
 import Index from "./lib/Index";
@@ -17,11 +17,11 @@ import valueToKeyRange from "./lib/valueToKeyRange";
 
 const confirmActiveTransaction = (index: FDBIndex) => {
     if (index._rawIndex.deleted || index.objectStore._rawObjectStore.deleted) {
-        throw new InvalidStateError();
+        throw newInvalidStateError();
     }
 
     if (index.objectStore.transaction._state !== "active") {
-        throw new TransactionInactiveError();
+        throw newTransactionInactiveError();
     }
 };
 
@@ -54,18 +54,18 @@ class FDBIndex {
         const transaction = this.objectStore.transaction;
 
         if (!transaction.db._runningVersionchangeTransaction) {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
 
         if (transaction._state !== "active") {
-            throw new TransactionInactiveError();
+            throw newTransactionInactiveError();
         }
 
         if (
             this._rawIndex.deleted ||
             this.objectStore._rawObjectStore.deleted
         ) {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
 
         name = String(name);
@@ -75,7 +75,7 @@ class FDBIndex {
         }
 
         if (this.objectStore.indexNames.indexOf(name) >= 0) {
-            throw new ConstraintError();
+            throw newConstraintError();
         }
 
         const oldName = this._name;

@@ -1,4 +1,4 @@
-import { DataError } from "./errors";
+import { newDataError } from "./errors";
 import valueToKey from "./valueToKey";
 
 const getType = (x: any) => {
@@ -18,7 +18,7 @@ const getType = (x: any) => {
         return "Binary";
     }
 
-    throw new DataError();
+    throw newDataError();
 };
 
 // https://w3c.github.io/IndexedDB/#compare-two-keys

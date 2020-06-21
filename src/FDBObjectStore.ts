@@ -7,13 +7,13 @@ import FDBTransaction from "./FDBTransaction";
 import canInjectKey from "./lib/canInjectKey";
 import enforceRange from "./lib/enforceRange";
 import {
-    ConstraintError,
-    DataError,
-    InvalidAccessError,
-    InvalidStateError,
-    NotFoundError,
-    ReadOnlyError,
-    TransactionInactiveError,
+    newConstraintError,
+    newDataError,
+    newInvalidAccessError,
+    newInvalidStateError,
+    newNotFoundError,
+    newReadOnlyError,
+    newTransactionInactiveError,
 } from "./lib/errors";
 import extractKey from "./lib/extractKey";
 import fakeDOMStringList from "./lib/fakeDOMStringList";
@@ -33,11 +33,11 @@ import valueToKeyRange from "./lib/valueToKeyRange";
 
 const confirmActiveTransaction = (objectStore: FDBObjectStore) => {
     if (objectStore._rawObjectStore.deleted) {
-        throw new InvalidStateError();
+        throw newInvalidStateError();
     }
 
     if (objectStore.transaction._state !== "active") {
-        throw new TransactionInactiveError();
+        throw newTransactionInactiveError();
     }
 };
 
@@ -49,12 +49,12 @@ const buildRecordAddPut = (
     confirmActiveTransaction(objectStore);
 
     if (objectStore.transaction.mode === "readonly") {
-        throw new ReadOnlyError();
+        throw newReadOnlyError();
     }
 
     if (objectStore.keyPath !== null) {
         if (key !== undefined) {
-            throw new DataError();
+            throw newDataError();
         }
     }
 
@@ -67,9 +67,9 @@ const buildRecordAddPut = (
             valueToKey(tempKey);
         } else {
             if (!objectStore._rawObjectStore.keyGenerator) {
-                throw new DataError();
+                throw newDataError();
             } else if (!canInjectKey(objectStore.keyPath, clone)) {
-                throw new DataError();
+                throw newDataError();
             }
         }
     }
@@ -79,7 +79,7 @@ const buildRecordAddPut = (
         objectStore._rawObjectStore.keyGenerator === null &&
         key === undefined
     ) {
-        throw new DataError();
+        throw newDataError();
     }
 
     if (key !== undefined) {
@@ -125,7 +125,7 @@ class FDBObjectStore {
         const transaction = this.transaction;
 
         if (!transaction.db._runningVersionchangeTransaction) {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
 
         confirmActiveTransaction(this);
@@ -137,7 +137,7 @@ class FDBObjectStore {
         }
 
         if (this._rawObjectStore.rawDatabase.rawObjectStores.has(name)) {
-            throw new ConstraintError();
+            throw newConstraintError();
         }
 
         const oldName = this._name;
@@ -233,7 +233,7 @@ class FDBObjectStore {
         confirmActiveTransaction(this);
 
         if (this.transaction.mode === "readonly") {
-            throw new ReadOnlyError();
+            throw newReadOnlyError();
         }
 
         if (!(key instanceof FDBKeyRange)) {
@@ -331,7 +331,7 @@ class FDBObjectStore {
         confirmActiveTransaction(this);
 
         if (this.transaction.mode === "readonly") {
-            throw new ReadOnlyError();
+            throw newReadOnlyError();
         }
 
         return this.transaction._execRequestAsync({
@@ -416,19 +416,19 @@ class FDBObjectStore {
                 : false;
 
         if (this.transaction.mode !== "versionchange") {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
 
         confirmActiveTransaction(this);
 
         if (this.indexNames.indexOf(name) >= 0) {
-            throw new ConstraintError();
+            throw newConstraintError();
         }
 
         validateKeyPath(keyPath);
 
         if (Array.isArray(keyPath) && multiEntry) {
-            throw new InvalidAccessError();
+            throw newInvalidAccessError();
         }
 
         // The index that is requested to be created can contain constraints on the data allowed in the index's
@@ -475,7 +475,7 @@ class FDBObjectStore {
             this._rawObjectStore.deleted ||
             this.transaction._state === "finished"
         ) {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
 
         const index = this._indexesCache.get(name);
@@ -485,7 +485,7 @@ class FDBObjectStore {
 
         const rawIndex = this._rawObjectStore.rawIndexes.get(name);
         if (this.indexNames.indexOf(name) < 0 || rawIndex === undefined) {
-            throw new NotFoundError();
+            throw newNotFoundError();
         }
 
         const index2 = new FDBIndex(this, rawIndex);
@@ -500,14 +500,14 @@ class FDBObjectStore {
         }
 
         if (this.transaction.mode !== "versionchange") {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
 
         confirmActiveTransaction(this);
 
         const rawIndex = this._rawObjectStore.rawIndexes.get(name);
         if (rawIndex === undefined) {
-            throw new NotFoundError();
+            throw newNotFoundError();
         }
 
         this.transaction._rollbackLog.push(() => {
