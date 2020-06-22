@@ -71,7 +71,7 @@ export function newReadOnlyError(
 export function newTransactionInactiveError(
     message = messages.TransactionInactiveError,
 ): DOMException {
-    return new DOMException(message, "newTransactionInactiveError");
+    return new DOMException(message, "TransactionInactiveError");
 }
 
 export function newVersionError(message = messages.VersionError): DOMException {

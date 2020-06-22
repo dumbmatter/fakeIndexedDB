@@ -92,7 +92,7 @@ class Index {
         try {
             indexKey = extractKey(this.keyPath, newRecord.value);
         } catch (err) {
-            if (err.name === "newDataError") {
+            if (err.name === "DataError") {
                 // Invalid key is not an actual error, just means we do not store an entry in this index
                 return;
             }

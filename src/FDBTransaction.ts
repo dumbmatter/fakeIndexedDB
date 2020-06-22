@@ -214,7 +214,7 @@ class FDBTransaction extends FakeEventTarget {
                     request.dispatchEvent(event);
                 } catch (err) {
                     if (this._state !== "committing") {
-                        this._abort("newAbortError");
+                        this._abort("AbortError");
                     }
                     throw err;
                 }
