@@ -1,3 +1,7 @@
+# 3.1.0 (2020-07-02)
+
+- #52 - Significant performance improvement. 5.5x faster on a real use case. Thank you @nolanlawson for this speed up!
+
 # 3.0.2 (2020-06-10)
 
 * #45 - Fix synchronous event firing in a transaction, which led to a stack overflow when used with Dexie's waitFor function.
