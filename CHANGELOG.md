@@ -1,3 +1,7 @@
+# 3.1.1 (2020-07-15)
+
+- #53 - Fixed a bug introduced in v3.1.0 where `FDBObjectStore.delete` resulted in an error when given a key range. Possibly a couple other situations with key ranges produced similar errors too.
+
 # 3.1.0 (2020-07-02)
 
 - #52 - Significant performance improvement. 5.5x faster on a real use case. Thank you @nolanlawson for this speed up!
