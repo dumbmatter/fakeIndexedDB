@@ -2,6 +2,7 @@ import * as assert from "assert";
 import fakeIndexedDB from "../../fakeIndexedDB";
 import FDBCursorWithValue from "../../FDBCursorWithValue";
 import FDBDatabase from "../../FDBDatabase";
+import FDBKeyRange from "../../FDBKeyRange";
 import { TransactionMode } from "../../lib/types";
 
 describe("fakeIndexedDB Tests", () => {
@@ -590,6 +591,42 @@ describe("fakeIndexedDB Tests", () => {
         assert.equal(await put(), "succ"); // returns 'succ', as expected
         assert.equal(await put(), "fail"); // returns 'fail', as expected
         assert.equal((await read()).length, 1); // previously returned [my_object, my_object] instead of just [my_object]
+    });
+
+    it("FDBObjectStore.delete works with a key range (issue #53)", done => {
+        const openreq = fakeIndexedDB.open("test53");
+        openreq.onupgradeneeded = event => {
+            const db = event.target.result;
+            const store = db.createObjectStore("items", { keyPath: "key" });
+            store.put({ key: "foo.a", value: 1 });
+            store.put({ key: "foo.b", value: 2 });
+            store.put({ key: "bar.c", value: 3 });
+        };
+        openreq.onsuccess = event => {
+            const db = event.target.result;
+            db
+                .transaction("items")
+                .objectStore("items")
+                .count().onsuccess = (event2: any) => {
+                assert.equal(event2.target.result, 3);
+                const req = db
+                    .transaction("items", "readwrite")
+                    .objectStore("items")
+                    .delete(FDBKeyRange.bound("foo.", "foo.￿", false, false));
+                req.onsuccess = () => {
+                    db
+                        .transaction("items")
+                        .objectStore("items")
+                        .count().onsuccess = (event3: any) => {
+                        assert.equal(event3.target.result, 1);
+                        done();
+                    };
+                };
+                req.onerror = (event3: any) => {
+                    done(event3.target.error);
+                };
+            };
+        };
     });
 
     describe("Events", () => {

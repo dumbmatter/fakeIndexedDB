@@ -60,7 +60,7 @@ export function getIndexByKeyRange(
 
     for (let i = lowerIdx; i <= upperIdx; i++) {
         const record = records[i];
-        if (keyRange.includes(record.key)) {
+        if (record && keyRange.includes(record.key)) {
             return i;
         }
     }
