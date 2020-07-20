@@ -629,6 +629,52 @@ describe("fakeIndexedDB Tests", () => {
         };
     });
 
+    it("properly handles processing transactions with no requests (issue #54)", async () => {
+        function open(): Promise<FDBDatabase> {
+            /* Create database and object store */
+            return new Promise((resolve, reject) => {
+                fakeIndexedDB.deleteDatabase("test1").onsuccess = () => {
+                    const openreq = fakeIndexedDB.open("test1");
+                    openreq.onupgradeneeded = event => {
+                        const db: FDBDatabase = event.target.result;
+                        db.createObjectStore("table1");
+                    };
+                    openreq.onsuccess = event => {
+                        const db: FDBDatabase = event.target.result;
+                        resolve(db);
+                    };
+                    openreq.onerror = reject;
+                };
+            });
+        }
+
+        function bulkGet(db: FDBDatabase, table: string, keys: number[]) {
+            /* relevant parts of Dexie.Table.bulkGet for 0 or 1 key */
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction([table], "readonly");
+                const store = tx.objectStore(table);
+                if (keys.length === 0) {
+                    resolve([]);
+                } else if (keys.length === 1) {
+                    const req = store.get(keys[0]);
+                    req.onsuccess = event2 => resolve([event2.target.result]);
+                    req.onerror = () => resolve([undefined]);
+                } else {
+                    reject(new Error("test bulkGet only handles one key"));
+                }
+            });
+        }
+
+        const theDB = await open();
+        // In the error case, this times out with the third promise unresolved:
+        const result = await Promise.all([
+            bulkGet(theDB, "table1", [1]),
+            bulkGet(theDB, "table1", []),
+            bulkGet(theDB, "table1", [3]),
+        ]);
+        assert.deepEqual(result, [[undefined], [], [undefined]]);
+    });
+
     describe("Events", () => {
         it("doesn't call listeners added during a callback for the event that triggered the callback", done => {
             const name = `test${Math.random()}`;
