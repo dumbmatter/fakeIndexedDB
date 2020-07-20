@@ -36,10 +36,9 @@ class Database {
                 });
 
                 if (next) {
-                    next._start();
-
                     next.addEventListener("complete", this.processTransactions);
                     next.addEventListener("abort", this.processTransactions);
+                    next._start();
                 }
             }
         });
