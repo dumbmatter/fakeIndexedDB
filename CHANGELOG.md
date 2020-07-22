@@ -1,6 +1,6 @@
 # 3.1.1 (2020-07-15)
 
-- #54 - Fixed a race condition where multiple transactions started at the same time could result in a transaction never resolving, if one of the transactions had no database operations inside it. Thank you @medmunds for both finding and fixing this bug!
+- #54 - Fixed a bug where multiple transactions started at the same time could result in a transaction never resolving, if one of the transactions had no database operations inside it. Thank you @medmunds for both finding and fixing this bug!
 
 # 3.1.1 (2020-07-15)
 
