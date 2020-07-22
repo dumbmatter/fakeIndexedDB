@@ -1,5 +1,9 @@
 # 3.1.1 (2020-07-15)
 
+- #54 - Fixed a race condition where multiple transactions started at the same time could result in a transaction never resolving, if one of the transactions had no database operations inside it. Thank you @medmunds for both finding and fixing this bug!
+
+# 3.1.1 (2020-07-15)
+
 - #53 - Fixed a bug introduced in v3.1.0 where `FDBObjectStore.delete` resulted in an error when given a key range. Possibly a couple other situations with key ranges produced similar errors too.
 
 # 3.1.0 (2020-07-02)
