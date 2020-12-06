@@ -22,7 +22,8 @@
     ],
     "main": "build/index.js",
     "scripts": {
-        "build": "rm -rf build && tsc",
+        "build": "rm -rf build && tsc && npm run build-typedefs",
+        "build-typedefs": "rm -rf lib/**/*.d.ts && tsc --outDir ./lib --declaration --emitDeclarationOnly --target es5 --downlevelIteration ./src/FDB*.ts",
         "prepublishOnly": "npm run build && rm -rf build/test",
         "lint": "tslint  'src/**/*.ts'",
         "prettier": "prettier --write *.json  'src/**/*.{js,ts}'",
