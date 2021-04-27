@@ -2,6 +2,7 @@ import * as assert from "assert";
 import fakeIndexedDB from "../../fakeIndexedDB";
 import FDBCursorWithValue from "../../FDBCursorWithValue";
 import FDBDatabase from "../../FDBDatabase";
+import FDBFactory from "../../FDBFactory";
 import FDBKeyRange from "../../FDBKeyRange";
 import { TransactionMode } from "../../lib/types";
 
@@ -711,6 +712,41 @@ describe("fakeIndexedDB Tests", () => {
                 assert(called);
                 done();
             });
+        });
+    });
+
+    it("confirm openCursor works (issue #60)", done => {
+        const indexedDB = new FDBFactory();
+
+        function idb(): Promise<FDBDatabase> {
+            return new Promise((resolve, reject) => {
+                indexedDB.deleteDatabase("issue60").onsuccess = () => {
+                    const openreq = indexedDB.open("issue60");
+                    openreq.onupgradeneeded = event => {
+                        const db: FDBDatabase = event.target.result;
+                        const albumStore = db.createObjectStore("album");
+                        db.createObjectStore("photo");
+                        albumStore.createIndex("albumId", "albumId");
+                    };
+                    openreq.onsuccess = event => {
+                        const db: FDBDatabase = event.target.result;
+                        resolve(db);
+                    };
+                    openreq.onerror = reject;
+                };
+            });
+        }
+
+        idb().then(db2 => {
+            const cursor = db2
+                .transaction(["album", "photo"], "readwrite")
+                .objectStore("album")
+                .index("albumId")
+                .openCursor();
+
+            cursor.onsuccess = () => {
+                done();
+            };
         });
     });
 });
