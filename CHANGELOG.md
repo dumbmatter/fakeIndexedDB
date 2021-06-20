@@ -1,3 +1,7 @@
+# 3.1.3 (2021-06-19)
+
+- #65 - Got rid of constructor.name usage, since minifying can break it.
+
 # 3.1.2 (2020-07-21)
 
 - #54 - Fixed a bug where multiple transactions started at the same time could result in a transaction never resolving, if one of the transactions had no database operations inside it. Thank you @medmunds for both finding and fixing this bug!
