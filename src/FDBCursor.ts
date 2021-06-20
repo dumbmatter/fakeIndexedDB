@@ -297,7 +297,7 @@ class FDBCursor {
             // error due to circular dependency.
             if (
                 !this._keyOnly &&
-                this.constructor.name === "FDBCursorWithValue"
+                this.toString() === "[object IDBCursorWithValue]"
             ) {
                 (this as any).value = undefined;
             }
@@ -312,7 +312,7 @@ class FDBCursor {
                 this._primaryKey = structuredClone(foundRecord.key);
                 if (
                     !this._keyOnly &&
-                    this.constructor.name === "FDBCursorWithValue"
+                    this.toString() === "[object IDBCursorWithValue]"
                 ) {
                     (this as any).value = structuredClone(foundRecord.value);
                 }
@@ -320,7 +320,7 @@ class FDBCursor {
                 this._primaryKey = structuredClone(foundRecord.value);
                 if (
                     !this._keyOnly &&
-                    this.constructor.name === "FDBCursorWithValue"
+                    this.toString() === "[object IDBCursorWithValue]"
                 ) {
                     if (this.source instanceof FDBObjectStore) {
                         // Can't use sourceIsObjectStore because TypeScript
