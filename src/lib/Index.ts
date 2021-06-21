@@ -1,6 +1,6 @@
 import FDBKeyRange from "../FDBKeyRange";
 import FDBTransaction from "../FDBTransaction";
-import { ConstraintError } from "./errors";
+import { newConstraintError } from "./errors";
 import extractKey from "./extractKey";
 import ObjectStore from "./ObjectStore";
 import RecordStore from "./RecordStore";
@@ -126,7 +126,7 @@ class Index {
             if (this.unique) {
                 const existingRecord = this.records.get(indexKey);
                 if (existingRecord) {
-                    throw new ConstraintError();
+                    throw newConstraintError();
                 }
             }
         } else {
@@ -134,7 +134,7 @@ class Index {
                 for (const individualIndexKey of indexKey) {
                     const existingRecord = this.records.get(individualIndexKey);
                     if (existingRecord) {
-                        throw new ConstraintError();
+                        throw newConstraintError();
                     }
                 }
             }

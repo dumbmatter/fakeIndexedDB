@@ -1,5 +1,5 @@
 import cmp from "./lib/cmp";
-import { DataError } from "./lib/errors";
+import { newDataError } from "./lib/errors";
 import { Key } from "./lib/types";
 import valueToKey from "./lib/valueToKey";
 
@@ -41,7 +41,7 @@ class FDBKeyRange {
 
         const cmpResult = cmp(lower, upper);
         if (cmpResult === 1 || (cmpResult === 0 && (lowerOpen || upperOpen))) {
-            throw new DataError();
+            throw newDataError();
         }
 
         lower = valueToKey(lower);

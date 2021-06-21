@@ -1,6 +1,6 @@
 import FDBKeyRange from "../FDBKeyRange";
 import Database from "./Database";
-import { ConstraintError, DataError } from "./errors";
+import { newConstraintError, newDataError } from "./errors";
 import extractKey from "./extractKey";
 import Index from "./Index";
 import KeyGenerator from "./KeyGenerator";
@@ -122,7 +122,7 @@ class ObjectStore {
                 let i = 0; // Just to run the loop at least once
                 while (i >= 0) {
                     if (typeof object !== "object") {
-                        throw new DataError();
+                        throw newDataError();
                     }
 
                     i = remainingKeyPath.indexOf(".");
@@ -152,7 +152,7 @@ class ObjectStore {
         const existingRecord = this.records.get(newRecord.key);
         if (existingRecord) {
             if (noOverwrite) {
-                throw new ConstraintError();
+                throw newConstraintError();
             }
             this.deleteRecord(newRecord.key, rollbackLog);
         }

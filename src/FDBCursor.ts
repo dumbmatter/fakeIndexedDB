@@ -3,11 +3,11 @@ import FDBObjectStore from "./FDBObjectStore";
 import FDBRequest from "./FDBRequest";
 import cmp from "./lib/cmp";
 import {
-    DataError,
-    InvalidAccessError,
-    InvalidStateError,
-    ReadOnlyError,
-    TransactionInactiveError,
+    newDataError,
+    newInvalidAccessError,
+    newInvalidStateError,
+    newReadOnlyError,
+    newTransactionInactiveError,
 } from "./lib/errors";
 import extractKey from "./lib/extractKey";
 import structuredClone from "./lib/structuredClone";
@@ -352,25 +352,25 @@ class FDBCursor {
         const transaction = effectiveObjectStore.transaction;
 
         if (transaction._state !== "active") {
-            throw new TransactionInactiveError();
+            throw newTransactionInactiveError();
         }
 
         if (transaction.mode === "readonly") {
-            throw new ReadOnlyError();
+            throw newReadOnlyError();
         }
 
         if (effectiveObjectStore._rawObjectStore.deleted) {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
         if (
             !(this.source instanceof FDBObjectStore) &&
             this.source._rawIndex.deleted
         ) {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
 
         if (!this._gotValue || !this.hasOwnProperty("value")) {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
 
         const clone = structuredClone(value);
@@ -385,7 +385,7 @@ class FDBCursor {
             }
 
             if (cmp(tempKey, effectiveKey) !== 0) {
-                throw new DataError();
+                throw newDataError();
             }
         }
 
@@ -415,21 +415,21 @@ class FDBCursor {
         const transaction = effectiveObjectStore.transaction;
 
         if (transaction._state !== "active") {
-            throw new TransactionInactiveError();
+            throw newTransactionInactiveError();
         }
 
         if (effectiveObjectStore._rawObjectStore.deleted) {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
         if (
             !(this.source instanceof FDBObjectStore) &&
             this.source._rawIndex.deleted
         ) {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
 
         if (!this._gotValue) {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
 
         if (this._request) {
@@ -461,21 +461,21 @@ class FDBCursor {
         const transaction = effectiveObjectStore.transaction;
 
         if (transaction._state !== "active") {
-            throw new TransactionInactiveError();
+            throw newTransactionInactiveError();
         }
 
         if (effectiveObjectStore._rawObjectStore.deleted) {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
         if (
             !(this.source instanceof FDBObjectStore) &&
             this.source._rawIndex.deleted
         ) {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
 
         if (!this._gotValue) {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
 
         if (key !== undefined) {
@@ -491,7 +491,7 @@ class FDBCursor {
                     (this.direction === "prev" ||
                         this.direction === "prevunique"))
             ) {
-                throw new DataError();
+                throw newDataError();
             }
         }
 
@@ -513,33 +513,33 @@ class FDBCursor {
         const transaction = effectiveObjectStore.transaction;
 
         if (transaction._state !== "active") {
-            throw new TransactionInactiveError();
+            throw newTransactionInactiveError();
         }
 
         if (effectiveObjectStore._rawObjectStore.deleted) {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
         if (
             !(this.source instanceof FDBObjectStore) &&
             this.source._rawIndex.deleted
         ) {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
 
         if (
             this.source instanceof FDBObjectStore ||
             (this.direction !== "next" && this.direction !== "prev")
         ) {
-            throw new InvalidAccessError();
+            throw newInvalidAccessError();
         }
 
         if (!this._gotValue) {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
 
         // Not sure about this
         if (key === undefined || primaryKey === undefined) {
-            throw new DataError();
+            throw newDataError();
         }
 
         key = valueToKey(key);
@@ -548,7 +548,7 @@ class FDBCursor {
             (cmpResult === -1 && this.direction === "next") ||
             (cmpResult === 1 && this.direction === "prev")
         ) {
-            throw new DataError();
+            throw newDataError();
         }
         const cmpResult2 = cmp(primaryKey, this._objectStorePosition);
         if (cmpResult === 0) {
@@ -556,7 +556,7 @@ class FDBCursor {
                 (cmpResult2 <= 0 && this.direction === "next") ||
                 (cmpResult2 >= 0 && this.direction === "prev")
             ) {
-                throw new DataError();
+                throw newDataError();
             }
         }
 
@@ -580,25 +580,25 @@ class FDBCursor {
         const transaction = effectiveObjectStore.transaction;
 
         if (transaction._state !== "active") {
-            throw new TransactionInactiveError();
+            throw newTransactionInactiveError();
         }
 
         if (transaction.mode === "readonly") {
-            throw new ReadOnlyError();
+            throw newReadOnlyError();
         }
 
         if (effectiveObjectStore._rawObjectStore.deleted) {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
         if (
             !(this.source instanceof FDBObjectStore) &&
             this.source._rawIndex.deleted
         ) {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
 
         if (!this._gotValue || !this.hasOwnProperty("value")) {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
 
         return transaction._execRequestAsync({

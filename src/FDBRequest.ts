@@ -2,7 +2,7 @@ import FDBCursor from "./FDBCursor";
 import FDBIndex from "./FDBIndex";
 import FDBObjectStore from "./FDBObjectStore";
 import FDBTransaction from "./FDBTransaction";
-import { InvalidStateError } from "./lib/errors";
+import { newInvalidStateError } from "./lib/errors";
 import FakeEventTarget from "./lib/FakeEventTarget";
 import { EventCallback } from "./lib/types";
 
@@ -17,7 +17,7 @@ class FDBRequest extends FakeEventTarget {
 
     public get error() {
         if (this.readyState === "pending") {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
         return this._error;
     }
@@ -28,7 +28,7 @@ class FDBRequest extends FakeEventTarget {
 
     public get result() {
         if (this.readyState === "pending") {
-            throw new InvalidStateError();
+            throw newInvalidStateError();
         }
         return this._result;
     }
