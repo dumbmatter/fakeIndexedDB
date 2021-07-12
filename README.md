@@ -18,7 +18,7 @@ yarn add --dev fake-indexeddb
 
 Functionally, it works exactly like IndexedDB except data is not persisted to disk.
 
-The easiest way to use it is to import `fake-indexeddb/auto`, which will put all the IndexedDB objects in the global scope:
+The easiest way to use it is to import `fake-indexeddb/auto`, which will put all the IndexedDB variables in the global scope:
 
 ```js
 import "fake-indexeddb/auto";
@@ -54,15 +54,34 @@ request.onsuccess = function (event) {
 };
 ```
 
-Alternatively, you can import individual objects:
+Alternatively, you can explicitly import individual IndexedDB variables:
 
 ```js
-import { indexedDB, IDBKeyRange } from "fake-indexeddb";
+import {
+    indexedDB,
+    IDBCursor,
+    IDBCursorWithValue,
+    IDBDatabase,
+    IDBFactory,
+    IDBIndex,
+    IDBKeyRange,
+    IDBObjectStore,
+    IDBOpenDBRequest,
+    IDBRequest,
+    IDBTransaction,
+    IDBVersionChangeEvent,
+} from "fake-indexeddb";
 
 // The rest is the same as above.
 ```
 
-LIST_ALL_EXPORTS
+Like any imported variable, you can rename it if you want, for instance if you don't want to conflict with built-in IndexedDB variables:
+
+```js
+import {
+    indexedDB as fakeIndexedDB,
+} from "fake-indexeddb";
+```
 
 ### With Dexie and other IndexedDB API wrappers
 

@@ -1,8 +1,5 @@
 # v4
 
-es modules only
-- auto.js
-
 typescript types
 - maybe write it as fdb type & IDB built-in type https://github.com/dumbmatter/fakeIndexedDB/issues/23#issuecomment-877885044
 
@@ -10,13 +7,15 @@ include the lib/ imports for backwards compatibility, but also include named exp
 - do with import maps to build/FDB*?
 - fix test/test.js
 
-named exports of IDB (not FDB) variables and indexedDB. no default export
-
-LIST_ALL_EXPORTS
-
-drop old node support (explicit in changelog)
-
 README about esm
+- show how to rename export, if conflict is a worry
+- legacy lib exports
+
+changelog
+- es modules only
+- named exports of IDB (not FDB) variables and indexedDB. no default export
+- drop old node support
+- typescript
 
 ---
 
