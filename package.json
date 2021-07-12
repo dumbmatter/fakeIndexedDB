@@ -30,7 +30,8 @@
         "build-qunit": "browserify build/test/indexedDBmock/exports-qunit-bundle.js -o build/test/indexedDBmock/exports-qunit-bundle.js && cp src/test/indexedDBmock/index.html build/test/indexedDBmock/index.html",
         "test-qunit": "npm run build-qunit && node-qunit-phantomjs build/test/indexedDBmock/index.html",
         "test-w3c": "node src/test/web-platform-tests/run-all.js",
-        "test": "npm run lint && npm run build && node test/test.js && npm run test-w3c && npm run test-mocha && npm run test-qunit"
+        "test": "npm run lint && npm run build && node test/test.js && npm run test-w3c && npm run test-mocha && npm run test-qunit",
+        "prepare": "husky install"
     },
     "author": "Jeremy Scheff <jdscheff@gmail.com> (http://dumbmatter.com/)",
     "license": "Apache-2.0",
@@ -49,8 +50,8 @@
         "browserify": "^17.0.0",
         "core-js": "^3.15.2",
         "glob": "^7.1.7",
-        "husky": "^3.0.9",
-        "lint-staged": "^9.4.3",
+        "husky": "^7.0.1",
+        "lint-staged": "^11.0.0",
         "mocha": "^9.0.2",
         "node-qunit-phantomjs": "^1.6.3",
         "prettier": "^2.3.2",
@@ -59,15 +60,7 @@
         "tslint-config-prettier": "^1.15.0",
         "typescript": "3.7.2"
     },
-    "husky": {
-        "hooks": {
-            "pre-commit": "lint-staged"
-        }
-    },
     "lint-staged": {
-        "*.{js,json,ts}": [
-            "prettier --write",
-            "git add"
-        ]
+        "*.{js,json,ts}": "prettier --write"
     }
 }
