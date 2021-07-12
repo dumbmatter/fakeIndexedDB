@@ -3,12 +3,6 @@
 typescript types
 - maybe write it as fdb type & IDB built-in type https://github.com/dumbmatter/fakeIndexedDB/issues/23#issuecomment-877885044
 
-typescript for subfolders, like `import "fake-indexeddb/auto";` and `import IDBKeyRange from "fake-indexeddb/lib/FDBKeyRange";`
-
-default export, for backwards compatibility
-
-is it actually esm?
-
 test in jest
 
 changelog

@@ -57,8 +57,10 @@
     "license": "Apache-2.0",
     "files": [
         "auto.js",
+        "auto.d.ts",
         "build",
-        "lib"
+        "lib/*.d.ts",
+        "types.d.ts"
     ],
     "dependencies": {
         "realistic-structured-clone": "^2.0.1",
