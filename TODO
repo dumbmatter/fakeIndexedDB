@@ -1,3 +1,18 @@
+# v4
+
+upgrade dependencies
+
+es modules only
+
+typescript types
+- maybe write it as fdb type & IDB built-in type https://github.com/dumbmatter/fakeIndexedDB/issues/23#issuecomment-877885044
+
+include the lib/ imports for backwards compatibility, but also include named exports of everything
+
+drop old node support (explicit in changelog)
+
+---
+
 # binary tree
 
 write tests for RecordStore, including benchmarks

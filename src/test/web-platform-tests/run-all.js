@@ -4,14 +4,6 @@ const fs = require("fs");
 const execSync = require("child_process").execSync;
 const glob = require("glob");
 const path = require("path");
-const semver = require("semver");
-
-if (!semver.gte(process.version, "8.0.0")) {
-    const errorMsg =
-        "web-platform-tests only run in Node 8 or higher, but fake-indexeddb should still work in Node 4 and possibly older versions.";
-    console.log(errorMsg);
-    process.exit(0);
-}
 
 const testFolder = path.join(__dirname, "converted");
 
@@ -118,11 +110,6 @@ const skip = [
     // think.
     "transaction-abort-request-error.js",
 ];
-
-// Only works in Node.js v10 or higher
-if (!semver.gte(process.version, "10.0.0")) {
-    skip.push("bigint_value.js");
-}
 
 const filenames = glob.sync("/**/*.js", { root: testFolder });
 for (const absFilename of filenames) {
