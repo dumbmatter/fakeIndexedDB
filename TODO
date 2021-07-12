@@ -1,10 +1,5 @@
 # v4
 
-typescript types
-- maybe write it as fdb type & IDB built-in type https://github.com/dumbmatter/fakeIndexedDB/issues/23#issuecomment-877885044
-
-test in jest
-
 fix tests
 
 changelog

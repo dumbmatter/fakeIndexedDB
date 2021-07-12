@@ -85,7 +85,7 @@ import {
 
 ### ECMAScript modules (`import`) vs CommonJS (`require`)
 
-Starting with version 4, fake-indexeddb uses ECMAScript modules rather than CommonJS. That means you need to `import` it, not `require` it. If that's a problem for you, stick to version 3 of fake-indexeddb, which supports `require("fake-indexeddb")`. Version 3 has basically all the same functionality as version 4, and I'll try to make any important bug fixes in both versions.
+Starting with version 4, fake-indexeddb uses ES modules rather than CommonJS. That means you need to `import` it, not `require` it. If that's a problem for you, stick to version 3 of fake-indexeddb, which supports `require("fake-indexeddb")`. Version 3 has basically all the same functionality as version 4, and I'll try to make any important bug fixes in both versions.
 
 ### With Dexie and other IndexedDB API wrappers
 
@@ -111,7 +111,9 @@ const db = new Dexie("MyDatabase", { indexedDB: indexedDB, IDBKeyRange: IDBKeyRa
 
 ### With Jest
 
-To use this on a single Jest test suite, require `fake-indexeddb/auto` at the beginning of the test
+Out of the box, Jest v27 only supports CommonJS, not ES modules, so [you'll have to do a little extra work to opt in to ES modules](https://jestjs.io/docs/ecmascript-modules). If you can't do that, you should switch to fake-indexeddb v3, see the above "ECMAScript modules" section for more info.
+
+To use fake-indexeddb in a single Jest test suite, require `fake-indexeddb/auto` at the beginning of the test
 file, as described above.
 
 To use it on all Jest tests without having to require it in each file, add the auto setup script to the `setupFiles` in your Jest config:
