@@ -1,4 +1,4 @@
-import FDBFactory from "./FDBFactory";
+import FDBFactory from "./FDBFactory.js";
 
 const fakeIndexedDB = new FDBFactory();
 

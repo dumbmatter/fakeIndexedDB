@@ -1,6 +1,6 @@
-import FDBDatabase from "../FDBDatabase";
-import FDBTransaction from "../FDBTransaction";
-import ObjectStore from "./ObjectStore";
+import FDBDatabase from "../FDBDatabase.js";
+import FDBTransaction from "../FDBTransaction.js";
+import ObjectStore from "./ObjectStore.js";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-database
 class Database {
@@ -21,14 +21,14 @@ class Database {
 
     public processTransactions() {
         setImmediate(() => {
-            const anyRunning = this.transactions.some(transaction => {
+            const anyRunning = this.transactions.some((transaction) => {
                 return (
                     transaction._started && transaction._state !== "finished"
                 );
             });
 
             if (!anyRunning) {
-                const next = this.transactions.find(transaction => {
+                const next = this.transactions.find((transaction) => {
                     return (
                         !transaction._started &&
                         transaction._state !== "finished"

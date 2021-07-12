@@ -1,10 +1,10 @@
 import * as assert from "assert";
-import fakeIndexedDB from "../../fakeIndexedDB";
-import FDBCursorWithValue from "../../FDBCursorWithValue";
-import FDBDatabase from "../../FDBDatabase";
-import FDBFactory from "../../FDBFactory";
-import FDBKeyRange from "../../FDBKeyRange";
-import { TransactionMode } from "../../lib/types";
+import fakeIndexedDB from "../../fakeIndexedDB.js";
+import FDBCursorWithValue from "../../FDBCursorWithValue.js";
+import FDBDatabase from "../../FDBDatabase.js";
+import FDBFactory from "../../FDBFactory.js";
+import FDBKeyRange from "../../FDBKeyRange.js";
+import { TransactionMode } from "../../lib/types.js";
 
 describe("fakeIndexedDB Tests", () => {
     describe("Transaction Lifetime", () => {
@@ -367,9 +367,9 @@ describe("fakeIndexedDB Tests", () => {
 
                         const tx = db.transaction("store");
                         const store = tx.objectStore("store");
-                        assert(!store._rawObjectStore.deleted);
+                        assert.ok(!store._rawObjectStore.deleted);
                         const index = store.index("content");
-                        assert(!index._rawIndex.deleted);
+                        assert.ok(!index._rawIndex.deleted);
 
                         store.count().onsuccess = (e3) => {
                             assert.equal(e3.target.result, 10);
@@ -688,7 +688,7 @@ describe("fakeIndexedDB Tests", () => {
             const request = fakeIndexedDB.open(name, 3);
             request.addEventListener("upgradeneeded", handler);
             request.addEventListener("success", () => {
-                assert(!called);
+                assert.ok(!called);
                 done();
             });
         });
@@ -707,7 +707,7 @@ describe("fakeIndexedDB Tests", () => {
             request.addEventListener("upgradeneeded", handler);
             request.addEventListener("upgradeneeded", dummy);
             request.addEventListener("success", () => {
-                assert(called);
+                assert.ok(called);
                 done();
             });
         });

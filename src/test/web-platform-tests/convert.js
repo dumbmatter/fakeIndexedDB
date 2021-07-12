@@ -1,6 +1,6 @@
-const fs = require("fs");
-const glob = require("glob");
-const path = require("path");
+import fs from "node:fs";
+import glob from "glob";
+import path from "node:path";
 
 const skip = [
     // IDL test; out of scope for the time being.
@@ -18,7 +18,7 @@ function* matchAll(string, inputRe) {
         }
         yield match;
     }
-};
+}
 
 function makeParentDir(file) {
     const dir = path.posix.dirname(file);
@@ -27,6 +27,8 @@ function makeParentDir(file) {
         fs.mkdirSync(dir);
     }
 }
+
+const __dirname = "src/test/web-platform-tests";
 
 const inFolder = path.posix.join(__dirname, "IndexedDB");
 const outFolder = path.posix.join(__dirname, "converted");
@@ -47,7 +49,7 @@ const outFolder = path.posix.join(__dirname, "converted");
         let matches = contents.match(/<script>([\s\S]+?)<\/script>/); // http://stackoverflow.com/q/1979884/786644
         if (matches === null || matches.length < 2) {
             matches = contents.match(
-                    /<script type="text\/javascript">([\s\S]+?)<\/script>/,
+                /<script type="text\/javascript">([\s\S]+?)<\/script>/,
             ); // http://stackoverflow.com/q/1979884/786644
         }
         if (matches === null || matches.length < 2) {
@@ -63,7 +65,7 @@ const outFolder = path.posix.join(__dirname, "converted");
                 path.posix.relative(path.posix.dirname(dest), __dirname),
                 "wpt-env.js",
             );
-            codeChunks.push(`require("${relativeWptEnvLocation}");\n`);
+            codeChunks.push(`import "${relativeWptEnvLocation}";\n`);
         }
 
         // Because these are 'imported' with <script>, the support
@@ -72,7 +74,10 @@ const outFolder = path.posix.join(__dirname, "converted");
         // browser behaviour here is to glom it all into a single
         // file.
 
-        const importMatches = matchAll(contents, /<script src=["']?(.+?)['"]?>/);
+        const importMatches = matchAll(
+            contents,
+            /<script src=["']?(.+?)['"]?>/,
+        );
 
         for (const match of importMatches) {
             if (match[1] === "/resources/testharness.js") {
@@ -81,7 +86,10 @@ const outFolder = path.posix.join(__dirname, "converted");
             if (match[1] === "/resources/testharnessreport.js") {
                 continue;
             }
-            const location = path.posix.join(path.posix.dirname(filename), match[1]);
+            const location = path.posix.join(
+                path.posix.dirname(filename),
+                match[1],
+            );
             codeChunks.push(fs.readFileSync(location) + "\n");
         }
 
@@ -118,13 +126,19 @@ const outFolder = path.posix.join(__dirname, "converted");
                 path.posix.relative(path.posix.dirname(dest), __dirname),
                 "wpt-env.js",
             );
-            codeChunks.push(`require("${relativeWptEnvLocation}");\n`);
+            codeChunks.push(`import "${relativeWptEnvLocation}";\n`);
         }
 
-        const importMatches = matchAll(testScript, /^\/\/\s*META:\s*script=(.+)$/m);
+        const importMatches = matchAll(
+            testScript,
+            /^\/\/\s*META:\s*script=(.+)$/m,
+        );
 
         for (const match of importMatches) {
-            const location = path.posix.join(path.posix.dirname(filename), match[1]);
+            const location = path.posix.join(
+                path.posix.dirname(filename),
+                match[1],
+            );
             codeChunks.push(fs.readFileSync(location) + "\n");
         }
 

@@ -1,6 +1,6 @@
-import { InvalidStateError } from "./errors";
-import FakeEvent from "./FakeEvent";
-import { EventCallback, EventType } from "./types";
+import { InvalidStateError } from "./errors.js";
+import FakeEvent from "./FakeEvent.js";
+import { EventCallback, EventType } from "./types.js";
 
 type EventTypeProp =
     | "onabort"
@@ -99,7 +99,7 @@ abstract class FakeEventTarget {
         callback: EventCallback,
         capture = false,
     ) {
-        const i = this.listeners.findIndex(listener => {
+        const i = this.listeners.findIndex((listener) => {
             return (
                 listener.type === type &&
                 listener.callback === callback &&

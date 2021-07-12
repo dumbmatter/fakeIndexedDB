@@ -1,24 +1,24 @@
-import FDBKeyRange from "./FDBKeyRange";
-import FDBObjectStore from "./FDBObjectStore";
-import FDBRequest from "./FDBRequest";
-import cmp from "./lib/cmp";
+import FDBKeyRange from "./FDBKeyRange.js";
+import FDBObjectStore from "./FDBObjectStore.js";
+import FDBRequest from "./FDBRequest.js";
+import cmp from "./lib/cmp.js";
 import {
     DataError,
     InvalidAccessError,
     InvalidStateError,
     ReadOnlyError,
     TransactionInactiveError,
-} from "./lib/errors";
-import extractKey from "./lib/extractKey";
-import structuredClone from "./lib/structuredClone";
+} from "./lib/errors.js";
+import extractKey from "./lib/extractKey.js";
+import structuredClone from "./lib/structuredClone.js";
 import {
     CursorRange,
     CursorSource,
     FDBCursorDirection,
     Key,
     Value,
-} from "./lib/types";
-import valueToKey from "./lib/valueToKey";
+} from "./lib/types.js";
+import valueToKey from "./lib/valueToKey.js";
 
 const getEffectiveObjectStore = (cursor: FDBCursor) => {
     if (cursor.source instanceof FDBObjectStore) {

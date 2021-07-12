@@ -1,17 +1,17 @@
-import FDBTransaction from "./FDBTransaction";
-import Database from "./lib/Database";
+import FDBTransaction from "./FDBTransaction.js";
+import Database from "./lib/Database.js";
 import {
     ConstraintError,
     InvalidAccessError,
     InvalidStateError,
     NotFoundError,
     TransactionInactiveError,
-} from "./lib/errors";
-import fakeDOMStringList from "./lib/fakeDOMStringList";
-import FakeEventTarget from "./lib/FakeEventTarget";
-import ObjectStore from "./lib/ObjectStore";
-import { FakeDOMStringList, KeyPath, TransactionMode } from "./lib/types";
-import validateKeyPath from "./lib/validateKeyPath";
+} from "./lib/errors.js";
+import fakeDOMStringList from "./lib/fakeDOMStringList.js";
+import FakeEventTarget from "./lib/FakeEventTarget.js";
+import ObjectStore from "./lib/ObjectStore.js";
+import { FakeDOMStringList, KeyPath, TransactionMode } from "./lib/types.js";
+import validateKeyPath from "./lib/validateKeyPath.js";
 
 const confirmActiveVersionchangeTransaction = (database: FDBDatabase) => {
     if (!database._runningVersionchangeTransaction) {
@@ -19,7 +19,7 @@ const confirmActiveVersionchangeTransaction = (database: FDBDatabase) => {
     }
 
     // Find the latest versionchange transaction
-    const transactions = database._rawDatabase.transactions.filter(tx => {
+    const transactions = database._rawDatabase.transactions.filter((tx) => {
         return tx.mode === "versionchange";
     });
     const transaction = transactions[transactions.length - 1];
@@ -40,18 +40,17 @@ const closeConnection = (connection: FDBDatabase) => {
     connection._closePending = true;
 
     const transactionsComplete = connection._rawDatabase.transactions.every(
-        transaction => {
+        (transaction) => {
             return transaction._state === "finished";
         },
     );
 
     if (transactionsComplete) {
         connection._closed = true;
-        connection._rawDatabase.connections = connection._rawDatabase.connections.filter(
-            otherConnection => {
+        connection._rawDatabase.connections =
+            connection._rawDatabase.connections.filter((otherConnection) => {
                 return connection !== otherConnection;
-            },
-        );
+            });
     } else {
         setImmediate(() => {
             closeConnection(connection);
@@ -154,7 +153,7 @@ class FDBDatabase extends FakeEventTarget {
         }
 
         this.objectStoreNames = fakeDOMStringList(
-            this.objectStoreNames.filter(objectStoreName => {
+            this.objectStoreNames.filter((objectStoreName) => {
                 return objectStoreName !== name;
             }),
         );
@@ -185,7 +184,7 @@ class FDBDatabase extends FakeEventTarget {
         }
 
         const hasActiveVersionchange = this._rawDatabase.transactions.some(
-            transaction => {
+            (transaction) => {
                 return (
                     transaction._state === "active" &&
                     transaction.mode === "versionchange" &&

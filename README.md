@@ -21,7 +21,7 @@ Functionally, it works exactly like IndexedDB except data is not persisted to di
 The easiest way to use it is to import `fake-indexeddb/auto`, which will put all the IndexedDB objects in the global scope:
 
 ```js
-require("fake-indexeddb/auto");
+import "fake-indexeddb/auto";
 
 var request = indexedDB.open("test", 3);
 request.onupgradeneeded = function () {
@@ -57,23 +57,20 @@ request.onsuccess = function (event) {
 Alternatively, you can import individual objects:
 
 ```js
-var indexedDB = require("fake-indexeddb");
-var IDBKeyRange = require("fake-indexeddb/lib/FDBKeyRange");
+import { indexedDB, IDBKeyRange } from "fake-indexeddb";
 
 // The rest is the same as above.
 ```
 
-When importing individual classes directly (like `var IDBKeyRange =
-require("fake-indexeddb/lib/FDBKeyRange");` above), file names of all the objects are like the
-normal IndexedDB ones except with F replacing I, e.g. `FDBIndex` instead of `IDBIndex`.
+LIST_ALL_EXPORTS
 
 ### With Dexie and other IndexedDB API wrappers
 
 If you import `fake-indexeddb/auto` before calling `new Dexie()`, it should work:
 
 ```js
-const Dexie = require("dexie");
-require("fake-indexeddb/auto");
+import Dexie from "dexie";
+import "fake-indexeddb/auto";
 
 const db = new Dexie("MyDatabase");
 ```
@@ -83,9 +80,8 @@ The same likely holds true for other IndexedDB API wrappers like idb.
 Alternatively, if you don't want to modify the global scope, then you need to explicitly pass the objects to Dexie:
 
 ```js
-const Dexie = require("dexie");
-const indexedDB = require("fake-indexeddb");
-const IDBKeyRange = require("fake-indexeddb/lib/FDBKeyRange");
+import Dexie from "dexie";
+import { indexedDB, IDBKeyRange } from "fake-indexeddb";
 
 const db = new Dexie("MyDatabase", { indexedDB: indexedDB, IDBKeyRange: IDBKeyRange });
 ```
@@ -111,11 +107,11 @@ To use it on all Jest tests without having to require it in each file, add the a
 If you are keeping your tests completely isolated you might want to "reset" the state of the mocked indexedDB. You can do this by creating a new `fakeIndexedDB` instance, which lets you have a totally fresh start.
 
 ```
-require("fake-indexeddb/auto");
-const FDBFactory = require("fake-indexeddb/lib/FDBFactory");
+import "fake-indexeddb/auto";
+import { IDBFactory } from "fake-indexeddb";
 
 // Whenever you want a fresh indexedDB
-indexedDB = new FDBFactory();
+indexedDB = new IDBFactory();
 ```
 
 ### With PhantomJS and other really old environments
@@ -123,8 +119,8 @@ indexedDB = new FDBFactory();
 PhantomJS (and other really old environments) are missing tons of modern JavaScript features. In fact, that may be why you use fake-indexeddb in such an environment! Prior to v3.0.0, fake-indexeddb imported core-js and automatically applied its polyfills. However, since most fake-indexeddb users are not using really old environments, I got rid of that runtime dependency in v3.0.0. To work around that, you can import core-js yourself before you import fake-indexeddb, like:
 
 ```js
-require("core-js/stable");
-var indexedDB = require("fake-indexeddb");
+import "core-js/stable";
+import "fake-indexeddb/auto";
 ```
 
 ## Quality

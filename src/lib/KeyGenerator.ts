@@ -1,4 +1,4 @@
-import { ConstraintError } from "./errors";
+import { ConstraintError } from "./errors.js";
 
 const MAX_KEY = 9007199254740992;
 

@@ -1,6 +1,6 @@
 // @ts-ignore
 import realisticStructuredClone from "realistic-structured-clone";
-import { DataCloneError } from "./errors";
+import { DataCloneError } from "./errors.js";
 
 const structuredClone = <T>(input: T): T => {
     try {

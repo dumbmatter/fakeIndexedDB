@@ -1,13 +1,13 @@
-import FDBKeyRange from "../FDBKeyRange";
+import FDBKeyRange from "../FDBKeyRange.js";
 import {
     getByKey,
     getByKeyRange,
     getIndexByKey,
     getIndexByKeyGTE,
     getIndexByKeyRange,
-} from "./binarySearch";
-import cmp from "./cmp";
-import { Key, Record } from "./types";
+} from "./binarySearch.js";
+import cmp from "./cmp.js";
+import { Key, Record } from "./types.js";
 
 class RecordStore {
     private records: Record[] = [];
@@ -72,7 +72,7 @@ class RecordStore {
 
         const deletedRecords: Record[] = [];
 
-        this.records = this.records.filter(record => {
+        this.records = this.records.filter((record) => {
             const shouldDelete = range.includes(record.value);
 
             if (shouldDelete) {

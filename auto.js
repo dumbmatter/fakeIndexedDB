@@ -1,15 +1,15 @@
-var fakeIndexedDB = require("./build/fakeIndexedDB").default;
-var FDBCursor = require("./build/FDBCursor").default;
-var FDBCursorWithValue = require("./build/FDBCursorWithValue").default;
-var FDBDatabase = require("./build/FDBDatabase").default;
-var FDBFactory = require("./build/FDBFactory").default;
-var FDBIndex = require("./build/FDBIndex").default;
-var FDBKeyRange = require("./build/FDBKeyRange").default;
-var FDBObjectStore = require("./build/FDBObjectStore").default;
-var FDBOpenDBRequest = require("./build/FDBOpenDBRequest").default;
-var FDBRequest = require("./build/FDBRequest").default;
-var FDBTransaction = require("./build/FDBTransaction").default;
-var FDBVersionChangeEvent = require("./build/FDBVersionChangeEvent").default;
+import fakeIndexedDB from "./build/fakeIndexedDB.js";
+import FDBCursor from "./build/FDBCursor.js";
+import FDBCursorWithValue from "./build/FDBCursorWithValue.js";
+import FDBDatabase from "./build/FDBDatabase.js";
+import FDBFactory from "./build/FDBFactory.js";
+import FDBIndex from "./build/FDBIndex.js";
+import FDBKeyRange from "./build/FDBKeyRange.js";
+import FDBObjectStore from "./build/FDBObjectStore.js";
+import FDBOpenDBRequest from "./build/FDBOpenDBRequest.js";
+import FDBRequest from "./build/FDBRequest.js";
+import FDBTransaction from "./build/FDBTransaction.js";
+import FDBVersionChangeEvent from "./build/FDBVersionChangeEvent.js";
 
 // http://stackoverflow.com/a/33268326/786644 - works in browser, worker, and Node.js
 var globalVar =

@@ -1,19 +1,19 @@
-import FDBCursor from "./FDBCursor";
-import FDBCursorWithValue from "./FDBCursorWithValue";
-import FDBKeyRange from "./FDBKeyRange";
-import FDBObjectStore from "./FDBObjectStore";
-import FDBRequest from "./FDBRequest";
-import enforceRange from "./lib/enforceRange";
+import FDBCursor from "./FDBCursor.js";
+import FDBCursorWithValue from "./FDBCursorWithValue.js";
+import FDBKeyRange from "./FDBKeyRange.js";
+import FDBObjectStore from "./FDBObjectStore.js";
+import FDBRequest from "./FDBRequest.js";
+import enforceRange from "./lib/enforceRange.js";
 import {
     ConstraintError,
     InvalidStateError,
     TransactionInactiveError,
-} from "./lib/errors";
-import fakeDOMStringList from "./lib/fakeDOMStringList";
-import Index from "./lib/Index";
-import { FDBCursorDirection, Key, KeyPath } from "./lib/types";
-import valueToKey from "./lib/valueToKey";
-import valueToKeyRange from "./lib/valueToKeyRange";
+} from "./lib/errors.js";
+import fakeDOMStringList from "./lib/fakeDOMStringList.js";
+import Index from "./lib/Index.js";
+import { FDBCursorDirection, Key, KeyPath } from "./lib/types.js";
+import valueToKey from "./lib/valueToKey.js";
+import valueToKeyRange from "./lib/valueToKeyRange.js";
 
 const confirmActiveTransaction = (index: FDBIndex) => {
     if (index._rawIndex.deleted || index.objectStore._rawObjectStore.deleted) {
@@ -90,10 +90,9 @@ class FDBIndex {
         this.objectStore.indexNames = fakeDOMStringList(
             Array.from(
                 this.objectStore._rawObjectStore.rawIndexes.keys(),
-            ).filter(indexName => {
-                const index = this.objectStore._rawObjectStore.rawIndexes.get(
-                    indexName,
-                );
+            ).filter((indexName) => {
+                const index =
+                    this.objectStore._rawObjectStore.rawIndexes.get(indexName);
                 return index && !index.deleted;
             }),
         ).sort();

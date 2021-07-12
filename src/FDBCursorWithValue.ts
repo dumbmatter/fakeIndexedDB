@@ -1,10 +1,10 @@
-import FDBCursor from "./FDBCursor";
+import FDBCursor from "./FDBCursor.js";
 import {
     CursorRange,
     CursorSource,
     FDBCursorDirection,
     Value,
-} from "./lib/types";
+} from "./lib/types.js";
 
 class FDBCursorWithValue extends FDBCursor {
     public value: Value = undefined;

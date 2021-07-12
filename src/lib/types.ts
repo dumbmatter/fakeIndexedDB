@@ -1,9 +1,9 @@
-import FDBIndex from "../FDBIndex";
-import FDBKeyRange from "../FDBKeyRange";
-import FDBObjectStore from "../FDBObjectStore";
-import FDBRequest from "../FDBRequest";
-import FakeEvent from "./FakeEvent";
-import FakeEventTarget from "./FakeEventTarget";
+import FDBIndex from "../FDBIndex.js";
+import FDBKeyRange from "../FDBKeyRange.js";
+import FDBObjectStore from "../FDBObjectStore.js";
+import FDBRequest from "../FDBRequest.js";
+import FakeEvent from "./FakeEvent.js";
+import FakeEventTarget from "./FakeEventTarget.js";
 
 export type CursorSource = FDBIndex | FDBObjectStore;
 

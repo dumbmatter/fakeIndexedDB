@@ -1,3 +1,6 @@
-require("core-js/stable");
-window.indexedDBmock = require("../..");
-window.IDBKeyRangemock = require("../../FDBKeyRange").default;
+import "core-js/stable";
+import indexedDB from "../..";
+import IDBKeyRange from "../../FDBKeyRange";
+
+window.indexedDBmock = indexedDB;
+window.IDBKeyRangemock = IDBKeyRange;

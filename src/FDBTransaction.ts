@@ -1,22 +1,22 @@
-import FDBDatabase from "./FDBDatabase";
-import FDBObjectStore from "./FDBObjectStore";
-import FDBRequest from "./FDBRequest";
+import FDBDatabase from "./FDBDatabase.js";
+import FDBObjectStore from "./FDBObjectStore.js";
+import FDBRequest from "./FDBRequest.js";
 import {
     AbortError,
     InvalidStateError,
     NotFoundError,
     TransactionInactiveError,
-} from "./lib/errors";
-import fakeDOMStringList from "./lib/fakeDOMStringList";
-import FakeEvent from "./lib/FakeEvent";
-import FakeEventTarget from "./lib/FakeEventTarget";
+} from "./lib/errors.js";
+import fakeDOMStringList from "./lib/fakeDOMStringList.js";
+import FakeEvent from "./lib/FakeEvent.js";
+import FakeEventTarget from "./lib/FakeEventTarget.js";
 import {
     EventCallback,
     FakeDOMStringList,
     RequestObj,
     RollbackLog,
     TransactionMode,
-} from "./lib/types";
+} from "./lib/types.js";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#transaction
 class FDBTransaction extends FakeEventTarget {

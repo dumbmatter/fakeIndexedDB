@@ -1,5 +1,5 @@
-import FakeEventTarget from "./FakeEventTarget";
-import { EventType } from "./types";
+import FakeEventTarget from "./FakeEventTarget.js";
+import { EventType } from "./types.js";
 
 class Event {
     public eventPath: FakeEventTarget[] = [];

@@ -1,12 +1,12 @@
 import "setimmediate";
-import FDBDatabase from "./FDBDatabase";
-import FDBOpenDBRequest from "./FDBOpenDBRequest";
-import FDBVersionChangeEvent from "./FDBVersionChangeEvent";
-import cmp from "./lib/cmp";
-import Database from "./lib/Database";
-import enforceRange from "./lib/enforceRange";
-import { AbortError, VersionError } from "./lib/errors";
-import FakeEvent from "./lib/FakeEvent";
+import FDBDatabase from "./FDBDatabase.js";
+import FDBOpenDBRequest from "./FDBOpenDBRequest.js";
+import FDBVersionChangeEvent from "./FDBVersionChangeEvent.js";
+import cmp from "./lib/cmp.js";
+import Database from "./lib/Database.js";
+import enforceRange from "./lib/enforceRange.js";
+import { AbortError, VersionError } from "./lib/errors.js";
+import FakeEvent from "./lib/FakeEvent.js";
 
 const waitForOthersClosedDelete = (
     databases: Map<string, Database>,
@@ -14,7 +14,7 @@ const waitForOthersClosedDelete = (
     openDatabases: FDBDatabase[],
     cb: (err: Error | null) => void,
 ) => {
-    const anyOpen = openDatabases.some(openDatabase2 => {
+    const anyOpen = openDatabases.some((openDatabase2) => {
         return !openDatabase2._closed && !openDatabase2._closePending;
     });
 
@@ -46,7 +46,7 @@ const deleteDatabase = (
 
         db.deletePending = true;
 
-        const openDatabases = db.connections.filter(connection => {
+        const openDatabases = db.connections.filter((connection) => {
             return !connection._closed && !connection._closePending;
         });
 
@@ -60,7 +60,7 @@ const deleteDatabase = (
             }
         }
 
-        const anyOpen = openDatabases.some(openDatabase3 => {
+        const anyOpen = openDatabases.some((openDatabase3) => {
             return !openDatabase3._closed && !openDatabase3._closePending;
         });
 
@@ -90,7 +90,7 @@ const runVersionchangeTransaction = (
     const oldVersion = connection.version;
 
     const openDatabases = connection._rawDatabase.connections.filter(
-        otherDatabase => {
+        (otherDatabase) => {
             return connection !== otherDatabase;
         },
     );
@@ -105,7 +105,7 @@ const runVersionchangeTransaction = (
         }
     }
 
-    const anyOpen = openDatabases.some(openDatabase3 => {
+    const anyOpen = openDatabases.some((openDatabase3) => {
         return !openDatabase3._closed && !openDatabase3._closePending;
     });
 
@@ -118,7 +118,7 @@ const runVersionchangeTransaction = (
     }
 
     const waitForOthersClosed = () => {
-        const anyOpen2 = openDatabases.some(openDatabase2 => {
+        const anyOpen2 = openDatabases.some((openDatabase2) => {
             return !openDatabase2._closed && !openDatabase2._closePending;
         });
 
@@ -206,7 +206,7 @@ const openDatabase = (
     const connection = new FDBDatabase(db);
 
     if (db.version < version) {
-        runVersionchangeTransaction(connection, version, request, err => {
+        runVersionchangeTransaction(connection, version, request, (err) => {
             if (err) {
                 // DO THIS HERE: ensure that connection is closed by running the steps for closing a database connection before these
                 // steps are aborted.
@@ -233,7 +233,7 @@ class FDBFactory {
             const db = this._databases.get(name);
             const oldVersion = db !== undefined ? db.version : 0;
 
-            deleteDatabase(this._databases, name, request, err => {
+            deleteDatabase(this._databases, name, request, (err) => {
                 if (err) {
                     request.error = new Error();
                     request.error.name = err.name;
@@ -317,7 +317,7 @@ class FDBFactory {
 
     // https://w3c.github.io/IndexedDB/#dom-idbfactory-databases
     public databases() {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             const result = [];
             for (const [name, database] of this._databases) {
                 result.push({

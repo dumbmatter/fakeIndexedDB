@@ -1,12 +1,12 @@
-import FDBKeyRange from "../FDBKeyRange";
-import FDBTransaction from "../FDBTransaction";
-import { ConstraintError } from "./errors";
-import extractKey from "./extractKey";
-import ObjectStore from "./ObjectStore";
-import RecordStore from "./RecordStore";
-import structuredClone from "./structuredClone";
-import { Key, KeyPath, Record } from "./types";
-import valueToKey from "./valueToKey";
+import FDBKeyRange from "../FDBKeyRange.js";
+import FDBTransaction from "../FDBTransaction.js";
+import { ConstraintError } from "./errors.js";
+import extractKey from "./extractKey.js";
+import ObjectStore from "./ObjectStore.js";
+import RecordStore from "./RecordStore.js";
+import structuredClone from "./structuredClone.js";
+import { Key, KeyPath, Record } from "./types.js";
+import valueToKey from "./valueToKey.js";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-index
 class Index {

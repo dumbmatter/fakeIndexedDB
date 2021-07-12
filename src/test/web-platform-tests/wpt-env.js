@@ -1,14 +1,16 @@
-const assert = require("assert");
-require("../../../auto");
-global.Event = require("../../../build/lib/FakeEvent").default;
+import assert from "node:assert";
+import "../../../auto.js";
+import FakeEvent from "../../../build/lib/FakeEvent.js";
 
-global.Blob = function(parts, options = {}) {
+global.Event = FakeEvent;
+
+global.Blob = function (parts, options = {}) {
     this.size = 0;
     Object.assign(this, options);
     return this;
 };
 
-global.File = function(bits, name, options = {}) {
+global.File = function (bits, name, options = {}) {
     this.name = name;
     Object.assign(this, options);
     return this;
@@ -34,7 +36,7 @@ const assert_array_equals = (...args) => assert.deepEqual(...args);
 
 const assert_object_equals = (...args) => assert.deepEqual(...args);
 
-const assert_unreached = msg => assert.fail(msg);
+const assert_unreached = (msg) => assert.fail(msg);
 
 const assert_equals = (...args) => assert.equal(...args);
 
@@ -178,7 +180,7 @@ const async_test = (func, name, properties) => {
     return test_obj;
 };
 
-const test = cb => {
+const test = (cb) => {
     cb();
 };
 
@@ -194,7 +196,7 @@ function EventWatcher(test, watchedNode, eventTypes) {
 
     var waitingFor = null;
 
-    var eventHandler = test.step_func(function(evt) {
+    var eventHandler = test.step_func(function (evt) {
         assert_true(
             !!waitingFor,
             "Not expecting event, but got " + evt.type + " event",
@@ -229,14 +231,14 @@ function EventWatcher(test, watchedNode, eventTypes) {
      * Returns a Promise that will resolve after the specified event or
      * series of events has occured.
      */
-    this.wait_for = function(types) {
+    this.wait_for = function (types) {
         if (waitingFor) {
             return Promise.reject("Already waiting for an event or events");
         }
         if (typeof types == "string") {
             types = [types];
         }
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
             waitingFor = {
                 types: types,
                 resolve: resolve,
@@ -257,38 +259,38 @@ function EventWatcher(test, watchedNode, eventTypes) {
 }
 
 const replacements = {
-    "0": "0",
-    "1": "x01",
-    "2": "x02",
-    "3": "x03",
-    "4": "x04",
-    "5": "x05",
-    "6": "x06",
-    "7": "x07",
-    "8": "b",
-    "9": "t",
-    "10": "n",
-    "11": "v",
-    "12": "f",
-    "13": "r",
-    "14": "x0e",
-    "15": "x0f",
-    "16": "x10",
-    "17": "x11",
-    "18": "x12",
-    "19": "x13",
-    "20": "x14",
-    "21": "x15",
-    "22": "x16",
-    "23": "x17",
-    "24": "x18",
-    "25": "x19",
-    "26": "x1a",
-    "27": "x1b",
-    "28": "x1c",
-    "29": "x1d",
-    "30": "x1e",
-    "31": "x1f",
+    0: "0",
+    1: "x01",
+    2: "x02",
+    3: "x03",
+    4: "x04",
+    5: "x05",
+    6: "x06",
+    7: "x07",
+    8: "b",
+    9: "t",
+    10: "n",
+    11: "v",
+    12: "f",
+    13: "r",
+    14: "x0e",
+    15: "x0f",
+    16: "x10",
+    17: "x11",
+    18: "x12",
+    19: "x13",
+    20: "x14",
+    21: "x15",
+    22: "x16",
+    23: "x17",
+    24: "x18",
+    25: "x19",
+    26: "x1a",
+    27: "x1b",
+    28: "x1c",
+    29: "x1d",
+    30: "x1e",
+    31: "x1f",
     "0xfffd": "ufffd",
     "0xfffe": "ufffe",
     "0xffff": "uffff",
@@ -308,7 +310,7 @@ function format_value(val, seen) {
         return (
             "[" +
             val
-                .map(function(x) {
+                .map(function (x) {
                     return format_value(x, seen);
                 })
                 .join(", ") +
@@ -414,20 +416,20 @@ const promise_test = (func, name, properties) => {
     if (!active_promise_test) {
         active_promise_test = Promise.resolve();
     }
-    active_promise_test = active_promise_test.then(function() {
-        var donePromise = new Promise(function(resolve) {
+    active_promise_test = active_promise_test.then(function () {
+        var donePromise = new Promise(function (resolve) {
             test.add_cleanup(resolve);
         });
         var promise = test.step(func, test, test);
-        test.step(function() {
+        test.step(function () {
             assert_not_equals(promise, undefined);
         });
         Promise.resolve(promise)
-            .then(function() {
+            .then(function () {
                 test.done();
             })
             .catch(
-                test.step_func(function(value) {
+                test.step_func(function (value) {
                     throw value;
                 }),
             );

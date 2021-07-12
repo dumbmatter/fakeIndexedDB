@@ -1,10 +1,8 @@
-"use strict";
+import { execSync } from "node:child_process";
+import path from "node:path";
+import glob from "glob";
 
-const fs = require("fs");
-const execSync = require("child_process").execSync;
-const glob = require("glob");
-const path = require("path");
-
+const __dirname = "src/test/web-platform-tests";
 const testFolder = path.join(__dirname, "converted");
 
 let passed = 0;
@@ -122,7 +120,7 @@ for (const absFilename of filenames) {
 
     console.log(`Running ${filename}...`);
     try {
-        const output = execSync(`node ${path.join(testFolder, filename)}`, {
+        const output = execSync(`node ${filename}`, {
             cwd: testFolder,
         });
         if (output.toString().length > 0) {

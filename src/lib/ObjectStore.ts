@@ -1,12 +1,12 @@
-import FDBKeyRange from "../FDBKeyRange";
-import Database from "./Database";
-import { ConstraintError, DataError } from "./errors";
-import extractKey from "./extractKey";
-import Index from "./Index";
-import KeyGenerator from "./KeyGenerator";
-import RecordStore from "./RecordStore";
-import structuredClone from "./structuredClone";
-import { Key, KeyPath, Record, RollbackLog } from "./types";
+import FDBKeyRange from "../FDBKeyRange.js";
+import Database from "./Database.js";
+import { ConstraintError, DataError } from "./errors.js";
+import extractKey from "./extractKey.js";
+import Index from "./Index.js";
+import KeyGenerator from "./KeyGenerator.js";
+import RecordStore from "./RecordStore.js";
+import structuredClone from "./structuredClone.js";
+import { Key, KeyPath, Record, RollbackLog } from "./types.js";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-object-store
 class ObjectStore {

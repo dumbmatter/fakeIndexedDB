@@ -1,11 +1,11 @@
-import FDBCursor from "./FDBCursor";
-import FDBCursorWithValue from "./FDBCursorWithValue";
-import FDBIndex from "./FDBIndex";
-import FDBKeyRange from "./FDBKeyRange";
-import FDBRequest from "./FDBRequest";
-import FDBTransaction from "./FDBTransaction";
-import canInjectKey from "./lib/canInjectKey";
-import enforceRange from "./lib/enforceRange";
+import FDBCursor from "./FDBCursor.js";
+import FDBCursorWithValue from "./FDBCursorWithValue.js";
+import FDBIndex from "./FDBIndex.js";
+import FDBKeyRange from "./FDBKeyRange.js";
+import FDBRequest from "./FDBRequest.js";
+import FDBTransaction from "./FDBTransaction.js";
+import canInjectKey from "./lib/canInjectKey.js";
+import enforceRange from "./lib/enforceRange.js";
 import {
     ConstraintError,
     DataError,
@@ -14,22 +14,22 @@ import {
     NotFoundError,
     ReadOnlyError,
     TransactionInactiveError,
-} from "./lib/errors";
-import extractKey from "./lib/extractKey";
-import fakeDOMStringList from "./lib/fakeDOMStringList";
-import Index from "./lib/Index";
-import ObjectStore from "./lib/ObjectStore";
-import structuredClone from "./lib/structuredClone";
+} from "./lib/errors.js";
+import extractKey from "./lib/extractKey.js";
+import fakeDOMStringList from "./lib/fakeDOMStringList.js";
+import Index from "./lib/Index.js";
+import ObjectStore from "./lib/ObjectStore.js";
+import structuredClone from "./lib/structuredClone.js";
 import {
     FakeDOMStringList,
     FDBCursorDirection,
     Key,
     KeyPath,
     Value,
-} from "./lib/types";
-import validateKeyPath from "./lib/validateKeyPath";
-import valueToKey from "./lib/valueToKey";
-import valueToKeyRange from "./lib/valueToKeyRange";
+} from "./lib/types.js";
+import validateKeyPath from "./lib/validateKeyPath.js";
+import valueToKey from "./lib/valueToKey.js";
+import valueToKeyRange from "./lib/valueToKeyRange.js";
 
 const confirmActiveTransaction = (objectStore: FDBObjectStore) => {
     if (objectStore._rawObjectStore.deleted) {
@@ -155,16 +155,18 @@ class FDBObjectStore {
         transaction.db.objectStoreNames = fakeDOMStringList(
             Array.from(
                 this._rawObjectStore.rawDatabase.rawObjectStores.keys(),
-            ).filter(objectStoreName => {
-                const objectStore = this._rawObjectStore.rawDatabase.rawObjectStores.get(
-                    objectStoreName,
-                );
+            ).filter((objectStoreName) => {
+                const objectStore =
+                    this._rawObjectStore.rawDatabase.rawObjectStores.get(
+                        objectStoreName,
+                    );
                 return objectStore && !objectStore.deleted;
             }),
         ).sort();
 
         const oldScope = new Set(transaction._scope);
-        const oldTransactionObjectStoreNames = transaction.objectStoreNames.slice();
+        const oldTransactionObjectStoreNames =
+            transaction.objectStoreNames.slice();
         this.transaction._scope.delete(oldName);
         transaction._scope.add(name);
         transaction.objectStoreNames = fakeDOMStringList(
@@ -181,9 +183,8 @@ class FDBObjectStore {
                 oldName,
                 this._rawObjectStore,
             );
-            transaction.db.objectStoreNames = fakeDOMStringList(
-                oldObjectStoreNames,
-            );
+            transaction.db.objectStoreNames =
+                fakeDOMStringList(oldObjectStoreNames);
 
             transaction._scope = oldScope;
             transaction.objectStoreNames = fakeDOMStringList(
@@ -518,7 +519,7 @@ class FDBObjectStore {
         });
 
         this.indexNames = fakeDOMStringList(
-            this.indexNames.filter(indexName => {
+            this.indexNames.filter((indexName) => {
                 return indexName !== name;
             }),
         );
