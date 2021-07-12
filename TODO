@@ -2,14 +2,16 @@
 
 typescript types
 - maybe write it as fdb type & IDB built-in type https://github.com/dumbmatter/fakeIndexedDB/issues/23#issuecomment-877885044
+- how to get type of class, not type of instance of class, in types.d.ts?
 
 include the lib/ imports for backwards compatibility, but also include named exports of everything
 - do with import maps to build/FDB*?
-- fix test/test.js
 
 README about esm
 - show how to rename export, if conflict is a worry
 - legacy lib exports
+
+test in jest
 
 changelog
 - es modules only
