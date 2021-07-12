@@ -20,7 +20,11 @@
         "polyfill",
         "shim"
     ],
-    "main": "build/index.js",
+    "type": "module",
+    "exports": "./build/index.js",
+    "engines": {
+        "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+    },
     "scripts": {
         "build": "rm -rf build && tsc",
         "prepublishOnly": "npm run build && rm -rf build/test",

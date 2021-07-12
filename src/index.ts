@@ -1,3 +1,3 @@
-import fakeIndexedDB from "./fakeIndexedDB";
+import fakeIndexedDB from "./fakeIndexedDB.js";
 
 module.exports = fakeIndexedDB;

@@ -4,7 +4,7 @@
         "outDir": "./build",
         "target": "es5",
         "lib": ["dom", "es6"],
-        "module": "commonjs",
+        "module": "ES2020",
         "allowJs": true,
         "downlevelIteration": true,
         "noEmitOnError": true,

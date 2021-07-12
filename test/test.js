@@ -1,14 +1,14 @@
 // Sanity check that imports work
 
-require("../build");
-require("../lib/FDBCursor");
-require("../lib/FDBCursorWithValue");
-require("../lib/FDBDatabase");
-require("../lib/FDBFactory");
-require("../lib/FDBIndex");
-require("../lib/FDBKeyRange");
-require("../lib/FDBObjectStore");
-require("../lib/FDBOpenDBRequest");
-require("../lib/FDBRequest");
-require("../lib/FDBTransaction");
-require("../lib/FDBVersionChangeEvent");
+import "../build/index.js";
+import "../lib/FDBCursor.js";
+import "../lib/FDBCursorWithValue.js";
+import "../lib/FDBDatabase.js";
+import "../lib/FDBFactory.js";
+import "../lib/FDBIndex.js";
+import "../lib/FDBKeyRange.js";
+import "../lib/FDBObjectStore.js";
+import "../lib/FDBOpenDBRequest.js";
+import "../lib/FDBRequest.js";
+import "../lib/FDBTransaction.js";
+import "../lib/FDBVersionChangeEvent.js";

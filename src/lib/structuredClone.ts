@@ -1,4 +1,5 @@
-const realisticStructuredClone = require("realistic-structured-clone"); // tslint:disable-line no-var-requires
+// @ts-ignore
+import realisticStructuredClone from "realistic-structured-clone";
 import { DataCloneError } from "./errors";
 
 const structuredClone = <T>(input: T): T => {
