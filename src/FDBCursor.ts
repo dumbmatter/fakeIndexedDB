@@ -33,8 +33,8 @@ const getEffectiveObjectStore = (cursor: FDBCursor) => {
 // of the way there.
 const makeKeyRange = (
     range: FDBKeyRange,
-    lowers: Array<Key | undefined>,
-    uppers: Array<Key | undefined>,
+    lowers: (Key | undefined)[],
+    uppers: (Key | undefined)[],
 ) => {
     // Start with bounds from range
     let lower = range !== undefined ? range.lower : undefined;
@@ -326,9 +326,10 @@ class FDBCursor {
                         // Can't use sourceIsObjectStore because TypeScript
                         throw new Error("This should never happen");
                     }
-                    const value = this.source.objectStore._rawObjectStore.getValue(
-                        foundRecord.value,
-                    );
+                    const value =
+                        this.source.objectStore._rawObjectStore.getValue(
+                            foundRecord.value,
+                        );
                     (this as any).value = structuredClone(value);
                 }
             }

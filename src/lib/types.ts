@@ -49,6 +49,6 @@ export interface RequestObj {
     source?: any;
 }
 
-export type RollbackLog = Array<() => void>;
+export type RollbackLog = (() => void)[];
 
 export type TransactionMode = "readonly" | "readwrite" | "versionchange";

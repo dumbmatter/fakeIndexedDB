@@ -34,10 +34,10 @@ class FDBTransaction extends FakeEventTarget {
     public onerror: EventCallback | null = null;
 
     public _scope: Set<string>;
-    private _requests: Array<{
+    private _requests: {
         operation: () => void;
         request: FDBRequest;
-    }> = [];
+    }[] = [];
 
     constructor(storeNames: string[], mode: TransactionMode, db: FDBDatabase) {
         super();

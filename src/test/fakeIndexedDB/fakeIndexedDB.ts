@@ -8,9 +8,9 @@ import { TransactionMode } from "../../lib/types";
 
 describe("fakeIndexedDB Tests", () => {
     describe("Transaction Lifetime", () => {
-        it("Transactions should be activated from queue based on mode", done => {
+        it("Transactions should be activated from queue based on mode", (done) => {
             const request = fakeIndexedDB.open("test" + Math.random());
-            request.onupgradeneeded = e => {
+            request.onupgradeneeded = (e) => {
                 const db = e.target.result;
                 const store = db.createObjectStore("store", { keyPath: "key" });
 
@@ -19,8 +19,8 @@ describe("fakeIndexedDB Tests", () => {
                 }
             };
 
-            const started: Array<number | string> = [];
-            const completed: Array<number | string> = [];
+            const started: (number | string)[] = [];
+            const completed: (number | string)[] = [];
 
             const startTx = (
                 db: FDBDatabase,
@@ -41,11 +41,10 @@ describe("fakeIndexedDB Tests", () => {
                     tx.objectStore("store").get(2).onsuccess = () => {
                         tx.objectStore("store").get(3).onsuccess = () => {
                             tx.objectStore("store").get(4).onsuccess = () => {
-                                tx
-                                    .objectStore("store")
-                                    .get(5).onsuccess = () => {
-                                    tx.objectStore("store").get(6);
-                                };
+                                tx.objectStore("store").get(5).onsuccess =
+                                    () => {
+                                        tx.objectStore("store").get(6);
+                                    };
                             };
                         };
                     };
@@ -60,7 +59,7 @@ describe("fakeIndexedDB Tests", () => {
                 };
             };
 
-            request.onsuccess = e => {
+            request.onsuccess = (e) => {
                 const db = e.target.result;
 
                 for (let i = 0; i < 5; i++) {
@@ -76,9 +75,9 @@ describe("fakeIndexedDB Tests", () => {
     });
 
     describe("Transaction Rollback", () => {
-        it("Rollback FDBObjectStore.add", done => {
+        it("Rollback FDBObjectStore.add", (done) => {
             const request = fakeIndexedDB.open("test" + Math.random());
-            request.onupgradeneeded = e => {
+            request.onupgradeneeded = (e) => {
                 const db = e.target.result;
                 const store = db.createObjectStore("store", {
                     autoIncrement: true,
@@ -88,17 +87,17 @@ describe("fakeIndexedDB Tests", () => {
                     store.add({ content: "test" + (i + 1) });
                 }
             };
-            request.onsuccess = e => {
+            request.onsuccess = (e) => {
                 const db: FDBDatabase = e.target.result;
 
                 const tx = db.transaction("store", "readwrite");
-                tx.objectStore("store").count().onsuccess = e2 => {
+                tx.objectStore("store").count().onsuccess = (e2) => {
                     assert.equal(e2.target.result, 10);
                     tx.objectStore("store").add({
                         content: "SHOULD BE ROLLED BACK",
                     });
 
-                    tx.objectStore("store").get(11).onsuccess = e3 => {
+                    tx.objectStore("store").get(11).onsuccess = (e3) => {
                         assert.equal(
                             e3.target.result.content,
                             "SHOULD BE ROLLED BACK",
@@ -108,7 +107,7 @@ describe("fakeIndexedDB Tests", () => {
                 };
 
                 const tx2 = db.transaction("store", "readwrite");
-                tx2.objectStore("store").count().onsuccess = e2 => {
+                tx2.objectStore("store").count().onsuccess = (e2) => {
                     assert.equal(e2.target.result, 10);
 
                     // add would fail if SHOULD BE ROLLED BACK was still there
@@ -116,10 +115,10 @@ describe("fakeIndexedDB Tests", () => {
                         content: "SHOULD BE 11TH RECORD",
                     });
 
-                    tx2.objectStore("store").count().onsuccess = e3 => {
+                    tx2.objectStore("store").count().onsuccess = (e3) => {
                         assert.equal(e3.target.result, 11);
                     };
-                    tx2.objectStore("store").get(11).onsuccess = e3 => {
+                    tx2.objectStore("store").get(11).onsuccess = (e3) => {
                         assert.equal(
                             e3.target.result.content,
                             "SHOULD BE 11TH RECORD",
@@ -133,9 +132,9 @@ describe("fakeIndexedDB Tests", () => {
             };
         });
 
-        it("Rollback FDBObjectStore.clear", done => {
+        it("Rollback FDBObjectStore.clear", (done) => {
             const request = fakeIndexedDB.open("test" + Math.random());
-            request.onupgradeneeded = e => {
+            request.onupgradeneeded = (e) => {
                 const db = e.target.result;
                 const store = db.createObjectStore("store", {
                     autoIncrement: true,
@@ -145,19 +144,19 @@ describe("fakeIndexedDB Tests", () => {
                     store.add({ content: "test" + (i + 1) });
                 }
             };
-            request.onsuccess = e => {
+            request.onsuccess = (e) => {
                 const db: FDBDatabase = e.target.result;
 
                 const tx = db.transaction("store", "readwrite");
                 tx.objectStore("store").clear().onsuccess = () => {
-                    tx.objectStore("store").count().onsuccess = e2 => {
+                    tx.objectStore("store").count().onsuccess = (e2) => {
                         assert.equal(e2.target.result, 0);
                         tx.abort();
                     };
                 };
 
                 const tx2 = db.transaction("store", "readwrite");
-                tx2.objectStore("store").count().onsuccess = e2 => {
+                tx2.objectStore("store").count().onsuccess = (e2) => {
                     assert.equal(e2.target.result, 10);
                 };
 
@@ -167,9 +166,9 @@ describe("fakeIndexedDB Tests", () => {
             };
         });
 
-        it("Rollback FDBObjectStore.delete", done => {
+        it("Rollback FDBObjectStore.delete", (done) => {
             const request = fakeIndexedDB.open("test" + Math.random());
-            request.onupgradeneeded = e => {
+            request.onupgradeneeded = (e) => {
                 const db = e.target.result;
                 const store = db.createObjectStore("store", {
                     autoIncrement: true,
@@ -179,19 +178,19 @@ describe("fakeIndexedDB Tests", () => {
                     store.add({ content: "test" + (i + 1) });
                 }
             };
-            request.onsuccess = e => {
+            request.onsuccess = (e) => {
                 const db: FDBDatabase = e.target.result;
 
                 const tx = db.transaction("store", "readwrite");
                 tx.objectStore("store").delete(2).onsuccess = () => {
-                    tx.objectStore("store").count().onsuccess = e2 => {
+                    tx.objectStore("store").count().onsuccess = (e2) => {
                         assert.equal(e2.target.result, 9);
                         tx.abort();
                     };
                 };
 
                 const tx2 = db.transaction("store", "readwrite");
-                tx2.objectStore("store").count().onsuccess = e2 => {
+                tx2.objectStore("store").count().onsuccess = (e2) => {
                     assert.equal(e2.target.result, 10);
                 };
 
@@ -201,9 +200,9 @@ describe("fakeIndexedDB Tests", () => {
             };
         });
 
-        it("Rollback FDBObjectStore.put", done => {
+        it("Rollback FDBObjectStore.put", (done) => {
             const request = fakeIndexedDB.open("test" + Math.random());
-            request.onupgradeneeded = e => {
+            request.onupgradeneeded = (e) => {
                 const db = e.target.result;
                 const store = db.createObjectStore("store", {
                     autoIncrement: true,
@@ -213,7 +212,7 @@ describe("fakeIndexedDB Tests", () => {
                     store.add({ content: "test" + (i + 1) });
                 }
             };
-            request.onsuccess = e => {
+            request.onsuccess = (e) => {
                 const db: FDBDatabase = e.target.result;
 
                 const tx = db.transaction("store", "readwrite");
@@ -221,7 +220,7 @@ describe("fakeIndexedDB Tests", () => {
                     { content: "SHOULD BE ROLLED BACK" },
                     10,
                 );
-                tx.objectStore("store").get(10).onsuccess = e2 => {
+                tx.objectStore("store").get(10).onsuccess = (e2) => {
                     assert.equal(
                         e2.target.result.content,
                         "SHOULD BE ROLLED BACK",
@@ -230,7 +229,7 @@ describe("fakeIndexedDB Tests", () => {
                 };
 
                 const tx2 = db.transaction("store", "readwrite");
-                tx2.objectStore("store").get(10).onsuccess = e2 => {
+                tx2.objectStore("store").get(10).onsuccess = (e2) => {
                     assert.equal(e2.target.result.content, "test10");
                 };
 
@@ -240,9 +239,9 @@ describe("fakeIndexedDB Tests", () => {
             };
         });
 
-        it("Rollback FDBCursor.delete", done => {
+        it("Rollback FDBCursor.delete", (done) => {
             const request = fakeIndexedDB.open("test" + Math.random());
-            request.onupgradeneeded = e => {
+            request.onupgradeneeded = (e) => {
                 const db = e.target.result;
                 const store = db.createObjectStore("store", {
                     autoIncrement: true,
@@ -252,23 +251,23 @@ describe("fakeIndexedDB Tests", () => {
                     store.add({ content: "test" + (i + 1) });
                 }
             };
-            request.onsuccess = e => {
+            request.onsuccess = (e) => {
                 const db: FDBDatabase = e.target.result;
 
                 const tx = db.transaction("store", "readwrite");
-                tx.objectStore("store").openCursor(3).onsuccess = e2 => {
+                tx.objectStore("store").openCursor(3).onsuccess = (e2) => {
                     const cursor = e2.target.result;
                     const obj = cursor.value;
                     obj.content = "SHOULD BE ROLLED BACK";
                     cursor.delete();
-                    tx.objectStore("store").get(3).onsuccess = e3 => {
+                    tx.objectStore("store").get(3).onsuccess = (e3) => {
                         assert.equal(e3.target.result, undefined);
                         tx.abort();
                     };
                 };
 
                 const tx2 = db.transaction("store", "readwrite");
-                tx2.objectStore("store").get(3).onsuccess = e2 => {
+                tx2.objectStore("store").get(3).onsuccess = (e2) => {
                     assert.equal(e2.target.result.content, "test3");
                 };
 
@@ -278,9 +277,9 @@ describe("fakeIndexedDB Tests", () => {
             };
         });
 
-        it("Rollback FDBCursor.update", done => {
+        it("Rollback FDBCursor.update", (done) => {
             const request = fakeIndexedDB.open("test" + Math.random());
-            request.onupgradeneeded = e => {
+            request.onupgradeneeded = (e) => {
                 const db = e.target.result;
                 const store = db.createObjectStore("store", {
                     autoIncrement: true,
@@ -290,16 +289,16 @@ describe("fakeIndexedDB Tests", () => {
                     store.add({ content: "test" + (i + 1) });
                 }
             };
-            request.onsuccess = e => {
+            request.onsuccess = (e) => {
                 const db: FDBDatabase = e.target.result;
 
                 const tx = db.transaction("store", "readwrite");
-                tx.objectStore("store").openCursor(3).onsuccess = e2 => {
+                tx.objectStore("store").openCursor(3).onsuccess = (e2) => {
                     const cursor = e2.target.result;
                     const obj = cursor.value;
                     obj.content = "SHOULD BE ROLLED BACK";
                     cursor.update(obj);
-                    tx.objectStore("store").get(3).onsuccess = e3 => {
+                    tx.objectStore("store").get(3).onsuccess = (e3) => {
                         assert.equal(
                             e3.target.result.content,
                             "SHOULD BE ROLLED BACK",
@@ -309,7 +308,7 @@ describe("fakeIndexedDB Tests", () => {
                 };
 
                 const tx2 = db.transaction("store", "readwrite");
-                tx2.objectStore("store").get(3).onsuccess = e2 => {
+                tx2.objectStore("store").get(3).onsuccess = (e2) => {
                     assert.equal(e2.target.result.content, "test3");
                 };
 
@@ -319,10 +318,10 @@ describe("fakeIndexedDB Tests", () => {
             };
         });
 
-        it("Rollback of versionchange transaction", done => {
+        it("Rollback of versionchange transaction", (done) => {
             const dbName = "test" + Math.random();
             const request = fakeIndexedDB.open(dbName);
-            request.onupgradeneeded = e => {
+            request.onupgradeneeded = (e) => {
                 const db = e.target.result;
                 const store = db.createObjectStore("store", {
                     autoIncrement: true,
@@ -333,12 +332,12 @@ describe("fakeIndexedDB Tests", () => {
                     store.add({ content: "test" + (i + 1) });
                 }
             };
-            request.onsuccess = e => {
+            request.onsuccess = (e) => {
                 const db0 = e.target.result;
                 db0.close();
 
                 const request2 = fakeIndexedDB.open(dbName, 2);
-                request2.onupgradeneeded = e2 => {
+                request2.onupgradeneeded = (e2) => {
                     const db = e2.target.result;
                     const tx = e2.target.transaction;
                     const store = tx.objectStore("store");
@@ -361,7 +360,7 @@ describe("fakeIndexedDB Tests", () => {
                 };
                 request2.onerror = () => {
                     const request3 = fakeIndexedDB.open(dbName);
-                    request3.onsuccess = e2 => {
+                    request3.onsuccess = (e2) => {
                         const db: FDBDatabase = e2.target.result;
                         assert.equal(db.version, 1);
                         assert.equal(db.objectStoreNames.length, 1);
@@ -372,11 +371,11 @@ describe("fakeIndexedDB Tests", () => {
                         const index = store.index("content");
                         assert(!index._rawIndex.deleted);
 
-                        store.count().onsuccess = e3 => {
+                        store.count().onsuccess = (e3) => {
                             assert.equal(e3.target.result, 10);
                         };
 
-                        index.get("test2").onsuccess = e3 => {
+                        index.get("test2").onsuccess = (e3) => {
                             assert.deepEqual(e3.target.result, {
                                 content: "test2",
                             });
@@ -393,23 +392,23 @@ describe("fakeIndexedDB Tests", () => {
         });
     });
 
-    it("should allow index where not all records have keys", done => {
+    it("should allow index where not all records have keys", (done) => {
         const request = fakeIndexedDB.open("test" + Math.random());
-        request.onupgradeneeded = e => {
+        request.onupgradeneeded = (e) => {
             const db = e.target.result;
             const store = db.createObjectStore("store", {
                 autoIncrement: true,
             });
             store.createIndex("compound", ["a", "b"], { unique: false });
         };
-        request.onsuccess = e => {
+        request.onsuccess = (e) => {
             const db: FDBDatabase = e.target.result;
 
             const tx = db.transaction("store", "readwrite");
             tx.objectStore("store").put({
                 whatever: "foo",
             });
-            tx.onerror = e2 => {
+            tx.onerror = (e2) => {
                 done(e2.target.error);
             };
 
@@ -417,7 +416,7 @@ describe("fakeIndexedDB Tests", () => {
                 const tx2 = db.transaction("store");
                 const request2 = tx2.objectStore("store").get(1);
 
-                request2.onsuccess = e3 => {
+                request2.onsuccess = (e3) => {
                     assert.deepEqual(e3.target.result, {
                         whatever: "foo",
                     });
@@ -430,7 +429,7 @@ describe("fakeIndexedDB Tests", () => {
         };
     });
 
-    it("properly handles compound keys (issue #18)", done => {
+    it("properly handles compound keys (issue #18)", (done) => {
         const request = fakeIndexedDB.open("test", 3);
         request.onupgradeneeded = () => {
             const db: FDBDatabase = request.result;
@@ -455,13 +454,13 @@ describe("fakeIndexedDB Tests", () => {
                 title: "Bedrock Nights",
             });
         };
-        request.onsuccess = event => {
+        request.onsuccess = (event) => {
             const db: FDBDatabase = event.target.result;
 
             const tx = db.transaction("books", "readwrite");
-            tx
-                .objectStore("books")
-                .openCursor(["Fred", 123456]).onsuccess = event2 => {
+            tx.objectStore("books").openCursor(["Fred", 123456]).onsuccess = (
+                event2,
+            ) => {
                 const cursor: FDBCursorWithValue = event2.target.result;
                 cursor.value.price = 5.99;
                 cursor.update(cursor.value);
@@ -473,9 +472,9 @@ describe("fakeIndexedDB Tests", () => {
         };
     });
 
-    it("iterates correctly regardless of add order (issue #20)", done => {
+    it("iterates correctly regardless of add order (issue #20)", (done) => {
         const request = fakeIndexedDB.open(`test${Math.random()}`);
-        request.onupgradeneeded = e => {
+        request.onupgradeneeded = (e) => {
             const db2 = e.target.result;
             const collStore = db2.createObjectStore("store", { keyPath: "id" });
 
@@ -484,14 +483,14 @@ describe("fakeIndexedDB Tests", () => {
             collStore.add({ id: "5", _status: "created" });
             collStore.add({ id: "0", _status: "created" });
         };
-        request.onsuccess = e => {
+        request.onsuccess = (e) => {
             const db: FDBDatabase = e.target.result;
 
             const txn = db.transaction(["store"]);
             const store = txn.objectStore("store");
             const request2 = store.index("_status").openCursor();
             const expected = ["0", "5"];
-            request2.onsuccess = event => {
+            request2.onsuccess = (event) => {
                 const cursor: FDBCursorWithValue = event.target.result;
                 if (!cursor) {
                     assert.equal(expected.length, 0);
@@ -503,16 +502,16 @@ describe("fakeIndexedDB Tests", () => {
                 assert.equal(value.id, expectedID);
                 cursor.continue();
             };
-            request2.onerror = e2 => {
+            request2.onerror = (e2) => {
                 done(e2.target.error);
             };
         };
-        request.onerror = e => {
+        request.onerror = (e) => {
             done(e.target.error);
         };
     });
 
-    it("handles two open requests at the same time (issue #22)", done => {
+    it("handles two open requests at the same time (issue #22)", (done) => {
         const name = `test${Math.random()}`;
 
         const openDb = (cb?: (db: FDBDatabase) => void) => {
@@ -521,7 +520,7 @@ describe("fakeIndexedDB Tests", () => {
                 const db = request.result;
                 db.createObjectStore("books", { keyPath: "isbn" });
             };
-            request.onsuccess = event => {
+            request.onsuccess = (event) => {
                 const db: FDBDatabase = event.target.result;
                 if (cb) {
                     cb(db);
@@ -531,7 +530,7 @@ describe("fakeIndexedDB Tests", () => {
 
         openDb();
 
-        openDb(db => {
+        openDb((db) => {
             db.transaction("books");
             done();
         });
@@ -540,11 +539,11 @@ describe("fakeIndexedDB Tests", () => {
     it("correctly rolls back adding record to store when index constraint error occurs (issue #41)", async () => {
         function setup() {
             /* Create database, object store, and unique index */
-            return new Promise(resolve => {
+            return new Promise<void>((resolve) => {
                 fakeIndexedDB.deleteDatabase("mydb").onsuccess = () => {
                     const openreq = fakeIndexedDB.open("mydb");
 
-                    openreq.onupgradeneeded = event => {
+                    openreq.onupgradeneeded = (event) => {
                         const db: FDBDatabase = event.target.result;
                         const store = db.createObjectStore("mystore", {
                             autoIncrement: true,
@@ -554,7 +553,7 @@ describe("fakeIndexedDB Tests", () => {
                         });
                     };
 
-                    openreq.onsuccess = _event => resolve();
+                    openreq.onsuccess = (_event) => resolve();
                 };
             });
         }
@@ -563,26 +562,26 @@ describe("fakeIndexedDB Tests", () => {
 
         function put() {
             /* Put `my_object` into the db. */
-            return new Promise(resolve => {
-                fakeIndexedDB.open("mydb").onsuccess = event => {
+            return new Promise((resolve) => {
+                fakeIndexedDB.open("mydb").onsuccess = (event) => {
                     const db: FDBDatabase = event.target.result;
                     const tx = db.transaction(["mystore"], "readwrite");
                     const store = tx.objectStore("mystore");
                     const addreq = store.add(my_object);
-                    addreq.onsuccess = _event => resolve("succ");
-                    addreq.onerror = _event => resolve("fail");
+                    addreq.onsuccess = (_event) => resolve("succ");
+                    addreq.onerror = (_event) => resolve("fail");
                 };
             });
         }
 
         function read() {
             /* Return list of all objects in the db */
-            return new Promise<any[]>(resolve => {
-                fakeIndexedDB.open("mydb").onsuccess = event => {
+            return new Promise<any[]>((resolve) => {
+                fakeIndexedDB.open("mydb").onsuccess = (event) => {
                     const db: FDBDatabase = event.target.result;
                     const tx = db.transaction(["mystore"], "readonly");
                     const store = tx.objectStore("mystore");
-                    store.getAll().onsuccess = event2 =>
+                    store.getAll().onsuccess = (event2) =>
                         resolve(event2.target.result);
                 };
             });
@@ -594,21 +593,20 @@ describe("fakeIndexedDB Tests", () => {
         assert.equal((await read()).length, 1); // previously returned [my_object, my_object] instead of just [my_object]
     });
 
-    it("FDBObjectStore.delete works with a key range (issue #53)", done => {
+    it("FDBObjectStore.delete works with a key range (issue #53)", (done) => {
         const openreq = fakeIndexedDB.open("test53");
-        openreq.onupgradeneeded = event => {
+        openreq.onupgradeneeded = (event) => {
             const db = event.target.result;
             const store = db.createObjectStore("items", { keyPath: "key" });
             store.put({ key: "foo.a", value: 1 });
             store.put({ key: "foo.b", value: 2 });
             store.put({ key: "bar.c", value: 3 });
         };
-        openreq.onsuccess = event => {
+        openreq.onsuccess = (event) => {
             const db = event.target.result;
-            db
-                .transaction("items")
-                .objectStore("items")
-                .count().onsuccess = (event2: any) => {
+            db.transaction("items").objectStore("items").count().onsuccess = (
+                event2: any,
+            ) => {
                 assert.equal(event2.target.result, 3);
                 const req = db
                     .transaction("items", "readwrite")
@@ -636,11 +634,11 @@ describe("fakeIndexedDB Tests", () => {
             return new Promise((resolve, reject) => {
                 fakeIndexedDB.deleteDatabase("test1").onsuccess = () => {
                     const openreq = fakeIndexedDB.open("test1");
-                    openreq.onupgradeneeded = event => {
+                    openreq.onupgradeneeded = (event) => {
                         const db: FDBDatabase = event.target.result;
                         db.createObjectStore("table1");
                     };
-                    openreq.onsuccess = event => {
+                    openreq.onsuccess = (event) => {
                         const db: FDBDatabase = event.target.result;
                         resolve(db);
                     };
@@ -658,7 +656,7 @@ describe("fakeIndexedDB Tests", () => {
                     resolve([]);
                 } else if (keys.length === 1) {
                     const req = store.get(keys[0]);
-                    req.onsuccess = event2 => resolve([event2.target.result]);
+                    req.onsuccess = (event2) => resolve([event2.target.result]);
                     req.onerror = () => resolve([undefined]);
                 } else {
                     reject(new Error("test bulkGet only handles one key"));
@@ -677,7 +675,7 @@ describe("fakeIndexedDB Tests", () => {
     });
 
     describe("Events", () => {
-        it("doesn't call listeners added during a callback for the event that triggered the callback", done => {
+        it("doesn't call listeners added during a callback for the event that triggered the callback", (done) => {
             const name = `test${Math.random()}`;
             let called = false;
             const dummy = () => {
@@ -695,7 +693,7 @@ describe("fakeIndexedDB Tests", () => {
             });
         });
 
-        it("doesn't get confused by removeEventListener during callbacks", done => {
+        it("doesn't get confused by removeEventListener during callbacks", (done) => {
             const name = `test${Math.random()}`;
             let called = false;
             const dummy = () => {
@@ -715,20 +713,20 @@ describe("fakeIndexedDB Tests", () => {
         });
     });
 
-    it("confirm openCursor works (issue #60)", done => {
+    it("confirm openCursor works (issue #60)", (done) => {
         const indexedDB = new FDBFactory();
 
         function idb(): Promise<FDBDatabase> {
             return new Promise((resolve, reject) => {
                 indexedDB.deleteDatabase("issue60").onsuccess = () => {
                     const openreq = indexedDB.open("issue60");
-                    openreq.onupgradeneeded = event => {
+                    openreq.onupgradeneeded = (event) => {
                         const db: FDBDatabase = event.target.result;
                         const albumStore = db.createObjectStore("album");
                         db.createObjectStore("photo");
                         albumStore.createIndex("albumId", "albumId");
                     };
-                    openreq.onsuccess = event => {
+                    openreq.onsuccess = (event) => {
                         const db: FDBDatabase = event.target.result;
                         resolve(db);
                     };
@@ -737,7 +735,7 @@ describe("fakeIndexedDB Tests", () => {
             });
         }
 
-        idb().then(db2 => {
+        idb().then((db2) => {
             const cursor = db2
                 .transaction(["album", "photo"], "readwrite")
                 .objectStore("album")
