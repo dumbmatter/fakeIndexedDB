@@ -83,6 +83,10 @@ import {
 } from "fake-indexeddb";
 ```
 
+### ECMAScript modules (`import`) vs CommonJS (`require`)
+
+Starting with version 4, fake-indexeddb uses ECMAScript modules rather than CommonJS. That means you need to `import` it, not `require` it. If that's a problem for you, stick to version 3 of fake-indexeddb, which supports `require("fake-indexeddb")`. Version 3 has basically all the same functionality as version 4, and I'll try to make any important bug fixes in both versions.
+
 ### With Dexie and other IndexedDB API wrappers
 
 If you import `fake-indexeddb/auto` before calling `new Dexie()`, it should work:

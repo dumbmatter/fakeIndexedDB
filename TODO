@@ -5,10 +5,13 @@ typescript types
 
 test in jest
 
+fix tests
+
 changelog
 - es modules only
 - named exports of IDB (not FDB) variables and indexedDB. no default export
 - drop old node support
+- deprecate default export, lib/ exports
 - typescript
 
 ---
