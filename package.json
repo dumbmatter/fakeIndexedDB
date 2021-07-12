@@ -21,7 +21,22 @@
         "shim"
     ],
     "type": "module",
-    "exports": "./build/index.js",
+    "exports": {
+        ".": "./build/index.js",
+        "./auto": "./auto.js",
+        "./lib/fakeIndexedDB": "./build/fakeIndexedDB.js",
+        "./lib/FDBCursor": "./build/FDBCursor.js",
+        "./lib/FDBCursorWithValue": "./build/FDBCursorWithValue.js",
+        "./lib/FDBDatabase": "./build/FDBDatabase.js",
+        "./lib/FDBFactory": "./build/FDBFactory.js",
+        "./lib/FDBIndex": "./build/FDBIndex.js",
+        "./lib/FDBKeyRange": "./build/FDBKeyRange.js",
+        "./lib/FDBObjectStore": "./build/FDBObjectStore.js",
+        "./lib/FDBOpenDBRequest": "./build/FDBOpenDBRequest.js",
+        "./lib/FDBRequest": "./build/FDBRequest.js",
+        "./lib/FDBTransaction": "./build/FDBTransaction.js",
+        "./lib/FDBVersionChangeEvent": "./build/FDBVersionChangeEvent.js"
+    },
     "engines": {
         "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
     },

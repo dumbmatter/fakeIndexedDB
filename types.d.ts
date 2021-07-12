@@ -11,6 +11,8 @@ declare const FDBRequest: typeof IDBRequest;
 declare const FDBTransaction: typeof IDBTransaction;
 declare const FDBVersionChangeEvent: typeof IDBVersionChangeEvent;
 
+export default fakeIndexedDB;
+
 export {
     fakeIndexedDB as indexedDB,
     FDBCursor as IDBCursor,

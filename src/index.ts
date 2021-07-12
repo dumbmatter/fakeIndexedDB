@@ -1,4 +1,6 @@
-export { default as indexedDB } from "./fakeIndexedDB.js";
+import fakeIndexedDB from "./fakeIndexedDB.js";
+export default fakeIndexedDB;
+export { fakeIndexedDB as indexedDB };
 export { default as IDBCursor } from "./FDBCursor.js";
 export { default as IDBCursorWithValue } from "./FDBCursorWithValue.js";
 export { default as IDBDatabase } from "./FDBDatabase.js";
