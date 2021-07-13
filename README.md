@@ -133,7 +133,7 @@ To use it on all Jest tests without having to require it in each file, add the a
 
 ### Wiping/resetting the indexedDB for a fresh state
 
-If you are keeping your tests completely isolated you might want to "reset" the state of the mocked indexedDB. You can do this by creating a new `fakeIndexedDB` instance, which lets you have a totally fresh start.
+If you are keeping your tests completely isolated you might want to "reset" the state of the mocked indexedDB. You can do this by creating a new instance of `IDBFactory`, which lets you have a totally fresh start.
 
 ```
 import "fake-indexeddb/auto";
