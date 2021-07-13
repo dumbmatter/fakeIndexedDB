@@ -1,7 +1,5 @@
 # v4
 
-fix tests
-
 changelog
 - es modules only
 - named exports of IDB (not FDB) variables and indexedDB. no default export
