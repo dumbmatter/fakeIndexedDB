@@ -87,7 +87,11 @@ import {
 
 Starting with version 4, fake-indexeddb uses ES modules rather than CommonJS. That means you need to `import` it, not `require` it. If that's a problem for you, stick to version 3 of fake-indexeddb, which supports `require("fake-indexeddb")`. Version 3 has basically all the same functionality as version 4, and I'll try to make any important bug fixes in both versions.
 
-### With Dexie and other IndexedDB API wrappers
+### TypeScript
+
+As of version 4, fake-indexeddb includes TypeScript types. As you can see in types.d.ts, it's just using TypeScript's built-in IndexedDB types, rather than generating types from the fake-indexeddb code base. The reason I did this is for compatibility with your application code that may already be using TypeScript's IndexedDB types, so if I used something different for fake-indexeddb, it could lead to spurious type errors. In theory this could lead to other errors if there are differences between Typescript's IndexedDB types and fake-indexeddb's API, but currently I'm not aware of any difference. See [issue #23](https://github.com/dumbmatter/fakeIndexedDB/issues/23) for more discussion.
+
+### Dexie and other IndexedDB API wrappers
 
 If you import `fake-indexeddb/auto` before calling `new Dexie()`, it should work:
 
@@ -109,7 +113,7 @@ import { indexedDB, IDBKeyRange } from "fake-indexeddb";
 const db = new Dexie("MyDatabase", { indexedDB: indexedDB, IDBKeyRange: IDBKeyRange });
 ```
 
-### With Jest
+### Jest
 
 Out of the box, Jest v27 only supports CommonJS, not ES modules, so [you'll have to do a little extra work to opt in to ES modules](https://jestjs.io/docs/ecmascript-modules). If you can't do that, you should switch to fake-indexeddb v3, see the above "ECMAScript modules" section for more info.
 
