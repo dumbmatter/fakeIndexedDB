@@ -115,7 +115,7 @@ const db = new Dexie("MyDatabase", { indexedDB: indexedDB, IDBKeyRange: IDBKeyRa
 
 ### Jest
 
-Out of the box, Jest v27 only supports CommonJS, not ES modules, so [you'll have to do a little extra work to opt in to ES modules](https://jestjs.io/docs/ecmascript-modules). If you can't do that, you should switch to fake-indexeddb v3, see the above "ECMAScript modules" section for more info.
+Out of the box, Jest v27 only supports CommonJS, not ES modules, so you'll have to do a little extra work to opt in to ES modules,  either [for all your test files](https://jestjs.io/docs/ecmascript-modules) or by configuring Jest to [transpile fake-indexeddb](https://stackoverflow.com/a/43197503/786644). If you can't do that, you should use fake-indexeddb v3, see the above "ECMAScript modules" section for more info.
 
 To use fake-indexeddb in a single Jest test suite, require `fake-indexeddb/auto` at the beginning of the test
 file, as described above.
