@@ -7,14 +7,14 @@
 - Since we're now using ES modules, I made all the IndexedDB objects into named exports. So you can do this:
 
    ```js
-   import { indexedDB, IDBKeyrange } from "fake-indexeddb";
+   import { indexedDB, IDBKeyRange } from "fake-indexeddb";
    ```
 
    rather than this:
 
    ```js
    import indexeddb from "fake-indexeddb";
-   import IDBKeyrange from "fake-indexeddb/lib/FDBKeyrange";
+   import IDBKeyRange from "fake-indexeddb/lib/FDBKeyrange";
    ```
 
    The latter syntax still works for backwards compatibility purposes, but it's not as nice.
