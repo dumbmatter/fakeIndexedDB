@@ -21,6 +21,7 @@
         "shim"
     ],
     "type": "module",
+    "main": "./build/index.js",
     "exports": {
         ".": "./build/index.js",
         "./auto": "./auto.js",
