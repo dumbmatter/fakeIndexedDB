@@ -48,7 +48,7 @@
         "lint": "tslint  'src/**/*.ts'",
         "prettier": "prettier --write *.json  'src/**/*.{js,ts}'",
         "test-mocha": "mocha --timeout 10000 build/test/fakeIndexedDB",
-        "build-qunit": "browserify src/test/indexedDBmock/exports-qunit-bundle.js -o build/test/indexedDBmock/exports-qunit-bundle.js -t [ babelify --plugins [ @babel/plugin-transform-modules-commonjs ] ] && cp src/test/indexedDBmock/index.html build/test/indexedDBmock/index.html",
+        "build-qunit": "browserify src/test/indexedDBmock/exports-qunit-bundle.js -o build/test/indexedDBmock/exports-qunit-bundle.js -t [ babelify --presets [ @babel/preset-env ] ] && cp src/test/indexedDBmock/index.html build/test/indexedDBmock/index.html",
         "test-qunit": "npm run build-qunit && node-qunit-phantomjs build/test/indexedDBmock/index.html",
         "test-w3c": "node src/test/web-platform-tests/run-all.js",
         "test": "npm run lint && npm run build && node test/test.js && npm run test-w3c && npm run test-mocha && npm run test-qunit",
@@ -69,7 +69,7 @@
     },
     "devDependencies": {
         "@babel/core": "^7.14.6",
-        "@babel/plugin-transform-modules-commonjs": "^7.14.5",
+        "@babel/preset-env": "^7.15.6",
         "@types/mocha": "^8.2.3",
         "@types/node": "^16.3.1",
         "babelify": "^10.0.0",

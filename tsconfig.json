@@ -2,8 +2,8 @@
     "compilerOptions": {
         "rootDir": "./src",
         "outDir": "./build",
-        "target": "es5",
-        "lib": ["dom", "es6"],
+        "target": "es2020",
+        "lib": ["dom", "es2020"],
         "module": "ES2020",
         "allowJs": true,
         "downlevelIteration": true,

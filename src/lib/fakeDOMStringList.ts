@@ -1,21 +1,24 @@
-import { FakeDOMStringList } from "./types.js";
+import { FakeDOMStringList as foo } from "./types.js";
 
-// Would be nicer to sublcass Array, but I'd have to sacrifice Node 4 support to do that.
+// Subclass Array to get nice behaviors like destructuring, but delete various Array methods that don't exist on DOMStringList https://github.com/dumbmatter/fakeIndexedDB/issues/66#issuecomment-922407403
 
-const fakeDOMStringList = (arr: string[]): FakeDOMStringList => {
-    const arr2 = arr.slice();
+class FakeDOMStringList extends Array<string> {
+    contains(value: string) {
+        for (const value2 of this) {
+            if (value === value2) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-    Object.defineProperty(arr2, "contains", {
-        // tslint:disable-next-line object-literal-shorthand
-        value: (value: string) => arr2.indexOf(value) >= 0,
-    });
+    item(i: number) {
+        return this[i];
+    }
+}
 
-    Object.defineProperty(arr2, "item", {
-        // tslint:disable-next-line object-literal-shorthand
-        value: (i: number) => arr2[i],
-    });
-
-    return arr2 as FakeDOMStringList;
+const fakeDOMStringList = (array: string[]): FakeDOMStringList => {
+    return new FakeDOMStringList(...array);
 };
 
 export default fakeDOMStringList;
