@@ -74,12 +74,12 @@ class FDBIndex {
             return;
         }
 
-        if (this.objectStore.indexNames.indexOf(name) >= 0) {
+        if (this.objectStore.indexNames.contains(name)) {
             throw new ConstraintError();
         }
 
         const oldName = this._name;
-        const oldIndexNames = this.objectStore.indexNames.slice();
+        const oldIndexNames = [...this.objectStore.indexNames];
 
         this._name = name;
         this._rawIndex.name = name;

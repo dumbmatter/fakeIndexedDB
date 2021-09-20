@@ -21,6 +21,8 @@
 
 - Also related to the ES modules change, support for old versions of Node.js is dropped. Specifically, the supported versions of Node.js are now `^12.20.0 || ^14.13.1 || >=16.0.0`, based on [this recommendation](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c).
 
+- #66 - Removed `Array` properties (like `includes`, `sort`, etc.) from the internal `FakeDOMStringList` class, which is used for parts of IndexedDB that return a `DOMStringList` which is a weird old thing that is kind of like an array but has many fewer properties. As described in #66, leaving that extra `Array` stuff led to the possibility your tests would pass but your application would crash. If you were relying on these non-standard properties in your tests but carefully not using them in your application code, this is a breaking change. This likely affects very few people.
+
 # 3.1.3 (2021-06-19)
 
 - #65 - Got rid of constructor.name usage, since minifying can break it.

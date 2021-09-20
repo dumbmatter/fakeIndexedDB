@@ -135,7 +135,7 @@ class FDBObjectStore {
         }
 
         const oldName = this._name;
-        const oldObjectStoreNames = transaction.db.objectStoreNames.slice();
+        const oldObjectStoreNames = [...transaction.db.objectStoreNames];
 
         this._name = name;
         this._rawObjectStore.name = name;
@@ -161,8 +161,9 @@ class FDBObjectStore {
         );
 
         const oldScope = new Set(transaction._scope);
-        const oldTransactionObjectStoreNames =
-            transaction.objectStoreNames.slice();
+        const oldTransactionObjectStoreNames = [
+            ...transaction.objectStoreNames,
+        ];
         this.transaction._scope.delete(oldName);
         transaction._scope.add(name);
         transaction.objectStoreNames = new FakeDOMStringList(
@@ -419,7 +420,7 @@ class FDBObjectStore {
 
         confirmActiveTransaction(this);
 
-        if (this.indexNames.indexOf(name) >= 0) {
+        if (this.indexNames.contains(name)) {
             throw new ConstraintError();
         }
 
@@ -436,7 +437,7 @@ class FDBObjectStore {
         // create and return an IDBIndex object. Instead the implementation must queue up an operation to abort the
         // "versionchange" transaction which was used for the createIndex call.
 
-        const indexNames = this.indexNames.slice();
+        const indexNames = [...this.indexNames];
         this.transaction._rollbackLog.push(() => {
             const index2 = this._rawObjectStore.rawIndexes.get(name);
             if (index2) {
@@ -454,8 +455,8 @@ class FDBObjectStore {
             multiEntry,
             unique,
         );
-        this.indexNames.push(name);
-        this.indexNames.sort();
+        this.indexNames._push(name);
+        this.indexNames._sort();
         this._rawObjectStore.rawIndexes.set(name, index);
 
         index.initialize(this.transaction); // This is async by design
@@ -482,7 +483,7 @@ class FDBObjectStore {
         }
 
         const rawIndex = this._rawObjectStore.rawIndexes.get(name);
-        if (this.indexNames.indexOf(name) < 0 || rawIndex === undefined) {
+        if (!this.indexNames.contains(name) || rawIndex === undefined) {
             throw new NotFoundError();
         }
 
@@ -511,12 +512,12 @@ class FDBObjectStore {
         this.transaction._rollbackLog.push(() => {
             rawIndex.deleted = false;
             this._rawObjectStore.rawIndexes.set(name, rawIndex);
-            this.indexNames.push(name);
-            this.indexNames.sort();
+            this.indexNames._push(name);
+            this.indexNames._sort();
         });
 
         this.indexNames = new FakeDOMStringList(
-            ...this.indexNames.filter((indexName) => {
+            ...Array.from(this.indexNames).filter((indexName) => {
                 return indexName !== name;
             }),
         );

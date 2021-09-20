@@ -4,6 +4,7 @@ import FDBCursorWithValue from "../../FDBCursorWithValue.js";
 import FDBDatabase from "../../FDBDatabase.js";
 import FDBFactory from "../../FDBFactory.js";
 import FDBKeyRange from "../../FDBKeyRange.js";
+import FakeDOMStringList from "../../lib/FakeDOMStringList.js";
 import { TransactionMode } from "../../lib/types.js";
 
 describe("fakeIndexedDB Tests", () => {
@@ -745,6 +746,35 @@ describe("fakeIndexedDB Tests", () => {
             cursor.onsuccess = () => {
                 done();
             };
+        });
+    });
+
+    describe("FakeDOMStringList", () => {
+        it("contains", () => {
+            const list = new FakeDOMStringList("a", "b", "c");
+            assert.strictEqual(list.contains("a"), true);
+            assert.strictEqual(list.contains("d"), false);
+        });
+
+        it("item", () => {
+            const list = new FakeDOMStringList("a", "b", "c");
+            assert.strictEqual(list.item(0), "a");
+            assert.strictEqual(list.item(1), "b");
+            assert.strictEqual(list.item(2), "c");
+            assert.strictEqual(list.item(3), null);
+            assert.strictEqual(list.item(10), null);
+            assert.strictEqual(list.item(-1), null);
+        });
+
+        it("does not include various Array properties", () => {
+            const list = new FakeDOMStringList("a", "b", "c");
+            const array = ["a", "b", "c"];
+
+            assert.strictEqual(FakeDOMStringList.from, undefined);
+            assert.deepStrictEqual(Array.from(array), array);
+
+            assert.strictEqual(list.includes, undefined);
+            assert.strictEqual(array.includes("b"), true);
         });
     });
 });

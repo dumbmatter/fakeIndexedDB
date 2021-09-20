@@ -113,7 +113,7 @@ class FDBDatabase extends FakeEventTarget {
             throw new InvalidAccessError();
         }
 
-        const objectStoreNames = this.objectStoreNames.slice();
+        const objectStoreNames = [...this.objectStoreNames];
         transaction._rollbackLog.push(() => {
             const objectStore = this._rawDatabase.rawObjectStores.get(name);
             if (objectStore) {
@@ -131,8 +131,8 @@ class FDBDatabase extends FakeEventTarget {
             keyPath,
             autoIncrement,
         );
-        this.objectStoreNames.push(name);
-        this.objectStoreNames.sort();
+        this.objectStoreNames._push(name);
+        this.objectStoreNames._sort();
         transaction._scope.add(name);
         this._rawDatabase.rawObjectStores.set(name, rawObjectStore);
         transaction.objectStoreNames = new FakeDOMStringList(
@@ -153,7 +153,7 @@ class FDBDatabase extends FakeEventTarget {
         }
 
         this.objectStoreNames = new FakeDOMStringList(
-            ...this.objectStoreNames.filter((objectStoreName) => {
+            ...Array.from(this.objectStoreNames).filter((objectStoreName) => {
                 return objectStoreName !== name;
             }),
         );
@@ -164,8 +164,8 @@ class FDBDatabase extends FakeEventTarget {
         transaction._rollbackLog.push(() => {
             store.deleted = false;
             this._rawDatabase.rawObjectStores.set(name, store);
-            this.objectStoreNames.push(name);
-            this.objectStoreNames.sort();
+            this.objectStoreNames._push(name);
+            this.objectStoreNames._sort();
         });
 
         store.deleted = true;
@@ -207,7 +207,7 @@ class FDBDatabase extends FakeEventTarget {
             throw new InvalidAccessError();
         }
         for (const storeName of storeNames) {
-            if (this.objectStoreNames.indexOf(storeName) < 0) {
+            if (!this.objectStoreNames.contains(storeName)) {
                 throw new NotFoundError(
                     "No objectStore named " + storeName + " in this database",
                 );
