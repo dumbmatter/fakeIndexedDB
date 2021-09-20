@@ -9,7 +9,7 @@ import {
     InvalidStateError,
     TransactionInactiveError,
 } from "./lib/errors.js";
-import fakeDOMStringList from "./lib/fakeDOMStringList.js";
+import FakeDOMStringList from "./lib/FakeDOMStringList.js";
 import Index from "./lib/Index.js";
 import { FDBCursorDirection, Key, KeyPath } from "./lib/types.js";
 import valueToKey from "./lib/valueToKey.js";
@@ -87,15 +87,17 @@ class FDBIndex {
         this.objectStore._indexesCache.set(name, this);
         this.objectStore._rawObjectStore.rawIndexes.delete(oldName);
         this.objectStore._rawObjectStore.rawIndexes.set(name, this._rawIndex);
-        this.objectStore.indexNames = fakeDOMStringList(
-            Array.from(
-                this.objectStore._rawObjectStore.rawIndexes.keys(),
-            ).filter((indexName) => {
-                const index =
-                    this.objectStore._rawObjectStore.rawIndexes.get(indexName);
-                return index && !index.deleted;
-            }),
-        ).sort();
+        this.objectStore.indexNames = new FakeDOMStringList(
+            ...Array.from(this.objectStore._rawObjectStore.rawIndexes.keys())
+                .filter((indexName) => {
+                    const index =
+                        this.objectStore._rawObjectStore.rawIndexes.get(
+                            indexName,
+                        );
+                    return index && !index.deleted;
+                })
+                .sort(),
+        );
 
         transaction._rollbackLog.push(() => {
             this._name = oldName;
@@ -107,7 +109,9 @@ class FDBIndex {
                 oldName,
                 this._rawIndex,
             );
-            this.objectStore.indexNames = fakeDOMStringList(oldIndexNames);
+            this.objectStore.indexNames = new FakeDOMStringList(
+                ...oldIndexNames,
+            );
         });
     }
 

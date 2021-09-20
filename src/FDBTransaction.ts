@@ -7,12 +7,11 @@ import {
     NotFoundError,
     TransactionInactiveError,
 } from "./lib/errors.js";
-import fakeDOMStringList from "./lib/fakeDOMStringList.js";
+import FakeDOMStringList from "./lib/FakeDOMStringList.js";
 import FakeEvent from "./lib/FakeEvent.js";
 import FakeEventTarget from "./lib/FakeEventTarget.js";
 import {
     EventCallback,
-    FakeDOMStringList,
     RequestObj,
     RollbackLog,
     TransactionMode,
@@ -45,8 +44,8 @@ class FDBTransaction extends FakeEventTarget {
         this._scope = new Set(storeNames);
         this.mode = mode;
         this.db = db;
-        this.objectStoreNames = fakeDOMStringList(
-            Array.from(this._scope).sort(),
+        this.objectStoreNames = new FakeDOMStringList(
+            ...Array.from(this._scope).sort(),
         );
     }
 

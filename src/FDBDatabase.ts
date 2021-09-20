@@ -7,10 +7,10 @@ import {
     NotFoundError,
     TransactionInactiveError,
 } from "./lib/errors.js";
-import fakeDOMStringList from "./lib/fakeDOMStringList.js";
+import FakeDOMStringList from "./lib/FakeDOMStringList.js";
 import FakeEventTarget from "./lib/FakeEventTarget.js";
 import ObjectStore from "./lib/ObjectStore.js";
-import { FakeDOMStringList, KeyPath, TransactionMode } from "./lib/types.js";
+import { KeyPath, TransactionMode } from "./lib/types.js";
 import validateKeyPath from "./lib/validateKeyPath.js";
 
 const confirmActiveVersionchangeTransaction = (database: FDBDatabase) => {
@@ -77,9 +77,9 @@ class FDBDatabase extends FakeEventTarget {
 
         this.name = rawDatabase.name;
         this.version = rawDatabase.version;
-        this.objectStoreNames = fakeDOMStringList(
-            Array.from(rawDatabase.rawObjectStores.keys()),
-        ).sort();
+        this.objectStoreNames = new FakeDOMStringList(
+            ...Array.from(rawDatabase.rawObjectStores.keys()).sort(),
+        );
     }
 
     // http://w3c.github.io/IndexedDB/#dom-idbdatabase-createobjectstore
@@ -120,7 +120,7 @@ class FDBDatabase extends FakeEventTarget {
                 objectStore.deleted = true;
             }
 
-            this.objectStoreNames = fakeDOMStringList(objectStoreNames);
+            this.objectStoreNames = new FakeDOMStringList(...objectStoreNames);
             transaction._scope.delete(name);
             this._rawDatabase.rawObjectStores.delete(name);
         });
@@ -135,8 +135,8 @@ class FDBDatabase extends FakeEventTarget {
         this.objectStoreNames.sort();
         transaction._scope.add(name);
         this._rawDatabase.rawObjectStores.set(name, rawObjectStore);
-        transaction.objectStoreNames = fakeDOMStringList(
-            this.objectStoreNames.slice(),
+        transaction.objectStoreNames = new FakeDOMStringList(
+            ...this.objectStoreNames,
         );
         return transaction.objectStore(name);
     }
@@ -152,13 +152,13 @@ class FDBDatabase extends FakeEventTarget {
             throw new NotFoundError();
         }
 
-        this.objectStoreNames = fakeDOMStringList(
-            this.objectStoreNames.filter((objectStoreName) => {
+        this.objectStoreNames = new FakeDOMStringList(
+            ...this.objectStoreNames.filter((objectStoreName) => {
                 return objectStoreName !== name;
             }),
         );
-        transaction.objectStoreNames = fakeDOMStringList(
-            this.objectStoreNames.slice(),
+        transaction.objectStoreNames = new FakeDOMStringList(
+            ...this.objectStoreNames,
         );
 
         transaction._rollbackLog.push(() => {

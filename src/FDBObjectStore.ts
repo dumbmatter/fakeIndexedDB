@@ -16,17 +16,11 @@ import {
     TransactionInactiveError,
 } from "./lib/errors.js";
 import extractKey from "./lib/extractKey.js";
-import fakeDOMStringList from "./lib/fakeDOMStringList.js";
+import FakeDOMStringList from "./lib/FakeDOMStringList.js";
 import Index from "./lib/Index.js";
 import ObjectStore from "./lib/ObjectStore.js";
 import structuredClone from "./lib/structuredClone.js";
-import {
-    FakeDOMStringList,
-    FDBCursorDirection,
-    Key,
-    KeyPath,
-    Value,
-} from "./lib/types.js";
+import { FDBCursorDirection, Key, KeyPath, Value } from "./lib/types.js";
 import validateKeyPath from "./lib/validateKeyPath.js";
 import valueToKey from "./lib/valueToKey.js";
 import valueToKeyRange from "./lib/valueToKeyRange.js";
@@ -111,9 +105,9 @@ class FDBObjectStore {
         this.keyPath = rawObjectStore.keyPath;
         this.autoIncrement = rawObjectStore.autoIncrement;
         this.transaction = transaction;
-        this.indexNames = fakeDOMStringList(
-            Array.from(rawObjectStore.rawIndexes.keys()),
-        ).sort();
+        this.indexNames = new FakeDOMStringList(
+            ...Array.from(rawObjectStore.rawIndexes.keys()).sort(),
+        );
     }
 
     get name() {
@@ -152,25 +146,27 @@ class FDBObjectStore {
             name,
             this._rawObjectStore,
         );
-        transaction.db.objectStoreNames = fakeDOMStringList(
-            Array.from(
+        transaction.db.objectStoreNames = new FakeDOMStringList(
+            ...Array.from(
                 this._rawObjectStore.rawDatabase.rawObjectStores.keys(),
-            ).filter((objectStoreName) => {
-                const objectStore =
-                    this._rawObjectStore.rawDatabase.rawObjectStores.get(
-                        objectStoreName,
-                    );
-                return objectStore && !objectStore.deleted;
-            }),
-        ).sort();
+            )
+                .filter((objectStoreName) => {
+                    const objectStore =
+                        this._rawObjectStore.rawDatabase.rawObjectStores.get(
+                            objectStoreName,
+                        );
+                    return objectStore && !objectStore.deleted;
+                })
+                .sort(),
+        );
 
         const oldScope = new Set(transaction._scope);
         const oldTransactionObjectStoreNames =
             transaction.objectStoreNames.slice();
         this.transaction._scope.delete(oldName);
         transaction._scope.add(name);
-        transaction.objectStoreNames = fakeDOMStringList(
-            Array.from(transaction._scope).sort(),
+        transaction.objectStoreNames = new FakeDOMStringList(
+            ...Array.from(transaction._scope).sort(),
         );
 
         transaction._rollbackLog.push(() => {
@@ -183,12 +179,13 @@ class FDBObjectStore {
                 oldName,
                 this._rawObjectStore,
             );
-            transaction.db.objectStoreNames =
-                fakeDOMStringList(oldObjectStoreNames);
+            transaction.db.objectStoreNames = new FakeDOMStringList(
+                ...oldObjectStoreNames,
+            );
 
             transaction._scope = oldScope;
-            transaction.objectStoreNames = fakeDOMStringList(
-                oldTransactionObjectStoreNames,
+            transaction.objectStoreNames = new FakeDOMStringList(
+                ...oldTransactionObjectStoreNames,
             );
         });
     }
@@ -446,7 +443,7 @@ class FDBObjectStore {
                 index2.deleted = true;
             }
 
-            this.indexNames = fakeDOMStringList(indexNames);
+            this.indexNames = new FakeDOMStringList(...indexNames);
             this._rawObjectStore.rawIndexes.delete(name);
         });
 
@@ -518,8 +515,8 @@ class FDBObjectStore {
             this.indexNames.sort();
         });
 
-        this.indexNames = fakeDOMStringList(
-            this.indexNames.filter((indexName) => {
+        this.indexNames = new FakeDOMStringList(
+            ...this.indexNames.filter((indexName) => {
                 return indexName !== name;
             }),
         );

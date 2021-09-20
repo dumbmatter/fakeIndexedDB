@@ -21,11 +21,6 @@ export type EventType =
     | "upgradeneeded"
     | "versionchange";
 
-export interface FakeDOMStringList extends Array<string> {
-    contains: (value: string) => boolean;
-    item: (i: number) => string | undefined;
-}
-
 export type FDBCursorDirection = "next" | "nextunique" | "prev" | "prevunique";
 
 export type KeyPath = string | string[];
