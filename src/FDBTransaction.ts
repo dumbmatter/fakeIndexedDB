@@ -10,6 +10,7 @@ import {
 import fakeDOMStringList from "./lib/fakeDOMStringList";
 import FakeEvent from "./lib/FakeEvent";
 import FakeEventTarget from "./lib/FakeEventTarget";
+import { nextMacroTask } from "./lib/nextMacroTask";
 import {
     EventCallback,
     FakeDOMStringList,
@@ -80,7 +81,7 @@ class FDBTransaction extends FakeEventTarget {
             }
         }
 
-        setImmediate(() => {
+        nextMacroTask(() => {
             const event = new FakeEvent("abort", {
                 bubbles: true,
                 cancelable: false,
@@ -228,7 +229,7 @@ class FDBTransaction extends FakeEventTarget {
             }
 
             // Give it another chance for new handlers to be set before finishing
-            setImmediate(this._start.bind(this));
+            nextMacroTask(this._start.bind(this));
             return;
         }
 

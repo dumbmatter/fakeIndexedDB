@@ -1,4 +1,3 @@
-import "setimmediate";
 import FDBDatabase from "./FDBDatabase";
 import FDBOpenDBRequest from "./FDBOpenDBRequest";
 import FDBVersionChangeEvent from "./FDBVersionChangeEvent";
@@ -7,6 +6,7 @@ import Database from "./lib/Database";
 import enforceRange from "./lib/enforceRange";
 import { AbortError, VersionError } from "./lib/errors";
 import FakeEvent from "./lib/FakeEvent";
+import { nextMacroTask } from "./lib/nextMacroTask";
 
 const waitForOthersClosedDelete = (
     databases: Map<string, Database>,
@@ -19,7 +19,7 @@ const waitForOthersClosedDelete = (
     });
 
     if (anyOpen) {
-        setImmediate(() =>
+        nextMacroTask(() =>
             waitForOthersClosedDelete(databases, name, openDatabases, cb),
         );
         return;
@@ -123,7 +123,7 @@ const runVersionchangeTransaction = (
         });
 
         if (anyOpen2) {
-            setImmediate(waitForOthersClosed);
+            nextMacroTask(waitForOthersClosed);
             return;
         }
 
@@ -160,7 +160,7 @@ const runVersionchangeTransaction = (
         transaction.addEventListener("abort", () => {
             connection._runningVersionchangeTransaction = false;
             request.transaction = null;
-            setImmediate(() => {
+            nextMacroTask(() => {
                 cb(new AbortError());
             });
         });
@@ -168,7 +168,7 @@ const runVersionchangeTransaction = (
             connection._runningVersionchangeTransaction = false;
             request.transaction = null;
             // Let other complete event handlers run before continuing
-            setImmediate(() => {
+            nextMacroTask(() => {
                 if (connection._closePending) {
                     cb(new AbortError());
                 } else {
@@ -229,7 +229,7 @@ class FDBFactory {
         const request = new FDBOpenDBRequest();
         request.source = null;
 
-        setImmediate(() => {
+        nextMacroTask(() => {
             const db = this._databases.get(name);
             const oldVersion = db !== undefined ? db.version : 0;
 
@@ -278,7 +278,7 @@ class FDBFactory {
         const request = new FDBOpenDBRequest();
         request.source = null;
 
-        setImmediate(() => {
+        nextMacroTask(() => {
             openDatabase(
                 this._databases,
                 name,

@@ -1,5 +1,6 @@
 import FDBDatabase from "../FDBDatabase";
 import FDBTransaction from "../FDBTransaction";
+import { nextMacroTask } from "./nextMacroTask";
 import ObjectStore from "./ObjectStore";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-database
@@ -20,7 +21,7 @@ class Database {
     }
 
     public processTransactions() {
-        setImmediate(() => {
+        nextMacroTask(() => {
             const anyRunning = this.transactions.some(transaction => {
                 return (
                     transaction._started && transaction._state !== "finished"

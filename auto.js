@@ -33,3 +33,7 @@ globalVar.IDBOpenDBRequest = FDBOpenDBRequest;
 globalVar.IDBRequest = FDBRequest;
 globalVar.IDBTransaction = FDBTransaction;
 globalVar.IDBVersionChangeEvent = FDBVersionChangeEvent;
+
+module.exports = {
+    setNextMacroTask: require("./build/lib/nextMacroTask").setNextMacroTask,
+};

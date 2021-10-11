@@ -9,6 +9,7 @@ import {
 } from "./lib/errors";
 import fakeDOMStringList from "./lib/fakeDOMStringList";
 import FakeEventTarget from "./lib/FakeEventTarget";
+import { nextMacroTask } from "./lib/nextMacroTask";
 import ObjectStore from "./lib/ObjectStore";
 import { FakeDOMStringList, KeyPath, TransactionMode } from "./lib/types";
 import validateKeyPath from "./lib/validateKeyPath";
@@ -53,7 +54,7 @@ const closeConnection = (connection: FDBDatabase) => {
             },
         );
     } else {
-        setImmediate(() => {
+        nextMacroTask(() => {
             closeConnection(connection);
         });
     }

@@ -1,3 +1,4 @@
 import fakeIndexedDB from "./fakeIndexedDB";
 
-module.exports = fakeIndexedDB;
+export default fakeIndexedDB;
+export { setNextMacroTask } from "./lib/nextMacroTask";
