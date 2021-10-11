@@ -20,7 +20,7 @@ class Database {
     }
 
     public processTransactions() {
-        setImmediate(() => {
+        setTimeout(() => {
             const anyRunning = this.transactions.some(transaction => {
                 return (
                     transaction._started && transaction._state !== "finished"

@@ -40,8 +40,7 @@
         "lib"
     ],
     "dependencies": {
-        "realistic-structured-clone": "^2.0.1",
-        "setimmediate": "^1.0.5"
+        "realistic-structured-clone": "^2.0.1"
     },
     "devDependencies": {
         "@types/mocha": "^5.2.7",

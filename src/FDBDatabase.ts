@@ -53,7 +53,7 @@ const closeConnection = (connection: FDBDatabase) => {
             },
         );
     } else {
-        setImmediate(() => {
+        setTimeout(() => {
             closeConnection(connection);
         });
     }
