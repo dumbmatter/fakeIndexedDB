@@ -1,4 +1,3 @@
-import "setimmediate";
 import FDBDatabase from "./FDBDatabase.js";
 import FDBOpenDBRequest from "./FDBOpenDBRequest.js";
 import FDBVersionChangeEvent from "./FDBVersionChangeEvent.js";
@@ -19,7 +18,7 @@ const waitForOthersClosedDelete = (
     });
 
     if (anyOpen) {
-        setImmediate(() =>
+        setTimeout(() =>
             waitForOthersClosedDelete(databases, name, openDatabases, cb),
         );
         return;
@@ -123,7 +122,7 @@ const runVersionchangeTransaction = (
         });
 
         if (anyOpen2) {
-            setImmediate(waitForOthersClosed);
+            setTimeout(waitForOthersClosed);
             return;
         }
 
@@ -160,7 +159,7 @@ const runVersionchangeTransaction = (
         transaction.addEventListener("abort", () => {
             connection._runningVersionchangeTransaction = false;
             request.transaction = null;
-            setImmediate(() => {
+            setTimeout(() => {
                 cb(new AbortError());
             });
         });
@@ -168,7 +167,7 @@ const runVersionchangeTransaction = (
             connection._runningVersionchangeTransaction = false;
             request.transaction = null;
             // Let other complete event handlers run before continuing
-            setImmediate(() => {
+            setTimeout(() => {
                 if (connection._closePending) {
                     cb(new AbortError());
                 } else {
@@ -229,7 +228,7 @@ class FDBFactory {
         const request = new FDBOpenDBRequest();
         request.source = null;
 
-        setImmediate(() => {
+        setTimeout(() => {
             const db = this._databases.get(name);
             const oldVersion = db !== undefined ? db.version : 0;
 
@@ -278,7 +277,7 @@ class FDBFactory {
         const request = new FDBOpenDBRequest();
         request.source = null;
 
-        setImmediate(() => {
+        setTimeout(() => {
             openDatabase(
                 this._databases,
                 name,

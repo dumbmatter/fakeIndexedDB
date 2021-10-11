@@ -79,7 +79,7 @@ class FDBTransaction extends FakeEventTarget {
             }
         }
 
-        setImmediate(() => {
+        setTimeout(() => {
             const event = new FakeEvent("abort", {
                 bubbles: true,
                 cancelable: false,
@@ -227,7 +227,7 @@ class FDBTransaction extends FakeEventTarget {
             }
 
             // Give it another chance for new handlers to be set before finishing
-            setImmediate(this._start.bind(this));
+            setTimeout(this._start.bind(this));
             return;
         }
 
