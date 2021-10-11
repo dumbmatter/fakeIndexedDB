@@ -1,3 +1,7 @@
+# 3.1.4 (2021-10-11)
+
+- #67 - Fixed compatibility with jsdom by replacing all uses of `setImmedaite` with `setTimeout`.
+
 # 3.1.3 (2021-06-19)
 
 - #65 - Got rid of constructor.name usage, since minifying can break it.
