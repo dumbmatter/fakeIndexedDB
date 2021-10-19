@@ -19,7 +19,8 @@ function getSetImmediateFromJsdom() {
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
 // Remove this after dropping Node 8 support
-var getGlobal = function () {
+// tslint:disable-next-line
+const getGlobal = function () {
     if (typeof globalThis !== 'undefined') { return globalThis; }
     if (typeof global !== 'undefined') { return global; }
     if (typeof self !== 'undefined') { return self; }
@@ -27,7 +28,7 @@ var getGlobal = function () {
     throw new Error('unable to locate global object');
 };
 
-var globals = getGlobal();
+const globals = getGlobal();
 
 // Schedules a task to run later.  Use Node.js's setImmediate if available and
 // setTimeout otherwise.  Note that options like process.nextTick or
