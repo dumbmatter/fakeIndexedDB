@@ -23,6 +23,10 @@
 
 - #66 - Removed `Array` properties (like `includes`, `sort`, etc.) from the internal `FakeDOMStringList` class, which is used for parts of IndexedDB that return a `DOMStringList` which is a weird old thing that is kind of like an array but has many fewer properties. As described in #66, leaving that extra `Array` stuff led to the possibility your tests would pass but your application would crash. If you were relying on these non-standard properties in your tests but carefully not using them in your application code, this is a breaking change. This likely affects very few people.
 
+# 3.1.7 (2021-10-19)
+
+- #71 - Fixed an error when used with jest/jsdom introduced in version 3.1.6.
+
 # 3.1.6 (2021-10-19)
 
 - #70 - Fixed performance regression in the previous version. Thank you @joshkel for figuring this out!

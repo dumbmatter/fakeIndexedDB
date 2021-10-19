@@ -24,6 +24,6 @@ function getSetImmediateFromJsdom() {
 // tick queue and microtask queue run within the current event loop macrotask,
 // so they'd process database operations too quickly.
 export const queueTask: (fn: () => void) => void =
-    setImmediate ||
+    globalThis.setImmediate ||
     getSetImmediateFromJsdom() ||
     ((fn: () => void) => setTimeout(fn, 0));
