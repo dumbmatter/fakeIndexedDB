@@ -229,7 +229,9 @@ class FDBFactory {
         const request = new FDBOpenDBRequest();
         request.source = null;
 
-        queueTask(() => {
+        // In order for delete requests to be processed in the proper order (see
+        // delete-request-queue.js), this must wait until the next event loop.
+        queueTaskForNextEventLoop(() => {
             const db = this._databases.get(name);
             const oldVersion = db !== undefined ? db.version : 0;
 
@@ -278,7 +280,10 @@ class FDBFactory {
         const request = new FDBOpenDBRequest();
         request.source = null;
 
-        queueTask(() => {
+        // Since deletion has to happen at next event loop (see deleteDatabase),
+        // opening has to happen at next event loop for
+        // idbfactory-open-error-properties.js to pass.
+        queueTaskForNextEventLoop(() => {
             openDatabase(
                 this._databases,
                 name,
