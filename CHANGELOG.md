@@ -1,4 +1,4 @@
-# 3.1.5 (2021-10-19)
+# 3.1.6 (2021-10-19)
 
 - #70 - Fixed performance regression in the previous version. Thank you @joshkel for figuring this out!
 
