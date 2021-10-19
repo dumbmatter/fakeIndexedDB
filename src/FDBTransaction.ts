@@ -10,6 +10,7 @@ import {
 import FakeDOMStringList from "./lib/FakeDOMStringList.js";
 import FakeEvent from "./lib/FakeEvent.js";
 import FakeEventTarget from "./lib/FakeEventTarget.js";
+import { queueTask } from "./lib/scheduling.js";
 import {
     EventCallback,
     RequestObj,
@@ -79,7 +80,7 @@ class FDBTransaction extends FakeEventTarget {
             }
         }
 
-        setTimeout(() => {
+        queueTask(() => {
             const event = new FakeEvent("abort", {
                 bubbles: true,
                 cancelable: false,
@@ -227,7 +228,7 @@ class FDBTransaction extends FakeEventTarget {
             }
 
             // Give it another chance for new handlers to be set before finishing
-            setTimeout(this._start.bind(this));
+            queueTask(this._start.bind(this));
             return;
         }
 

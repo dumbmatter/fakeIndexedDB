@@ -6,6 +6,7 @@ import Database from "./lib/Database.js";
 import enforceRange from "./lib/enforceRange.js";
 import { AbortError, VersionError } from "./lib/errors.js";
 import FakeEvent from "./lib/FakeEvent.js";
+import { queueTask } from "./lib/scheduling.js";
 
 const waitForOthersClosedDelete = (
     databases: Map<string, Database>,
@@ -18,7 +19,7 @@ const waitForOthersClosedDelete = (
     });
 
     if (anyOpen) {
-        setTimeout(() =>
+        queueTask(() =>
             waitForOthersClosedDelete(databases, name, openDatabases, cb),
         );
         return;
@@ -122,7 +123,7 @@ const runVersionchangeTransaction = (
         });
 
         if (anyOpen2) {
-            setTimeout(waitForOthersClosed);
+            queueTask(waitForOthersClosed);
             return;
         }
 
@@ -159,7 +160,7 @@ const runVersionchangeTransaction = (
         transaction.addEventListener("abort", () => {
             connection._runningVersionchangeTransaction = false;
             request.transaction = null;
-            setTimeout(() => {
+            queueTask(() => {
                 cb(new AbortError());
             });
         });
@@ -167,7 +168,7 @@ const runVersionchangeTransaction = (
             connection._runningVersionchangeTransaction = false;
             request.transaction = null;
             // Let other complete event handlers run before continuing
-            setTimeout(() => {
+            queueTask(() => {
                 if (connection._closePending) {
                     cb(new AbortError());
                 } else {
@@ -228,7 +229,7 @@ class FDBFactory {
         const request = new FDBOpenDBRequest();
         request.source = null;
 
-        setTimeout(() => {
+        queueTask(() => {
             const db = this._databases.get(name);
             const oldVersion = db !== undefined ? db.version : 0;
 
@@ -277,7 +278,7 @@ class FDBFactory {
         const request = new FDBOpenDBRequest();
         request.source = null;
 
-        setTimeout(() => {
+        queueTask(() => {
             openDatabase(
                 this._databases,
                 name,
