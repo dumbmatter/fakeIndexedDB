@@ -54,7 +54,6 @@ const closeConnection = (connection: FDBDatabase) => {
             },
         );
     } else {
-        // Wait for the next event loop to give transactions time to finish.
         queueTask(() => {
             closeConnection(connection);
         });
