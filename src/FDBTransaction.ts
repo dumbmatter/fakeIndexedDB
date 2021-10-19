@@ -10,6 +10,7 @@ import {
 import fakeDOMStringList from "./lib/fakeDOMStringList";
 import FakeEvent from "./lib/FakeEvent";
 import FakeEventTarget from "./lib/FakeEventTarget";
+import { queueTask } from "./lib/scheduling";
 import {
     EventCallback,
     FakeDOMStringList,
@@ -80,7 +81,7 @@ class FDBTransaction extends FakeEventTarget {
             }
         }
 
-        setTimeout(() => {
+        queueTask(() => {
             const event = new FakeEvent("abort", {
                 bubbles: true,
                 cancelable: false,
@@ -228,13 +229,12 @@ class FDBTransaction extends FakeEventTarget {
             }
 
             // Give it another chance for new handlers to be set before finishing
-            setTimeout(this._start.bind(this));
+            queueTask(this._start.bind(this));
             return;
         }
 
         // Check if transaction complete event needs to be fired
         if (this._state !== "finished") {
-            // Either aborted or committed already
             this._state = "finished";
 
             if (!this.error) {

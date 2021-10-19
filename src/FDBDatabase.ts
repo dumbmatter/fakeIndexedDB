@@ -10,6 +10,7 @@ import {
 import fakeDOMStringList from "./lib/fakeDOMStringList";
 import FakeEventTarget from "./lib/FakeEventTarget";
 import ObjectStore from "./lib/ObjectStore";
+import { queueTask } from "./lib/scheduling";
 import { FakeDOMStringList, KeyPath, TransactionMode } from "./lib/types";
 import validateKeyPath from "./lib/validateKeyPath";
 
@@ -53,7 +54,7 @@ const closeConnection = (connection: FDBDatabase) => {
             },
         );
     } else {
-        setTimeout(() => {
+        queueTask(() => {
             closeConnection(connection);
         });
     }
