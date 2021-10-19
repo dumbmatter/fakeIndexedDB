@@ -1,6 +1,6 @@
 # 3.1.7 (2021-10-19)
 
-- #71 - Fixed an error in jest/jsdom introduced in version 3.1.6.
+- #71 - Fixed an error when used with jest/jsdom introduced in version 3.1.6.
 
 # 3.1.6 (2021-10-19)
 
