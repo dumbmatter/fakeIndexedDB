@@ -1,3 +1,7 @@
+# 3.1.5 (2021-10-19)
+
+- #70 - Fixed performance regression in the previous version. Thank you @joshkel for figuring this out!
+
 # 3.1.4 (2021-10-11)
 
 - #67 - Fixed compatibility with jsdom by replacing all uses of `setImmedaite` with `setTimeout`.
