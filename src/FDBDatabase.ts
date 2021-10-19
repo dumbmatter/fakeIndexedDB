@@ -10,6 +10,7 @@ import {
 import fakeDOMStringList from "./lib/fakeDOMStringList";
 import FakeEventTarget from "./lib/FakeEventTarget";
 import ObjectStore from "./lib/ObjectStore";
+import { queueTask, queueTaskForNextEventLoop } from "./lib/scheduling";
 import { FakeDOMStringList, KeyPath, TransactionMode } from "./lib/types";
 import validateKeyPath from "./lib/validateKeyPath";
 
@@ -53,7 +54,8 @@ const closeConnection = (connection: FDBDatabase) => {
             },
         );
     } else {
-        setTimeout(() => {
+        // Wait for the next event loop to give transactions time to finish.
+        queueTaskForNextEventLoop(() => {
             closeConnection(connection);
         });
     }

@@ -1,6 +1,7 @@
 import FDBDatabase from "../FDBDatabase";
 import FDBTransaction from "../FDBTransaction";
 import ObjectStore from "./ObjectStore";
+import { queueTask } from "./scheduling";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-database
 class Database {
@@ -20,7 +21,7 @@ class Database {
     }
 
     public processTransactions() {
-        setTimeout(() => {
+        queueTask(() => {
             const anyRunning = this.transactions.some(transaction => {
                 return (
                     transaction._started && transaction._state !== "finished"
