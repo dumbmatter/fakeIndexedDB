@@ -1,3 +1,7 @@
+# 3.1.7 (2021-10-19)
+
+- #71 - Fixed an error in jest/jsdom introduced in version 3.1.6.
+
 # 3.1.6 (2021-10-19)
 
 - #70 - Fixed performance regression in the previous version. Thank you @joshkel for figuring this out!

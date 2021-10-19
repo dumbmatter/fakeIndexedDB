@@ -17,6 +17,18 @@ function getSetImmediateFromJsdom() {
     }
 }
 
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+// Remove this after dropping Node 8 support
+var getGlobal = function () {
+    if (typeof globalThis !== 'undefined') { return globalThis; }
+    if (typeof global !== 'undefined') { return global; }
+    if (typeof self !== 'undefined') { return self; }
+    if (typeof window !== 'undefined') { return window; }
+    throw new Error('unable to locate global object');
+};
+
+var globals = getGlobal();
+
 // Schedules a task to run later.  Use Node.js's setImmediate if available and
 // setTimeout otherwise.  Note that options like process.nextTick or
 // queueMicrotask will likely not work: IndexedDB semantics require that
@@ -24,6 +36,6 @@ function getSetImmediateFromJsdom() {
 // tick queue and microtask queue run within the current event loop macrotask,
 // so they'd process database operations too quickly.
 export const queueTask: (fn: () => void) => void =
-    setImmediate ||
+    globals.setImmediate ||
     getSetImmediateFromJsdom() ||
     ((fn: () => void) => setTimeout(fn, 0));
