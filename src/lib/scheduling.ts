@@ -1,11 +1,13 @@
-export function queueTask(fn: () => void) {
-    queueMicrotask(fn);
-}
-
-export function queueTaskForNextEventLoop(fn: () => void) {
-    if ("setImmediate" in globalThis) {
-        (globalThis as any).setImmediate(fn);
+function getSetImmediateFromJsdom() {
+    if (typeof navigator !== "undefined" && /jsdom/.test(navigator.userAgent)) {
+        const outerRealmFunctionConstructor = Node.constructor as any;
+        return new outerRealmFunctionConstructor("return setImmediate")();
     } else {
-        setTimeout(fn, 0);
+        return undefined;
     }
 }
+
+export const queueTask: (fn: () => void) => void =
+    globalThis.setImmediate ||
+    getSetImmediateFromJsdom() ||
+    ((fn: () => void) => setTimeout(fn, 0));

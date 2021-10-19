@@ -6,7 +6,7 @@ import Database from "./lib/Database";
 import enforceRange from "./lib/enforceRange";
 import { AbortError, VersionError } from "./lib/errors";
 import FakeEvent from "./lib/FakeEvent";
-import { queueTask, queueTaskForNextEventLoop } from "./lib/scheduling";
+import { queueTask } from "./lib/scheduling";
 
 const waitForOthersClosedDelete = (
     databases: Map<string, Database>,
@@ -19,7 +19,7 @@ const waitForOthersClosedDelete = (
     });
 
     if (anyOpen) {
-        queueTaskForNextEventLoop(() =>
+        queueTask(() =>
             waitForOthersClosedDelete(databases, name, openDatabases, cb),
         );
         return;
@@ -229,9 +229,7 @@ class FDBFactory {
         const request = new FDBOpenDBRequest();
         request.source = null;
 
-        // In order for delete requests to be processed in the proper order (see
-        // delete-request-queue.js), this must wait until the next event loop.
-        queueTaskForNextEventLoop(() => {
+        queueTask(() => {
             const db = this._databases.get(name);
             const oldVersion = db !== undefined ? db.version : 0;
 
@@ -280,10 +278,7 @@ class FDBFactory {
         const request = new FDBOpenDBRequest();
         request.source = null;
 
-        // Since deletion has to happen at next event loop (see deleteDatabase),
-        // opening has to happen at next event loop for
-        // idbfactory-open-error-properties.js to pass.
-        queueTaskForNextEventLoop(() => {
+        queueTask(() => {
             openDatabase(
                 this._databases,
                 name,

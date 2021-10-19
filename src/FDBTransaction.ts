@@ -10,7 +10,7 @@ import {
 import fakeDOMStringList from "./lib/fakeDOMStringList";
 import FakeEvent from "./lib/FakeEvent";
 import FakeEventTarget from "./lib/FakeEventTarget";
-import { queueTask, queueTaskForNextEventLoop } from "./lib/scheduling";
+import { queueTask } from "./lib/scheduling";
 import {
     EventCallback,
     FakeDOMStringList,
@@ -150,9 +150,6 @@ class FDBTransaction extends FakeEventTarget {
             operation,
             request,
         });
-        if (!this._started) {
-            queueTask(() => this._start());
-        }
 
         return request;
     }
@@ -238,18 +235,12 @@ class FDBTransaction extends FakeEventTarget {
 
         // Check if transaction complete event needs to be fired
         if (this._state !== "finished") {
-            this._started = false;
-            // Either aborted or committed already
-            queueTaskForNextEventLoop(() => {
-                if (!this._started && this._state !== "finished") {
-                    this._state = "finished";
+            this._state = "finished";
 
-                    if (!this.error) {
-                        const event = new FakeEvent("complete");
-                        this.dispatchEvent(event);
-                    }
-                }
-            });
+            if (!this.error) {
+                const event = new FakeEvent("complete");
+                this.dispatchEvent(event);
+            }
         }
     }
 
