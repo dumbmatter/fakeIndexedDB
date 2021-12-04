@@ -9,7 +9,8 @@
         "allowJs": true,
         "downlevelIteration": true,
         "noEmitOnError": true,
-        "strict": true
+        "strict": true,
+        "useUnknownInCatchVariables": false
     },
     "exclude": [
         "node_modules",
