@@ -5,6 +5,7 @@
         "target": "es2020",
         "lib": ["dom", "es2020"],
         "module": "ES2020",
+        "moduleResolution": "node",
         "allowJs": true,
         "downlevelIteration": true,
         "noEmitOnError": true,
@@ -16,6 +17,7 @@
         "lib",
         "src/test/web-platform-tests",
         "auto.js",
+        "jest.config.js",
         "test",
         "test.js"
     ]

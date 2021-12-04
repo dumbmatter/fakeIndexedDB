@@ -123,7 +123,7 @@ file, as described above.
 To use it on all Jest tests without having to require it in each file, add the auto setup script to the `setupFiles` in your Jest config:
 
 ```json
-"jest": {
+{
     ...
     "setupFiles": [
         "fake-indexeddb/auto"
