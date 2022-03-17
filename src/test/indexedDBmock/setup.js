@@ -33,65 +33,65 @@ var msgCreatingInitialSituationFailed = "Creating initial situation failed";
 function initionalSituation(callBack, done, assert) {
     var request = indexedDb.deleteDatabase(dbName);
 
-    request.onsuccess = function() {
+    request.onsuccess = function () {
         callBack();
     };
-    request.onerror = function() {
+    request.onerror = function () {
         assert.ok(false, msgCreatingInitialSituationFailed);
         done();
     };
 }
 function initionalSituationDatabase(callBack, done, assert) {
     initionalSituation(
-        function() {
+        function () {
             var request = indexedDb.open(dbName);
-            request.onsuccess = function(e) {
+            request.onsuccess = function (e) {
                 e.target.result.close();
                 callBack();
             };
-            request.onerror = function() {
+            request.onerror = function () {
                 assert.ok(false, msgCreatingInitialSituationFailed);
                 done();
             };
         },
         done,
-        assert,
+        assert
     );
 }
 function initionalSituationDatabaseVersion(callBack, done, assert) {
     initionalSituation(
-        function() {
+        function () {
             var request = indexedDb.open(dbName, 2);
-            request.onsuccess = function(e) {
+            request.onsuccess = function (e) {
                 e.target.result.close();
                 callBack();
             };
-            request.onerror = function() {
+            request.onerror = function () {
                 assert.ok(false, msgCreatingInitialSituationFailed);
                 done();
             };
         },
         done,
-        assert,
+        assert
     );
 }
 function initionalSituationObjectStore(callBack, done, assert) {
     initionalSituation(
-        function() {
+        function () {
             var request = indexedDb.open(dbName, 1);
-            request.onsuccess = function(e) {
+            request.onsuccess = function (e) {
                 e.target.result.close();
                 callBack();
             };
-            request.onerror = function() {
+            request.onerror = function () {
                 assert.ok(false, msgCreatingInitialSituationFailed);
                 done();
             };
-            request.onupgradeneeded = function(e) {
+            request.onupgradeneeded = function (e) {
                 if (e.type == "upgradeneeded") {
                     try {
                         e.target.transaction.db.createObjectStore(
-                            objectStoreName,
+                            objectStoreName
                         );
                     } catch (ex) {
                         assert.ok(false, msgCreatingInitialSituationFailed);
@@ -101,29 +101,29 @@ function initionalSituationObjectStore(callBack, done, assert) {
             };
         },
         done,
-        assert,
+        assert
     );
 }
 function initionalSituation2ObjectStore(callBack, done, assert) {
     initionalSituation(
-        function() {
+        function () {
             var request = indexedDb.open(dbName, 1);
-            request.onsuccess = function(e) {
+            request.onsuccess = function (e) {
                 e.target.result.close();
                 callBack();
             };
-            request.onerror = function() {
+            request.onerror = function () {
                 assert.ok(false, msgCreatingInitialSituationFailed);
                 done();
             };
-            request.onupgradeneeded = function(e) {
+            request.onupgradeneeded = function (e) {
                 if (e.type == "upgradeneeded") {
                     try {
                         e.target.transaction.db.createObjectStore(
-                            objectStoreName,
+                            objectStoreName
                         );
                         e.target.transaction.db.createObjectStore(
-                            anOtherObjectStoreName,
+                            anOtherObjectStoreName
                         );
                     } catch (ex) {
                         assert.ok(false, msgCreatingInitialSituationFailed);
@@ -133,21 +133,21 @@ function initionalSituation2ObjectStore(callBack, done, assert) {
             };
         },
         done,
-        assert,
+        assert
     );
 }
 function initionalSituationObjectStoreNoAutoIncrement(callBack, done, assert) {
-    initionalSituation(function() {
+    initionalSituation(function () {
         var request = indexedDb.open(dbName, 1);
-        request.onsuccess = function(e) {
+        request.onsuccess = function (e) {
             e.target.result.close();
             callBack();
         };
-        request.onerror = function() {
+        request.onerror = function () {
             assert.ok(false, msgCreatingInitialSituationFailed);
             done();
         };
-        request.onupgradeneeded = function(e) {
+        request.onupgradeneeded = function (e) {
             if (e.type == "upgradeneeded") {
                 try {
                     e.target.transaction.db.createObjectStore(objectStoreName, {
@@ -164,19 +164,19 @@ function initionalSituationObjectStoreNoAutoIncrement(callBack, done, assert) {
 function initionalSituationObjectStoreWithAutoIncrement(
     callBack,
     done,
-    assert,
+    assert
 ) {
-    initionalSituation(function() {
+    initionalSituation(function () {
         var request = indexedDb.open(dbName, 1);
-        request.onsuccess = function(e) {
+        request.onsuccess = function (e) {
             e.target.result.close();
             callBack();
         };
-        request.onerror = function() {
+        request.onerror = function () {
             assert.ok(false, msgCreatingInitialSituationFailed);
             done();
         };
-        request.onupgradeneeded = function(e) {
+        request.onupgradeneeded = function (e) {
             if (e.type == "upgradeneeded") {
                 try {
                     e.target.transaction.db.createObjectStore(objectStoreName, {
@@ -193,19 +193,19 @@ function initionalSituationObjectStoreWithAutoIncrement(
 function initionalSituationObjectStoreWithKeyPathNoAutoIncrement(
     callBack,
     done,
-    assert,
+    assert
 ) {
-    initionalSituation(function() {
+    initionalSituation(function () {
         var request = indexedDb.open(dbName, 1);
-        request.onsuccess = function(e) {
+        request.onsuccess = function (e) {
             e.target.result.close();
             callBack();
         };
-        request.onerror = function() {
+        request.onerror = function () {
             assert.ok(false, msgCreatingInitialSituationFailed);
             done();
         };
-        request.onupgradeneeded = function(e) {
+        request.onupgradeneeded = function (e) {
             if (e.type == "upgradeneeded") {
                 try {
                     e.target.transaction.db.createObjectStore(objectStoreName, {
@@ -223,19 +223,19 @@ function initionalSituationObjectStoreWithKeyPathNoAutoIncrement(
 function initionalSituationObjectStoreWithKeyPathAndAutoIncrement(
     callBack,
     done,
-    assert,
+    assert
 ) {
-    initionalSituation(function() {
+    initionalSituation(function () {
         var request = indexedDb.open(dbName, 1);
-        request.onsuccess = function(e) {
+        request.onsuccess = function (e) {
             e.target.result.close();
             callBack();
         };
-        request.onerror = function() {
+        request.onerror = function () {
             assert.ok(false, msgCreatingInitialSituationFailed);
             done();
         };
-        request.onupgradeneeded = function(e) {
+        request.onupgradeneeded = function (e) {
             if (e.type == "upgradeneeded") {
                 try {
                     e.target.transaction.db.createObjectStore(objectStoreName, {
@@ -253,24 +253,24 @@ function initionalSituationObjectStoreWithKeyPathAndAutoIncrement(
 function initionalSituationObjectStoreNoAutoIncrementWithData(
     callBack,
     done,
-    assert,
+    assert
 ) {
-    initionalSituation(function() {
+    initionalSituation(function () {
         var request = indexedDb.open(dbName, 1);
-        request.onsuccess = function(e) {
+        request.onsuccess = function (e) {
             e.target.result.close();
             callBack();
         };
-        request.onerror = function() {
+        request.onerror = function () {
             assert.ok(false, msgCreatingInitialSituationFailed);
             done();
         };
-        request.onupgradeneeded = function(e) {
+        request.onupgradeneeded = function (e) {
             if (e.type == "upgradeneeded") {
                 try {
                     var objectstore = e.target.transaction.db.createObjectStore(
                         objectStoreName,
-                        { autoIncrement: false },
+                        { autoIncrement: false }
                     );
                     objectstore.add(addData, addData.id);
                 } catch (ex) {
@@ -284,24 +284,24 @@ function initionalSituationObjectStoreNoAutoIncrementWithData(
 function initionalSituationObjectStoreWithKeyPathAndData(
     callBack,
     done,
-    assert,
+    assert
 ) {
-    initionalSituation(function() {
+    initionalSituation(function () {
         var request = indexedDb.open(dbName, 1);
-        request.onsuccess = function(e) {
+        request.onsuccess = function (e) {
             e.target.result.close();
             callBack();
         };
-        request.onerror = function() {
+        request.onerror = function () {
             assert.ok(false, msgCreatingInitialSituationFailed);
             done();
         };
-        request.onupgradeneeded = function(e) {
+        request.onupgradeneeded = function (e) {
             if (e.type == "upgradeneeded") {
                 try {
                     var objectstore = e.target.transaction.db.createObjectStore(
                         objectStoreName,
-                        { autoIncrement: false, keyPath: "id" },
+                        { autoIncrement: false, keyPath: "id" }
                     );
                     objectstore.add(addData);
                 } catch (ex) {
@@ -315,24 +315,24 @@ function initionalSituationObjectStoreWithKeyPathAndData(
 function initionalSituationObjectStoreWithKeyPathAndDataNoAutoIncrement(
     callBack,
     done,
-    assert,
+    assert
 ) {
-    initionalSituation(function() {
+    initionalSituation(function () {
         var request = indexedDb.open(dbName, 1);
-        request.onsuccess = function(e) {
+        request.onsuccess = function (e) {
             e.target.result.close();
             callBack();
         };
-        request.onerror = function() {
+        request.onerror = function () {
             assert.ok(false, msgCreatingInitialSituationFailed);
             done();
         };
-        request.onupgradeneeded = function(e) {
+        request.onupgradeneeded = function (e) {
             if (e.type == "upgradeneeded") {
                 try {
                     var objectstore = e.target.transaction.db.createObjectStore(
                         objectStoreName,
-                        { keyPath: "id", autoIncrement: false },
+                        { keyPath: "id", autoIncrement: false }
                     );
                     objectstore.add(addData);
                 } catch (ex) {
@@ -346,24 +346,24 @@ function initionalSituationObjectStoreWithKeyPathAndDataNoAutoIncrement(
 function initionalSituationObjectStoreWithKeyPathAndMultipleDataNoAutoIncrement(
     callBack,
     done,
-    assert,
+    assert
 ) {
-    initionalSituation(function() {
+    initionalSituation(function () {
         var request = indexedDb.open(dbName, 1);
-        request.onsuccess = function(e) {
+        request.onsuccess = function (e) {
             e.target.result.close();
             callBack();
         };
-        request.onerror = function() {
+        request.onerror = function () {
             assert.ok(false, msgCreatingInitialSituationFailed);
             done();
         };
-        request.onupgradeneeded = function(e) {
+        request.onupgradeneeded = function (e) {
             if (e.type == "upgradeneeded") {
                 try {
                     var objectstore = e.target.transaction.db.createObjectStore(
                         objectStoreName,
-                        { keyPath: "id", autoIncrement: false },
+                        { keyPath: "id", autoIncrement: false }
                     );
                     objectstore.add(addData);
                     objectstore.add(addData2);
@@ -385,22 +385,23 @@ function initionalSituationObjectStoreWithKeyPathAndMultipleDataNoAutoIncrement(
 }
 function initionalSituationIndex(callBack, done, assert) {
     initionalSituation(
-        function() {
+        function () {
             var request = indexedDb.open(dbName, 1);
-            request.onsuccess = function(e) {
+            request.onsuccess = function (e) {
                 e.target.result.close();
                 callBack();
             };
-            request.onerror = function() {
+            request.onerror = function () {
                 assert.ok(false, msgCreatingInitialSituationFailed);
                 done();
             };
-            request.onupgradeneeded = function(e) {
+            request.onupgradeneeded = function (e) {
                 if (e.type == "upgradeneeded") {
                     try {
-                        var objectstore = e.target.transaction.db.createObjectStore(
-                            objectStoreName,
-                        );
+                        var objectstore =
+                            e.target.transaction.db.createObjectStore(
+                                objectStoreName
+                            );
                         objectstore.createIndex(indexProperty, indexProperty);
                     } catch (ex) {
                         assert.ok(false, msgCreatingInitialSituationFailed);
@@ -410,27 +411,28 @@ function initionalSituationIndex(callBack, done, assert) {
             };
         },
         done,
-        assert,
+        assert
     );
 }
 function initionalSituationIndexUniqueIndexWithData(callBack, done, assert) {
     initionalSituation(
-        function() {
+        function () {
             var request = indexedDb.open(dbName, 1);
-            request.onsuccess = function(e) {
+            request.onsuccess = function (e) {
                 e.target.result.close();
                 callBack();
             };
-            request.onerror = function() {
+            request.onerror = function () {
                 assert.ok(false, msgCreatingInitialSituationFailed);
                 done();
             };
-            request.onupgradeneeded = function(e) {
+            request.onupgradeneeded = function (e) {
                 if (e.type == "upgradeneeded") {
                     try {
-                        var objectstore = e.target.transaction.db.createObjectStore(
-                            objectStoreName,
-                        );
+                        var objectstore =
+                            e.target.transaction.db.createObjectStore(
+                                objectStoreName
+                            );
                         objectstore.createIndex(indexProperty, indexProperty, {
                             unique: true,
                         });
@@ -443,35 +445,36 @@ function initionalSituationIndexUniqueIndexWithData(callBack, done, assert) {
             };
         },
         done,
-        assert,
+        assert
     );
 }
 function initionalSituationIndexUniqueMultiEntryIndexWithData(
     callBack,
     done,
-    assert,
+    assert
 ) {
     initionalSituation(
-        function() {
+        function () {
             var request = indexedDb.open(dbName, 1);
-            request.onsuccess = function(e) {
+            request.onsuccess = function (e) {
                 e.target.result.close();
                 callBack();
             };
-            request.onerror = function() {
+            request.onerror = function () {
                 assert.ok(false, msgCreatingInitialSituationFailed);
                 done();
             };
-            request.onupgradeneeded = function(e) {
+            request.onupgradeneeded = function (e) {
                 if (e.type == "upgradeneeded") {
                     try {
-                        var objectstore = e.target.transaction.db.createObjectStore(
-                            objectStoreName,
-                        );
+                        var objectstore =
+                            e.target.transaction.db.createObjectStore(
+                                objectStoreName
+                            );
                         objectstore.createIndex(
                             indexPropertyMultiEntry,
                             indexPropertyMultiEntry,
-                            { unique: true, multiEntry: true },
+                            { unique: true, multiEntry: true }
                         );
                         objectstore.add(addData, addData.id);
                     } catch (ex) {
@@ -482,7 +485,7 @@ function initionalSituationIndexUniqueMultiEntryIndexWithData(
             };
         },
         done,
-        assert,
+        assert
     );
 }
 

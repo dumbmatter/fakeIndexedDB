@@ -3,14 +3,14 @@
  */
 
 QUnit.module("ObjectStores");
-QUnit.test("Creating ObjectStore", function(assert) {
+QUnit.test("Creating ObjectStore", function (assert) {
     var done = assert.async();
     assert.expect(3);
 
     initionalSituation(
-        function() {
+        function () {
             var request = indexedDb.open(dbName, 1);
-            request.onsuccess = function(e) {
+            request.onsuccess = function (e) {
                 for (
                     var i = 0;
                     i < e.target.result.objectStoreNames.length;
@@ -25,21 +25,22 @@ QUnit.test("Creating ObjectStore", function(assert) {
                 e.target.result.close();
                 done();
             };
-            request.onerror = function() {
+            request.onerror = function () {
                 assert.ok(false, "Database error");
                 done();
             };
-            request.onupgradeneeded = function(e) {
+            request.onupgradeneeded = function (e) {
                 if (e.type == "upgradeneeded") {
                     try {
-                        var objectStore = e.target.transaction.db.createObjectStore(
-                            objectStoreName,
-                        );
+                        var objectStore =
+                            e.target.transaction.db.createObjectStore(
+                                objectStoreName
+                            );
                         assert.ok(true, "Object store created");
                         assert.equal(
                             objectStore.name,
                             objectStoreName,
-                            objectStoreName,
+                            objectStoreName
                         );
                     } catch (ex) {
                         assert.ok(false, "Creating object store failed");
@@ -48,19 +49,19 @@ QUnit.test("Creating ObjectStore", function(assert) {
             };
         },
         done,
-        assert,
+        assert
     );
 });
-QUnit.test("Creating ObjectStore with options", function(assert) {
+QUnit.test("Creating ObjectStore with options", function (assert) {
     var done = assert.async();
     assert.expect(5);
 
     var keyPath = "Id";
     var autoIncrement = true;
     initionalSituation(
-        function() {
+        function () {
             var request = indexedDb.open(dbName, 1);
-            request.onsuccess = function(e) {
+            request.onsuccess = function (e) {
                 for (
                     var i = 0;
                     i < e.target.result.objectStoreNames.length;
@@ -75,38 +76,42 @@ QUnit.test("Creating ObjectStore with options", function(assert) {
                 e.target.result.close();
                 done();
             };
-            request.onerror = function() {
+            request.onerror = function () {
                 assert.ok(false, "Database error");
                 done();
             };
-            request.onupgradeneeded = function(e) {
+            request.onupgradeneeded = function (e) {
                 if (e.type == "upgradeneeded") {
                     try {
-                        var objectStore = e.target.transaction.db.createObjectStore(
-                            objectStoreName,
-                            { keyPath: keyPath, autoIncrement: autoIncrement },
-                        );
+                        var objectStore =
+                            e.target.transaction.db.createObjectStore(
+                                objectStoreName,
+                                {
+                                    keyPath: keyPath,
+                                    autoIncrement: autoIncrement,
+                                }
+                            );
                         assert.ok(true, "Object store created");
                         assert.equal(
                             objectStore.name,
                             objectStoreName,
-                            "Object store name",
+                            "Object store name"
                         );
                         assert.equal(
                             objectStore.keyPath,
                             keyPath,
-                            "Object store keyPath",
+                            "Object store keyPath"
                         );
                         if (objectStore.autoIncrement) {
                             assert.equal(
                                 objectStore.autoIncrement,
                                 autoIncrement,
-                                "Object store autoIncrement",
+                                "Object store autoIncrement"
                             );
                         } else {
                             assert.ok(
                                 true,
-                                "IE implementation doesn't expose the autoIncrement field yet",
+                                "IE implementation doesn't expose the autoIncrement field yet"
                             );
                         }
                     } catch (ex) {
@@ -116,26 +121,25 @@ QUnit.test("Creating ObjectStore with options", function(assert) {
             };
         },
         done,
-        assert,
+        assert
     );
 });
-QUnit.test("Creating ObjectStore in readwrite transaction", function(assert) {
+QUnit.test("Creating ObjectStore in readwrite transaction", function (assert) {
     var done = assert.async();
     assert.expect(1);
 
     initionalSituationObjectStore(
-        function() {
+        function () {
             var request = indexedDb.open(dbName, 1);
-            request.onsuccess = function(e) {
+            request.onsuccess = function (e) {
                 try {
                     var transaction = e.target.result.transaction(
                         [objectStoreName],
-                        "readwrite",
+                        "readwrite"
                     );
                     try {
-                        var objectStore = transaction.db.createObjectStore(
-                            objectStoreName,
-                        );
+                        var objectStore =
+                            transaction.db.createObjectStore(objectStoreName);
                         assert.ok(false, "Object store created");
                         e.target.result.close();
                         done();
@@ -143,18 +147,18 @@ QUnit.test("Creating ObjectStore in readwrite transaction", function(assert) {
                         assert.equal(
                             ex.name,
                             "InvalidStateError",
-                            "InvalidStateError",
+                            "InvalidStateError"
                         );
                         e.target.result.close();
                         done();
                     }
 
-                    transaction.onabort = function() {
+                    transaction.onabort = function () {
                         assert.ok(false, "Transaction aborted");
                         e.target.result.close();
                         done();
                     };
-                    transaction.onerror = function() {
+                    transaction.onerror = function () {
                         assert.ok(false, "Transaction error");
                         e.target.result.close();
                         done();
@@ -165,25 +169,25 @@ QUnit.test("Creating ObjectStore in readwrite transaction", function(assert) {
                     done();
                 }
             };
-            request.onerror = function() {
+            request.onerror = function () {
                 assert.ok(false, "Database error");
                 done();
             };
         },
         done,
-        assert,
+        assert
     );
 });
 QUnit.test(
     "Creating ObjectStore with autoIncrement and array with empty string as keyPath",
-    function(assert) {
+    function (assert) {
         var done = assert.async();
         assert.expect(1);
 
         initionalSituation(
-            function() {
+            function () {
                 var request = indexedDb.open(dbName, 1);
-                request.onsuccess = function(e) {
+                request.onsuccess = function (e) {
                     for (
                         var i = 0;
                         i < e.target.result.objectStoreNames.length;
@@ -199,41 +203,42 @@ QUnit.test(
                     e.target.result.close();
                     done();
                 };
-                request.onerror = function(e) {
+                request.onerror = function (e) {
                     //assert.equal(e.error.name, "AbortError", "AbortError");
                     done();
                 };
-                request.onupgradeneeded = function(e) {
+                request.onupgradeneeded = function (e) {
                     if (e.type == "upgradeneeded") {
                         try {
-                            var objectStore = e.target.transaction.db.createObjectStore(
-                                objectStoreName,
-                                { keyPath: [""], autoIncrement: true },
-                            );
+                            var objectStore =
+                                e.target.transaction.db.createObjectStore(
+                                    objectStoreName,
+                                    { keyPath: [""], autoIncrement: true }
+                                );
                             assert.ok(false, "Object store created");
                         } catch (ex) {
                             assert.equal(
                                 ex.name,
                                 "InvalidAccessError",
-                                "InvalidAccessError",
+                                "InvalidAccessError"
                             );
                         }
                     }
                 };
             },
             done,
-            assert,
+            assert
         );
-    },
+    }
 );
-QUnit.test("Opening ObjectStore", function(assert) {
+QUnit.test("Opening ObjectStore", function (assert) {
     var done = assert.async();
     assert.expect(1);
 
     initionalSituationObjectStore(
-        function() {
+        function () {
             var request = indexedDb.open(dbName);
-            request.onsuccess = function(e) {
+            request.onsuccess = function (e) {
                 try {
                     var transaction = e.target.result.transaction([
                         objectStoreName,
@@ -244,16 +249,16 @@ QUnit.test("Opening ObjectStore", function(assert) {
                         assert.ok(true, "Object store open");
                     }
 
-                    transaction.oncomplete = function(e) {
+                    transaction.oncomplete = function (e) {
                         e.target.db.close();
                         done();
                     };
-                    transaction.onabort = function() {
+                    transaction.onabort = function () {
                         assert.ok(false, "Transaction aborted");
                         e.target.result.close();
                         done();
                     };
-                    transaction.onerror = function() {
+                    transaction.onerror = function () {
                         assert.ok(false, "Transaction error");
                         e.target.result.close();
                         done();
@@ -264,31 +269,30 @@ QUnit.test("Opening ObjectStore", function(assert) {
                     done();
                 }
             };
-            request.onerror = function() {
+            request.onerror = function () {
                 assert.ok(false, "Database error");
                 done();
             };
         },
         done,
-        assert,
+        assert
     );
 });
-QUnit.test("Opening non existing ObjectStore", function(assert) {
+QUnit.test("Opening non existing ObjectStore", function (assert) {
     var done = assert.async();
     assert.expect(1);
 
     initionalSituationObjectStore(
-        function() {
+        function () {
             var request = indexedDb.open(dbName);
-            request.onsuccess = function(e) {
+            request.onsuccess = function (e) {
                 try {
                     var transaction = e.target.result.transaction([
                         objectStoreName,
                     ]);
                     try {
-                        var objectstore = transaction.objectStore(
-                            "anOtherObjectStore",
-                        );
+                        var objectstore =
+                            transaction.objectStore("anOtherObjectStore");
 
                         if (objectstore) {
                             assert.ok(false, "Object store open");
@@ -297,16 +301,16 @@ QUnit.test("Opening non existing ObjectStore", function(assert) {
                         assert.equal(ex.name, "NotFoundError", "NotFoundError");
                     }
 
-                    transaction.oncomplete = function(e) {
+                    transaction.oncomplete = function (e) {
                         e.target.db.close();
                         done();
                     };
-                    transaction.onabort = function() {
+                    transaction.onabort = function () {
                         assert.ok(false, "Transaction aborted");
                         e.target.result.close();
                         done();
                     };
-                    transaction.onerror = function() {
+                    transaction.onerror = function () {
                         assert.ok(false, "Transaction error");
                         e.target.result.close();
                         done();
@@ -317,30 +321,30 @@ QUnit.test("Opening non existing ObjectStore", function(assert) {
                     done();
                 }
             };
-            request.onerror = function() {
+            request.onerror = function () {
                 assert.ok(false, "Database error");
                 done();
             };
         },
         done,
-        assert,
+        assert
     );
 });
-QUnit.test("Opening ObjectStore not in transaction scope", function(assert) {
+QUnit.test("Opening ObjectStore not in transaction scope", function (assert) {
     var done = assert.async();
     assert.expect(1);
 
     initionalSituation2ObjectStore(
-        function() {
+        function () {
             var request = indexedDb.open(dbName);
-            request.onsuccess = function(e) {
+            request.onsuccess = function (e) {
                 try {
                     var transaction = e.target.result.transaction([
                         objectStoreName,
                     ]);
                     try {
                         var objectstore = transaction.objectStore(
-                            anOtherObjectStoreName,
+                            anOtherObjectStoreName
                         );
 
                         if (objectstore) {
@@ -350,16 +354,16 @@ QUnit.test("Opening ObjectStore not in transaction scope", function(assert) {
                         assert.equal(ex.name, "NotFoundError", "NotFoundError");
                     }
 
-                    transaction.oncomplete = function(e) {
+                    transaction.oncomplete = function (e) {
                         e.target.db.close();
                         done();
                     };
-                    transaction.onabort = function() {
+                    transaction.onabort = function () {
                         assert.ok(false, "Transaction aborted");
                         e.target.result.close();
                         done();
                     };
-                    transaction.onerror = function() {
+                    transaction.onerror = function () {
                         assert.ok(false, "Transaction error");
                         e.target.result.close();
                         done();
@@ -370,24 +374,24 @@ QUnit.test("Opening ObjectStore not in transaction scope", function(assert) {
                     done();
                 }
             };
-            request.onerror = function() {
+            request.onerror = function () {
                 assert.ok(false, "Database error");
                 done();
             };
         },
         done,
-        assert,
+        assert
     );
 });
-QUnit.test("Deleting ObjectStore", function(assert) {
+QUnit.test("Deleting ObjectStore", function (assert) {
     var done = assert.async();
     assert.expect(1);
 
     initionalSituationObjectStore(
-        function() {
+        function () {
             // Delete database if existing
             var request = indexedDb.open(dbName, 2);
-            request.onsuccess = function(e) {
+            request.onsuccess = function (e) {
                 for (
                     var i = 0;
                     i < e.target.result.objectStoreNames.length;
@@ -402,16 +406,17 @@ QUnit.test("Deleting ObjectStore", function(assert) {
                 e.target.result.close();
                 done();
             };
-            request.onerror = function() {
+            request.onerror = function () {
                 assert.ok(false, "Database error");
                 done();
             };
-            request.onupgradeneeded = function(e) {
+            request.onupgradeneeded = function (e) {
                 if (e.type == "upgradeneeded") {
                     try {
-                        var objectStore = e.target.transaction.db.deleteObjectStore(
-                            objectStoreName,
-                        );
+                        var objectStore =
+                            e.target.transaction.db.deleteObjectStore(
+                                objectStoreName
+                            );
                         assert.ok(true, "Object store deleted");
                     } catch (ex) {
                         assert.ok(false, "Deleting object store failed");
@@ -420,18 +425,18 @@ QUnit.test("Deleting ObjectStore", function(assert) {
             };
         },
         done,
-        assert,
+        assert
     );
 });
-QUnit.test("Deleting Non existing objectStore", function(assert) {
+QUnit.test("Deleting Non existing objectStore", function (assert) {
     var done = assert.async();
     assert.expect(1);
 
     initionalSituation(
-        function() {
+        function () {
             // Delete database if existing
             var request = indexedDb.open(dbName, 2);
-            request.onsuccess = function(e) {
+            request.onsuccess = function (e) {
                 for (
                     var i = 0;
                     i < e.target.result.objectStoreNames.length;
@@ -446,16 +451,17 @@ QUnit.test("Deleting Non existing objectStore", function(assert) {
                 e.target.result.close();
                 done();
             };
-            request.onerror = function() {
+            request.onerror = function () {
                 assert.ok(false, "Database error");
                 done();
             };
-            request.onupgradeneeded = function(e) {
+            request.onupgradeneeded = function (e) {
                 if (e.type == "upgradeneeded") {
                     try {
-                        var objectStore = e.target.transaction.db.deleteObjectStore(
-                            objectStoreName,
-                        );
+                        var objectStore =
+                            e.target.transaction.db.deleteObjectStore(
+                                objectStoreName
+                            );
                         assert.ok(false, "Object store deleted");
                     } catch (ex) {
                         assert.equal(ex.name, "NotFoundError", "NotFoundError");
@@ -464,26 +470,25 @@ QUnit.test("Deleting Non existing objectStore", function(assert) {
             };
         },
         done,
-        assert,
+        assert
     );
 });
-QUnit.test("Deleting ObjectStore in readwrite transaction", function(assert) {
+QUnit.test("Deleting ObjectStore in readwrite transaction", function (assert) {
     var done = assert.async();
     assert.expect(1);
 
     initionalSituationObjectStore(
-        function() {
+        function () {
             var request = indexedDb.open(dbName, 1);
-            request.onsuccess = function(e) {
+            request.onsuccess = function (e) {
                 try {
                     var transaction = e.target.result.transaction(
                         [objectStoreName],
-                        "readwrite",
+                        "readwrite"
                     );
                     try {
-                        var objectStore = transaction.db.deleteObjectStore(
-                            objectStoreName,
-                        );
+                        var objectStore =
+                            transaction.db.deleteObjectStore(objectStoreName);
                         assert.ok(false, "Object store created");
                         e.target.result.close();
                         done();
@@ -491,18 +496,18 @@ QUnit.test("Deleting ObjectStore in readwrite transaction", function(assert) {
                         assert.equal(
                             ex.name,
                             "InvalidStateError",
-                            "InvalidStateError",
+                            "InvalidStateError"
                         );
                         e.target.result.close();
                         done();
                     }
 
-                    transaction.onabort = function() {
+                    transaction.onabort = function () {
                         assert.ok(false, "Transaction aborted");
                         e.target.result.close();
                         done();
                     };
-                    transaction.onerror = function() {
+                    transaction.onerror = function () {
                         assert.ok(false, "Transaction error");
                         e.target.result.close();
                         done();
@@ -513,12 +518,12 @@ QUnit.test("Deleting ObjectStore in readwrite transaction", function(assert) {
                     done();
                 }
             };
-            request.onerror = function() {
+            request.onerror = function () {
                 assert.ok(false, "Database error");
                 done();
             };
         },
         done,
-        assert,
+        assert
     );
 });

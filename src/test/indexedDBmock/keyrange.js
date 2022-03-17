@@ -1,5 +1,5 @@
 QUnit.module("KeyRange");
-QUnit.test("only - number", function(assert) {
+QUnit.test("only - number", function (assert) {
     var value = 1;
     assert.expect(4);
 
@@ -10,7 +10,7 @@ QUnit.test("only - number", function(assert) {
     assert.equal(keyRange.lowerOpen, false, "lowerOpen: " + keyRange.lowerOpen);
     assert.equal(keyRange.upperOpen, false, "upperOpen: " + keyRange.upperOpen);
 });
-QUnit.test("only - date", function(assert) {
+QUnit.test("only - date", function (assert) {
     var value = new Date();
     assert.expect(4);
 
@@ -21,7 +21,7 @@ QUnit.test("only - date", function(assert) {
     assert.equal(keyRange.lowerOpen, false, "lowerOpen: " + keyRange.lowerOpen);
     assert.equal(keyRange.upperOpen, false, "upperOpen: " + keyRange.upperOpen);
 });
-QUnit.test("only - string", function(assert) {
+QUnit.test("only - string", function (assert) {
     var value = "1";
     assert.expect(4);
 
@@ -32,7 +32,7 @@ QUnit.test("only - string", function(assert) {
     assert.equal(keyRange.lowerOpen, false, "lowerOpen: " + keyRange.lowerOpen);
     assert.equal(keyRange.upperOpen, false, "upperOpen: " + keyRange.upperOpen);
 });
-QUnit.test("only - array", function(assert) {
+QUnit.test("only - array", function (assert) {
     var value = [1, "1", new Date()];
     assert.expect(4);
 
@@ -43,7 +43,7 @@ QUnit.test("only - array", function(assert) {
     assert.equal(keyRange.lowerOpen, false, "lowerOpen: " + keyRange.lowerOpen);
     assert.equal(keyRange.upperOpen, false, "upperOpen: " + keyRange.upperOpen);
 });
-QUnit.test("only - invalid key", function(assert) {
+QUnit.test("only - invalid key", function (assert) {
     var value = {};
     assert.expect(1);
 
@@ -53,7 +53,7 @@ QUnit.test("only - invalid key", function(assert) {
         assert.equal(ex.name, "DataError", "DataError");
     }
 });
-QUnit.test("lowerBound", function(assert) {
+QUnit.test("lowerBound", function (assert) {
     var value = 1;
     assert.expect(4);
 
@@ -64,7 +64,7 @@ QUnit.test("lowerBound", function(assert) {
     assert.equal(keyRange.lowerOpen, false, "lowerOpen: " + keyRange.lowerOpen);
     assert.equal(keyRange.upperOpen, true, "upperOpen: " + keyRange.upperOpen);
 });
-QUnit.test("lowerBound - value inclusieve", function(assert) {
+QUnit.test("lowerBound - value inclusieve", function (assert) {
     var value = 1;
     assert.expect(4);
 
@@ -75,7 +75,7 @@ QUnit.test("lowerBound - value inclusieve", function(assert) {
     assert.equal(keyRange.lowerOpen, false, "lowerOpen: " + keyRange.lowerOpen);
     assert.equal(keyRange.upperOpen, true, "upperOpen: " + keyRange.upperOpen);
 });
-QUnit.test("lowerBound - value exclusieve", function(assert) {
+QUnit.test("lowerBound - value exclusieve", function (assert) {
     var value = 1;
     assert.expect(4);
 
@@ -86,7 +86,7 @@ QUnit.test("lowerBound - value exclusieve", function(assert) {
     assert.equal(keyRange.lowerOpen, true, "lowerOpen: " + keyRange.lowerOpen);
     assert.equal(keyRange.upperOpen, true, "upperOpen: " + keyRange.upperOpen);
 });
-QUnit.test("lowerBound - invalid key", function(assert) {
+QUnit.test("lowerBound - invalid key", function (assert) {
     var value = {};
     assert.expect(1);
 
@@ -96,7 +96,7 @@ QUnit.test("lowerBound - invalid key", function(assert) {
         assert.equal(ex.name, "DataError", "DataError");
     }
 });
-QUnit.test("upperBound", function(assert) {
+QUnit.test("upperBound", function (assert) {
     var value = 1;
     assert.expect(4);
 
@@ -107,7 +107,7 @@ QUnit.test("upperBound", function(assert) {
     assert.equal(keyRange.lowerOpen, true, "lowerOpen: " + keyRange.lowerOpen);
     assert.equal(keyRange.upperOpen, false, "upperOpen: " + keyRange.upperOpen);
 });
-QUnit.test("upperBound - value inclusieve", function(assert) {
+QUnit.test("upperBound - value inclusieve", function (assert) {
     var value = 1;
     assert.expect(4);
 
@@ -118,7 +118,7 @@ QUnit.test("upperBound - value inclusieve", function(assert) {
     assert.equal(keyRange.lowerOpen, true, "lowerOpen: " + keyRange.lowerOpen);
     assert.equal(keyRange.upperOpen, false, "upperOpen: " + keyRange.upperOpen);
 });
-QUnit.test("upperBound - value exclusieve", function(assert) {
+QUnit.test("upperBound - value exclusieve", function (assert) {
     var value = 1;
     assert.expect(4);
 
@@ -129,7 +129,7 @@ QUnit.test("upperBound - value exclusieve", function(assert) {
     assert.equal(keyRange.lowerOpen, true, "lowerOpen: " + keyRange.lowerOpen);
     assert.equal(keyRange.upperOpen, true, "upperOpen: " + keyRange.upperOpen);
 });
-QUnit.test("upperBound - invalid key", function(assert) {
+QUnit.test("upperBound - invalid key", function (assert) {
     var value = {};
     assert.expect(1);
 
@@ -139,7 +139,7 @@ QUnit.test("upperBound - invalid key", function(assert) {
         assert.equal(ex.name, "DataError", "DataError");
     }
 });
-QUnit.test("bound", function(assert) {
+QUnit.test("bound", function (assert) {
     var lower = 1;
     var upper = 2;
     assert.expect(4);
@@ -151,7 +151,7 @@ QUnit.test("bound", function(assert) {
     assert.equal(keyRange.lowerOpen, false, "lowerOpen: " + keyRange.lowerOpen);
     assert.equal(keyRange.upperOpen, false, "upperOpen: " + keyRange.upperOpen);
 });
-QUnit.test("bound - lower & upper inclusieve", function(assert) {
+QUnit.test("bound - lower & upper inclusieve", function (assert) {
     var lower = 1;
     var upper = 2;
     assert.expect(4);
@@ -163,7 +163,7 @@ QUnit.test("bound - lower & upper inclusieve", function(assert) {
     assert.equal(keyRange.lowerOpen, true, "lowerOpen: " + keyRange.lowerOpen);
     assert.equal(keyRange.upperOpen, true, "upperOpen: " + keyRange.upperOpen);
 });
-QUnit.test("bound - lower & upper exclusieve", function(assert) {
+QUnit.test("bound - lower & upper exclusieve", function (assert) {
     var lower = 1;
     var upper = 2;
     assert.expect(4);
@@ -175,7 +175,7 @@ QUnit.test("bound - lower & upper exclusieve", function(assert) {
     assert.equal(keyRange.lowerOpen, false, "lowerOpen: " + keyRange.lowerOpen);
     assert.equal(keyRange.upperOpen, false, "upperOpen: " + keyRange.upperOpen);
 });
-QUnit.test("bound - lower inclusieve & upper exclusieve", function(assert) {
+QUnit.test("bound - lower inclusieve & upper exclusieve", function (assert) {
     var lower = 1;
     var upper = 2;
     assert.expect(4);
@@ -187,7 +187,7 @@ QUnit.test("bound - lower inclusieve & upper exclusieve", function(assert) {
     assert.equal(keyRange.lowerOpen, true, "lowerOpen: " + keyRange.lowerOpen);
     assert.equal(keyRange.upperOpen, false, "upperOpen: " + keyRange.upperOpen);
 });
-QUnit.test("bound - lower exclusieve & upper inclusieve", function(assert) {
+QUnit.test("bound - lower exclusieve & upper inclusieve", function (assert) {
     var lower = 1;
     var upper = 2;
     assert.expect(4);
@@ -199,7 +199,7 @@ QUnit.test("bound - lower exclusieve & upper inclusieve", function(assert) {
     assert.equal(keyRange.lowerOpen, false, "lowerOpen: " + keyRange.lowerOpen);
     assert.equal(keyRange.upperOpen, true, "upperOpen: " + keyRange.upperOpen);
 });
-QUnit.test("bound - invalid key lower", function(assert) {
+QUnit.test("bound - invalid key lower", function (assert) {
     var value = {};
     assert.expect(1);
 
@@ -209,7 +209,7 @@ QUnit.test("bound - invalid key lower", function(assert) {
         assert.equal(ex.name, "DataError", "DataError");
     }
 });
-QUnit.test("bound - invalid key upper", function(assert) {
+QUnit.test("bound - invalid key upper", function (assert) {
     var value = {};
     assert.expect(1);
 
@@ -219,7 +219,7 @@ QUnit.test("bound - invalid key upper", function(assert) {
         assert.equal(ex.name, "DataError", "DataError");
     }
 });
-QUnit.test("bound - upper smaler then lower", function(assert) {
+QUnit.test("bound - upper smaler then lower", function (assert) {
     var lower = 1;
     var upper = 2;
     assert.expect(1);
@@ -230,16 +230,17 @@ QUnit.test("bound - upper smaler then lower", function(assert) {
         assert.equal(ex.name, "DataError", "DataError");
     }
 });
-QUnit.test("bound - lower == upper and lower & upper exclusieve", function(
-    assert,
-) {
-    var lower = 1;
-    var upper = 2;
-    assert.expect(1);
+QUnit.test(
+    "bound - lower == upper and lower & upper exclusieve",
+    function (assert) {
+        var lower = 1;
+        var upper = 2;
+        assert.expect(1);
 
-    try {
-        var keyRange = KeyRange.bound(upper, lower);
-    } catch (ex) {
-        assert.equal(ex.name, "DataError", "DataError");
+        try {
+            var keyRange = KeyRange.bound(upper, lower);
+        } catch (ex) {
+            assert.equal(ex.name, "DataError", "DataError");
+        }
     }
-});
+);

@@ -3,14 +3,14 @@
  */
 
 QUnit.module("Indexes");
-QUnit.test("Creating Index", function(assert) {
+QUnit.test("Creating Index", function (assert) {
     var done = assert.async();
     assert.expect(4);
 
     initionalSituationObjectStore(
-        function() {
+        function () {
             var request = indexedDb.open(dbName, 2);
-            request.onsuccess = function(e) {
+            request.onsuccess = function (e) {
                 try {
                     var transaction = e.target.result.transaction([
                         objectStoreName,
@@ -23,16 +23,16 @@ QUnit.test("Creating Index", function(assert) {
                         }
                     }
 
-                    transaction.oncomplete = function(e) {
+                    transaction.oncomplete = function (e) {
                         e.target.db.close();
                         done();
                     };
-                    transaction.onabort = function() {
+                    transaction.onabort = function () {
                         assert.ok(false, "Transaction aborted");
                         e.target.result.close();
                         done();
                     };
-                    transaction.onerror = function() {
+                    transaction.onerror = function () {
                         assert.ok(false, "Transaction error");
                         e.target.result.close();
                         done();
@@ -43,26 +43,25 @@ QUnit.test("Creating Index", function(assert) {
                     done();
                 }
             };
-            request.onerror = function() {
+            request.onerror = function () {
                 assert.ok(false, "Database error");
                 done();
             };
-            request.onupgradeneeded = function(e) {
+            request.onupgradeneeded = function (e) {
                 if (e.type == "upgradeneeded") {
                     try {
-                        var objectStore = e.target.transaction.objectStore(
-                            objectStoreName,
-                        );
+                        var objectStore =
+                            e.target.transaction.objectStore(objectStoreName);
                         var index = objectStore.createIndex(
                             indexProperty,
-                            indexProperty,
+                            indexProperty
                         );
                         assert.ok(true, "Index created");
                         assert.equal(index.name, indexProperty, "index name");
                         assert.equal(
                             index.keyPath,
                             indexProperty,
-                            "index keyPath",
+                            "index keyPath"
                         );
                     } catch (ex) {
                         assert.ok(false, "Creating index failed");
@@ -71,19 +70,19 @@ QUnit.test("Creating Index", function(assert) {
             };
         },
         done,
-        assert,
+        assert
     );
 });
-QUnit.test("Creating Index with options", function(assert) {
+QUnit.test("Creating Index with options", function (assert) {
     var done = assert.async();
     assert.expect(6);
 
     var unique = true;
     var multiEntry = true;
     initionalSituationObjectStore(
-        function() {
+        function () {
             var request = indexedDb.open(dbName, 2);
-            request.onsuccess = function(e) {
+            request.onsuccess = function (e) {
                 try {
                     var transaction = e.target.result.transaction([
                         objectStoreName,
@@ -96,16 +95,16 @@ QUnit.test("Creating Index with options", function(assert) {
                         }
                     }
 
-                    transaction.oncomplete = function(e) {
+                    transaction.oncomplete = function (e) {
                         e.target.db.close();
                         done();
                     };
-                    transaction.onabort = function() {
+                    transaction.onabort = function () {
                         assert.ok(false, "Transaction aborted");
                         e.target.result.close();
                         done();
                     };
-                    transaction.onerror = function() {
+                    transaction.onerror = function () {
                         assert.ok(false, "Transaction error");
                         e.target.result.close();
                         done();
@@ -116,46 +115,45 @@ QUnit.test("Creating Index with options", function(assert) {
                     done();
                 }
             };
-            request.onerror = function() {
+            request.onerror = function () {
                 assert.ok(false, "Database error");
                 done();
             };
-            request.onupgradeneeded = function(e) {
+            request.onupgradeneeded = function (e) {
                 if (e.type == "upgradeneeded") {
                     try {
-                        var objectStore = e.target.transaction.objectStore(
-                            objectStoreName,
-                        );
+                        var objectStore =
+                            e.target.transaction.objectStore(objectStoreName);
                         var index = objectStore.createIndex(
                             indexProperty,
                             indexProperty,
                             {
                                 unique: unique,
                                 multiEntry: multiEntry,
-                            },
+                            }
                         );
                         assert.ok(true, "Index created");
                         assert.equal(index.name, indexProperty, "index name");
                         assert.equal(
                             index.keyPath,
                             indexProperty,
-                            "index keyPath",
+                            "index keyPath"
                         );
                         assert.equal(
                             index.unique,
                             unique,
-                            "index unique attribute",
+                            "index unique attribute"
                         );
                         if (index.multiEntry) {
                             assert.equal(
                                 index.multiEntry,
                                 multiEntry,
-                                "index multiEntry attribute",
+                                "index multiEntry attribute"
                             );
                         } else {
                             assert.ok(
                                 true,
-                                "IE doesn't implement multiEntry yet.",
+                                "IE doesn't implement multiEntry yet."
                             );
                         }
                     } catch (ex) {
@@ -165,17 +163,17 @@ QUnit.test("Creating Index with options", function(assert) {
             };
         },
         done,
-        assert,
+        assert
     );
 });
-QUnit.test("Opening Index", function(assert) {
+QUnit.test("Opening Index", function (assert) {
     var done = assert.async();
     assert.expect(1);
 
     initionalSituationIndex(
-        function() {
+        function () {
             var request = indexedDb.open(dbName, 2);
-            request.onsuccess = function(e) {
+            request.onsuccess = function (e) {
                 try {
                     var transaction = e.target.result.transaction([
                         objectStoreName,
@@ -187,16 +185,16 @@ QUnit.test("Opening Index", function(assert) {
                         assert.ok(true, "Index open");
                     }
 
-                    transaction.oncomplete = function(e) {
+                    transaction.oncomplete = function (e) {
                         e.target.db.close();
                         done();
                     };
-                    transaction.onabort = function() {
+                    transaction.onabort = function () {
                         assert.ok(false, "Transaction aborted");
                         e.target.result.close();
                         done();
                     };
-                    transaction.onerror = function() {
+                    transaction.onerror = function () {
                         assert.ok(false, "Transaction error");
                         e.target.result.close();
                         done();
@@ -207,24 +205,24 @@ QUnit.test("Opening Index", function(assert) {
                     done();
                 }
             };
-            request.onerror = function() {
+            request.onerror = function () {
                 assert.ok(false, "Database error");
                 done();
             };
         },
         done,
-        assert,
+        assert
     );
 });
-QUnit.test("Opening Index - non existing index", function(assert) {
+QUnit.test("Opening Index - non existing index", function (assert) {
     var done = assert.async();
     assert.expect(1);
 
     var anotherIndex = "anotherIndex";
     initionalSituationIndex(
-        function() {
+        function () {
             var request = indexedDb.open(dbName, 2);
-            request.onsuccess = function(e) {
+            request.onsuccess = function (e) {
                 try {
                     var transaction = e.target.result.transaction([
                         objectStoreName,
@@ -238,15 +236,15 @@ QUnit.test("Opening Index - non existing index", function(assert) {
                         assert.ok(true, "Index error");
                     }
 
-                    transaction.oncomplete = function(e) {
+                    transaction.oncomplete = function (e) {
                         e.target.db.close();
                         done();
                     };
-                    transaction.onabort = function() {
+                    transaction.onabort = function () {
                         e.target.result.close();
                         done();
                     };
-                    transaction.onerror = function() {
+                    transaction.onerror = function () {
                         assert.ok(false, "Transaction error");
                         e.target.result.close();
                         done();
@@ -257,23 +255,23 @@ QUnit.test("Opening Index - non existing index", function(assert) {
                     done();
                 }
             };
-            request.onerror = function() {
+            request.onerror = function () {
                 assert.ok(false, "Database error");
                 done();
             };
         },
         done,
-        assert,
+        assert
     );
 });
-QUnit.test("Deleting Index", function(assert) {
+QUnit.test("Deleting Index", function (assert) {
     var done = assert.async();
     assert.expect(1);
 
     initionalSituationIndex(
-        function() {
+        function () {
             var request = indexedDb.open(dbName, 2);
-            request.onsuccess = function(e) {
+            request.onsuccess = function (e) {
                 try {
                     var transaction = e.target.result.transaction([
                         objectStoreName,
@@ -286,16 +284,16 @@ QUnit.test("Deleting Index", function(assert) {
                         }
                     }
 
-                    transaction.oncomplete = function(e) {
+                    transaction.oncomplete = function (e) {
                         e.target.db.close();
                         done();
                     };
-                    transaction.onabort = function() {
+                    transaction.onabort = function () {
                         assert.ok(false, "Transaction aborted");
                         e.target.result.close();
                         done();
                     };
-                    transaction.onerror = function() {
+                    transaction.onerror = function () {
                         assert.ok(false, "Transaction error");
                         e.target.result.close();
                         done();
@@ -306,16 +304,15 @@ QUnit.test("Deleting Index", function(assert) {
                     done();
                 }
             };
-            request.onerror = function() {
+            request.onerror = function () {
                 assert.ok(false, "Database error");
                 done();
             };
-            request.onupgradeneeded = function(e) {
+            request.onupgradeneeded = function (e) {
                 if (e.type == "upgradeneeded") {
                     try {
-                        var objectStore = e.target.transaction.objectStore(
-                            objectStoreName,
-                        );
+                        var objectStore =
+                            e.target.transaction.objectStore(objectStoreName);
                         var index = objectStore.deleteIndex(indexProperty);
                         assert.ok(true, "Index deleted");
                     } catch (ex) {
@@ -325,6 +322,6 @@ QUnit.test("Deleting Index", function(assert) {
             };
         },
         done,
-        assert,
+        assert
     );
 });
