@@ -18,7 +18,7 @@ yarn add --dev fake-indexeddb
 
 Functionally, it works exactly like IndexedDB except data is not persisted to disk.
 
-The easiest way to use it is to import `fake-indexeddb/auto`, which will put all the IndexedDB variables in the global scope:
+The easiest way to use it is to import `fake-indexeddb/auto`, which will put all the IndexedDB variables in the global scope. (Both `import` and `require` are supported, use whichever you like, but the examples here are all `import`.)
 
 ```js
 import "fake-indexeddb/auto";
@@ -83,10 +83,6 @@ import {
 } from "fake-indexeddb";
 ```
 
-### ECMAScript modules (`import`) vs CommonJS (`require`)
-
-Starting with version 4, fake-indexeddb uses ES modules rather than CommonJS. That means you need to `import` it, not `require` it. If that's a problem for you, stick to version 3 of fake-indexeddb, which supports `require("fake-indexeddb")`. Version 3 has basically all the same functionality as version 4, and I'll try to make any important bug fixes in both versions.
-
 ### TypeScript
 
 As of version 4, fake-indexeddb includes TypeScript types. As you can see in types.d.ts, it's just using TypeScript's built-in IndexedDB types, rather than generating types from the fake-indexeddb code base. The reason I did this is for compatibility with your application code that may already be using TypeScript's IndexedDB types, so if I used something different for fake-indexeddb, it could lead to spurious type errors. In theory this could lead to other errors if there are differences between Typescript's IndexedDB types and fake-indexeddb's API, but currently I'm not aware of any difference. See [issue #23](https://github.com/dumbmatter/fakeIndexedDB/issues/23) for more discussion.
@@ -115,21 +111,21 @@ const db = new Dexie("MyDatabase", { indexedDB: indexedDB, IDBKeyRange: IDBKeyRa
 
 ### Jest
 
-Out of the box, Jest v27 only supports CommonJS, not ES modules, so you'll have to do a little extra work to opt in to ES modules,  either [for all your test files](https://jestjs.io/docs/ecmascript-modules) or by configuring Jest to [transpile fake-indexeddb](https://stackoverflow.com/a/43197503/786644). If you can't do that, you should use fake-indexeddb v3, see the above "ECMAScript modules" section for more info.
-
 To use fake-indexeddb in a single Jest test suite, require `fake-indexeddb/auto` at the beginning of the test
 file, as described above.
 
-To use it on all Jest tests without having to require it in each file, add the auto setup script to the `setupFiles` in your Jest config:
+To use it on all Jest tests without having to include it in each file, add the auto setup script to the `setupFiles` in your Jest config:
 
 ```json
 {
     ...
     "setupFiles": [
-        "fake-indexeddb/auto"
+        "fake-indexeddb/auto.cjs"
     ]
 }
 ```
+
+That's "auto.cjs" rather than just "auto" to make sure it picks up the CommonJS version. Otherwise it would use the ESM version, which Jest does not support without [some extra configuration](https://jestjs.io/docs/ecmascript-modules).
 
 ### Wiping/resetting the indexedDB for a fresh state
 

@@ -32,6 +32,7 @@
             "import": "./auto.js",
             "require": "./auto.cjs"
         },
+        "./auto.cjs": "./auto.cjs",
         "./lib/fakeIndexedDB": {
             "import": "./build/esm/fakeIndexedDB.js",
             "require": "./build/cjs/fakeIndexedDB.js"
@@ -103,8 +104,9 @@
     "author": "Jeremy Scheff <jdscheff@gmail.com> (http://dumbmatter.com/)",
     "license": "Apache-2.0",
     "files": [
-        "auto.js",
+        "auto.cjs",
         "auto.d.ts",
+        "auto.js",
         "build",
         "lib/*.d.ts",
         "types.d.ts"
