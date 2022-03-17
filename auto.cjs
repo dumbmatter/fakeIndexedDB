@@ -1,15 +1,15 @@
-import fakeIndexedDB from "./build/esm/fakeIndexedDB.js";
-import FDBCursor from "./build/esm/FDBCursor.js";
-import FDBCursorWithValue from "./build/esm/FDBCursorWithValue.js";
-import FDBDatabase from "./build/esm/FDBDatabase.js";
-import FDBFactory from "./build/esm/FDBFactory.js";
-import FDBIndex from "./build/esm/FDBIndex.js";
-import FDBKeyRange from "./build/esm/FDBKeyRange.js";
-import FDBObjectStore from "./build/esm/FDBObjectStore.js";
-import FDBOpenDBRequest from "./build/esm/FDBOpenDBRequest.js";
-import FDBRequest from "./build/esm/FDBRequest.js";
-import FDBTransaction from "./build/esm/FDBTransaction.js";
-import FDBVersionChangeEvent from "./build/esm/FDBVersionChangeEvent.js";
+const fakeIndexedDB = require("./build/cjs/fakeIndexedDB.js");
+const FDBCursor = require("./build/cjs/FDBCursor.js");
+const FDBCursorWithValue = require("./build/cjs/FDBCursorWithValue.js");
+const FDBDatabase = require("./build/cjs/FDBDatabase.js");
+const FDBFactory = require("./build/cjs/FDBFactory.js");
+const FDBIndex = require("./build/cjs/FDBIndex.js");
+const FDBKeyRange = require("./build/cjs/FDBKeyRange.js");
+const FDBObjectStore = require("./build/cjs/FDBObjectStore.js");
+const FDBOpenDBRequest = require("./build/cjs/FDBOpenDBRequest.js");
+const FDBRequest = require("./build/cjs/FDBRequest.js");
+const FDBTransaction = require("./build/cjs/FDBTransaction.js");
+const FDBVersionChangeEvent = require("./build/cjs/FDBVersionChangeEvent.js");
 
 // http://stackoverflow.com/a/33268326/786644 - works in browser, worker, and Node.js
 var globalVar =

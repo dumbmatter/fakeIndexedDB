@@ -13,4 +13,4 @@ import {
     IDBRequest,
     IDBTransaction,
     IDBVersionChangeEvent,
-} from "../build/index.js";
+} from "../build/esm/index.js";

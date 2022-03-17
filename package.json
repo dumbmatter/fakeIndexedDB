@@ -21,38 +21,83 @@
         "shim"
     ],
     "type": "module",
-    "main": "./build/index.js",
+    "main": "./build/cjs/index.js",
+    "module": "./build/esm/index.js",
     "exports": {
-        ".": "./build/index.js",
-        "./auto": "./auto.js",
-        "./lib/fakeIndexedDB": "./build/fakeIndexedDB.js",
-        "./lib/FDBCursor": "./build/FDBCursor.js",
-        "./lib/FDBCursorWithValue": "./build/FDBCursorWithValue.js",
-        "./lib/FDBDatabase": "./build/FDBDatabase.js",
-        "./lib/FDBFactory": "./build/FDBFactory.js",
-        "./lib/FDBIndex": "./build/FDBIndex.js",
-        "./lib/FDBKeyRange": "./build/FDBKeyRange.js",
-        "./lib/FDBObjectStore": "./build/FDBObjectStore.js",
-        "./lib/FDBOpenDBRequest": "./build/FDBOpenDBRequest.js",
-        "./lib/FDBRequest": "./build/FDBRequest.js",
-        "./lib/FDBTransaction": "./build/FDBTransaction.js",
-        "./lib/FDBVersionChangeEvent": "./build/FDBVersionChangeEvent.js"
+        ".": {
+            "import": "./build/esm/index.js",
+            "require": "./build/cjs/index.js"
+        },
+        "./auto": {
+            "import": "./auto.js",
+            "require": "./auto.cjs"
+        },
+        "./lib/fakeIndexedDB": {
+            "import": "./build/esm/fakeIndexedDB.js",
+            "require": "./build/cjs/fakeIndexedDB.js"
+        },
+        "./lib/FDBCursor": {
+            "import": "./build/esm/FDBCursor.js",
+            "require": "./build/cjs/FDBCursor.js"
+        },
+        "./lib/FDBCursorWithValue": {
+            "import": "./build/esm/FDBCursorWithValue.js",
+            "require": "./build/cjs/FDBCursorWithValue.js"
+        },
+        "./lib/FDBDatabase": {
+            "import": "./build/esm/FDBDatabase.js",
+            "require": "./build/cjs/FDBDatabase.js"
+        },
+        "./lib/FDBFactory": {
+            "import": "./build/esm/FDBFactory.js",
+            "require": "./build/cjs/FDBFactory.js"
+        },
+        "./lib/FDBIndex": {
+            "import": "./build/esm/FDBIndex.js",
+            "require": "./build/cjs/FDBIndex.js"
+        },
+        "./lib/FDBKeyRange": {
+            "import": "./build/esm/FDBKeyRange.js",
+            "require": "./build/cjs/FDBKeyRange.js"
+        },
+        "./lib/FDBObjectStore": {
+            "import": "./build/esm/FDBObjectStore.js",
+            "require": "./build/cjs/FDBObjectStore.js"
+        },
+        "./lib/FDBOpenDBRequest": {
+            "import": "./build/esm/FDBOpenDBRequest.js",
+            "require": "./build/cjs/FDBOpenDBRequest.js"
+        },
+        "./lib/FDBRequest": {
+            "import": "./build/esm/FDBRequest.js",
+            "require": "./build/cjs/FDBRequest.js"
+        },
+        "./lib/FDBTransaction": {
+            "import": "./build/esm/FDBTransaction.js",
+            "require": "./build/cjs/FDBTransaction.js"
+        },
+        "./lib/FDBVersionChangeEvent": {
+            "import": "./build/esm/FDBVersionChangeEvent.js",
+            "require": "./build/cjs/FDBVersionChangeEvent.js"
+        }
     },
     "engines": {
-        "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+        "node": ">=12.0.0"
     },
     "types": "./types.d.ts",
     "scripts": {
-        "build": "rm -rf build && tsc",
-        "prepublishOnly": "npm run build && rm -rf build/test",
-        "lint": "tslint  'src/**/*.ts'",
+        "build": "rm -rf build && yarn run build-esm && yarn run build-cjs",
+        "build-cjs": "BABEL_ENV=cjs babel src --out-dir build/cjs --extensions \".ts\" && echo '{\"type\":\"commonjs\"}' > build/cjs/package.json",
+        "build-esm": "babel src --out-dir build/esm --extensions \".ts\"",
+        "prepublishOnly": "yarn run build && rm -rf build/cjs/test && rm -rf build/esm/test",
+        "lint": "tslint  'src/**/*.ts' && yarn run tsc",
         "prettier": "prettier --write *.json  'src/**/*.{js,ts}'",
         "test-jest": "node --experimental-vm-modules node_modules/.bin/jest test/jest.js",
-        "test-mocha": "mocha --timeout 10000 build/test/fakeIndexedDB",
-        "build-qunit": "browserify src/test/indexedDBmock/exports-qunit-bundle.js -o build/test/indexedDBmock/exports-qunit-bundle.js -t [ babelify --presets [ @babel/preset-env ] ] && cp src/test/indexedDBmock/index.html build/test/indexedDBmock/index.html",
-        "test-qunit": "npm run build-qunit && node-qunit-phantomjs build/test/indexedDBmock/index.html",
+        "test-mocha": "mocha --timeout 10000 build/esm/test/fakeIndexedDB",
+        "build-qunit": "mkdir build/esm/test/indexedDBmock && cp src/test/indexedDBmock/* build/esm/test/indexedDBmock && browserify src/test/indexedDBmock/exports-qunit-bundle.js -o build/esm/test/indexedDBmock/exports-qunit-bundle.js -t [ babelify --presets [ @babel/preset-env ] ]",
+        "test-qunit": "yarn run build-qunit && node-qunit-phantomjs build/esm/test/indexedDBmock/index.html",
         "test-w3c": "node src/test/web-platform-tests/run-all.js",
-        "test": "npm run lint && npm run build && npm run test-jest && node test/test.js && npm run test-w3c && npm run test-mocha && npm run test-qunit",
+        "test": "rm -rf build && yarn run lint && yarn run build && yarn run test-jest && node test/test.js && yarn run test-w3c && yarn run test-mocha && yarn run test-qunit",
         "prepare": "husky install"
     },
     "author": "Jeremy Scheff <jdscheff@gmail.com> (http://dumbmatter.com/)",
@@ -68,10 +113,14 @@
         "realistic-structured-clone": "^2.0.1"
     },
     "devDependencies": {
+        "@babel/cli": "^7.17.6",
         "@babel/core": "^7.17.7",
+        "@babel/plugin-transform-modules-commonjs": "^7.17.7",
         "@babel/preset-env": "^7.16.11",
+        "@babel/preset-typescript": "^7.16.7",
         "@types/mocha": "^9.1.0",
         "@types/node": "^17.0.21",
+        "babel-plugin-add-module-exports": "^1.0.4",
         "babelify": "^10.0.0",
         "browserify": "^17.0.0",
         "core-js": "^3.21.1",

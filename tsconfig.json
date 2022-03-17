@@ -10,13 +10,15 @@
         "downlevelIteration": true,
         "noEmitOnError": true,
         "strict": true,
-        "useUnknownInCatchVariables": false
+        "useUnknownInCatchVariables": false,
+        "noEmit": true
     },
     "exclude": [
         "node_modules",
         "build",
         "lib",
         "src/test/web-platform-tests",
+        "auto.cjs",
         "auto.js",
         "jest.config.js",
         "test",

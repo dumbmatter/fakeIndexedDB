@@ -1,6 +1,6 @@
 import assert from "node:assert";
 import "../../../auto.js";
-import FakeEvent from "../../../build/lib/FakeEvent.js";
+import FakeEvent from "../../../build/esm/lib/FakeEvent.js";
 
 global.Event = FakeEvent;
 

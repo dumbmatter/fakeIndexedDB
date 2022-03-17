@@ -2,26 +2,25 @@
 
 - #23 - TypeScript support! As of version 4, fake-indexeddb includes TypeScript types. As you can see in types.d.ts, it's just using TypeScript's built-in IndexedDB types, rather than generating types from the fake-indexeddb code base. The reason I did this is for compatibility with your application code that may already be using TypeScript's IndexedDB types, so if I used something different for fake-indexeddb, it could lead to spurious type errors. In theory this could lead to other errors if there are differences between Typescript's IndexedDB types and fake-indexeddb's API, but currently I'm not aware of any difference.
 
-- Switched from CommonJS to ECMAScript modules. That means you need to `import` it, not `require` it. If that's a problem for you, stick to version 3 of fake-indexeddb, which supports `require("fake-indexeddb")`. Version 3 has basically all the same functionality as version 4, and I'll try to make any important bug fixes in both versions.
+- Added support for ES modules in addition to CommonJS modules. That means you can `import` or `require` and it should just work.
 
-- Since we're now using ES modules, I made all the IndexedDB objects into named exports. So you can do this:
+- **Breaking change:** The easiest way to use this module is still to import/require `"fake-indexeddb/auto"`. If instead you want to import an individual variable rather than populate the global scope with all of them, previously you would do `const indexedDB = require("fake-indexeddb");` for the main `indexedDB` variable and `const IDBKeyRange = require("fake-indexeddb/lib/FDBKeyRange");` for any of the other IndexedDB variables. In this release, I made everything a named export of the main package, so you can do:
 
    ```js
    import { indexedDB, IDBKeyRange } from "fake-indexeddb";
    ```
 
-   rather than this:
+   or
 
    ```js
-   import indexeddb from "fake-indexeddb";
-   import IDBKeyRange from "fake-indexeddb/lib/FDBKeyrange";
+   const { indexedDB, IDBKeyRange } from require("fake-indexeddb");
    ```
 
-   The latter syntax still works for backwards compatibility purposes, but it's not as nice.
+   For backwards compatibility, the `require("fake-indexeddb/lib/FDBKeyRange")` syntax still is supported, but the new exports of the main module are a breaking change. `indexedDB` is still the default export, but in CommonJS you can't have both default and named exports, so the default export is really just an export named `"default"`. Depending on how you're using it, some tools may be smart enough to figure that out, but some would require you to either switch to a named export or switch to the ES module version.
 
-- Also related to the ES modules change, support for old versions of Node.js is dropped. Specifically, the supported versions of Node.js are now `^12.20.0 || ^14.13.1 || >=16.0.0`, based on [this recommendation](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c).
+- **Breaking change:** Dropped support for versions of Node.js older than Node 12.
 
-- #66 - Removed `Array` properties (like `includes`, `sort`, etc.) from the internal `FakeDOMStringList` class, which is used for parts of IndexedDB that return a `DOMStringList` which is a weird old thing that is kind of like an array but has many fewer properties. As described in #66, leaving that extra `Array` stuff led to the possibility your tests would pass but your application would crash. If you were relying on these non-standard properties in your tests but carefully not using them in your application code, this is a breaking change. This likely affects very few people.
+- **Breaking change:** #66 - Removed `Array` properties (like `includes`, `sort`, etc.) from the internal `FakeDOMStringList` class, which is used for parts of IndexedDB that return a `DOMStringList` which is a weird old thing that is kind of like an array but has many fewer properties. As described in #66, leaving that extra `Array` stuff led to the possibility your tests would pass but your application would crash. If you were relying on these non-standard properties in your tests but carefully not using them in your application code, this is a breaking change. This likely affects very few people.
 
 - For environments with a built-in `structuredClone` function (such as Node.js 17+), that is used rather than the `realistic-structured-clone` NPM module. There are some differences between the two implementations of the structured cloning algorithm, but probably nothing noticable, and probably all is in the direction of better spec compliance such as [this](https://github.com/dumbmatter/realistic-structured-clone/issues/8) or [this](https://github.com/dumbmatter/realistic-structured-clone/issues/10#issuecomment-966629946). There is also a minor performance increase with the built-in function - the test suite of fake-indexeddb runs about 5% faster.
 
