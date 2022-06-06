@@ -749,4 +749,43 @@ describe("fakeIndexedDB Tests", () => {
             };
         });
     });
+
+    it("can use deep index keypaths on undefined objects", async () => {
+        const indexedDB = new FDBFactory();
+
+        function idb(): Promise<FDBDatabase> {
+            return new Promise((resolve, reject) => {
+                indexedDB.deleteDatabase("deepPath").onsuccess = () => {
+                    const openreq = indexedDB.open("deepPath");
+                    openreq.onupgradeneeded = event => {
+                        const db: FDBDatabase = event.target.result;
+                        const test = db.createObjectStore("test");
+                        test.createIndex("deep", "foo.bar");
+                    };
+                    openreq.onsuccess = event => {
+                        const db: FDBDatabase = event.target.result;
+                        resolve(db);
+                    };
+                    openreq.onerror = reject;
+                };
+            });
+        }
+
+        const db1 = await idb();
+
+        const put = db1
+            .transaction(["test"], "readwrite")
+            .objectStore("test")
+            .put({ foo: undefined }, "key");
+
+        return new Promise((resolve, reject) => {
+            put.onsuccess = () => {
+                resolve();
+            };
+
+            put.onerror = () => {
+                reject(put.error);
+            };
+        });
+    });
 });
