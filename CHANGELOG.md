@@ -26,6 +26,10 @@
 
 - **Breaking change:** For environments with a built-in `structuredClone` function (such as Node.js 17+), that is used rather than the `realistic-structured-clone` NPM module. There are some differences between the two implementations of the structured cloning algorithm, but probably nothing noticable, and probably all is in the direction of better spec compliance such as [this](https://github.com/dumbmatter/realistic-structured-clone/issues/8) or [this](https://github.com/dumbmatter/realistic-structured-clone/issues/10#issuecomment-966629946). There is also a minor performance increase with the built-in function - the test suite of fake-indexeddb runs about 5% faster.
 
+# 3.1.8 (2022-06-08)
+
+- #74 - Fixed error when adding undefined or null children in indexed objects, by @lukebrody
+
 # 3.1.7 (2021-10-19)
 
 - #71 - Fixed an error when used with jest/jsdom introduced in version 3.1.6.

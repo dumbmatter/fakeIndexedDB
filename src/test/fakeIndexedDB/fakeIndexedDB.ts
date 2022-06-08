@@ -26,7 +26,7 @@ describe("fakeIndexedDB Tests", () => {
             const startTx = (
                 db: FDBDatabase,
                 mode: TransactionMode,
-                desc: number | string,
+                desc: number | string
             ) => {
                 const tx = db.transaction("store", mode);
                 tx.objectStore("store").get(1).onsuccess = () => {
@@ -101,7 +101,7 @@ describe("fakeIndexedDB Tests", () => {
                     tx.objectStore("store").get(11).onsuccess = (e3) => {
                         assert.equal(
                             e3.target.result.content,
-                            "SHOULD BE ROLLED BACK",
+                            "SHOULD BE ROLLED BACK"
                         );
                         tx.abort();
                     };
@@ -122,7 +122,7 @@ describe("fakeIndexedDB Tests", () => {
                     tx2.objectStore("store").get(11).onsuccess = (e3) => {
                         assert.equal(
                             e3.target.result.content,
-                            "SHOULD BE 11TH RECORD",
+                            "SHOULD BE 11TH RECORD"
                         );
                     };
                 };
@@ -219,12 +219,12 @@ describe("fakeIndexedDB Tests", () => {
                 const tx = db.transaction("store", "readwrite");
                 tx.objectStore("store").put(
                     { content: "SHOULD BE ROLLED BACK" },
-                    10,
+                    10
                 );
                 tx.objectStore("store").get(10).onsuccess = (e2) => {
                     assert.equal(
                         e2.target.result.content,
-                        "SHOULD BE ROLLED BACK",
+                        "SHOULD BE ROLLED BACK"
                     );
                     tx.abort();
                 };
@@ -302,7 +302,7 @@ describe("fakeIndexedDB Tests", () => {
                     tx.objectStore("store").get(3).onsuccess = (e3) => {
                         assert.equal(
                             e3.target.result.content,
-                            "SHOULD BE ROLLED BACK",
+                            "SHOULD BE ROLLED BACK"
                         );
                         tx.abort();
                     };
@@ -460,7 +460,7 @@ describe("fakeIndexedDB Tests", () => {
 
             const tx = db.transaction("books", "readwrite");
             tx.objectStore("books").openCursor(["Fred", 123456]).onsuccess = (
-                event2,
+                event2
             ) => {
                 const cursor: FDBCursorWithValue = event2.target.result;
                 cursor.value.price = 5.99;
@@ -606,7 +606,7 @@ describe("fakeIndexedDB Tests", () => {
         openreq.onsuccess = (event) => {
             const db = event.target.result;
             db.transaction("items").objectStore("items").count().onsuccess = (
-                event2: any,
+                event2: any
             ) => {
                 assert.equal(event2.target.result, 3);
                 const req = db
@@ -775,6 +775,45 @@ describe("fakeIndexedDB Tests", () => {
 
             assert.strictEqual(list.includes, undefined);
             assert.strictEqual(array.includes("b"), true);
+        });
+    });
+
+    it("can use deep index keypaths on undefined objects", async () => {
+        const indexedDB = new FDBFactory();
+
+        function idb(): Promise<FDBDatabase> {
+            return new Promise((resolve, reject) => {
+                indexedDB.deleteDatabase("deepPath").onsuccess = () => {
+                    const openreq = indexedDB.open("deepPath");
+                    openreq.onupgradeneeded = (event) => {
+                        const db: FDBDatabase = event.target.result;
+                        const test = db.createObjectStore("test");
+                        test.createIndex("deep", "foo.bar");
+                    };
+                    openreq.onsuccess = (event) => {
+                        const db: FDBDatabase = event.target.result;
+                        resolve(db);
+                    };
+                    openreq.onerror = reject;
+                };
+            });
+        }
+
+        const db1 = await idb();
+
+        const put = db1
+            .transaction(["test"], "readwrite")
+            .objectStore("test")
+            .put({ foo: undefined }, "key");
+
+        return new Promise((resolve, reject) => {
+            put.onsuccess = () => {
+                resolve();
+            };
+
+            put.onerror = () => {
+                reject(put.error);
+            };
         });
     });
 });
