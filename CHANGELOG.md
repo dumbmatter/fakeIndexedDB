@@ -1,3 +1,7 @@
+# 3.1.8 (2022-06-08)
+
+- #74 - Fixed error when adding undefined or null children in indexed objects, by @lukebrody
+
 # 3.1.7 (2021-10-19)
 
 - #71 - Fixed an error when used with jest/jsdom introduced in version 3.1.6.
