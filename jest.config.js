@@ -1,4 +1,4 @@
 export default {
-    setupFiles: ["./auto.js"],
+    setupFiles: ["./auto"],
     testMatch: ["<rootDir>/test/jest.js"],
 };

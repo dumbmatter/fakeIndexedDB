@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import "../../../auto.js";
+import "../../../auto/index.mjs";
 import FakeEvent from "../../../build/esm/lib/FakeEvent.js";
 
 global.Event = FakeEvent;
@@ -50,7 +50,7 @@ const assert_class_string = (object, class_string, description) => {
     assert_equals(
         object.toString(),
         "[object " + class_string + "]",
-        description,
+        description
     );
 };
 
@@ -143,7 +143,7 @@ class AsyncTest {
             this.step_func(() => {
                 return fn.apply(this, args);
             }),
-            timeout,
+            timeout
         );
     }
 
@@ -199,7 +199,7 @@ function EventWatcher(test, watchedNode, eventTypes) {
     var eventHandler = test.step_func(function (evt) {
         assert_true(
             !!waitingFor,
-            "Not expecting event, but got " + evt.type + " event",
+            "Not expecting event, but got " + evt.type + " event"
         );
         assert_equals(
             evt.type,
@@ -208,7 +208,7 @@ function EventWatcher(test, watchedNode, eventTypes) {
                 waitingFor.types[0] +
                 " event, but got " +
                 evt.type +
-                " event instead",
+                " event instead"
         );
         if (waitingFor.types.length > 1) {
             // Pop first event from array
@@ -431,7 +431,7 @@ const promise_test = (func, name, properties) => {
             .catch(
                 test.step_func(function (value) {
                     throw value;
-                }),
+                })
             );
         return donePromise;
     });

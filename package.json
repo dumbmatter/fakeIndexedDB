@@ -29,8 +29,8 @@
             "require": "./build/cjs/index.js"
         },
         "./auto": {
-            "import": "./auto.js",
-            "require": "./auto.cjs"
+            "import": "./auto/index.mjs",
+            "require": "./auto/index.js"
         },
         "./auto.cjs": "./auto.cjs",
         "./lib/fakeIndexedDB": {
@@ -101,9 +101,8 @@
     "author": "Jeremy Scheff <jdscheff@gmail.com> (http://dumbmatter.com/)",
     "license": "Apache-2.0",
     "files": [
-        "auto.cjs",
+        "auto",
         "auto.d.ts",
-        "auto.js",
         "build",
         "lib/*.d.ts",
         "types.d.ts"
