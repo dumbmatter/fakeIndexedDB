@@ -120,12 +120,10 @@ To use it on all Jest tests without having to include it in each file, add the a
 {
     ...
     "setupFiles": [
-        "fake-indexeddb/auto.cjs"
+        "fake-indexeddb/auto"
     ]
 }
 ```
-
-That's "auto.cjs" rather than just "auto" to make sure it picks up the CommonJS version. Otherwise it would use the ESM version, which Jest does not support without [some extra configuration](https://jestjs.io/docs/ecmascript-modules).
 
 ### Wiping/resetting the indexedDB for a fresh state
 
