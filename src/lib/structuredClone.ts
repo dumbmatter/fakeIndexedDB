@@ -5,9 +5,7 @@ import realisticStructuredClone from "realistic-structured-clone";
 import { DataCloneError } from "./errors.js";
 
 const structuredCloneWrapper = <T>(input: T): T => {
-    // @ts-expect-error
     if (typeof structuredClone !== "undefined") {
-        // @ts-expect-error
         return structuredClone(input);
     }
 

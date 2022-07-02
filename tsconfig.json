@@ -1,12 +1,10 @@
 {
     "compilerOptions": {
         "rootDir": "./src",
-        "outDir": "./build",
         "target": "es2020",
         "lib": ["dom", "es2020"],
         "module": "ES2020",
         "moduleResolution": "node",
-        "allowJs": true,
         "downlevelIteration": true,
         "noEmitOnError": true,
         "strict": true,
