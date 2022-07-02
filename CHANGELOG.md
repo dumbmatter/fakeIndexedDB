@@ -1,4 +1,8 @@
-# 4.0.0 (beta)
+# 4.0.0 (2022-07-02)
+
+TLDR: Most users can upgrade without doing any extra work, but you might need to change `require("fake-indexeddb")` to `require("fake-indexeddb").default`. All other ways of importing fake-indexeddb (such as with `import`, or requiring sub-modules like `require("fake-indexeddb/auto")` or `require("fake-indexeddb/lib/FDBKeyRange")`) should continue working like normal.
+
+Details:
 
 - #23 - TypeScript support! As of version 4, fake-indexeddb includes TypeScript types. As you can see in types.d.ts, it's just using TypeScript's built-in IndexedDB types, rather than generating types from the fake-indexeddb code base. The reason I did this is for compatibility with your application code that may already be using TypeScript's IndexedDB types, so if I used something different for fake-indexeddb, it could lead to spurious type errors. In theory this could lead to other errors if there are differences between Typescript's IndexedDB types and fake-indexeddb's API, but currently I'm not aware of any difference.
 
@@ -16,7 +20,7 @@
    const { indexedDB, IDBKeyRange } = require("fake-indexeddb");
    ```
 
-   For backwards compatibility, the `require("fake-indexeddb/lib/FDBKeyRange")` syntax still is supported, but the new exports of the main module are a breaking change. `indexedDB` is still the default export, but in CommonJS you can't have both default and named exports, so the default export is really just an export named `"default"`. Depending on how you're using it, some tools may be smart enough to figure that out, but some would require you to either switch to a named export or switch to the ES module version.
+   For backwards compatibility, the `require("fake-indexeddb/lib/FDBKeyRange")` syntax still is supported, but the new exports of the main module are a breaking change. `indexedDB` is still the default export, but in CommonJS you can't have both default and named exports, so the default export is really just an property named `"default"`. This may requrie changing requires of the root module like `require("fake-indexeddb")` to `require("fake-indexeddb").default`. Or switch to ES modules and `import` it :)
 
 - **Breaking change:** Dropped support for versions of Node.js older than Node 12.
 
