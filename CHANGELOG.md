@@ -13,12 +13,14 @@
    or
 
    ```js
-   const { indexedDB, IDBKeyRange } from require("fake-indexeddb");
+   const { indexedDB, IDBKeyRange } = require("fake-indexeddb");
    ```
 
-   For backwards compatibility, the `require("fake-indexeddb/lib/FDBKeyRange")` syntax still is supported, but the new exports of the main module are a breaking change. `indexedDB` is still the default export, but in CommonJS you can't have both default and named exports, so the default export is really just an export named `"default"`. Depending on how you're using it, some tools may be smart enough to figure that out, but some would require you to either switch to a named export or switch to the ES module version.
+   For backwards compatibility, the `require("fake-indexeddb/lib/FDBKeyRange")` syntax still is supported (only in environments that support the `exports` field in package.json), but the new exports of the main module are a breaking change. `indexedDB` is still the default export, but in CommonJS you can't have both default and named exports, so the default export is really just an export named `"default"`. Depending on how you're using it, some tools may be smart enough to figure that out, but some would require you to either switch to a named export or switch to the ES module version.
 
-   Another common issue - if you're using Jest 27 or earlier (latest version as of right now is 28) and include `"fake-indexeddb/auto"` in your `setupFiles` like described in the README here, that may pick up the ESM version of fake-indexeddb, which Jest does not support without [some extra configuration](https://jestjs.io/docs/ecmascript-modules). Change it to `"fake-indexeddb/auto.cjs"` and it will work. Please note that this is only for `setupFiles` config - if you were `require`ing fake-indexeddb directly, that should continue to work fine, except possibly for the aforementioned default export change.
+   **Jest 27 or earlier** may have some issues with this, since Jest 28 was the first to handle the `exports` field in package.json. So if include `"fake-indexeddb/auto"` in your `setupFiles` like described in the README here, that may pick up the ESM version of fake-indexeddb, which Jest does not support without [some extra configuration](https://jestjs.io/docs/ecmascript-modules). Change it to `"fake-indexeddb/auto.cjs"` and it will work.
+   
+   Additionally for Jest 27 or earlier, if you `require` any part of fake-indexeddb inside your test files, it may not find the correct module, due to the same package.json `exports` issue. If that happens, switch to the syntax shown above, like `const { IDBKeyRange } = require("fake-indexeddb");` rather than `const IDBKeyRange = require("fake-indexeddb/lib/FDBKeyRange");`
 
 - **Breaking change:** Dropped support for versions of Node.js older than Node 12.
 
