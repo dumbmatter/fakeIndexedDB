@@ -20,8 +20,6 @@
 
 - **Breaking change:** Dropped support for versions of Node.js older than Node 12.
 
-- **Breaking change:** #66 - Removed `Array` properties (like `includes`, `sort`, etc.) from the internal `FakeDOMStringList` class, which is used for parts of IndexedDB that return a `DOMStringList` which is a weird old thing that is kind of like an array but has many fewer properties. As described in #66, leaving that extra `Array` stuff led to the possibility your tests would pass but your application would crash. If you were relying on these non-standard properties in your tests but carefully not using them in your application code, this is a breaking change. This likely affects very few people.
-
 - **Breaking change:** For environments with a built-in `structuredClone` function (such as Node.js 17+), that is used rather than the `realistic-structured-clone` NPM module. There are some differences between the two implementations of the structured cloning algorithm, but probably nothing noticable, and probably all is in the direction of better spec compliance such as [this](https://github.com/dumbmatter/realistic-structured-clone/issues/8) or [this](https://github.com/dumbmatter/realistic-structured-clone/issues/10#issuecomment-966629946). There is also a minor performance increase with the built-in function - the test suite of fake-indexeddb runs about 5% faster.
 
 # 3.1.8 (2022-06-08)
