@@ -104,7 +104,7 @@
         "auto",
         "auto.d.ts",
         "build",
-        "lib/*.d.ts",
+        "lib",
         "types.d.ts"
     ],
     "dependencies": {
