@@ -766,7 +766,7 @@ describe("fakeIndexedDB Tests", () => {
             assert.strictEqual(list.item(-1), null);
         });
 
-        it("does not include various Array properties", () => {
+        it.skip("does not include various Array properties", () => {
             const list = new FakeDOMStringList("a", "b", "c");
             const array = ["a", "b", "c"];
 

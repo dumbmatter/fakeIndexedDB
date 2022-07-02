@@ -1,5 +1,3 @@
-// Subclass Array to get nice behaviors like destructuring, but delete various Array methods that don't exist on DOMStringList https://github.com/dumbmatter/fakeIndexedDB/issues/66#issuecomment-922407403
-
 class FakeDOMStringList extends Array<string> {
     contains(value: string) {
         for (const value2 of this) {
@@ -26,6 +24,8 @@ class FakeDOMStringList extends Array<string> {
     }
 }
 
+// Would be nice to remove these properties to fix https://github.com/dumbmatter/fakeIndexedDB/issues/66 but for some reason it breaks Dexie - see test/dexie.js and FakeDOMStringList tests
+/*
 // From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array
 const arrayPropertiesToDelete = ["from", "isArray", "of"];
 const arrayMethodsToDelete = [
@@ -68,5 +68,6 @@ for (const property of arrayPropertiesToDelete) {
 for (const property of arrayMethodsToDelete) {
     (FakeDOMStringList as any).prototype[property] = undefined;
 }
+*/
 
 export default FakeDOMStringList;

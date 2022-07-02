@@ -95,7 +95,7 @@
         "build-qunit": "mkdir build/esm/test/indexedDBmock && cp src/test/indexedDBmock/* build/esm/test/indexedDBmock && browserify src/test/indexedDBmock/exports-qunit-bundle.js -o build/esm/test/indexedDBmock/exports-qunit-bundle.js -t [ babelify --presets [ @babel/preset-env ] ]",
         "test-qunit": "yarn run build-qunit && node-qunit-phantomjs build/esm/test/indexedDBmock/index.html",
         "test-w3c": "node src/test/web-platform-tests/run-all.js",
-        "test": "rm -rf build && yarn run lint && yarn run build && yarn run test-jest && node test/test.js && yarn run test-w3c && yarn run test-mocha && yarn run test-qunit",
+        "test": "rm -rf build && yarn run lint && yarn run build && yarn run test-jest && node test/test.js && node test/dexie.js && yarn run test-w3c && yarn run test-mocha && yarn run test-qunit",
         "prepare": "husky install"
     },
     "author": "Jeremy Scheff <jdscheff@gmail.com> (http://dumbmatter.com/)",
@@ -122,6 +122,7 @@
         "babelify": "^10.0.0",
         "browserify": "^17.0.0",
         "core-js": "^3.23.3",
+        "dexie": "^3.2.2",
         "glob": "^8.0.3",
         "husky": "^7.0.4",
         "jest": "^28.1.2",
