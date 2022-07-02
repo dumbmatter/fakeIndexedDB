@@ -16,8 +16,7 @@
         "build",
         "lib",
         "src/test/web-platform-tests",
-        "auto.cjs",
-        "auto.js",
+        "auto",
         "jest.config.js",
         "test",
         "test.js"
