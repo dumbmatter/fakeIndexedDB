@@ -118,7 +118,6 @@ To use it on all Jest tests without having to include it in each file, add the a
 
 ```json
 {
-    ...
     "setupFiles": [
         "fake-indexeddb/auto"
     ]
@@ -129,7 +128,7 @@ To use it on all Jest tests without having to include it in each file, add the a
 
 If you are keeping your tests completely isolated you might want to "reset" the state of the mocked indexedDB. You can do this by creating a new instance of `IDBFactory`, which lets you have a totally fresh start.
 
-```
+```js
 import "fake-indexeddb/auto";
 import { IDBFactory } from "fake-indexeddb";
 
