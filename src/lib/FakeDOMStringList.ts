@@ -1,5 +1,5 @@
 class FakeDOMStringList extends Array<string> {
-    contains(value: string) {
+    contains = (value: string) => {
         for (const value2 of this) {
             if (value === value2) {
                 return true;
@@ -8,7 +8,7 @@ class FakeDOMStringList extends Array<string> {
         return false;
     }
 
-    item(i: number) {
+    item = (i: number) => {
         if (i < 0 || i >= this.length) {
             return null;
         }
@@ -16,10 +16,10 @@ class FakeDOMStringList extends Array<string> {
     }
 
     // Used internally, should not be used by others. I could maybe get rid of these and replace rather than mutate, but too lazy to check the spec.
-    _push(...values: Parameters<typeof Array.prototype.push>) {
+    _push = (...values: Parameters<typeof Array.prototype.push>) => {
         return Array.prototype.push.call(this, ...values);
     }
-    _sort(...values: Parameters<typeof Array.prototype.sort>) {
+    _sort = (...values: Parameters<typeof Array.prototype.sort>) => {
         return Array.prototype.sort.call(this, ...values);
     }
 }
