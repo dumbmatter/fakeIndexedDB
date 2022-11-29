@@ -1,3 +1,7 @@
+# 4.0.1 (2022-11-29)
+
+- #79 - Added missing `request` accessor to the `FDBCursor` object. Thank you @mmacfadden for the PR!
+
 # 4.0.0 (2022-07-02)
 
 TLDR: Most users can upgrade without doing any extra work, but you might need to change `require("fake-indexeddb")` to `require("fake-indexeddb").default`. All other ways of importing fake-indexeddb (such as with `import`, or requiring sub-modules like `require("fake-indexeddb/auto")` or `require("fake-indexeddb/lib/FDBKeyRange")`) should continue working like normal.
