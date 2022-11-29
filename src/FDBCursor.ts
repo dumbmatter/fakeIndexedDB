@@ -108,6 +108,13 @@ class FDBCursor {
         /* For babel */
     }
 
+    get request() {
+        return this._request;
+    }
+    set request(val) {
+        /* For babel */
+    }
+
     get direction() {
         return this._direction;
     }
