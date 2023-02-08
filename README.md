@@ -92,8 +92,9 @@ As of version 4, fake-indexeddb includes TypeScript types. As you can see in typ
 If you import `fake-indexeddb/auto` before calling `new Dexie()`, it should work:
 
 ```js
-import Dexie from "dexie";
+// import fake-indexeddb/auto first to make Dexie works correctly
 import "fake-indexeddb/auto";
+import Dexie from "dexie";
 
 const db = new Dexie("MyDatabase");
 ```
