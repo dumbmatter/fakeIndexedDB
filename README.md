@@ -89,10 +89,9 @@ As of version 4, fake-indexeddb includes TypeScript types. As you can see in typ
 
 ### Dexie and other IndexedDB API wrappers
 
-If you import `fake-indexeddb/auto` before calling `new Dexie()`, it should work:
+If you import `fake-indexeddb/auto` before importing `dexie`, it should work:
 
 ```js
-// import fake-indexeddb/auto first to make Dexie works correctly
 import "fake-indexeddb/auto";
 import Dexie from "dexie";
 
