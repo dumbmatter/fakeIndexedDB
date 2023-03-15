@@ -32,7 +32,6 @@
             "import": "./auto/index.mjs",
             "require": "./auto/index.js"
         },
-        "./auto.cjs": "./auto.cjs",
         "./lib/fakeIndexedDB": {
             "import": "./build/esm/fakeIndexedDB.js",
             "require": "./build/cjs/fakeIndexedDB.js"
