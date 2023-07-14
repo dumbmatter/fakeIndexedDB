@@ -1,3 +1,7 @@
+# 4.0.2 (2023-07-14)
+
+- #84 - Fix the TypeScript types in some situations.
+
 # 4.0.1 (2022-11-29)
 
 - #79 - Added missing `request` accessor to the `FDBCursor` object. Thank you @mmacfadden for the PR!
