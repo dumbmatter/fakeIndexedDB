@@ -8,6 +8,7 @@ import {
     TransactionInactiveError,
 } from "./lib/errors.js";
 import FakeDOMStringList from "./lib/FakeDOMStringList.js";
+import FakeEvent from "./lib/FakeEvent.js";
 import FakeEventTarget from "./lib/FakeEventTarget.js";
 import ObjectStore from "./lib/ObjectStore.js";
 import { queueTask } from "./lib/scheduling.js";
@@ -43,11 +44,12 @@ const closeConnection = (connection: FDBDatabase) => {
     const transactionsComplete = connection._rawDatabase.transactions.every(
         (transaction) => {
             return transaction._state === "finished";
-        },
+        }
     );
 
     if (transactionsComplete) {
         connection._closed = true;
+        connection.dispatchEvent(new FakeEvent("close"));
         connection._rawDatabase.connections =
             connection._rawDatabase.connections.filter((otherConnection) => {
                 return connection !== otherConnection;
@@ -79,14 +81,14 @@ class FDBDatabase extends FakeEventTarget {
         this.name = rawDatabase.name;
         this.version = rawDatabase.version;
         this.objectStoreNames = new FakeDOMStringList(
-            ...Array.from(rawDatabase.rawObjectStores.keys()).sort(),
+            ...Array.from(rawDatabase.rawObjectStores.keys()).sort()
         );
     }
 
     // http://w3c.github.io/IndexedDB/#dom-idbdatabase-createobjectstore
     public createObjectStore(
         name: string,
-        options: { autoIncrement?: boolean; keyPath?: KeyPath } | null = {},
+        options: { autoIncrement?: boolean; keyPath?: KeyPath } | null = {}
     ) {
         if (name === undefined) {
             throw new TypeError();
@@ -130,14 +132,14 @@ class FDBDatabase extends FakeEventTarget {
             this._rawDatabase,
             name,
             keyPath,
-            autoIncrement,
+            autoIncrement
         );
         this.objectStoreNames._push(name);
         this.objectStoreNames._sort();
         transaction._scope.add(name);
         this._rawDatabase.rawObjectStores.set(name, rawObjectStore);
         transaction.objectStoreNames = new FakeDOMStringList(
-            ...this.objectStoreNames,
+            ...this.objectStoreNames
         );
         return transaction.objectStore(name);
     }
@@ -156,10 +158,10 @@ class FDBDatabase extends FakeEventTarget {
         this.objectStoreNames = new FakeDOMStringList(
             ...Array.from(this.objectStoreNames).filter((objectStoreName) => {
                 return objectStoreName !== name;
-            }),
+            })
         );
         transaction.objectStoreNames = new FakeDOMStringList(
-            ...this.objectStoreNames,
+            ...this.objectStoreNames
         );
 
         transaction._rollbackLog.push(() => {
@@ -191,7 +193,7 @@ class FDBDatabase extends FakeEventTarget {
                     transaction.mode === "versionchange" &&
                     transaction.db === this
                 );
-            },
+            }
         );
         if (hasActiveVersionchange) {
             throw new InvalidStateError();
@@ -210,7 +212,7 @@ class FDBDatabase extends FakeEventTarget {
         for (const storeName of storeNames) {
             if (!this.objectStoreNames.contains(storeName)) {
                 throw new NotFoundError(
-                    "No objectStore named " + storeName + " in this database",
+                    "No objectStore named " + storeName + " in this database"
                 );
             }
         }

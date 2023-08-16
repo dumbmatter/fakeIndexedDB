@@ -13,6 +13,7 @@ interface EventInCallback extends Event {
 export type EventCallback = (event: EventInCallback) => void;
 
 export type EventType =
+    | "close"
     | "abort"
     | "blocked"
     | "complete"

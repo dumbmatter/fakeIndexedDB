@@ -712,6 +712,15 @@ describe("fakeIndexedDB Tests", () => {
                 done();
             });
         });
+
+        it("should trigger onclose event", (done) => {
+            const request = fakeIndexedDB.open("test" + Math.random());
+            request.onsuccess = (e) => {
+                const db = e.target.result;
+                db.addEventListener("close", done);
+                db.close();
+            };
+        });
     });
 
     it("confirm openCursor works (issue #60)", (done) => {
