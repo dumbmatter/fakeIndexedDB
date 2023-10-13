@@ -138,6 +138,6 @@
         "typescript": "^5.2.2"
     },
     "lint-staged": {
-        "*.{js,json,ts}": "prettier --write"
+        "*.{js,json,ts,cjs,mjs}": "prettier --write"
     }
 }
