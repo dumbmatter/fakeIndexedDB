@@ -5,7 +5,6 @@ import extractKey from "./extractKey.js";
 import Index from "./Index.js";
 import KeyGenerator from "./KeyGenerator.js";
 import RecordStore from "./RecordStore.js";
-import structuredClone from "./structuredClone.js";
 import { Key, KeyPath, Record, RollbackLog } from "./types.js";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-object-store
@@ -23,7 +22,7 @@ class ObjectStore {
         rawDatabase: Database,
         name: string,
         keyPath: KeyPath | null,
-        autoIncrement: boolean,
+        autoIncrement: boolean
     ) {
         this.rawDatabase = rawDatabase;
         this.keyGenerator = autoIncrement === true ? new KeyGenerator() : null;
@@ -86,7 +85,7 @@ class ObjectStore {
     public storeRecord(
         newRecord: Record,
         noOverwrite: boolean,
-        rollbackLog?: RollbackLog,
+        rollbackLog?: RollbackLog
     ) {
         if (this.keyPath !== null) {
             const key = extractKey(this.keyPath, newRecord.value);
@@ -112,7 +111,7 @@ class ObjectStore {
             if (this.keyPath !== null) {
                 if (Array.isArray(this.keyPath)) {
                     throw new Error(
-                        "Cannot have an array key path in an object store with a key generator",
+                        "Cannot have an array key path in an object store with a key generator"
                     );
                 }
                 let remainingKeyPath = this.keyPath;

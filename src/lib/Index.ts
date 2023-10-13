@@ -4,7 +4,6 @@ import { ConstraintError } from "./errors.js";
 import extractKey from "./extractKey.js";
 import ObjectStore from "./ObjectStore.js";
 import RecordStore from "./RecordStore.js";
-import structuredClone from "./structuredClone.js";
 import { Key, KeyPath, Record } from "./types.js";
 import valueToKey from "./valueToKey.js";
 
@@ -26,7 +25,7 @@ class Index {
         name: string,
         keyPath: KeyPath,
         multiEntry: boolean,
-        unique: boolean,
+        unique: boolean
     ) {
         this.rawObjectStore = rawObjectStore;
 

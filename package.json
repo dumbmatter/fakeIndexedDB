@@ -107,8 +107,8 @@
         "lib",
         "types.d.ts"
     ],
-    "dependencies": {
-        "realistic-structured-clone": "^3.0.0"
+    "engines": {
+        "node": ">=18"
     },
     "devDependencies": {
         "@babel/cli": "^7.18.6",

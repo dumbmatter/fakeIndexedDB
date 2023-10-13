@@ -1,4 +1,3 @@
-import structuredClone from "./structuredClone.js";
 import { Key, KeyPath, Value } from "./types.js";
 import valueToKey from "./valueToKey.js";
 
