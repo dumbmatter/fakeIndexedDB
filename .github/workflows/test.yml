@@ -7,12 +7,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [ '18', '20' ]
+        node: [ '18', '20' ]
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v3
       with:
-        node-version: ${{ matrix.node-version }}
-        registry-url: <registry url>
+        node-version: ${{ matrix.node }}
     - run: npm ci
     - run: npm test
