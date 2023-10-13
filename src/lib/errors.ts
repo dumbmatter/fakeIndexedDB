@@ -1,5 +1,3 @@
-/* tslint:disable: max-classes-per-file max-line-length */
-
 const messages = {
     AbortError:
         "A request was aborted, for example through a call to IDBTransaction.abort.",

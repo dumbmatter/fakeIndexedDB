@@ -26,7 +26,7 @@ describe("fakeIndexedDB Tests", () => {
             const startTx = (
                 db: FDBDatabase,
                 mode: TransactionMode,
-                desc: number | string
+                desc: number | string,
             ) => {
                 const tx = db.transaction("store", mode);
                 tx.objectStore("store").get(1).onsuccess = () => {
@@ -101,7 +101,7 @@ describe("fakeIndexedDB Tests", () => {
                     tx.objectStore("store").get(11).onsuccess = (e3) => {
                         assert.equal(
                             e3.target.result.content,
-                            "SHOULD BE ROLLED BACK"
+                            "SHOULD BE ROLLED BACK",
                         );
                         tx.abort();
                     };
@@ -122,7 +122,7 @@ describe("fakeIndexedDB Tests", () => {
                     tx2.objectStore("store").get(11).onsuccess = (e3) => {
                         assert.equal(
                             e3.target.result.content,
-                            "SHOULD BE 11TH RECORD"
+                            "SHOULD BE 11TH RECORD",
                         );
                     };
                 };
@@ -219,12 +219,12 @@ describe("fakeIndexedDB Tests", () => {
                 const tx = db.transaction("store", "readwrite");
                 tx.objectStore("store").put(
                     { content: "SHOULD BE ROLLED BACK" },
-                    10
+                    10,
                 );
                 tx.objectStore("store").get(10).onsuccess = (e2) => {
                     assert.equal(
                         e2.target.result.content,
-                        "SHOULD BE ROLLED BACK"
+                        "SHOULD BE ROLLED BACK",
                     );
                     tx.abort();
                 };
@@ -302,7 +302,7 @@ describe("fakeIndexedDB Tests", () => {
                     tx.objectStore("store").get(3).onsuccess = (e3) => {
                         assert.equal(
                             e3.target.result.content,
-                            "SHOULD BE ROLLED BACK"
+                            "SHOULD BE ROLLED BACK",
                         );
                         tx.abort();
                     };
@@ -460,7 +460,7 @@ describe("fakeIndexedDB Tests", () => {
 
             const tx = db.transaction("books", "readwrite");
             tx.objectStore("books").openCursor(["Fred", 123456]).onsuccess = (
-                event2
+                event2,
             ) => {
                 const cursor: FDBCursorWithValue = event2.target.result;
                 cursor.value.price = 5.99;
@@ -498,9 +498,8 @@ describe("fakeIndexedDB Tests", () => {
                     done();
                     return;
                 }
-                const { key, value } = cursor;
                 const expectedID = expected.shift();
-                assert.equal(value.id, expectedID);
+                assert.equal(cursor.value.id, expectedID);
                 cursor.continue();
             };
             request2.onerror = (e2) => {
@@ -554,7 +553,7 @@ describe("fakeIndexedDB Tests", () => {
                         });
                     };
 
-                    openreq.onsuccess = (_event) => resolve();
+                    openreq.onsuccess = () => resolve();
                 };
             });
         }
@@ -569,8 +568,8 @@ describe("fakeIndexedDB Tests", () => {
                     const tx = db.transaction(["mystore"], "readwrite");
                     const store = tx.objectStore("mystore");
                     const addreq = store.add(my_object);
-                    addreq.onsuccess = (_event) => resolve("succ");
-                    addreq.onerror = (_event) => resolve("fail");
+                    addreq.onsuccess = () => resolve("succ");
+                    addreq.onerror = () => resolve("fail");
                 };
             });
         }
@@ -606,7 +605,7 @@ describe("fakeIndexedDB Tests", () => {
         openreq.onsuccess = (event) => {
             const db = event.target.result;
             db.transaction("items").objectStore("items").count().onsuccess = (
-                event2: any
+                event2: any,
             ) => {
                 assert.equal(event2.target.result, 3);
                 const req = db

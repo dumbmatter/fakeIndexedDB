@@ -263,7 +263,6 @@ class FDBFactory {
         return request;
     }
 
-    // tslint:disable-next-line max-line-length
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBFactory-open-IDBOpenDBRequest-DOMString-name-unsigned-long-long-version
     public open(name: string, version?: number) {
         if (arguments.length > 1 && version !== undefined) {

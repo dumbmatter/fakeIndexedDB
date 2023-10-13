@@ -45,7 +45,7 @@ const extractKey = (keyPath: KeyPath, value: Value) => {
         if (
             object === undefined ||
             object === null ||
-            !object.hasOwnProperty(identifier)
+            !Object.hasOwn(object, identifier)
         ) {
             return;
         }

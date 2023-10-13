@@ -113,7 +113,7 @@ describe("getAll", () => {
             store = tx.objectStore("store");
             db2.deleteObjectStore("store");
         };
-        request.onsuccess = (e) => {
+        request.onsuccess = () => {
             assert.throws(() => {
                 store.getAll();
             }, /InvalidStateError/);
@@ -248,7 +248,7 @@ describe("getAllKeys", () => {
             store = tx.objectStore("store");
             db2.deleteObjectStore("store");
         };
-        request.onsuccess = (e) => {
+        request.onsuccess = () => {
             assert.throws(() => {
                 store.getAllKeys();
             }, /InvalidStateError/);

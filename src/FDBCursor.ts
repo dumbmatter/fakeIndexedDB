@@ -33,7 +33,7 @@ const getEffectiveObjectStore = (cursor: FDBCursor) => {
 const makeKeyRange = (
     range: FDBKeyRange,
     lowers: (Key | undefined)[],
-    uppers: (Key | undefined)[]
+    uppers: (Key | undefined)[],
 ) => {
     // Start with bounds from range
     let lower = range !== undefined ? range.lower : undefined;
@@ -90,7 +90,7 @@ class FDBCursor {
         range: CursorRange,
         direction: FDBCursorDirection = "next",
         request?: FDBRequest,
-        keyOnly: boolean = false
+        keyOnly: boolean = false,
     ) {
         this._range = range;
         this._source = source;
@@ -334,12 +334,13 @@ class FDBCursor {
                     }
                     const value =
                         this.source.objectStore._rawObjectStore.getValue(
-                            foundRecord.value
+                            foundRecord.value,
                         );
                     (this as any).value = structuredClone(value);
                 }
             }
             this._gotValue = true;
+            // eslint-disable-next-line @typescript-eslint/no-this-alias
             result = this;
         }
 
@@ -353,7 +354,7 @@ class FDBCursor {
         }
 
         const effectiveObjectStore = getEffectiveObjectStore(this);
-        const effectiveKey = this.source.hasOwnProperty("_rawIndex")
+        const effectiveKey = Object.hasOwn(this.source, "_rawIndex")
             ? this.primaryKey
             : this._position;
         const transaction = effectiveObjectStore.transaction;
@@ -376,7 +377,7 @@ class FDBCursor {
             throw new InvalidStateError();
         }
 
-        if (!this._gotValue || !this.hasOwnProperty("value")) {
+        if (!this._gotValue || !Object.hasOwn(this, "value")) {
             throw new InvalidStateError();
         }
 
@@ -406,7 +407,7 @@ class FDBCursor {
                 effectiveObjectStore._rawObjectStore,
                 record,
                 false,
-                transaction._rollbackLog
+                transaction._rollbackLog,
             ),
             source: this,
         });
@@ -581,7 +582,7 @@ class FDBCursor {
 
     public delete() {
         const effectiveObjectStore = getEffectiveObjectStore(this);
-        const effectiveKey = this.source.hasOwnProperty("_rawIndex")
+        const effectiveKey = Object.hasOwn(this.source, "_rawIndex")
             ? this.primaryKey
             : this._position;
         const transaction = effectiveObjectStore.transaction;
@@ -604,7 +605,7 @@ class FDBCursor {
             throw new InvalidStateError();
         }
 
-        if (!this._gotValue || !this.hasOwnProperty("value")) {
+        if (!this._gotValue || !Object.hasOwn(this, "value")) {
             throw new InvalidStateError();
         }
 
@@ -612,7 +613,7 @@ class FDBCursor {
             operation: effectiveObjectStore._rawObjectStore.deleteRecord.bind(
                 effectiveObjectStore._rawObjectStore,
                 effectiveKey,
-                transaction._rollbackLog
+                transaction._rollbackLog,
             ),
             source: this,
         });

@@ -3,7 +3,6 @@ import { KeyPath, Value } from "./types.js";
 // http://w3c.github.io/IndexedDB/#check-that-a-key-could-be-injected-into-a-value
 const canInjectKey = (keyPath: KeyPath, value: Value) => {
     if (Array.isArray(keyPath)) {
-        // tslint:disable-next-line max-line-length
         throw new Error(
             "The key paths used in this section are always strings and never sequences, since it is not possible to create a object store which has a key generator and also has a key path that is a sequence.",
         );
@@ -20,7 +19,7 @@ const canInjectKey = (keyPath: KeyPath, value: Value) => {
             return false;
         }
 
-        const hop = value.hasOwnProperty(identifier);
+        const hop = Object.hasOwn(value, identifier);
         if (!hop) {
             return true;
         }

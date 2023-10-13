@@ -37,7 +37,7 @@ const confirmActiveTransaction = (objectStore: FDBObjectStore) => {
 const buildRecordAddPut = (
     objectStore: FDBObjectStore,
     value: Value,
-    key: Key
+    key: Key,
 ) => {
     confirmActiveTransaction(objectStore);
 
@@ -105,7 +105,7 @@ class FDBObjectStore {
         this.autoIncrement = rawObjectStore.autoIncrement;
         this.transaction = transaction;
         this.indexNames = new FakeDOMStringList(
-            ...Array.from(rawObjectStore.rawIndexes.keys()).sort()
+            ...Array.from(rawObjectStore.rawIndexes.keys()).sort(),
         );
     }
 
@@ -143,20 +143,20 @@ class FDBObjectStore {
         this._rawObjectStore.rawDatabase.rawObjectStores.delete(oldName);
         this._rawObjectStore.rawDatabase.rawObjectStores.set(
             name,
-            this._rawObjectStore
+            this._rawObjectStore,
         );
         transaction.db.objectStoreNames = new FakeDOMStringList(
             ...Array.from(
-                this._rawObjectStore.rawDatabase.rawObjectStores.keys()
+                this._rawObjectStore.rawDatabase.rawObjectStores.keys(),
             )
                 .filter((objectStoreName) => {
                     const objectStore =
                         this._rawObjectStore.rawDatabase.rawObjectStores.get(
-                            objectStoreName
+                            objectStoreName,
                         );
                     return objectStore && !objectStore.deleted;
                 })
-                .sort()
+                .sort(),
         );
 
         const oldScope = new Set(transaction._scope);
@@ -166,7 +166,7 @@ class FDBObjectStore {
         this.transaction._scope.delete(oldName);
         transaction._scope.add(name);
         transaction.objectStoreNames = new FakeDOMStringList(
-            ...Array.from(transaction._scope).sort()
+            ...Array.from(transaction._scope).sort(),
         );
 
         transaction._rollbackLog.push(() => {
@@ -177,15 +177,15 @@ class FDBObjectStore {
             this._rawObjectStore.rawDatabase.rawObjectStores.delete(name);
             this._rawObjectStore.rawDatabase.rawObjectStores.set(
                 oldName,
-                this._rawObjectStore
+                this._rawObjectStore,
             );
             transaction.db.objectStoreNames = new FakeDOMStringList(
-                ...oldObjectStoreNames
+                ...oldObjectStoreNames,
             );
 
             transaction._scope = oldScope;
             transaction.objectStoreNames = new FakeDOMStringList(
-                ...oldTransactionObjectStoreNames
+                ...oldTransactionObjectStoreNames,
             );
         });
     }
@@ -201,7 +201,7 @@ class FDBObjectStore {
                 this._rawObjectStore,
                 record,
                 false,
-                this.transaction._rollbackLog
+                this.transaction._rollbackLog,
             ),
             source: this,
         });
@@ -218,7 +218,7 @@ class FDBObjectStore {
                 this._rawObjectStore,
                 record,
                 true,
-                this.transaction._rollbackLog
+                this.transaction._rollbackLog,
             ),
             source: this,
         });
@@ -242,7 +242,7 @@ class FDBObjectStore {
             operation: this._rawObjectStore.deleteRecord.bind(
                 this._rawObjectStore,
                 key,
-                this.transaction._rollbackLog
+                this.transaction._rollbackLog,
             ),
             source: this,
         });
@@ -261,7 +261,7 @@ class FDBObjectStore {
         return this.transaction._execRequestAsync({
             operation: this._rawObjectStore.getValue.bind(
                 this._rawObjectStore,
-                key
+                key,
             ),
             source: this,
         });
@@ -280,7 +280,7 @@ class FDBObjectStore {
             operation: this._rawObjectStore.getAllValues.bind(
                 this._rawObjectStore,
                 range,
-                count
+                count,
             ),
             source: this,
         });
@@ -300,7 +300,7 @@ class FDBObjectStore {
         return this.transaction._execRequestAsync({
             operation: this._rawObjectStore.getKey.bind(
                 this._rawObjectStore,
-                key
+                key,
             ),
             source: this,
         });
@@ -319,7 +319,7 @@ class FDBObjectStore {
             operation: this._rawObjectStore.getAllKeys.bind(
                 this._rawObjectStore,
                 range,
-                count
+                count,
             ),
             source: this,
         });
@@ -335,7 +335,7 @@ class FDBObjectStore {
         return this.transaction._execRequestAsync({
             operation: this._rawObjectStore.clear.bind(
                 this._rawObjectStore,
-                this.transaction._rollbackLog
+                this.transaction._rollbackLog,
             ),
             source: this,
         });
@@ -343,7 +343,7 @@ class FDBObjectStore {
 
     public openCursor(
         range?: FDBKeyRange | Key,
-        direction?: FDBCursorDirection
+        direction?: FDBCursorDirection,
     ) {
         confirmActiveTransaction(this);
 
@@ -369,7 +369,7 @@ class FDBObjectStore {
 
     public openKeyCursor(
         range?: FDBKeyRange | Key,
-        direction?: FDBCursorDirection
+        direction?: FDBCursorDirection,
     ) {
         confirmActiveTransaction(this);
 
@@ -393,12 +393,12 @@ class FDBObjectStore {
         });
     }
 
-    // tslint:disable-next-line max-line-length
+    // tslint:-next-line max-line-length
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBObjectStore-createIndex-IDBIndex-DOMString-name-DOMString-sequence-DOMString--keyPath-IDBIndexParameters-optionalParameters
     public createIndex(
         name: string,
         keyPath: KeyPath,
-        optionalParameters: { multiEntry?: boolean; unique?: boolean } = {}
+        optionalParameters: { multiEntry?: boolean; unique?: boolean } = {},
     ) {
         if (arguments.length < 2) {
             throw new TypeError();
@@ -452,7 +452,7 @@ class FDBObjectStore {
             name,
             keyPath,
             multiEntry,
-            unique
+            unique,
         );
         this.indexNames._push(name);
         this.indexNames._sort();
@@ -518,7 +518,7 @@ class FDBObjectStore {
         this.indexNames = new FakeDOMStringList(
             ...Array.from(this.indexNames).filter((indexName) => {
                 return indexName !== name;
-            })
+            }),
         );
         rawIndex.deleted = true; // Not sure if this is supposed to happen synchronously
 

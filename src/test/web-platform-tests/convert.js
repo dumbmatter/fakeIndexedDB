@@ -1,5 +1,5 @@
 import fs from "node:fs";
-import glob from "glob";
+import { glob } from "glob";
 import path from "node:path";
 
 const skip = [

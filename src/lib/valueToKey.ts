@@ -36,7 +36,7 @@ const valueToKey = (input: any, seen?: Set<object>): Key | Key[] => {
 
         const keys = [];
         for (let i = 0; i < input.length; i++) {
-            const hop = input.hasOwnProperty(i);
+            const hop = Object.hasOwn(input, i);
             if (!hop) {
                 throw new DataError();
             }

@@ -1,6 +1,6 @@
 import { execSync } from "node:child_process";
 import path from "node:path";
-import glob from "glob";
+import { glob } from "glob";
 
 const __dirname = "src/test/web-platform-tests";
 const testFolder = path.join(__dirname, "converted");

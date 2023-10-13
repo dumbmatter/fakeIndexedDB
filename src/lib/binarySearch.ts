@@ -11,7 +11,6 @@ function binarySearch(records: Record[], key: Key): number {
     let high = records.length;
     let mid;
     while (low < high) {
-        // tslint:disable-next-line:no-bitwise
         mid = (low + high) >>> 1; // like Math.floor((low + high) / 2) but fast
         if (cmp(records[mid].key, key) < 0) {
             low = mid + 1;

@@ -115,7 +115,6 @@ class FDBIndex {
         });
     }
 
-    // tslint:disable-next-line max-line-length
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBIndex-openCursor-IDBRequest-any-range-IDBCursorDirection-direction
     public openCursor(
         range?: FDBKeyRange | Key | null | undefined,
@@ -143,7 +142,6 @@ class FDBIndex {
         });
     }
 
-    // tslint:disable-next-line max-line-length
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-IDBCursorDirection-direction
     public openKeyCursor(
         range?: FDBKeyRange | Key | null | undefined,

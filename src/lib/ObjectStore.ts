@@ -22,7 +22,7 @@ class ObjectStore {
         rawDatabase: Database,
         name: string,
         keyPath: KeyPath | null,
-        autoIncrement: boolean
+        autoIncrement: boolean,
     ) {
         this.rawDatabase = rawDatabase;
         this.keyGenerator = autoIncrement === true ? new KeyGenerator() : null;
@@ -85,7 +85,7 @@ class ObjectStore {
     public storeRecord(
         newRecord: Record,
         noOverwrite: boolean,
-        rollbackLog?: RollbackLog
+        rollbackLog?: RollbackLog,
     ) {
         if (this.keyPath !== null) {
             const key = extractKey(this.keyPath, newRecord.value);
@@ -111,7 +111,7 @@ class ObjectStore {
             if (this.keyPath !== null) {
                 if (Array.isArray(this.keyPath)) {
                     throw new Error(
-                        "Cannot have an array key path in an object store with a key generator"
+                        "Cannot have an array key path in an object store with a key generator",
                     );
                 }
                 let remainingKeyPath = this.keyPath;
@@ -129,7 +129,7 @@ class ObjectStore {
                         identifier = remainingKeyPath.slice(0, i);
                         remainingKeyPath = remainingKeyPath.slice(i + 1);
 
-                        if (!object.hasOwnProperty(identifier)) {
+                        if (!Object.hasOwn(object, identifier)) {
                             object[identifier] = {};
                         }
 

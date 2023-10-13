@@ -127,7 +127,7 @@ class FDBTransaction extends FakeEventTarget {
     public _execRequestAsync(obj: RequestObj) {
         const source = obj.source;
         const operation = obj.operation;
-        let request = obj.hasOwnProperty("request") ? obj.request : null;
+        let request = Object.hasOwn(obj, "request") ? obj.request : null;
 
         if (this._state !== "active") {
             throw new TransactionInactiveError();
