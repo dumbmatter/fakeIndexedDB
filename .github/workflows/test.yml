@@ -7,12 +7,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [ '18', '20' ]
+        node-version: [ '18', '20' ]
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v2
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v3
       with:
-        node-version: ${{ matrix.node }}
+        node-version: ${{ matrix.node-version }}
         registry-url: <registry url>
-    - run: yarn install
-    - run: yarn test
+    - run: npm ci
+    - run: npm test

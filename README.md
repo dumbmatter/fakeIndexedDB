@@ -8,12 +8,6 @@ This is a pure JS in-memory implementation of [the IndexedDB API](https://w3c.gi
 npm install --save-dev fake-indexeddb
 ```
 
-or
-
-```sh
-yarn add --dev fake-indexeddb
-```
-
 ## Use
 
 Functionally, it works exactly like IndexedDB except data is not persisted to disk.
