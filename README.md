@@ -118,6 +118,48 @@ To use it on all Jest tests without having to include it in each file, add the a
 }
 ```
 
+### jsdom (often used with Jest)
+
+As of version 5, fake-indexeddb no longer includes a `structuredClone` polyfill. This mostly affects old environments like unsupported versions of Node.js, but [it also affects jsdom](https://github.com/dumbmatter/fakeIndexedDB/issues/88), which is often used with Jest and other testing frameworks.
+
+There are a few ways you could work around this. You could include your own `structuredClone` polyfill by installing core-js and importing its polyfill before you use fake-indexeddb:
+
+```js
+import "core-js/stable/structured-clone";
+import "fake-indexeddb/auto";
+```
+
+Or, [you could manually include the Node.js `structuredClone` implementation in a jsdom environment](https://github.com/jsdom/jsdom/issues/3363#issuecomment-1467894943):
+
+```js
+// FixJSDOMEnvironment.ts
+
+import JSDOMEnvironment from 'jest-environment-jsdom';
+
+// https://github.com/facebook/jest/blob/v29.4.3/website/versioned_docs/version-29.4/Configuration.md#testenvironment-string
+export default class FixJSDOMEnvironment extends JSDOMEnvironment {
+  constructor(...args: ConstructorParameters<typeof JSDOMEnvironment>) {
+    super(...args);
+
+    // FIXME https://github.com/jsdom/jsdom/issues/3363
+    this.global.structuredClone = structuredClone;
+  }
+}
+```
+
+```js
+// jest.config.js
+
+/** @type {import('jest').Config} */
+const config = {
+  testEnvironment: './FixJSDOMEnvironment.ts',
+};
+
+module.exports = config;
+```
+
+Hopefully a future version of jsdom will no longer require these workarounds.
+
 ### Wiping/resetting the indexedDB for a fresh state
 
 If you are keeping your tests completely isolated you might want to "reset" the state of the mocked indexedDB. You can do this by creating a new instance of `IDBFactory`, which lets you have a totally fresh start.
