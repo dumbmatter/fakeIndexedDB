@@ -1,3 +1,9 @@
+# 5.0.1 (2023-10-25)
+
+- #89 - Fixed bug where ArrayBuffer views were not being correctly handled when used as keys.
+
+- #90 - Added explanation to README.md about how to use fake-indexeddb v5+ with jsdom, since a `structuredClone` polyfill is not included anymore.
+
 # 5.0.0 (2023-10-13)
 
 - Dropped support for Node.js 16, which allows me to get rid of the `structuredClone` polyfill, which reduces the package size by roughly 50%.
