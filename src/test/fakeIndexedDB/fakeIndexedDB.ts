@@ -815,4 +815,20 @@ describe("fakeIndexedDB Tests", () => {
             };
         });
     });
+
+    it("properly converts ArrayBuffer to key, accounting for byteLength and byteOffset (issue #89)", () => {
+        const binary = new ArrayBuffer(16);
+        const dataView = new DataView(binary, 12, 4);
+        dataView.setUint32(0, 1234567890);
+
+        assert.equal(dataView.byteLength, 4);
+        assert.equal(dataView.byteOffset, 12);
+        assert.equal(dataView.getUint32(0), 1234567890);
+
+        const key = FDBKeyRange.lowerBound(dataView).lower;
+        assert.equal(key.byteLength, 4);
+
+        const dataView2 = new DataView(key);
+        assert.equal(dataView2.getUint32(0), 1234567890);
+    });
 });

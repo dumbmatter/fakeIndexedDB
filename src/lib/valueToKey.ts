@@ -1,7 +1,7 @@
 import { DataError } from "./errors.js";
 import { Key } from "./types.js";
 
-// https://w3c.github.io/IndexedDB/#convert-a-value-to-a-input
+// https://w3c.github.io/IndexedDB/#convert-value-to-key
 const valueToKey = (input: any, seen?: Set<object>): Key | Key[] => {
     if (typeof input === "number") {
         if (isNaN(input)) {
@@ -18,14 +18,33 @@ const valueToKey = (input: any, seen?: Set<object>): Key | Key[] => {
         return input;
     } else if (
         input instanceof ArrayBuffer ||
+        (typeof SharedArrayBuffer !== "undefined" &&
+            input instanceof SharedArrayBuffer) ||
         (typeof ArrayBuffer !== "undefined" &&
             ArrayBuffer.isView &&
             ArrayBuffer.isView(input))
     ) {
-        if (input instanceof ArrayBuffer) {
-            return new Uint8Array(input).buffer;
+        let arrayBuffer;
+        let offset = 0;
+        let length = 0;
+        if (
+            input instanceof ArrayBuffer ||
+            (typeof SharedArrayBuffer !== "undefined" &&
+                input instanceof SharedArrayBuffer)
+        ) {
+            arrayBuffer = input;
+            length = input.byteLength;
+        } else {
+            arrayBuffer = input.buffer;
+            offset = input.byteOffset;
+            length = input.byteLength;
         }
-        return new Uint8Array(input.buffer).buffer;
+
+        if ((arrayBuffer as any).detached) {
+            return new ArrayBuffer(0);
+        }
+
+        return arrayBuffer.slice(offset, offset + length);
     } else if (Array.isArray(input)) {
         if (seen === undefined) {
             seen = new Set();
