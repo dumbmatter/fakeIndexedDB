@@ -2,7 +2,7 @@
 
 - #89 - Fixed bug where ArrayBuffer views were not being correctly handled when used as keys.
 
-- #90 - Added explanation to README.md about how to use fake-indexeddb v5+ with jsdom, since a `structuredClone` polyfill is not included anymore.
+- #88 - Added explanation to README.md about how to use fake-indexeddb v5+ with jsdom, since a `structuredClone` polyfill is not included anymore.
 
 # 5.0.0 (2023-10-13)
 
