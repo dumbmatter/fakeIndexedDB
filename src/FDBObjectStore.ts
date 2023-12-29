@@ -549,14 +549,7 @@ class FDBObjectStore {
 
         return this.transaction._execRequestAsync({
             operation: () => {
-                let count = 0;
-
-                const cursor = new FDBCursor(this, key);
-                while (cursor._iterate() !== null) {
-                    count += 1;
-                }
-
-                return count;
+                return this._rawObjectStore.count(key);
             },
             source: this,
         });

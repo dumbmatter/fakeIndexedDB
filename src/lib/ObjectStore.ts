@@ -207,6 +207,17 @@ class ObjectStore {
             rawIndex.records.clear();
         }
     }
+
+    public count(range: FDBKeyRange) {
+        let count = 0;
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        for (const record of this.records.values(range)) {
+            count += 1;
+        }
+
+        return count;
+    }
 }
 
 export default ObjectStore;

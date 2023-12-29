@@ -831,4 +831,33 @@ describe("fakeIndexedDB Tests", () => {
         const dataView2 = new DataView(key);
         assert.equal(dataView2.getUint32(0), 1234567890);
     });
+
+    it("FDBObjectStore.count performance should be reasonable (issue #94)", (done) => {
+        const N = 10000;
+        const openreq = fakeIndexedDB.open("test94");
+        openreq.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            const store = db.createObjectStore("items", {
+                keyPath: "key",
+                autoIncrement: true,
+            });
+            for (let i = 0; i < N; i++) {
+                store.put({ i });
+            }
+        };
+        openreq.onsuccess = (event) => {
+            const db = event.target.result;
+            const request = db
+                .transaction("items")
+                .objectStore("items")
+                .count();
+            request.onsuccess = (event2: any) => {
+                assert.equal(event2.target.result, N);
+                done();
+            };
+            request.onerror = (event2: any) => {
+                done(event2.target.error);
+            };
+        };
+    });
 });

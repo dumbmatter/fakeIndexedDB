@@ -247,14 +247,7 @@ class FDBIndex {
 
         return this.objectStore.transaction._execRequestAsync({
             operation: () => {
-                let count = 0;
-
-                const cursor = new FDBCursor(this, key);
-                while (cursor._iterate() !== null) {
-                    count += 1;
-                }
-
-                return count;
+                return this._rawIndex.count(key);
             },
             source: this,
         });

@@ -25,7 +25,7 @@ class Index {
         name: string,
         keyPath: KeyPath,
         multiEntry: boolean,
-        unique: boolean
+        unique: boolean,
     ) {
         this.rawObjectStore = rawObjectStore;
 
@@ -175,6 +175,17 @@ class Index {
             },
             source: null,
         });
+    }
+
+    public count(range: FDBKeyRange) {
+        let count = 0;
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        for (const record of this.records.values(range)) {
+            count += 1;
+        }
+
+        return count;
     }
 }
 
