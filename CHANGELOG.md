@@ -1,6 +1,6 @@
 # 5.0.2 (2023-12-30)
 
-- #94 - Improved performance of `IDBObjectStore.count`` and `IDBIndex.count``.
+- #94 - Improved performance of `IDBObjectStore.count` and `IDBIndex.count`.
 
 # 5.0.1 (2023-10-25)
 
