@@ -3,6 +3,7 @@ import FakeEvent from "./FakeEvent.js";
 import { EventCallback, EventType } from "./types.js";
 
 type EventTypeProp =
+    | "onclose"
     | "onabort"
     | "onblocked"
     | "oncomplete"
@@ -43,6 +44,7 @@ const invokeEventListeners = (event: FakeEvent, obj: FakeEventTarget) => {
     }
 
     const typeToProp: { [key in EventType]: EventTypeProp } = {
+        close: "onclose",
         abort: "onabort",
         blocked: "onblocked",
         complete: "oncomplete",
@@ -74,6 +76,7 @@ abstract class FakeEventTarget {
     public readonly listeners: Listener[] = [];
 
     // These will be overridden in individual subclasses and made not readonly
+    public readonly onclose: EventCallback | null | undefined;
     public readonly onabort: EventCallback | null | undefined;
     public readonly onblocked: EventCallback | null | undefined;
     public readonly oncomplete: EventCallback | null | undefined;
@@ -85,7 +88,7 @@ abstract class FakeEventTarget {
     public addEventListener(
         type: EventType,
         callback: EventCallback,
-        capture = false,
+        capture = false
     ) {
         this.listeners.push({
             callback,
@@ -97,7 +100,7 @@ abstract class FakeEventTarget {
     public removeEventListener(
         type: EventType,
         callback: EventCallback,
-        capture = false,
+        capture = false
     ) {
         const i = this.listeners.findIndex((listener) => {
             return (
