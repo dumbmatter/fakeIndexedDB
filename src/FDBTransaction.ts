@@ -57,8 +57,7 @@ class FDBTransaction extends FakeEventTarget {
         }
 
         if (errName !== null) {
-            const e = new Error();
-            e.name = errName;
+            const e = new DOMException(undefined, errName);
             this.error = e;
         }
 

@@ -20,82 +20,62 @@ const messages = {
         "An attempt was made to open a database using a lower version than the existing version.",
 };
 
-export class AbortError extends Error {
+export class AbortError extends DOMException {
     constructor(message = messages.AbortError) {
-        super();
-        this.name = "AbortError";
-        this.message = message;
+        super(message, "AbortError");
     }
 }
 
-export class ConstraintError extends Error {
+export class ConstraintError extends DOMException {
     constructor(message = messages.ConstraintError) {
-        super();
-        this.name = "ConstraintError";
-        this.message = message;
+        super(message, "ConstraintError");
     }
 }
 
-export class DataCloneError extends Error {
+export class DataCloneError extends DOMException {
     constructor(message = messages.DataCloneError) {
-        super();
-        this.name = "DataCloneError";
-        this.message = message;
+        super(message, "DataCloneError");
     }
 }
 
-export class DataError extends Error {
+export class DataError extends DOMException {
     constructor(message = messages.DataError) {
-        super();
-        this.name = "DataError";
-        this.message = message;
+        super(message, "DataError");
     }
 }
 
-export class InvalidAccessError extends Error {
+export class InvalidAccessError extends DOMException {
     constructor(message = messages.InvalidAccessError) {
-        super();
-        this.name = "InvalidAccessError";
-        this.message = message;
+        super(message, "InvalidAccessError");
     }
 }
 
-export class InvalidStateError extends Error {
+export class InvalidStateError extends DOMException {
     constructor(message = messages.InvalidStateError) {
-        super();
-        this.name = "InvalidStateError";
-        this.message = message;
+        super(message, "InvalidStateError");
     }
 }
 
-export class NotFoundError extends Error {
+export class NotFoundError extends DOMException {
     constructor(message = messages.NotFoundError) {
-        super();
-        this.name = "NotFoundError";
-        this.message = message;
+        super(message, "NotFoundError");
     }
 }
 
-export class ReadOnlyError extends Error {
+export class ReadOnlyError extends DOMException {
     constructor(message = messages.ReadOnlyError) {
-        super();
-        this.name = "ReadOnlyError";
-        this.message = message;
+        super(message, "ReadOnlyError");
     }
 }
 
-export class TransactionInactiveError extends Error {
+export class TransactionInactiveError extends DOMException {
     constructor(message = messages.TransactionInactiveError) {
-        super();
-        this.name = "TransactionInactiveError";
-        this.message = message;
+        super(message, "TransactionInactiveError");
     }
 }
 
-export class VersionError extends Error {
+export class VersionError extends DOMException {
     constructor(message = messages.VersionError) {
-        super();
-        this.name = "VersionError";
-        this.message = message;
+        super(message, "VersionError");
     }
 }

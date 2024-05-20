@@ -235,8 +235,7 @@ class FDBFactory {
 
             deleteDatabase(this._databases, name, request, (err) => {
                 if (err) {
-                    request.error = new Error();
-                    request.error.name = err.name;
+                    request.error = new DOMException(err.message, err.name);
                     request.readyState = "done";
 
                     const event = new FakeEvent("error", {
@@ -288,8 +287,7 @@ class FDBFactory {
                         request.result = undefined;
                         request.readyState = "done";
 
-                        request.error = new Error();
-                        request.error.name = err.name;
+                        request.error = new DOMException(err.message, err.name);
 
                         const event = new FakeEvent("error", {
                             bubbles: true,
