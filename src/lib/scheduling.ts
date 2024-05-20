@@ -23,7 +23,10 @@ function getSetImmediateFromJsdom() {
 // transactions are marked as not active when the event loop runs. The next
 // tick queue and microtask queue run within the current event loop macrotask,
 // so they'd process database operations too quickly.
-export const queueTask: (fn: () => void) => void =
-    globalThis.setImmediate ||
-    getSetImmediateFromJsdom() ||
-    ((fn: () => void) => setTimeout(fn, 0));
+export const queueTask = (fn: () => void): void => {
+    const setImmediate =
+        globalThis.setImmediate ||
+        getSetImmediateFromJsdom() ||
+        ((fn: () => void) => setTimeout(fn, 0));
+    setImmediate(fn);
+};
