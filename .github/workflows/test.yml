@@ -10,8 +10,12 @@ jobs:
         node: [ '18', '20', '22' ]
     steps:
     - uses: actions/checkout@v4
+    - uses: pnpm/action-setup@v3
+      with:
+        version: 9
     - uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node }}
-    - run: npm ci
-    - run: npm test
+        cache: 'pnpm'
+    - run: pnpm install
+    - run: pnpm test
