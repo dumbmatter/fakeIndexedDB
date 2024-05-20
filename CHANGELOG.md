@@ -1,3 +1,13 @@
+# 6.0.0 (2024-05-20)
+
+I made this a new major version because it includes a few changes that could in theory break something in some weird situations. But I think the vast majority of users (possibly all users?) won't have any issue upgraing.
+
+- #48 - Switched to using `DOMException` errors rather than normal errors, since that's what the IndexedDB spec says to use, and Node.js now has a built-in DOMException in all supported versions.
+
+- #93 - @bryan-codaio made the latest tweak to event scheduling, this time improving how `setImmediate` is used in some situations where people are mocking timers.
+
+- #99 - @sjnho fixed handling of `Date` objects to account for some edge cases, including jsdom overriding the native `Date` constructor.
+
 # 5.0.2 (2023-12-30)
 
 - #94 - Improved performance of `IDBObjectStore.count` and `IDBIndex.count`.
@@ -62,7 +72,7 @@ Details:
 
 # 3.1.4 (2021-10-11)
 
-- #67 - Fixed compatibility with jsdom by replacing all uses of `setImmedaite` with `setTimeout`.
+- #67 - Fixed compatibility with jsdom by replacing all uses of `setImmediate` with `setTimeout`.
 
 # 3.1.3 (2021-06-19)
 
