@@ -8,7 +8,7 @@ const valueToKey = (input: any, seen?: Set<object>): Key | Key[] => {
             throw new DataError();
         }
         return input;
-    } else if (input instanceof Date) {
+    } else if (Object.prototype.toString.call(input) === "[object Date]") {
         const ms = input.valueOf();
         if (isNaN(ms)) {
             throw new DataError();
