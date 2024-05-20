@@ -1,6 +1,6 @@
 # 6.0.0 (2024-05-20)
 
-I made this a new major version because it includes a few changes that could in theory break something in some weird situations. But I think the vast majority of users (possibly all users?) won't have any issue upgraing.
+I made this a new major version because it includes a few changes that could in theory break something in some weird situations. But I think the vast majority of users (possibly all users?) won't have any issue upgrading.
 
 - #48 - Switched to using `DOMException` errors rather than normal errors, since that's what the IndexedDB spec says to use, and Node.js now has a built-in DOMException in all supported versions.
 
