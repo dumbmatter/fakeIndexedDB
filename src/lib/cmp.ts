@@ -5,7 +5,7 @@ const getType = (x: any) => {
     if (typeof x === "number") {
         return "Number";
     }
-    if (x instanceof Date) {
+    if (Object.prototype.toString.call(x) === "[object Date]") {
         return "Date";
     }
     if (Array.isArray(x)) {
