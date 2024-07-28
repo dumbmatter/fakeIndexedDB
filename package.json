@@ -29,6 +29,10 @@
             "import": "./build/esm/index.js",
             "require": "./build/cjs/index.js"
         },
+        "./dbManager": {
+            "import": "./build/esm/lib/LevelDBManager.js",
+            "require": "./build/cjs/lib/LevelDBManager.js"
+        },
         "./auto": {
             "import": "./auto/index.mjs",
             "require": "./auto/index.js"
@@ -139,5 +143,8 @@
     },
     "lint-staged": {
         "*.{js,json,ts,cjs,mjs}": "prettier --write"
+    },
+    "dependencies": {
+        "level": "^8.0.1"
     }
 }

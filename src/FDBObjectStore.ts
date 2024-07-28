@@ -459,6 +459,11 @@ class FDBObjectStore {
         this._rawObjectStore.rawIndexes.set(name, index);
 
         index.initialize(this.transaction); // This is async by design
+        this._rawObjectStore
+            .saveStructure()
+            .catch((err) =>
+                console.error("Error saving object store structure:", err),
+            );
 
         return new FDBIndex(this, index);
     }
@@ -530,6 +535,14 @@ class FDBObjectStore {
                 // to have a real unique ID for each index.
                 if (rawIndex === rawIndex2) {
                     this._rawObjectStore.rawIndexes.delete(name);
+                    this._rawObjectStore
+                        .saveStructure()
+                        .catch((err) =>
+                            console.error(
+                                "Error saving object store structure:",
+                                err,
+                            ),
+                        );
                 }
             },
             source: this,

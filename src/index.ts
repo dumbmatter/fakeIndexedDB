@@ -12,3 +12,4 @@ export { default as IDBOpenDBRequest } from "./FDBOpenDBRequest.js";
 export { default as IDBRequest } from "./FDBRequest.js";
 export { default as IDBTransaction } from "./FDBTransaction.js";
 export { default as IDBVersionChangeEvent } from "./FDBVersionChangeEvent.js";
+export { default as dbManager } from "./lib/LevelDBManager.js";
