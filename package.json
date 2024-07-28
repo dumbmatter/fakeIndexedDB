@@ -1,14 +1,14 @@
 {
-    "name": "real-indexeddb",
+    "name": "node-indexeddb",
     "version": "6.0.0",
-    "description": "Real IndexedDB: a pure JS Node implementation of the IndexedDB API",
-    "homepage": "https://github.com/tylerweitzman/real-indexeddb",
+    "description": "Node IndexedDB: a pure JS Node implementation of the IndexedDB API",
+    "homepage": "https://github.com/tylerweitzman/node-indexeddb",
     "repository": {
         "type": "git",
-        "url": "git://github.com/tylerweitzman/real-indexeddb.git"
+        "url": "git://github.com/tylerweitzman/node-indexeddb.git"
     },
     "bugs": {
-        "url": "https://github.com/tylerweitzman/real-indexeddb/issues"
+        "url": "https://github.com/tylerweitzman/node-indexeddb/issues"
     },
     "keywords": [
         "indexeddb",
