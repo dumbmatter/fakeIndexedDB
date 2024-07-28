@@ -1,14 +1,14 @@
 {
-    "name": "fake-indexeddb",
+    "name": "real-indexeddb",
     "version": "6.0.0",
-    "description": "Fake IndexedDB: a pure JS in-memory implementation of the IndexedDB API",
-    "homepage": "https://github.com/dumbmatter/fakeIndexedDB",
+    "description": "Real IndexedDB: a pure JS Node implementation of the IndexedDB API",
+    "homepage": "https://github.com/tylerweitzman/real-indexeddb",
     "repository": {
         "type": "git",
-        "url": "git://github.com/dumbmatter/fakeIndexedDB.git"
+        "url": "git://github.com/tylerweitzman/real-indexeddb.git"
     },
     "bugs": {
-        "url": "https://github.com/dumbmatter/fakeIndexedDB/issues"
+        "url": "https://github.com/tylerweitzman/real-indexeddb/issues"
     },
     "keywords": [
         "indexeddb",
