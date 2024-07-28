@@ -14,7 +14,7 @@ class Index {
     // constraint
     public initialized = false;
     public readonly rawObjectStore: ObjectStore;
-    public readonly records = new RecordStore();
+    public readonly records;
     public name: string;
     public readonly keyPath: KeyPath;
     public multiEntry: boolean;
@@ -28,11 +28,14 @@ class Index {
         unique: boolean,
     ) {
         this.rawObjectStore = rawObjectStore;
-
+        // this.records.setKeyPrefix(); //is this right? or should the index name not be there?
         this.name = name;
+        const keyPrefix = `${this.rawObjectStore.rawDatabase.name}/${this.rawObjectStore.name}/${this.name}/`;
+        this.records = new RecordStore(keyPrefix);
         this.keyPath = keyPath;
         this.multiEntry = multiEntry;
         this.unique = unique;
+        // console.log("IDB|Index constructor,", this.name, this.rawObjectStore.name);
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-retrieving-a-value-from-an-index

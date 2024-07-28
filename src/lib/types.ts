@@ -5,6 +5,24 @@ import FDBRequest from "../FDBRequest.js";
 
 export type CursorSource = FDBIndex | FDBObjectStore;
 
+export interface DatabaseStructure {
+    name: string;
+    version: number;
+    objectStores: {
+        [name: string]: {
+            keyPath: KeyPath | null;
+            autoIncrement: boolean;
+            indexes: {
+                [name: string]: {
+                    keyPath: KeyPath;
+                    multiEntry: boolean;
+                    unique: boolean;
+                };
+            };
+        };
+    };
+}
+
 interface EventInCallback extends Event {
     target: any;
     error: Error | null;

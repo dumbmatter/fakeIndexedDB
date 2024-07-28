@@ -1,3 +1,4 @@
+import dbManager from "./lib/LevelDBManager.js";
 import FDBDatabase from "./FDBDatabase.js";
 import FDBOpenDBRequest from "./FDBOpenDBRequest.js";
 import FDBVersionChangeEvent from "./FDBVersionChangeEvent.js";
@@ -88,7 +89,7 @@ const runVersionchangeTransaction = (
     connection._runningVersionchangeTransaction = true;
 
     const oldVersion = connection.version;
-
+    const isNewDatabase = oldVersion === 0;
     const openDatabases = connection._rawDatabase.connections.filter(
         (otherDatabase) => {
             return connection !== otherDatabase;
@@ -133,49 +134,57 @@ const runVersionchangeTransaction = (
         connection.version = version;
 
         // Get rid of this setImmediate?
-        const transaction = connection.transaction(
-            connection.objectStoreNames,
-            "versionchange",
-        );
-        request.result = connection;
-        request.readyState = "done";
-        request.transaction = transaction;
 
-        transaction._rollbackLog.push(() => {
-            connection._rawDatabase.version = oldVersion;
-            connection.version = oldVersion;
-        });
+        // Only create a versionchange transaction if it's a new database or the version has changed
+        if (isNewDatabase || oldVersion < version) {
+            const transaction = connection.transaction(
+                connection.objectStoreNames,
+                "versionchange",
+            );
+            request.result = connection;
+            request.readyState = "done";
+            request.transaction = transaction;
 
-        const event = new FDBVersionChangeEvent("upgradeneeded", {
-            newVersion: version,
-            oldVersion,
-        });
-        request.dispatchEvent(event);
-
-        transaction.addEventListener("error", () => {
-            connection._runningVersionchangeTransaction = false;
-            // throw arguments[0].target.error;
-            // console.log("error in versionchange transaction - not sure if anything needs to be done here", e.target.error.name);
-        });
-        transaction.addEventListener("abort", () => {
-            connection._runningVersionchangeTransaction = false;
-            request.transaction = null;
-            queueTask(() => {
-                cb(new AbortError());
+            transaction._rollbackLog.push(() => {
+                connection._rawDatabase.version = oldVersion;
+                connection.version = oldVersion;
             });
-        });
-        transaction.addEventListener("complete", () => {
-            connection._runningVersionchangeTransaction = false;
-            request.transaction = null;
-            // Let other complete event handlers run before continuing
-            queueTask(() => {
-                if (connection._closePending) {
+
+            const event = new FDBVersionChangeEvent("upgradeneeded", {
+                newVersion: version,
+                oldVersion,
+            });
+            request.dispatchEvent(event);
+
+            transaction.addEventListener("error", () => {
+                connection._runningVersionchangeTransaction = false;
+                // throw arguments[0].target.error;
+                // console.log("error in versionchange transaction - not sure if anything needs to be done here", e.target.error.name);
+            });
+            transaction.addEventListener("abort", () => {
+                connection._runningVersionchangeTransaction = false;
+                request.transaction = null;
+                queueTask(() => {
                     cb(new AbortError());
-                } else {
-                    cb(null);
-                }
+                });
             });
-        });
+            transaction.addEventListener("complete", () => {
+                connection._runningVersionchangeTransaction = false;
+                request.transaction = null;
+                // Let other complete event handlers run before continuing
+                queueTask(() => {
+                    if (connection._closePending) {
+                        cb(new AbortError());
+                    } else {
+                        cb(null);
+                    }
+                });
+            });
+        } else {
+            // If it's not a new database and the version hasn't changed, just call the callback
+            connection._runningVersionchangeTransaction = false;
+            cb(null);
+        }
     };
 
     waitForOthersClosed();
@@ -190,7 +199,8 @@ const openDatabase = (
     cb: (err: Error | null, connection?: FDBDatabase) => void,
 ) => {
     let db = databases.get(name);
-    if (db === undefined) {
+    const isNewDatabase = db === undefined;
+    if (isNewDatabase) {
         db = new Database(name, 0);
         databases.set(name, db);
     }
@@ -205,17 +215,20 @@ const openDatabase = (
 
     const connection = new FDBDatabase(db);
 
-    if (db.version < version) {
+    if (isNewDatabase || db.version < version) {
         runVersionchangeTransaction(connection, version, request, (err) => {
             if (err) {
-                // DO THIS HERE: ensure that connection is closed by running the steps for closing a database connection before these
-                // steps are aborted.
+                // Ensure that connection is closed before aborting
+                connection.close();
                 return cb(err);
             }
+
+            dbManager.saveDatabaseStructure(db);
 
             cb(null, connection);
         });
     } else {
+        // Database exists and version is the same, don't trigger upgrade
         cb(null, connection);
     }
 };
@@ -224,6 +237,21 @@ class FDBFactory {
     public cmp = cmp;
     private _databases: Map<string, Database> = new Map();
 
+    constructor() {
+        this.initializeDatabases();
+    }
+
+    private initializeDatabases() {
+        try {
+            const dbStructures = dbManager.getAllDatabaseStructures();
+            for (const [dbName, dbStructure] of Object.entries(dbStructures)) {
+                const db = new Database(dbName, dbStructure.version);
+                this._databases.set(dbName, db);
+            }
+        } catch (error) {
+            console.error("Error initializing databases:", error);
+        }
+    }
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBFactory-deleteDatabase-IDBOpenDBRequest-DOMString-name
     public deleteDatabase(name: string) {
         const request = new FDBOpenDBRequest();
@@ -247,6 +275,7 @@ class FDBFactory {
 
                     return;
                 }
+                dbManager.deleteDatabaseStructure(name);
 
                 request.result = undefined;
                 request.readyState = "done";

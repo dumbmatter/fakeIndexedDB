@@ -139,6 +139,14 @@ class FDBDatabase extends FakeEventTarget {
         transaction.objectStoreNames = new FakeDOMStringList(
             ...this.objectStoreNames,
         );
+        this._rawDatabase.saveStructure().catch((error) => {
+            console.error("Error saving structure:", error);
+        });
+        // Console log the name of all object stores in the database prefixed by then name of the database
+        // console.log("IDB|", this.name + " - " + name); // prints the name of the database and the new object store. next we print the existing ones
+        // for (const objectStore of this.objectStoreNames) {
+        //     console.log("IDB|", this.name + " - " + objectStore);
+        // }
         return transaction.objectStore(name);
     }
 
@@ -172,6 +180,9 @@ class FDBDatabase extends FakeEventTarget {
         store.deleted = true;
         this._rawDatabase.rawObjectStores.delete(name);
         transaction._objectStoresCache.delete(name);
+        this._rawDatabase.saveStructure().catch((error) => {
+            console.error("Error saving structure:", error);
+        });
     }
 
     public transaction(storeNames: string | string[], mode?: TransactionMode) {

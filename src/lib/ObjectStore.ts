@@ -6,12 +6,12 @@ import Index from "./Index.js";
 import KeyGenerator from "./KeyGenerator.js";
 import RecordStore from "./RecordStore.js";
 import { Key, KeyPath, Record, RollbackLog } from "./types.js";
-
+import dbManager from "./LevelDBManager.js";
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-object-store
 class ObjectStore {
     public deleted = false;
     public readonly rawDatabase: Database;
-    public readonly records = new RecordStore();
+    public readonly records;
     public readonly rawIndexes: Map<string, Index> = new Map();
     public name: string;
     public readonly keyPath: KeyPath | null;
@@ -31,6 +31,63 @@ class ObjectStore {
         this.name = name;
         this.keyPath = keyPath;
         this.autoIncrement = autoIncrement;
+        const keyPrefix = `${this.rawDatabase.name}/${this.name}/`;
+        this.records = new RecordStore(keyPrefix);
+        // this.records.setKeyPrefix(keyPrefix);
+        // console.log(
+        //     "IDB|ObjectStore constructor,",
+        //     this.name,
+        //     this.rawDatabase.name,
+        // );
+        const dbStructure = dbManager.getDatabaseStructure(rawDatabase.name);
+        if (dbStructure && dbStructure.objectStores[name]) {
+            const osData = dbStructure.objectStores[name];
+            for (const [indexName, indexData] of Object.entries(
+                osData.indexes,
+            )) {
+                const index = new Index(
+                    this,
+                    indexName,
+                    indexData.keyPath,
+                    indexData.multiEntry,
+                    indexData.unique,
+                );
+                this.rawIndexes.set(indexName, index);
+            }
+        }
+    }
+
+    public async saveStructure() {
+        // Get the current database structure
+        const dbStructure = dbManager.getDatabaseStructure(
+            this.rawDatabase.name,
+        );
+
+        if (!dbStructure) {
+            console.error(
+                `Database structure not found for ${this.rawDatabase.name}`,
+            );
+            return;
+        }
+
+        // Update or add this object store's structure
+        dbStructure.objectStores[this.name] = {
+            keyPath: this.keyPath,
+            autoIncrement: this.autoIncrement,
+            indexes: {},
+        };
+
+        // Add indexes
+        for (const [indexName, index] of this.rawIndexes) {
+            dbStructure.objectStores[this.name].indexes[indexName] = {
+                keyPath: index.keyPath,
+                multiEntry: index.multiEntry,
+                unique: index.unique,
+            };
+        }
+
+        // Save the updated structure
+        await dbManager.saveDatabaseStructure(this.rawDatabase);
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-retrieving-a-value-from-an-object-store

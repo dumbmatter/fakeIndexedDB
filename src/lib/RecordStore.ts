@@ -8,51 +8,65 @@ import {
 } from "./binarySearch.js";
 import cmp from "./cmp.js";
 import { Key, Record } from "./types.js";
+import dbManager from "./LevelDBManager.js";
 
 class RecordStore {
     private records: Record[] = [];
+    private keyPrefix: string;
+
+    constructor(keyPrefix: string) {
+        this.keyPrefix = keyPrefix;
+        this.loadRecordsFromCache();
+    }
+
+    private loadRecordsFromCache() {
+        if (!dbManager.isLoaded) {
+            throw new Error(
+                "Database not loaded yet. Ensure dbManager.loadCache() is called before creating RecordStore instances.",
+            );
+        }
+        const cachedRecords = dbManager.getValuesForKeysStartingWith(
+            this.keyPrefix,
+        );
+        this.records = cachedRecords.sort((a, b) => cmp(a.key, b.key));
+
+        // Optionally, remove these records from dbManager's cache to save memory
+        // cachedRecords.forEach(record => {
+        //     dbManager.delete(this.keyPrefix + record.key.toString());
+        // });
+    }
 
     public get(key: Key | FDBKeyRange) {
         if (key instanceof FDBKeyRange) {
             return getByKeyRange(this.records, key);
         }
-
         return getByKey(this.records, key);
     }
 
     public add(newRecord: Record) {
-        // Find where to put it so it's sorted by key
-        let i;
-        if (this.records.length === 0) {
-            i = 0;
+        let i = getIndexByKeyGTE(this.records, newRecord.key);
+        if (i === -1) {
+            i = this.records.length;
         } else {
-            i = getIndexByKeyGTE(this.records, newRecord.key);
-
-            if (i === -1) {
-                // If no matching key, add to end
-                i = this.records.length;
-            } else {
-                // If matching key, advance to appropriate position based on value (used in indexes)
-                while (
-                    i < this.records.length &&
-                    cmp(this.records[i].key, newRecord.key) === 0
-                ) {
-                    if (cmp(this.records[i].value, newRecord.value) !== -1) {
-                        // Record value >= newRecord value, so insert here
-                        break;
-                    }
-
-                    i += 1; // Look at next record
+            while (
+                i < this.records.length &&
+                cmp(this.records[i].key, newRecord.key) === 0
+            ) {
+                if (cmp(this.records[i].value, newRecord.value) !== -1) {
+                    break;
                 }
+                i += 1;
             }
         }
 
         this.records.splice(i, 0, newRecord);
+
+        // Write-through to dbManager
+        dbManager.set(this.keyPrefix + newRecord.key.toString(), newRecord);
     }
 
     public delete(key: Key) {
         const deletedRecords: Record[] = [];
-
         const isRange = key instanceof FDBKeyRange;
         while (true) {
             const idx = isRange
@@ -61,36 +75,42 @@ class RecordStore {
             if (idx === -1) {
                 break;
             }
-            deletedRecords.push(this.records[idx]);
+            const deletedRecord = this.records[idx];
+            deletedRecords.push(deletedRecord);
             this.records.splice(idx, 1);
+
+            // Write-through to dbManager
+            dbManager.delete(this.keyPrefix + deletedRecord.key.toString());
         }
         return deletedRecords;
     }
 
     public deleteByValue(key: Key) {
         const range = key instanceof FDBKeyRange ? key : FDBKeyRange.only(key);
-
         const deletedRecords: Record[] = [];
-
         this.records = this.records.filter((record) => {
             const shouldDelete = range.includes(record.value);
-
             if (shouldDelete) {
                 deletedRecords.push(record);
+                // Write-through to dbManager
+                dbManager.delete(this.keyPrefix + record.key.toString());
             }
-
             return !shouldDelete;
         });
-
         return deletedRecords;
     }
 
     public clear() {
         const deletedRecords = this.records.slice();
         this.records = [];
+
+        // Write-through to dbManager
+        for (const record of deletedRecords) {
+            dbManager.delete(this.keyPrefix + record.key.toString());
+        }
+
         return deletedRecords;
     }
-
     public values(range?: FDBKeyRange, direction: "next" | "prev" = "next") {
         return {
             [Symbol.iterator]: () => {
