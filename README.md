@@ -1,25 +1,46 @@
-# fake-indexeddb ![Build Status](https://github.com/dumbmatter/fakeIndexedDB/actions/workflows/test.yml/badge.svg)
+# real-indexeddb ![Build Status](https://github.com/dumbmatter/fakeIndexedDB/actions/workflows/test.yml/badge.svg)
 
-This is a pure JS in-memory implementation of [the IndexedDB API](https://w3c.github.io/IndexedDB/). Its main utility is for testing IndexedDB-dependent code in Node.js.
+This is a pure JS drop-in node.js implementation of [the IndexedDB API](https://w3c.github.io/IndexedDB/). Its main utility is for using IndexedDB-dependent code and packages in Node.js with no headache. The interface is identical to IndexedDB but uses Level under the hood for the actual persistence.
+
+Note that currently this package is very memory-heavy if the database is large because the entire data is loaded and cached into memory upon initial load.
 
 ## Installation
 
 ```sh
-npm install --save-dev fake-indexeddb
+npm install real-indexeddb
 ```
 
 ## Use
 
-Functionally, it works exactly like IndexedDB except data is not persisted to disk.
+Functionally, it works exactly like IndexedDB. However, currently it is dependent on synchronous calls to a full in-memory cache of the data. So you must use the following code to init:
 
-The easiest way to use it is to import `fake-indexeddb/auto`, which will put all the IndexedDB variables in the global scope. (Both `import` and `require` are supported, use whichever you like, but the examples here are all `import`.)
+```
+async function loadDB() {
+  // Some asynchronous operation
+  await dbManager.loadCache().catch(console.error);
+  // Dynamically import the module
+  await import('real-indexeddb/auto');
+}
+await loadDB();
+```
+
+After the await loadDB() finishes, you can now call IndexedDB in node.js directly as though it was the web API. You must await for loadDB() to finish right now. I am calling await inside of my top-level index.js module to just synchronously wait for the initial load to finish. This requirement should be fixed in the future.
+
+Example code
 
 ```js
-import "fake-indexeddb/auto";
-
+import dbManager from 'real-indexeddb/dbManager';
+async function loadModule() {
+    // Some asynchronous operation
+    await dbManager.loadCache().catch(console.error);
+    // Dynamically import the module
+    await import('real-indexeddb/auto');
+}
+await loadModule();
 var request = indexedDB.open("test", 3);
 request.onupgradeneeded = function () {
     var db = request.result;
+    console.log("Creating db");
     var store = db.createObjectStore("books", {keyPath: "isbn"});
     store.createIndex("by_title", "title", {unique: true});
 
@@ -48,7 +69,7 @@ request.onsuccess = function (event) {
 };
 ```
 
-Alternatively, you can explicitly import individual IndexedDB variables:
+While you can explicitly import individual IndexedDB variables, I don't recommend doing so until you first import dbManager and wait for `await dbManager.loadCache()` to finish.
 
 ```js
 import {
@@ -64,7 +85,7 @@ import {
     IDBRequest,
     IDBTransaction,
     IDBVersionChangeEvent,
-} from "fake-indexeddb";
+} from "real-indexeddb";
 
 // The rest is the same as above.
 ```
@@ -73,13 +94,15 @@ Like any imported variable, you can rename it if you want, for instance if you d
 
 ```js
 import {
-    indexedDB as fakeIndexedDB,
-} from "fake-indexeddb";
+    indexedDB as realIndexedDB,
+} from "real-indexeddb";
 ```
+
+The rest of the ReadMe is the original fake-indexeddb readme that this was based on. Don't yet have time to edit it more.
 
 ### TypeScript
 
-As of version 4, fake-indexeddb includes TypeScript types. As you can see in types.d.ts, it's just using TypeScript's built-in IndexedDB types, rather than generating types from the fake-indexeddb code base. The reason I did this is for compatibility with your application code that may already be using TypeScript's IndexedDB types, so if I used something different for fake-indexeddb, it could lead to spurious type errors. In theory this could lead to other errors if there are differences between Typescript's IndexedDB types and fake-indexeddb's API, but currently I'm not aware of any difference. See [issue #23](https://github.com/dumbmatter/fakeIndexedDB/issues/23) for more discussion.
+As of version 4, real-indexeddb includes TypeScript types. As you can see in types.d.ts, it's just using TypeScript's built-in IndexedDB types, rather than generating types from the fake-indexeddb code base. The reason I did this is for compatibility with your application code that may already be using TypeScript's IndexedDB types, so if I used something different for fake-indexeddb, it could lead to spurious type errors. In theory this could lead to other errors if there are differences between Typescript's IndexedDB types and fake-indexeddb's API, but currently I'm not aware of any difference. See [issue #23](https://github.com/dumbmatter/fakeIndexedDB/issues/23) for more discussion.
 
 ### Dexie and other IndexedDB API wrappers
 
