@@ -1,4 +1,4 @@
-# real-indexeddb ![Build Status](https://github.com/dumbmatter/fakeIndexedDB/actions/workflows/test.yml/badge.svg)
+# node-indexeddb ![Build Status](https://github.com/dumbmatter/fakeIndexedDB/actions/workflows/test.yml/badge.svg)
 
 This is a pure JS drop-in node.js implementation of [the IndexedDB API](https://w3c.github.io/IndexedDB/). Its main utility is for using IndexedDB-dependent code and packages in Node.js with no headache. The interface is identical to IndexedDB but uses Level under the hood for the actual persistence.
 
@@ -7,7 +7,7 @@ Note that currently this package is very memory-heavy if the database is large b
 ## Installation
 
 ```sh
-npm install real-indexeddb
+npm install node-indexeddb
 ```
 
 ## Use
@@ -19,7 +19,7 @@ async function loadDB() {
   // Some asynchronous operation
   await dbManager.loadCache().catch(console.error);
   // Dynamically import the module
-  await import('real-indexeddb/auto');
+  await import('node-indexeddb/auto');
 }
 await loadDB();
 ```
@@ -29,7 +29,7 @@ After the await loadDB() finishes, you can now call IndexedDB in node.js directl
 Example code
 
 ```js
-import dbManager from 'real-indexeddb/dbManager';
+import dbManager from 'node-indexeddb/dbManager';
 async function loadModule() {
     // Some asynchronous operation
     await dbManager.loadCache().catch(console.error);
@@ -85,7 +85,7 @@ import {
     IDBRequest,
     IDBTransaction,
     IDBVersionChangeEvent,
-} from "real-indexeddb";
+} from "node-indexeddb";
 
 // The rest is the same as above.
 ```
@@ -94,8 +94,8 @@ Like any imported variable, you can rename it if you want, for instance if you d
 
 ```js
 import {
-    indexedDB as realIndexedDB,
-} from "real-indexeddb";
+    indexedDB as nodeIndexedDB,
+} from "node-indexeddb";
 ```
 
 The rest of the ReadMe is the original fake-indexeddb readme that this was based on. Don't yet have time to edit it more.
