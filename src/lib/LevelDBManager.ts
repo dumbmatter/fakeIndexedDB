@@ -7,7 +7,7 @@ class LevelDBManager {
     private static instance: LevelDBManager;
     private db: Level<string, any>;
     private cache: Map<string, Record> = new Map();
-    public isLoaded: boolean = true;
+    public isLoaded: boolean = false;
     private databaseStructures: Map<string, DatabaseStructure> = new Map();
 
     private constructor(dbName: string) {
@@ -107,13 +107,14 @@ class LevelDBManager {
             dbList.push(db.name);
             await this.db.put("__db_list__", JSON.stringify(dbList));
         }
+        // console.log("Saving database structure", dbStructure);
+        this.databaseStructures.set(db.name, dbStructure);
 
         await this.db.put(
             `__db_structure__${db.name}`,
             JSON.stringify(dbStructure),
         );
-        // console.log("Saved database structure", dbStructure);
-        this.databaseStructures.set(db.name, dbStructure);
+        // console.log("Successfully saved");
     }
 
     public getDatabaseStructure(dbName: string): DatabaseStructure | undefined {
@@ -121,6 +122,10 @@ class LevelDBManager {
     }
 
     public getAllDatabaseStructures(): { [dbName: string]: DatabaseStructure } {
+        if (!dbManager.isLoaded)
+            throw new Error(
+                "Database not loaded yet. Manually call await dbManager.loadCache() before awaiting import of real-indexeddb/auto in any module",
+            );
         return Object.fromEntries(this.databaseStructures);
     }
 

@@ -22,6 +22,7 @@ class Database {
 
         // Load existing structure
         const dbStructure = dbManager.getDatabaseStructure(name);
+        console.log("Loaded db struct", dbStructure);
         if (dbStructure && dbStructure.version === version) {
             for (const [osName, osData] of Object.entries(
                 dbStructure.objectStores,

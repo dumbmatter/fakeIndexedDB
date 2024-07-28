@@ -90,6 +90,14 @@ const runVersionchangeTransaction = (
 
     const oldVersion = connection.version;
     const isNewDatabase = oldVersion === 0;
+    console.log(
+        "oldVersion",
+        oldVersion,
+        "newVersion",
+        version,
+        "isNewDatabase",
+        isNewDatabase,
+    );
     const openDatabases = connection._rawDatabase.connections.filter(
         (otherDatabase) => {
             return connection !== otherDatabase;
@@ -137,6 +145,7 @@ const runVersionchangeTransaction = (
 
         // Only create a versionchange transaction if it's a new database or the version has changed
         if (isNewDatabase || oldVersion < version) {
+            console.log("FDBFactory creating a brand new one");
             const transaction = connection.transaction(
                 connection.objectStoreNames,
                 "versionchange",
@@ -242,11 +251,14 @@ class FDBFactory {
     }
 
     private initializeDatabases() {
+        // check if the cache was already loaded otherwise throw an error
         try {
             const dbStructures = dbManager.getAllDatabaseStructures();
+            // console.log("Factory dbStructures", dbStructures);
             for (const [dbName, dbStructure] of Object.entries(dbStructures)) {
                 const db = new Database(dbName, dbStructure.version);
                 this._databases.set(dbName, db);
+                console.log("Set    ", dbName, db);
             }
         } catch (error) {
             console.error("Error initializing databases:", error);
