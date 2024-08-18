@@ -270,7 +270,7 @@ class FDBFactory {
             version = enforceRange(version, "MAX_SAFE_INTEGER");
         }
         if (version === 0) {
-            throw new TypeError();
+            throw new TypeError("Database version cannot be 0");
         }
 
         const request = new FDBOpenDBRequest();
