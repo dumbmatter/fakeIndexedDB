@@ -31,7 +31,7 @@ class Index {
         // this.records.setKeyPrefix(); //is this right? or should the index name not be there?
         this.name = name;
         const keyPrefix = `${this.rawObjectStore.rawDatabase.name}/${this.rawObjectStore.name}/${this.name}/`;
-        this.records = new RecordStore(keyPrefix);
+        this.records = new RecordStore(keyPrefix, "index");
         this.keyPath = keyPath;
         this.multiEntry = multiEntry;
         this.unique = unique;

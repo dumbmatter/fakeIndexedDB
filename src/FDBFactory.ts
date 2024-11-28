@@ -215,24 +215,24 @@ const openDatabase = (
     }
 
     if (version === undefined) {
-        version = db.version !== 0 ? db.version : 1;
+        version = db?.version !== 0 ? db?.version : 1;
     }
 
-    if (db.version > version) {
+    if (db?.version && db.version > version!) {
         return cb(new VersionError());
     }
 
-    const connection = new FDBDatabase(db);
+    const connection = new FDBDatabase(db!);
 
-    if (isNewDatabase || db.version < version) {
-        runVersionchangeTransaction(connection, version, request, (err) => {
+    if (isNewDatabase || db!.version < version!) {
+        runVersionchangeTransaction(connection, version!, request, (err) => {
             if (err) {
                 // Ensure that connection is closed before aborting
                 connection.close();
                 return cb(err);
             }
 
-            dbManager.saveDatabaseStructure(db);
+            dbManager.saveDatabaseStructure(db!);
 
             cb(null, connection);
         });

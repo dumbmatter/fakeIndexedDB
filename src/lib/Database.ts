@@ -3,7 +3,7 @@ import FDBTransaction from "../FDBTransaction.js";
 import ObjectStore from "./ObjectStore.js";
 import { queueTask } from "./scheduling.js";
 import dbManager from "./LevelDBManager.js";
-import { DatabaseStructure } from "./types.js";
+
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-database
 class Database {
     public deletePending = false;
