@@ -1,6 +1,6 @@
 import * as path from "path";
 import { Level } from "level";
-import { Record, KeyPath, DatabaseStructure } from "./types.js";
+import { Record, DatabaseStructure } from "./types.js";
 import Database from "./Database.js";
 
 class LevelDBManager {
@@ -170,7 +170,7 @@ class LevelDBManager {
         if (!this.isLoaded) throw new Error("Database not loaded yet");
         return Array.from(this.cache.entries())
             .filter(([key]) => key.startsWith(prefix))
-            .map(([_, value]) => value);
+            .map(([, value]) => value);
     }
 }
 
