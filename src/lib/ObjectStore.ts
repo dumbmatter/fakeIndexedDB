@@ -32,7 +32,7 @@ class ObjectStore {
         this.keyPath = keyPath;
         this.autoIncrement = autoIncrement;
         const keyPrefix = `${this.rawDatabase.name}/${this.name}/`;
-        this.records = new RecordStore(keyPrefix);
+        this.records = new RecordStore(keyPrefix, "object");
         // this.records.setKeyPrefix(keyPrefix);
         // console.log(
         //     "IDB|ObjectStore constructor,",

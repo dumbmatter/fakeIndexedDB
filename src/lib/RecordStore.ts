@@ -10,12 +10,17 @@ import cmp from "./cmp.js";
 import { Key, Record } from "./types.js";
 import dbManager from "./LevelDBManager.js";
 
+export type RecordStoreType = "object" | "index";
+export const SEPARATOR = "_";
+
 class RecordStore {
     private records: Record[] = [];
     private keyPrefix: string;
-
-    constructor(keyPrefix: string) {
+    private type: RecordStoreType;
+    constructor(keyPrefix: string, type: RecordStoreType) {
         this.keyPrefix = keyPrefix;
+        this.type = type;
+
         this.loadRecordsFromCache();
     }
 
@@ -27,6 +32,7 @@ class RecordStore {
         }
         const cachedRecords = dbManager.getValuesForKeysStartingWith(
             this.keyPrefix,
+            this.type,
         );
         this.records = cachedRecords.sort((a, b) => cmp(a.key, b.key));
 
@@ -62,7 +68,10 @@ class RecordStore {
         this.records.splice(i, 0, newRecord);
 
         // Write-through to dbManager
-        dbManager.set(this.keyPrefix + newRecord.key.toString(), newRecord);
+        dbManager.set(
+            this.type + SEPARATOR + this.keyPrefix + newRecord.key.toString(),
+            newRecord,
+        );
     }
 
     public delete(key: Key) {

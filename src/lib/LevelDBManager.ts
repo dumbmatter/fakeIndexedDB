@@ -2,6 +2,7 @@ import * as path from "path";
 import { Level } from "level";
 import { Record, DatabaseStructure } from "./types.js";
 import Database from "./Database.js";
+import { RecordStoreType, SEPARATOR } from "./RecordStore.js";
 
 class LevelDBManager {
     private static instance: LevelDBManager;
@@ -166,10 +167,15 @@ class LevelDBManager {
         );
     }
 
-    public getValuesForKeysStartingWith(prefix: string): Record[] {
+    public getValuesForKeysStartingWith(
+        prefix: string,
+        type: RecordStoreType,
+    ): Record[] {
         if (!this.isLoaded) throw new Error("Database not loaded yet");
+        const validatedPrefix = type + SEPARATOR + prefix;
+
         return Array.from(this.cache.entries())
-            .filter(([key]) => key.startsWith(prefix))
+            .filter(([key]) => key.startsWith(validatedPrefix))
             .map(([, value]) => value);
     }
 }
