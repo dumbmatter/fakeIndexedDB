@@ -105,7 +105,7 @@
         "build": "rm -rf build && pnpm run build-esm && pnpm run build-cjs && pnpm run build-types",
         "build-cjs": "BABEL_ENV=cjs babel src --out-dir build/cjs --extensions \".ts\" && echo '{\"type\":\"commonjs\"}' > build/cjs/package.json",
         "build-esm": "babel src --out-dir build/esm --extensions \".ts\"",
-        "build-types": "tsc --emitDeclarationOnly --outDir build/types",
+        "build-types": "tsc --declaration --emitDeclarationOnly --outDir build/types -declarationMap --allowJs false --checkJs false",
         "prepublishOnly": "pnpm run build && rm -rf build/cjs/test && rm -rf build/esm/test",
         "lint": "eslint  'src/**/*.ts' && tsc",
         "prettier": "prettier --write *.json  'src/**/*.{js,ts}'",
