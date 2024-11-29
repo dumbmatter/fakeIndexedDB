@@ -1,1 +1,1 @@
-declare module "fake-indexeddb/auto";
+declare module "node-indexeddb/auto";
