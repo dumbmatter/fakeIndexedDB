@@ -118,7 +118,7 @@
         "test-dev": "NODE_OPTIONS='--loader ts-node/esm' mocha 'src/test/fakeIndexedDB/**/*.ts'",
         "test-dev:watch": "NODE_OPTIONS='--loader ts-node/esm' mocha --watch 'src/test/fakeIndexedDB/**/*.ts'",
         "test-dev:w3c": "NODE_OPTIONS='--loader ts-node/esm' node src/test/web-platform-tests/run-all.js",
-        "test-db": "tsx src/test/dbtest.ts"
+        "test-db": "rm -rf indexeddb && tsx src/test/dbtest.ts"
     },
     "author": "Jeremy Scheff <jdscheff@gmail.com> (https://dumbmatter.com/)",
     "license": "Apache-2.0",
