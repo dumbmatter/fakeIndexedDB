@@ -9,7 +9,7 @@
         "noEmitOnError": true,
         "strict": true,
         "useUnknownInCatchVariables": false,
-        "noEmit": true
+        "declaration": true,
     },
     "exclude": [
         "node_modules",

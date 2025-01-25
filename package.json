@@ -30,67 +30,82 @@
             "require": "./build/cjs/index.js"
         },
         "./dbManager": {
+            "types": "./build/types/lib/LevelDBManager.d.ts",
             "import": "./build/esm/lib/LevelDBManager.js",
             "require": "./build/cjs/lib/LevelDBManager.js"
         },
         "./auto": {
+            "types": "./auto.d.ts",
             "import": "./auto/index.mjs",
             "require": "./auto/index.js"
         },
         "./lib/fakeIndexedDB": {
+            "types": "./build/types/fakeIndexedDB.d.ts",
             "import": "./build/esm/fakeIndexedDB.js",
             "require": "./build/cjs/fakeIndexedDB.js"
         },
         "./lib/FDBCursor": {
+            "types": "./build/types/FDBCursor.d.ts",
             "import": "./build/esm/FDBCursor.js",
             "require": "./build/cjs/FDBCursor.js"
         },
         "./lib/FDBCursorWithValue": {
+            "types": "./build/types/FDBCursorWithValue.d.ts",
             "import": "./build/esm/FDBCursorWithValue.js",
             "require": "./build/cjs/FDBCursorWithValue.js"
         },
         "./lib/FDBDatabase": {
+            "types": "./build/types/FDBDatabase.d.ts",
             "import": "./build/esm/FDBDatabase.js",
             "require": "./build/cjs/FDBDatabase.js"
         },
         "./lib/FDBFactory": {
+            "types": "./build/types/FDBFactory.d.ts",
             "import": "./build/esm/FDBFactory.js",
             "require": "./build/cjs/FDBFactory.js"
         },
         "./lib/FDBIndex": {
+            "types": "./build/types/FDBIndex.d.ts",
             "import": "./build/esm/FDBIndex.js",
             "require": "./build/cjs/FDBIndex.js"
         },
         "./lib/FDBKeyRange": {
+            "types": "./build/types/FDBKeyRange.d.ts",
             "import": "./build/esm/FDBKeyRange.js",
             "require": "./build/cjs/FDBKeyRange.js"
         },
         "./lib/FDBObjectStore": {
+            "types": "./build/types/FDBObjectStore.d.ts",
             "import": "./build/esm/FDBObjectStore.js",
             "require": "./build/cjs/FDBObjectStore.js"
         },
         "./lib/FDBOpenDBRequest": {
+            "types": "./build/types/FDBOpenDBRequest.d.ts",
             "import": "./build/esm/FDBOpenDBRequest.js",
             "require": "./build/cjs/FDBOpenDBRequest.js"
         },
         "./lib/FDBRequest": {
+            "types": "./build/types/FDBRequest.d.ts",
             "import": "./build/esm/FDBRequest.js",
             "require": "./build/cjs/FDBRequest.js"
         },
         "./lib/FDBTransaction": {
+            "types": "./build/types/FDBTransaction.d.ts",
             "import": "./build/esm/FDBTransaction.js",
             "require": "./build/cjs/FDBTransaction.js"
         },
         "./lib/FDBVersionChangeEvent": {
+            "types": "./build/types/FDBVersionChangeEvent.d.ts",
             "import": "./build/esm/FDBVersionChangeEvent.js",
             "require": "./build/cjs/FDBVersionChangeEvent.js"
         }
     },
     "types": "./types.d.ts",
     "scripts": {
-        "build": "rm -rf build && pnpm run build-esm && pnpm run build-cjs",
+        "build": "rm -rf build && pnpm run build-esm && pnpm run build-cjs && pnpm run build-types",
         "build-cjs": "BABEL_ENV=cjs babel src --out-dir build/cjs --extensions \".ts\" && echo '{\"type\":\"commonjs\"}' > build/cjs/package.json",
         "build-esm": "babel src --out-dir build/esm --extensions \".ts\"",
+        "build-types": "tsc --declaration --emitDeclarationOnly --outDir build/types -declarationMap --allowJs false --checkJs false",
         "prepublishOnly": "pnpm run build && rm -rf build/cjs/test && rm -rf build/esm/test",
         "lint": "eslint  'src/**/*.ts' && tsc",
         "prettier": "prettier --write *.json  'src/**/*.{js,ts}'",
