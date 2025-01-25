@@ -67,11 +67,22 @@ class RecordStore {
 
         this.records.splice(i, 0, newRecord);
 
-        // Write-through to dbManager
-        dbManager.set(
-            this.type + SEPARATOR + this.keyPrefix + newRecord.key.toString(),
-            newRecord,
-        );
+        // Write-through to dbManager - for index types, write all records with the same key
+        const key =
+            this.type + SEPARATOR + this.keyPrefix + newRecord.key.toString();
+        if (this.type === "index") {
+            const sameKeyRecords = this.records.filter(
+                (r) => r.key === newRecord.key,
+            );
+            dbManager.set(
+                key,
+                sameKeyRecords.length === 1
+                    ? sameKeyRecords[0]
+                    : sameKeyRecords,
+            );
+        } else {
+            dbManager.set(key, newRecord);
+        }
     }
 
     public delete(key: Key) {

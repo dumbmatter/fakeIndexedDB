@@ -1,6 +1,6 @@
 {
     "name": "node-indexeddb",
-    "version": "6.0.0",
+    "version": "6.0.2",
     "description": "Node IndexedDB: a pure JS Node implementation of the IndexedDB API",
     "homepage": "https://github.com/tylerweitzman/node-indexeddb",
     "repository": {

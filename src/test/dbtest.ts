@@ -1,6 +1,5 @@
 import dbManager from "../lib/LevelDBManager";
 import IDBDatabase from "../FDBDatabase";
-import { IDBKeyRange } from "../index";
 
 interface IDBEvent {
     preventDefault: () => void;
@@ -16,13 +15,14 @@ interface IDBErrorEvent extends IDBEvent {
 async function initEnvironment() {
     await dbManager.loadCache();
     const { default: fakeIndexedDB } = await import("../fakeIndexedDB");
-    return fakeIndexedDB;
+    const { IDBKeyRange } = await import("../index");
+    return { fakeIndexedDB, IDBKeyRange };
 }
 
 // Helper function to initialize the database
 async function initializeDB(fakeIndexedDB: any): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
-        const request = fakeIndexedDB.open("test", 4);
+        const request = fakeIndexedDB.open("test");
 
         request.onerror = (event: IDBErrorEvent) => {
             console.error("Database error:", event.target.error);
@@ -31,46 +31,46 @@ async function initializeDB(fakeIndexedDB: any): Promise<IDBDatabase> {
 
         request.onupgradeneeded = (event: any) => {
             const db = event.target.result;
-            console.log("Initializing test database...");
+            console.log("Creating test database...");
 
-            // Create books store with indexes
-            if (!db.objectStoreNames.contains("books")) {
-                const store = db.createObjectStore("books", {
-                    keyPath: "isbn",
-                });
-                store.createIndex("by_title", "title", { unique: true });
-                store.createIndex("by_author", "author", { unique: false });
-                store.createIndex("by_price", "price", { unique: false });
+            const store = db.createObjectStore("books", {
+                keyPath: "isbn",
+            });
+            store.createIndex("by_title", "title", { unique: false });
+            store.createIndex("by_author", "author", { unique: false });
+            store.createIndex("by_price", "price", { unique: false });
 
-                // Add sample data
-                const sampleBooks = [
-                    {
-                        title: "Quarry Memories",
-                        author: "Fred",
-                        isbn: 123456,
-                        price: 19.99,
-                    },
-                    {
-                        title: "Water Buffaloes",
-                        author: "Fred",
-                        isbn: 234567,
-                        price: 29.99,
-                    },
-                    {
-                        title: "Bedrock Nights",
-                        author: "Barney",
-                        isbn: 345678,
-                        price: 15.99,
-                    },
-                    {
-                        title: "Stone Age Cooking",
-                        author: "Wilma",
-                        isbn: 456789,
-                        price: 24.99,
-                    },
-                ];
-                sampleBooks.forEach((book) => store.put(book));
-            }
+            // Add sample data
+            const sampleBooks = [
+                {
+                    title: "Quarry Memories",
+                    author: "Fred",
+                    isbn: 123456,
+                    price: 19.99,
+                },
+                {
+                    title: "Water Buffaloes",
+                    author: "Fred",
+                    isbn: 234567,
+                    price: 29.99,
+                },
+                {
+                    title: "Bedrock Nights",
+                    author: "Barney",
+                    isbn: 345678,
+                    price: 15.99,
+                },
+                {
+                    title: "Stone Age Cooking",
+                    author: "Wilma",
+                    isbn: 456789,
+                    price: 24.99,
+                },
+            ];
+            sampleBooks.forEach((book) => store.put(book));
+
+            // Add initial cycle counter
+            store.put({ isbn: "current_cycle", cycle: 0 });
         };
 
         request.onsuccess = (event: any) => resolve(event.target.result);
@@ -100,73 +100,6 @@ function logTestResult(
     return passed;
 }
 
-async function runTests(cycle = 1) {
-    let db;
-    try {
-        console.log(`\n${"=".repeat(20)}`);
-        console.log(`📋 Starting Test Cycle ${cycle}`);
-        console.log(`${"=".repeat(20)}\n`);
-
-        // Initialize environment first
-        const fakeIndexedDB = await initEnvironment();
-        console.log("Environment initialized");
-
-        // Only delete database before first cycle
-        if (cycle === 1) {
-            await deleteDatabase(fakeIndexedDB);
-        }
-
-        db = await initializeDB(fakeIndexedDB);
-        let failedTests = 0;
-
-        // Run all tests and count failures
-        const tests = [
-            { name: "Basic Read Operation", fn: testRead },
-            { name: "Create Operation", fn: testCreate },
-            { name: "Update Operation", fn: testUpdate },
-            { name: "Delete Operation", fn: testDelete },
-            { name: "Range Queries", fn: testRangeQueries },
-            { name: "Index Queries", fn: testIndexQueries },
-        ];
-
-        for (const test of tests) {
-            try {
-                await test.fn(db);
-            } catch (error) {
-                failedTests++;
-                logTestResult(test.name, false, error.message);
-            }
-        }
-
-        // Cycle summary
-        console.log(`\n${"-".repeat(20)}`);
-        console.log(`Cycle ${cycle} Summary:`);
-        console.log(`✅ Passed: ${tests.length - failedTests}`);
-        console.log(`❌ Failed: ${failedTests}`);
-        console.log(`${"-".repeat(20)}\n`);
-
-        // Close the database connection after tests
-        if (db) {
-            db.close();
-        }
-
-        // Add a small delay before next cycle
-        await new Promise((resolve) => setTimeout(resolve, 200));
-
-        // Run additional cycles
-        if (cycle < 3) {
-            await runTests(cycle + 1);
-        }
-    } catch (error) {
-        console.error(`\n❌ Critical Error in Cycle ${cycle}:`, error);
-    } finally {
-        // Ensure database is closed even if an error occurred
-        if (db) {
-            db.close();
-        }
-    }
-}
-
 async function testRead(db: IDBDatabase) {
     return new Promise<void>((resolve, reject) => {
         const tx = db.transaction("books", "readonly");
@@ -192,23 +125,22 @@ async function testRead(db: IDBDatabase) {
     });
 }
 
-async function testCreate(db: IDBDatabase) {
-    return new Promise<void>((resolve, reject) => {
+async function testCreate(db: IDBDatabase): Promise<boolean> {
+    return new Promise((resolve, reject) => {
         const tx = db.transaction("books", "readwrite");
         const store = tx.objectStore("books");
         let passed = false;
 
         const newBook = {
-            title: "Modern Stone Tools",
+            title: `Modern Stone Tools ${Date.now()}`,
             author: "Betty",
-            isbn: 567890,
+            isbn: 567890 + Math.floor(Math.random() * 1000),
             price: 34.99,
         };
 
         const addRequest = store.add(newBook);
         addRequest.onsuccess = () => {
-            // Verify the book was added
-            const getRequest = store.get(567890);
+            const getRequest = store.get(newBook.isbn);
             getRequest.onsuccess = (event: any) => {
                 const book = event.target.result;
                 passed = book && book.title === newBook.title;
@@ -217,7 +149,7 @@ async function testCreate(db: IDBDatabase) {
                     passed,
                     passed ? undefined : "Book was not found after creation",
                 );
-                resolve();
+                resolve(passed);
             };
         };
 
@@ -338,7 +270,7 @@ async function testIndexQueries(db: IDBDatabase) {
     });
 }
 
-async function testRangeQueries(db: IDBDatabase) {
+async function testRangeQueries(db: IDBDatabase, IDBKeyRange: any) {
     return new Promise<void>((resolve, reject) => {
         const tx = db.transaction("books", "readonly");
         const store = tx.objectStore("books");
@@ -371,5 +303,166 @@ async function testRangeQueries(db: IDBDatabase) {
     });
 }
 
-// Run all tests
-runTests().catch(console.error);
+// Additional persistence scenarios you might want to test:
+async function testPersistenceEdgeCases(fakeIndexedDB: any) {
+    // Test large data persistence
+    const largeDataTest = async () => {
+        // Create large dataset
+        const largeData = Array.from({ length: 1000 }, (_, i) => ({
+            title: `Book ${i}`,
+            author: `Author ${i}`,
+            isbn: 1000000 + i,
+            price: 9.99,
+            description: "x".repeat(1000), // 1KB of data per book
+        }));
+
+        // Save, reload, verify
+        // ... implementation similar to testPersistence
+    };
+
+    // Test concurrent access persistence
+    const concurrentAccessTest = async () => {
+        // Open multiple connections, make changes, verify persistence
+        // ... implementation
+    };
+
+    // Test persistence after crash simulation
+    const crashRecoveryTest = async () => {
+        // Make changes, force close without proper shutdown, reload, verify
+        // ... implementation
+    };
+}
+
+async function runTests() {
+    let db: IDBDatabase | undefined;
+    try {
+        // Initialize environment first
+        const { fakeIndexedDB, IDBKeyRange } = await initEnvironment();
+        console.log("Environment initialized");
+
+        db = await initializeDB(fakeIndexedDB);
+
+        // Type the currentCycle promise result
+        const currentCycle = await new Promise<number>((resolve) => {
+            if (!db) throw new Error("Database not initialized");
+            const tx = db.transaction("books", "readwrite");
+            const store = tx.objectStore("books");
+            const request = store.get("current_cycle");
+
+            request.onsuccess = (event: any) => {
+                const result = event.target.result;
+                resolve(result?.cycle || 0);
+            };
+
+            request.onerror = () => {
+                resolve(0);
+            };
+        });
+
+        const nextCycle = currentCycle + 1;
+
+        console.log(`\n${"=".repeat(20)}`);
+        console.log(`📋 Running Test Cycle ${nextCycle}`);
+        console.log(`${"=".repeat(20)}\n`);
+
+        let failedTests = 0;
+        let totalTests = 0;
+
+        // Run tests appropriate for this cycle
+        const tests = [];
+
+        switch (nextCycle) {
+            case 1:
+                tests.push({ name: "Initial Setup", fn: testCreate });
+                break;
+            case 2:
+                tests.push(
+                    { name: "Verify Persistence", fn: testRead },
+                    { name: "Modify Data", fn: testUpdate },
+                );
+                break;
+            case 3:
+                tests.push(
+                    { name: "Verify Updates", fn: testRead },
+                    { name: "Query Tests", fn: testIndexQueries },
+                    { name: "Range Tests", fn: testRangeQueries },
+                );
+                break;
+            case 4:
+                tests.push({ name: "Cleanup", fn: testDelete });
+                break;
+            default:
+                console.log("All test cycles completed!");
+                await deleteDatabase(fakeIndexedDB);
+                process.exit(0);
+        }
+
+        // Run this cycle's tests
+        for (const test of tests) {
+            totalTests++;
+            try {
+                const result = await test.fn(db, IDBKeyRange);
+                if (result === false) {
+                    failedTests++;
+                }
+            } catch (error) {
+                failedTests++;
+                logTestResult(test.name, false, error.message);
+            }
+        }
+
+        // Store next cycle number
+        await new Promise<void>((resolve, reject) => {
+            if (!db) throw new Error("Database not initialized");
+            const tx = db.transaction("books", "readwrite");
+            const store = tx.objectStore("books");
+
+            const request = store.put({
+                isbn: "current_cycle",
+                cycle: nextCycle,
+            });
+
+            request.onsuccess = () => {
+                console.log(`Saved cycle ${nextCycle}`);
+                resolve();
+            };
+
+            request.onerror = (event: IDBErrorEvent) => {
+                reject(
+                    new Error(`Failed to save cycle: ${event.target.error}`),
+                );
+            };
+
+            tx.onerror = () => reject(new Error("Transaction failed"));
+        });
+
+        // Cycle summary
+        console.log(`\n${"-".repeat(20)}`);
+        console.log(`Cycle ${nextCycle} Summary:`);
+        console.log(`✅ Passed: ${totalTests - failedTests}`);
+        console.log(`❌ Failed: ${failedTests}`);
+        console.log(`${"-".repeat(20)}\n`);
+
+        // Ensure we close the database before exiting
+        await dbManager.flushWrites();
+        db.close();
+        console.log("Database closed");
+
+        if (failedTests > 0) {
+            process.exit(1);
+        } else {
+            process.exit(0);
+        }
+    } catch (error) {
+        console.error(`\n❌ Critical Error:`, error);
+        await dbManager.flushWrites();
+        if (db) db.close();
+        process.exit(1);
+    }
+}
+
+// Run single cycle
+runTests().catch((error) => {
+    console.error("Unhandled error:", error);
+    process.exit(1);
+});
