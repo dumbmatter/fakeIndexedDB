@@ -1,5 +1,6 @@
 import dbManager from "../lib/LevelDBManager";
 import IDBDatabase from "../FDBDatabase";
+import { IDBKeyRange } from "../index";
 
 interface IDBEvent {
     preventDefault: () => void;
