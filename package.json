@@ -115,7 +115,10 @@
         "test-qunit": "pnpm run build-qunit && node-qunit-phantomjs build/esm/test/indexedDBmock/index.html",
         "test-w3c": "node src/test/web-platform-tests/run-all.js",
         "test": "pnpm run lint && pnpm run build && pnpm run test-jest && node test/test.js && node test/dexie.js && pnpm run test-w3c && pnpm run test-mocha && pnpm run test-qunit",
-        "prepare": "husky install"
+        "test-dev": "NODE_OPTIONS='--loader ts-node/esm' mocha 'src/test/fakeIndexedDB/**/*.ts'",
+        "test-dev:watch": "NODE_OPTIONS='--loader ts-node/esm' mocha --watch 'src/test/fakeIndexedDB/**/*.ts'",
+        "test-dev:w3c": "NODE_OPTIONS='--loader ts-node/esm' node src/test/web-platform-tests/run-all.js",
+        "test-db": "rm -rf indexeddb && tsx src/test/dbtest.ts"
     },
     "author": "Jeremy Scheff <jdscheff@gmail.com> (https://dumbmatter.com/)",
     "license": "Apache-2.0",
@@ -147,13 +150,14 @@
         "eslint": "^8.57.0",
         "eslint-config-prettier": "^9.1.0",
         "glob": "^10.3.15",
-        "husky": "^9.0.11",
         "jest": "^29.7.0",
         "lint-staged": "^15.2.2",
         "mocha": "^10.4.0",
         "node-qunit-phantomjs": "^2.1.1",
         "prettier": "^3.2.5",
         "qunitjs": "^1.23.1",
+        "ts-node": "^10.9.2",
+        "tsx": "^4.7.1",
         "typescript": "^5.4.5"
     },
     "lint-staged": {
