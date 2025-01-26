@@ -9,9 +9,8 @@ import {
 import cmp from "./cmp.js";
 import { Key, Record } from "./types.js";
 import dbManager from "./LevelDBManager.js";
-
-export type RecordStoreType = "object" | "index";
-export const SEPARATOR = "_";
+export type RecordStoreType = "object" | "index" | "";
+import { PathUtils, SEPARATOR } from "./PathUtils.js";
 
 class RecordStore {
     private records: Record[] = [];
@@ -68,8 +67,11 @@ class RecordStore {
         this.records.splice(i, 0, newRecord);
 
         // Write-through to dbManager - for index types, write all records with the same key
-        const key =
-            this.type + SEPARATOR + this.keyPrefix + newRecord.key.toString();
+        const key = PathUtils.createKeyPath(
+            this.keyPrefix,
+            this.type,
+            newRecord.key,
+        );
         if (this.type === "index") {
             const sameKeyRecords = this.records.filter(
                 (r) => r.key === newRecord.key,

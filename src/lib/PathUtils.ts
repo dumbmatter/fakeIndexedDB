@@ -1,6 +1,6 @@
 import { RecordStoreType } from "./RecordStore.js";
 import { Key } from "./types.js";
-export const SEPARATOR = "_";
+export const SEPARATOR = "/";
 
 export class PathUtils {
     static createKeyPath(
@@ -8,7 +8,7 @@ export class PathUtils {
         type: RecordStoreType,
         key: Key,
     ): string {
-        return type + SEPARATOR + keyPrefix + key.toString();
+        return PathUtils.createPrefixPath(keyPrefix, type) + key.toString();
     }
 
     static createPrefixPath(keyPrefix: string, type: RecordStoreType): string {
