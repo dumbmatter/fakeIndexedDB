@@ -2,9 +2,8 @@ import * as path from "path";
 import { Level } from "level";
 import { Record, DatabaseStructure } from "./types.js";
 import Database from "./Database.js";
-import { RecordStoreType, SEPARATOR } from "./RecordStore.js";
-import { PathUtils } from "./PathUtils.js";
-
+import { RecordStoreType } from "./RecordStore.js";
+import { SEPARATOR } from "./PathUtils.js";
 type RecordValue = Record | Record[];
 
 class LevelDBManager {
@@ -40,6 +39,7 @@ class LevelDBManager {
                     console.log(
                         "No existing database list found. Starting with an empty database.",
                     );
+                    // Initialize with an empty database list
                     await this.db.put("__db_list__", JSON.stringify([]));
                 } else {
                     throw error;
@@ -49,7 +49,7 @@ class LevelDBManager {
             for (const dbName of dbList) {
                 try {
                     const dbStructureJson = await this.db.get(
-                        PathUtils.createStructurePath(dbName),
+                        `__db_structure__${dbName}`,
                     );
                     const dbStructure: DatabaseStructure =
                         JSON.parse(dbStructureJson);
@@ -64,12 +64,12 @@ class LevelDBManager {
                     }
                 }
             }
+            // console.log('Loaded databaseStructures:', this.databaseStructures);
 
             // Load actual data
             for await (const [key, value] of this.db.iterator()) {
                 if (!key.startsWith("__")) {
                     // Skip structure keys
-                    console.log(`Loading key type: ${key.split("/")[0]}`); // Log the type (index/object)
                     this.cache.set(key, value);
                     console.log("Loaded key:", key, "with value:", value);
                 }
@@ -86,7 +86,6 @@ class LevelDBManager {
     }
 
     public async saveDatabaseStructure(db: Database) {
-        console.log("Saving database structure for:", db.name);
         const dbStructure: DatabaseStructure = {
             name: db.name,
             version: db.version,
@@ -94,7 +93,6 @@ class LevelDBManager {
         };
 
         for (const [name, objectStore] of db.rawObjectStores) {
-            console.log(`Processing object store: ${name}`);
             dbStructure.objectStores[name] = {
                 keyPath: objectStore.keyPath,
                 autoIncrement: objectStore.autoIncrement,
@@ -102,9 +100,6 @@ class LevelDBManager {
             };
 
             for (const [indexName, index] of objectStore.rawIndexes) {
-                console.log(
-                    `Processing index: ${indexName} for store: ${name}`,
-                );
                 dbStructure.objectStores[name].indexes[indexName] = {
                     keyPath: index.keyPath,
                     multiEntry: index.multiEntry,
@@ -116,7 +111,7 @@ class LevelDBManager {
         const dbList = Array.from(this.databaseStructures.keys());
         if (!dbList.includes(db.name)) {
             dbList.push(db.name);
-            console.log("Updating database list:", dbList);
+            // Create promises for both operations
             const dbListPromise = this.db
                 .put("__db_list__", JSON.stringify(dbList))
                 .catch((err) => {
@@ -137,10 +132,7 @@ class LevelDBManager {
         this.databaseStructures.set(db.name, dbStructure);
 
         const structurePromise = this.db
-            .put(
-                PathUtils.createStructurePath(db.name),
-                JSON.stringify(dbStructure),
-            )
+            .put(`__db_structure__${db.name}`, JSON.stringify(dbStructure))
             .catch((err) => {
                 console.error("Error saving database structure:", err);
                 throw err;
@@ -176,14 +168,43 @@ class LevelDBManager {
 
     public set(key: string, value: RecordValue) {
         if (!this.isLoaded) throw new Error("Database not loaded yet");
-        console.log(`Setting key: ${key} with value:`, value);
+
+        // Check if this is an index entry
+        const isIndex = key.includes("/by_");
+
+        // For index entries, we need to handle multiple values
+        if (isIndex) {
+            const existingValue = this.cache.get(key);
+            if (existingValue) {
+                // Convert to array format if needed
+                const existingArray = Array.isArray(existingValue)
+                    ? existingValue
+                    : [existingValue];
+                const valueArray = Array.isArray(value) ? value : [value];
+
+                // Merge arrays and remove duplicates
+                const combinedValues = [...existingArray];
+                for (const val of valueArray) {
+                    if (
+                        !combinedValues.some(
+                            (existing) =>
+                                existing.key === val.key &&
+                                existing.value === val.value,
+                        )
+                    ) {
+                        combinedValues.push(val);
+                    }
+                }
+                value = combinedValues;
+            }
+        }
 
         this.cache.set(key, value);
 
         const writePromise = this.db
             .put(key, value)
             .catch((err) => {
-                console.error("Error writing record to persistence:", err);
+                console.error("Error persisting record:", err);
                 throw err;
             })
             .finally(() => {
@@ -198,15 +219,13 @@ class LevelDBManager {
 
     public delete(key: string) {
         if (!this.isLoaded) throw new Error("Database not loaded yet");
-        console.log(`Deleting key: ${key}`);
         this.cache.delete(key);
 
         const deletePromise = this.db
             .del(key)
-            .catch((err) => {
-                console.error("Error deleting record from persistence:", err);
-                throw err;
-            })
+            .catch((err) =>
+                console.error("Error deleting record from persistence:", err),
+            )
             .finally(() => {
                 const index = this.pendingWrites.indexOf(deletePromise);
                 if (index > -1) {
@@ -222,7 +241,7 @@ class LevelDBManager {
         const dbList = Array.from(this.databaseStructures.keys());
         const promises = [
             this.db.put("__db_list__", JSON.stringify(dbList)),
-            this.db.del(PathUtils.createStructurePath(dbName)),
+            this.db.del(`__db_structure__${dbName}`),
         ];
         this.pendingWrites.push(...promises);
         await Promise.all(promises);
@@ -236,31 +255,16 @@ class LevelDBManager {
     }
 
     public getValuesForKeysStartingWith(
-        storePath: string,
+        prefix: string,
         type: RecordStoreType,
     ): Record[] {
         if (!this.isLoaded) throw new Error("Database not loaded yet");
-        const validatedPrefix = `${type}${SEPARATOR}${storePath}`;
-        console.log(`Getting values for ${type} store at path: ${storePath}`);
+        const validatedPrefix = type + SEPARATOR + prefix;
 
-        const records: Record[] = [];
-        for (const [key, value] of this.cache) {
-            if (key.startsWith(validatedPrefix)) {
-                console.log(
-                    `Found matching record - key: ${key}, value:`,
-                    value,
-                );
-                if (Array.isArray(value)) {
-                    records.push(...value);
-                } else {
-                    records.push(value);
-                }
-            }
-        }
-        console.log(
-            `Found ${records.length} records for ${type} store at ${storePath}`,
-        );
-        return records;
+        return Array.from(this.cache.entries())
+            .filter(([key]) => key.startsWith(validatedPrefix))
+            .map(([, value]) => (Array.isArray(value) ? value : [value]))
+            .flat();
     }
 
     public async flushWrites(): Promise<void> {

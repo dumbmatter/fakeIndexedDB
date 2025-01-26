@@ -7,8 +7,6 @@ import KeyGenerator from "./KeyGenerator.js";
 import RecordStore from "./RecordStore.js";
 import { Key, KeyPath, Record, RollbackLog } from "./types.js";
 import dbManager from "./LevelDBManager.js";
-import { PathUtils } from "./PathUtils.js";
-import { noOverwrite } from "./globals.js";
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-object-store
 class ObjectStore {
     public deleted = false;
@@ -33,26 +31,20 @@ class ObjectStore {
         this.name = name;
         this.keyPath = keyPath;
         this.autoIncrement = autoIncrement;
-
-        // Use PathUtils to create the store path
-        const storePath = PathUtils.createStorePath(
-            this.rawDatabase.name,
-            this.name,
-            "object",
-        );
-        this.records = new RecordStore(storePath, "object");
-
+        const keyPrefix = `${this.rawDatabase.name}/${this.name}/`;
+        this.records = new RecordStore(keyPrefix, "object");
+        // this.records.setKeyPrefix(keyPrefix);
+        // console.log(
+        //     "IDB|ObjectStore constructor,",
+        //     this.name,
+        //     this.rawDatabase.name,
+        // );
         const dbStructure = dbManager.getDatabaseStructure(rawDatabase.name);
         if (dbStructure && dbStructure.objectStores[name]) {
             const osData = dbStructure.objectStores[name];
-            console.log(
-                `Creating indexes for ${name}:`,
-                Object.keys(osData.indexes),
-            );
             for (const [indexName, indexData] of Object.entries(
                 osData.indexes,
             )) {
-                console.log(`Creating index ${indexName} with:`, indexData);
                 const index = new Index(
                     this,
                     indexName,
@@ -66,6 +58,7 @@ class ObjectStore {
     }
 
     public async saveStructure() {
+        // Get the current database structure
         const dbStructure = dbManager.getDatabaseStructure(
             this.rawDatabase.name,
         );
@@ -148,7 +141,7 @@ class ObjectStore {
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-storing-a-record-into-an-object-store
     public storeRecord(
         newRecord: Record,
-        skipIndexes = false,
+        noOverwrite: boolean,
         rollbackLog?: RollbackLog,
     ) {
         if (this.keyPath !== null) {
@@ -229,18 +222,9 @@ class ObjectStore {
         }
 
         // Update indexes
-        if (!skipIndexes) {
-            for (const rawIndex of this.rawIndexes.values()) {
-                console.log(
-                    `Checking index ${rawIndex.name}, initialized: ${rawIndex.initialized}`,
-                );
-                if (rawIndex.initialized) {
-                    console.log(
-                        `Storing record in index ${rawIndex.name}:`,
-                        newRecord,
-                    );
-                    rawIndex.storeRecord(newRecord);
-                }
+        for (const rawIndex of this.rawIndexes.values()) {
+            if (rawIndex.initialized) {
+                rawIndex.storeRecord(newRecord);
             }
         }
 
