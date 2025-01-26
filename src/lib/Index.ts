@@ -6,6 +6,7 @@ import ObjectStore from "./ObjectStore.js";
 import RecordStore from "./RecordStore.js";
 import { Key, KeyPath, Record } from "./types.js";
 import valueToKey from "./valueToKey.js";
+import { PathUtils } from "./PathUtils.js";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-index
 class Index {
@@ -28,14 +29,34 @@ class Index {
         unique: boolean,
     ) {
         this.rawObjectStore = rawObjectStore;
-        // this.records.setKeyPrefix(); //is this right? or should the index name not be there?
         this.name = name;
-        const keyPrefix = `${this.rawObjectStore.rawDatabase.name}/${this.rawObjectStore.name}/${this.name}/`;
-        this.records = new RecordStore(keyPrefix, "index");
+
+        // Use PathUtils to create the index path
+        const indexPath = PathUtils.createIndexPath(
+            this.rawObjectStore.rawDatabase.name,
+            this.rawObjectStore.name,
+            this.name,
+        );
+        this.records = new RecordStore(indexPath, "index");
+
         this.keyPath = keyPath;
         this.multiEntry = multiEntry;
         this.unique = unique;
-        // console.log("IDB|Index constructor,", this.name, this.rawObjectStore.name);
+
+        // Initialize from disk if records exist
+        this.initializeFromDisk();
+    }
+
+    private initializeFromDisk() {
+        // Check if we have any records for this index
+        const iterator = this.records.values()[Symbol.iterator]();
+        const firstRecord = iterator.next();
+        if (!firstRecord.done) {
+            console.log(
+                `Index ${this.name} has existing records, marking as initialized`,
+            );
+            this.initialized = true;
+        }
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-retrieving-a-value-from-an-index
@@ -159,23 +180,30 @@ class Index {
 
     public initialize(transaction: FDBTransaction) {
         if (this.initialized) {
-            throw new Error("Index already initialized");
+            console.log(`Index ${this.name} already initialized`);
+            return;
         }
 
-        transaction._execRequestAsync({
-            operation: () => {
-                try {
-                    // Create index based on current value of objectstore
-                    for (const record of this.rawObjectStore.records.values()) {
-                        this.storeRecord(record);
-                    }
-
-                    this.initialized = true;
-                } catch (err) {
-                    // console.error(err);
-                    transaction._abort(err.name);
+        const initializeOperation = () => {
+            try {
+                console.log(
+                    `Initializing index ${this.name} from object store records`,
+                );
+                // Create index based on current value of objectstore
+                for (const record of this.rawObjectStore.records.values()) {
+                    this.storeRecord(record);
                 }
-            },
+
+                this.initialized = true;
+                console.log(`Index ${this.name} initialization complete`);
+            } catch (err) {
+                console.error(`Error initializing index ${this.name}:`, err);
+                transaction._abort(err.name);
+            }
+        };
+
+        transaction._execRequestAsync({
+            operation: initializeOperation,
             source: null,
         });
     }

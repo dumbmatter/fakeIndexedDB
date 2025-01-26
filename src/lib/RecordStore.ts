@@ -9,16 +9,17 @@ import {
 import cmp from "./cmp.js";
 import { Key, Record } from "./types.js";
 import dbManager from "./LevelDBManager.js";
+import { PathUtils } from "./PathUtils.js";
 
 export type RecordStoreType = "object" | "index";
 export const SEPARATOR = "_";
 
 class RecordStore {
     private records: Record[] = [];
-    private keyPrefix: string;
+    private storePath: string;
     private type: RecordStoreType;
-    constructor(keyPrefix: string, type: RecordStoreType) {
-        this.keyPrefix = keyPrefix;
+    constructor(storePath: string, type: RecordStoreType) {
+        this.storePath = storePath;
         this.type = type;
 
         this.loadRecordsFromCache();
@@ -31,14 +32,16 @@ class RecordStore {
             );
         }
         const cachedRecords = dbManager.getValuesForKeysStartingWith(
-            this.keyPrefix,
+            this.storePath,
             this.type,
         );
         this.records = cachedRecords.sort((a, b) => cmp(a.key, b.key));
 
         // Optionally, remove these records from dbManager's cache to save memory
         // cachedRecords.forEach(record => {
-        //     dbManager.delete(this.keyPrefix + record.key.toString());
+        //     const { dbName, storeName } = PathUtils.parseStorePath(this.storePath);
+        //     const key = PathUtils.createStorePath(dbName, storeName, this.type, record.key);
+        //     dbManager.delete(key);
         // });
     }
 
@@ -67,9 +70,14 @@ class RecordStore {
 
         this.records.splice(i, 0, newRecord);
 
-        // Write-through to dbManager - for index types, write all records with the same key
-        const key =
-            this.type + SEPARATOR + this.keyPrefix + newRecord.key.toString();
+        const { dbName, storeName } = PathUtils.parseStorePath(this.storePath);
+        const key = PathUtils.createStorePath(
+            dbName,
+            storeName,
+            this.type,
+            newRecord.key,
+        );
+
         if (this.type === "index") {
             const sameKeyRecords = this.records.filter(
                 (r) => r.key === newRecord.key,
@@ -100,7 +108,16 @@ class RecordStore {
             this.records.splice(idx, 1);
 
             // Write-through to dbManager
-            dbManager.delete(this.keyPrefix + deletedRecord.key.toString());
+            const { dbName, storeName } = PathUtils.parseStorePath(
+                this.storePath,
+            );
+            const fullKey = PathUtils.createStorePath(
+                dbName,
+                storeName,
+                this.type,
+                deletedRecord.key,
+            );
+            dbManager.delete(fullKey);
         }
         return deletedRecords;
     }
@@ -113,7 +130,16 @@ class RecordStore {
             if (shouldDelete) {
                 deletedRecords.push(record);
                 // Write-through to dbManager
-                dbManager.delete(this.keyPrefix + record.key.toString());
+                const { dbName, storeName } = PathUtils.parseStorePath(
+                    this.storePath,
+                );
+                const fullKey = PathUtils.createStorePath(
+                    dbName,
+                    storeName,
+                    this.type,
+                    record.key,
+                );
+                dbManager.delete(fullKey);
             }
             return !shouldDelete;
         });
@@ -126,7 +152,16 @@ class RecordStore {
 
         // Write-through to dbManager
         for (const record of deletedRecords) {
-            dbManager.delete(this.keyPrefix + record.key.toString());
+            const { dbName, storeName } = PathUtils.parseStorePath(
+                this.storePath,
+            );
+            const fullKey = PathUtils.createStorePath(
+                dbName,
+                storeName,
+                this.type,
+                record.key,
+            );
+            dbManager.delete(fullKey);
         }
 
         return deletedRecords;
