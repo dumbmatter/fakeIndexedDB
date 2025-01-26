@@ -90,6 +90,9 @@ class Index {
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-storing-a-record-into-an-object-store (step 7)
     public storeRecord(newRecord: Record) {
+        // First remove any existing index entries for this record
+        this.records.deleteByValue(newRecord.key);
+
         let indexKey;
         try {
             indexKey = extractKey(this.keyPath, newRecord.value);
@@ -98,7 +101,6 @@ class Index {
                 // Invalid key is not an actual error, just means we do not store an entry in this index
                 return;
             }
-
             throw err;
         }
 
@@ -131,6 +133,10 @@ class Index {
                     throw new ConstraintError();
                 }
             }
+            this.records.add({
+                key: indexKey,
+                value: newRecord.key,
+            });
         } else {
             if (this.unique) {
                 for (const individualIndexKey of indexKey) {
@@ -140,14 +146,6 @@ class Index {
                     }
                 }
             }
-        }
-
-        if (!this.multiEntry || !Array.isArray(indexKey)) {
-            this.records.add({
-                key: indexKey,
-                value: newRecord.key,
-            });
-        } else {
             for (const individualIndexKey of indexKey) {
                 this.records.add({
                     key: individualIndexKey,

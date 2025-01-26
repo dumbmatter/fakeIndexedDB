@@ -6,6 +6,8 @@ import { RecordStoreType } from "./RecordStore.js";
 import { SEPARATOR, PathUtils } from "./PathUtils.js";
 type RecordValue = Record | Record[];
 
+const DB_VERBOSE = process.env.DB_VERBOSE === "1";
+
 class LevelDBManager {
     private static instance: LevelDBManager;
     private db: Level<string, any>;
@@ -13,6 +15,18 @@ class LevelDBManager {
     public isLoaded: boolean = false;
     private databaseStructures: Map<string, DatabaseStructure> = new Map();
     private pendingWrites: Promise<void>[] = [];
+
+    private log(...args: any[]) {
+        if (DB_VERBOSE) {
+            console.log(...args);
+        }
+    }
+
+    private logError(...args: any[]) {
+        if (DB_VERBOSE) {
+            console.error(...args);
+        }
+    }
 
     private constructor(dbName: string) {
         this.db = new Level<string, any>(dbName, { valueEncoding: "json" });
@@ -26,17 +40,17 @@ class LevelDBManager {
     }
 
     public async loadCache() {
-        console.log("Loading database structures and data into memory");
+        this.log("Loading database structures and data into memory");
         try {
             // Load database structures
             let dbList: string[] = [];
             try {
                 const dbListJson = await this.db.get(PathUtils.DB_LIST_KEY);
                 dbList = JSON.parse(dbListJson);
-                console.log("Loaded database list:", dbList);
+                this.log("Loaded database list:", dbList);
             } catch (error) {
                 if (error.code === "LEVEL_NOT_FOUND") {
-                    console.log(
+                    this.log(
                         "No existing database list found. Starting with an empty database.",
                     );
                     // Initialize with an empty database list
@@ -59,7 +73,7 @@ class LevelDBManager {
                     this.databaseStructures.set(dbName, dbStructure);
                 } catch (error) {
                     if (error.code === "LEVEL_NOT_FOUND") {
-                        console.log(
+                        this.log(
                             `No structure found for database ${dbName}. Skipping.`,
                         );
                     } else {
@@ -74,14 +88,14 @@ class LevelDBManager {
                 if (!PathUtils.SPECIAL_KEYS.includes(key)) {
                     // Skip structure keys
                     this.cache.set(key, value);
-                    console.log("LOAD", key, "with value:", value);
+                    this.log("LOAD", key, "with value:", value);
                 }
             }
 
             this.isLoaded = true;
-            console.log("Database loaded into memory");
+            this.log("Database loaded into memory");
         } catch (error) {
-            console.error("Error loading database:", error);
+            this.logError("Error loading database:", error);
             this.cache.clear();
             this.databaseStructures.clear();
             throw error;
@@ -118,7 +132,7 @@ class LevelDBManager {
             const dbListPromise = this.db
                 .put(PathUtils.DB_LIST_KEY, JSON.stringify(dbList))
                 .catch((err) => {
-                    console.error("Error saving database list:", err);
+                    this.logError("Error saving database list:", err);
                     throw err;
                 })
                 .finally(() => {
@@ -140,7 +154,7 @@ class LevelDBManager {
                 JSON.stringify(dbStructure),
             )
             .catch((err) => {
-                console.error("Error saving database structure:", err);
+                this.logError("Error saving database structure:", err);
                 throw err;
             })
             .finally(() => {
@@ -150,7 +164,7 @@ class LevelDBManager {
                 }
             });
 
-        console.log("Saving database structure", dbStructure);
+        this.log("Saving database structure", dbStructure);
         this.pendingWrites.push(structurePromise);
         await structurePromise;
     }
@@ -170,12 +184,12 @@ class LevelDBManager {
     public get(key: string): RecordValue | undefined {
         if (!this.isLoaded) throw new Error("Database not loaded yet");
         const value = this.cache.get(key);
-        console.log("GET", key, value);
+        this.log("GET", key, value);
         return value;
     }
 
     public set(key: string, value: RecordValue) {
-        console.log("SET", key, value);
+        this.log("SET", key, value);
         if (!this.isLoaded) throw new Error("Database not loaded yet");
 
         // Check if this is an index entry
@@ -213,7 +227,7 @@ class LevelDBManager {
         const writePromise = this.db
             .put(key, value)
             .catch((err) => {
-                console.error("Error persisting record:", err);
+                this.logError("Error persisting record:", err);
                 throw err;
             })
             .finally(() => {
@@ -228,12 +242,13 @@ class LevelDBManager {
 
     public delete(key: string) {
         if (!this.isLoaded) throw new Error("Database not loaded yet");
+        this.log("DELETE", key);
         this.cache.delete(key);
 
         const deletePromise = this.db
             .del(key)
             .catch((err) =>
-                console.error("Error deleting record from persistence:", err),
+                this.logError("Error deleting record from persistence:", err),
             )
             .finally(() => {
                 const index = this.pendingWrites.indexOf(deletePromise);
@@ -277,7 +292,7 @@ class LevelDBManager {
     }
 
     public async flushWrites(): Promise<void> {
-        console.log("Flushing writes to disk", this.pendingWrites.length);
+        this.log("Flushing writes to disk", this.pendingWrites.length);
         if (this.pendingWrites.length === 0) return;
 
         const writes = [...this.pendingWrites];
@@ -288,7 +303,7 @@ class LevelDBManager {
             for (const write of writes) {
                 await write;
             }
-            console.log(
+            this.log(
                 `Successfully flushed ${writes.length} pending writes to disk`,
             );
         } catch (error) {

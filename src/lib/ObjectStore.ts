@@ -56,8 +56,17 @@ class ObjectStore {
                     indexData.multiEntry,
                     indexData.unique,
                 );
+                index.initialized = true;
                 this.rawIndexes.set(indexName, index);
             }
+        }
+        if (process.env.DB_VERBOSE === "1") {
+            console.log(
+                this.rawDatabase.name,
+                this.name,
+                "rawIndexes",
+                this.rawIndexes,
+            );
         }
     }
 

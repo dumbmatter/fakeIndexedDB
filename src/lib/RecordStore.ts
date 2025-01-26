@@ -34,7 +34,7 @@ class RecordStore {
             this.type,
         );
         this.records = cachedRecords.sort((a, b) => cmp(a.key, b.key));
-        if (this.type === "index") {
+        if (this.type === "index" && process.env.DB_VERBOSE === "1") {
             console.log("INDEX_LOAD", this.keyPrefix, this.records);
         }
         // Optionally, remove these records from dbManager's cache to save memory
@@ -112,15 +112,43 @@ class RecordStore {
     public deleteByValue(key: Key) {
         const range = key instanceof FDBKeyRange ? key : FDBKeyRange.only(key);
         const deletedRecords: Record[] = [];
+
+        // Track which keys need to be updated in dbManager
+        const affectedKeys = new Set<string>();
+
         this.records = this.records.filter((record) => {
             const shouldDelete = range.includes(record.value);
             if (shouldDelete) {
                 deletedRecords.push(record);
-                // Write-through to dbManager
-                dbManager.delete(this.keyPrefix + record.key.toString());
+                // Track this key for dbManager update
+                const dbKey = PathUtils.createRecordStoreKeyPath(
+                    this.keyPrefix,
+                    this.type,
+                    record.key,
+                );
+                affectedKeys.add(dbKey);
             }
             return !shouldDelete;
         });
+
+        // Update dbManager for each affected key
+        for (const dbKey of affectedKeys) {
+            const remainingRecords = this.records.filter(
+                (r) => r.key.toString() === dbKey.split("/").pop(),
+            );
+
+            if (remainingRecords.length === 0) {
+                dbManager.delete(dbKey);
+            } else {
+                dbManager.set(
+                    dbKey,
+                    remainingRecords.length === 1
+                        ? remainingRecords[0]
+                        : remainingRecords,
+                );
+            }
+        }
+
         return deletedRecords;
     }
 
@@ -136,7 +164,9 @@ class RecordStore {
         return deletedRecords;
     }
     public values(range?: FDBKeyRange, direction: "next" | "prev" = "next") {
-        console.log("values()", this.keyPrefix, this.records);
+        if (process.env.DB_VERBOSE === "1") {
+            console.log("values()", this.keyPrefix, this.records);
+        }
         return {
             [Symbol.iterator]: () => {
                 let i: number;

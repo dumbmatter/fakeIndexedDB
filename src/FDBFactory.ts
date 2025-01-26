@@ -258,7 +258,9 @@ class FDBFactory {
             for (const [dbName, dbStructure] of Object.entries(dbStructures)) {
                 const db = new Database(dbName, dbStructure.version);
                 this._databases.set(dbName, db);
-                console.log("Set    ", dbName, db);
+                if (process.env.DB_VERBOSE === "1") {
+                    console.log("Set    ", dbName, db);
+                }
             }
         } catch (error) {
             console.error("Error initializing databases:", error);
