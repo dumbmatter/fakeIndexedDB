@@ -7,6 +7,7 @@ import KeyGenerator from "./KeyGenerator.js";
 import RecordStore from "./RecordStore.js";
 import { Key, KeyPath, Record, RollbackLog } from "./types.js";
 import dbManager from "./LevelDBManager.js";
+import { PathUtils } from "./PathUtils.js";
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-object-store
 class ObjectStore {
     public deleted = false;
@@ -31,7 +32,10 @@ class ObjectStore {
         this.name = name;
         this.keyPath = keyPath;
         this.autoIncrement = autoIncrement;
-        const keyPrefix = `${this.rawDatabase.name}/${this.name}/`;
+        const keyPrefix = PathUtils.createObjectStoreKeyPath(
+            this.rawDatabase.name,
+            this.name,
+        );
         this.records = new RecordStore(keyPrefix, "object");
         // this.records.setKeyPrefix(keyPrefix);
         // console.log(

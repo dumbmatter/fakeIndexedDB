@@ -3,7 +3,7 @@ import { Level } from "level";
 import { Record, DatabaseStructure } from "./types.js";
 import Database from "./Database.js";
 import { RecordStoreType } from "./RecordStore.js";
-import { SEPARATOR } from "./PathUtils.js";
+import { SEPARATOR, PathUtils } from "./PathUtils.js";
 type RecordValue = Record | Record[];
 
 class LevelDBManager {
@@ -31,7 +31,7 @@ class LevelDBManager {
             // Load database structures
             let dbList: string[] = [];
             try {
-                const dbListJson = await this.db.get("__db_list__");
+                const dbListJson = await this.db.get(PathUtils.DB_LIST_KEY);
                 dbList = JSON.parse(dbListJson);
                 console.log("Loaded database list:", dbList);
             } catch (error) {
@@ -40,7 +40,10 @@ class LevelDBManager {
                         "No existing database list found. Starting with an empty database.",
                     );
                     // Initialize with an empty database list
-                    await this.db.put("__db_list__", JSON.stringify([]));
+                    await this.db.put(
+                        PathUtils.DB_LIST_KEY,
+                        JSON.stringify([]),
+                    );
                 } else {
                     throw error;
                 }
@@ -49,7 +52,7 @@ class LevelDBManager {
             for (const dbName of dbList) {
                 try {
                     const dbStructureJson = await this.db.get(
-                        `__db_structure__${dbName}`,
+                        `${PathUtils.DB_STRUCTURE_KEY}${dbName}`,
                     );
                     const dbStructure: DatabaseStructure =
                         JSON.parse(dbStructureJson);
@@ -68,10 +71,10 @@ class LevelDBManager {
 
             // Load actual data
             for await (const [key, value] of this.db.iterator()) {
-                if (!key.startsWith("__")) {
+                if (!PathUtils.SPECIAL_KEYS.includes(key)) {
                     // Skip structure keys
                     this.cache.set(key, value);
-                    console.log("Loaded key:", key, "with value:", value);
+                    console.log("LOAD", key, "with value:", value);
                 }
             }
 
@@ -113,7 +116,7 @@ class LevelDBManager {
             dbList.push(db.name);
             // Create promises for both operations
             const dbListPromise = this.db
-                .put("__db_list__", JSON.stringify(dbList))
+                .put(PathUtils.DB_LIST_KEY, JSON.stringify(dbList))
                 .catch((err) => {
                     console.error("Error saving database list:", err);
                     throw err;
@@ -132,7 +135,10 @@ class LevelDBManager {
         this.databaseStructures.set(db.name, dbStructure);
 
         const structurePromise = this.db
-            .put(`__db_structure__${db.name}`, JSON.stringify(dbStructure))
+            .put(
+                `${PathUtils.DB_STRUCTURE_KEY}${db.name}`,
+                JSON.stringify(dbStructure),
+            )
             .catch((err) => {
                 console.error("Error saving database structure:", err);
                 throw err;
@@ -163,10 +169,13 @@ class LevelDBManager {
 
     public get(key: string): RecordValue | undefined {
         if (!this.isLoaded) throw new Error("Database not loaded yet");
-        return this.cache.get(key);
+        const value = this.cache.get(key);
+        console.log("GET", key, value);
+        return value;
     }
 
     public set(key: string, value: RecordValue) {
+        console.log("SET", key, value);
         if (!this.isLoaded) throw new Error("Database not loaded yet");
 
         // Check if this is an index entry
@@ -240,8 +249,8 @@ class LevelDBManager {
         this.databaseStructures.delete(dbName);
         const dbList = Array.from(this.databaseStructures.keys());
         const promises = [
-            this.db.put("__db_list__", JSON.stringify(dbList)),
-            this.db.del(`__db_structure__${dbName}`),
+            this.db.put(PathUtils.DB_LIST_KEY, JSON.stringify(dbList)),
+            this.db.del(`${PathUtils.DB_STRUCTURE_KEY}${dbName}`),
         ];
         this.pendingWrites.push(...promises);
         await Promise.all(promises);

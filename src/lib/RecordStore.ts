@@ -34,7 +34,9 @@ class RecordStore {
             this.type,
         );
         this.records = cachedRecords.sort((a, b) => cmp(a.key, b.key));
-
+        if (this.type === "index") {
+            console.log("INDEX_LOAD", this.keyPrefix, this.records);
+        }
         // Optionally, remove these records from dbManager's cache to save memory
         // cachedRecords.forEach(record => {
         //     dbManager.delete(this.keyPrefix + record.key.toString());
@@ -67,7 +69,7 @@ class RecordStore {
         this.records.splice(i, 0, newRecord);
 
         // Write-through to dbManager - for index types, write all records with the same key
-        const key = PathUtils.createKeyPath(
+        const key = PathUtils.createRecordStoreKeyPath(
             this.keyPrefix,
             this.type,
             newRecord.key,
@@ -134,6 +136,7 @@ class RecordStore {
         return deletedRecords;
     }
     public values(range?: FDBKeyRange, direction: "next" | "prev" = "next") {
+        console.log("values()", this.keyPrefix, this.records);
         return {
             [Symbol.iterator]: () => {
                 let i: number;
