@@ -56,8 +56,8 @@ const buildRecordAddPut = (
     if (objectStore.keyPath !== null) {
         const tempKey = extractKey(objectStore.keyPath, clone);
 
-        if (tempKey !== undefined) {
-            valueToKey(tempKey);
+        if (tempKey.type === "found") {
+            valueToKey(tempKey.key);
         } else {
             if (!objectStore._rawObjectStore.keyGenerator) {
                 throw new DataError();

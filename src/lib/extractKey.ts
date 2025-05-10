@@ -2,7 +2,18 @@ import { Key, KeyPath, Value } from "./types.js";
 import valueToKey from "./valueToKey.js";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-extracting-a-key-from-a-value-using-a-key-path
-const extractKey = (keyPath: KeyPath, value: Value) => {
+const extractKey = (
+    keyPath: KeyPath,
+    value: Value,
+):
+    | {
+          type: "found";
+          key: any;
+      }
+    | {
+          type: "notFound";
+          key?: undefined; // For convenience, should never be defined
+      } => {
     if (Array.isArray(keyPath)) {
         const result: Key[] = [];
 
@@ -17,14 +28,15 @@ const extractKey = (keyPath: KeyPath, value: Value) => {
             ) {
                 item = (item as any).toString();
             }
-            result.push(valueToKey(extractKey(item, value)));
+            const key = extractKey(item, value).key;
+            result.push(valueToKey(key));
         }
 
-        return result;
+        return { type: "found", key: result };
     }
 
     if (keyPath === "") {
-        return value;
+        return { type: "found", key: value };
     }
 
     let remainingKeyPath: string | null = keyPath;
@@ -47,13 +59,13 @@ const extractKey = (keyPath: KeyPath, value: Value) => {
             object === null ||
             !Object.hasOwn(object, identifier)
         ) {
-            return;
+            return { type: "notFound" };
         }
 
         object = object[identifier];
     }
 
-    return object;
+    return { type: "found", key: object };
 };
 
 export default extractKey;

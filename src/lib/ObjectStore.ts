@@ -88,7 +88,7 @@ class ObjectStore {
         rollbackLog?: RollbackLog,
     ) {
         if (this.keyPath !== null) {
-            const key = extractKey(this.keyPath, newRecord.value);
+            const key = extractKey(this.keyPath, newRecord.value).key;
             if (key !== undefined) {
                 newRecord.key = key;
             }

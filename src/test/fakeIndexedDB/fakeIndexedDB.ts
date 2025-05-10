@@ -860,4 +860,27 @@ describe("fakeIndexedDB Tests", () => {
             };
         };
     });
+
+    it('FDBObjectStore.add/put correctly distinguishes between "value at keyPath is undefined" and "keyPath is not present" when autoIncrement is true (issue #110)', (done) => {
+        const request = fakeIndexedDB.open("test110");
+        request.onupgradeneeded = () => {
+            const db = request.result;
+            db.createObjectStore("myStore", {
+                keyPath: "id",
+                autoIncrement: true,
+            });
+        };
+        request.onsuccess = (event) => {
+            const db = event.target.result;
+            const transaction = db.transaction("myStore", "readwrite");
+            const store = transaction.objectStore("myStore");
+            try {
+                store.put({ name: "Seppo", id: undefined });
+            } catch (error) {
+                done();
+                return;
+            }
+            done(new Error("undefined is not a valid key and should error"));
+        };
+    });
 });
