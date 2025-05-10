@@ -93,7 +93,7 @@
         "test-jest": "pnpm jest test/jest.js",
         "test-mocha": "mocha --timeout 10000 build/esm/test/fakeIndexedDB",
         "build-qunit": "mkdir build/esm/test/indexedDBmock && cp src/test/indexedDBmock/* build/esm/test/indexedDBmock && browserify src/test/indexedDBmock/exports-qunit-bundle.js -o build/esm/test/indexedDBmock/exports-qunit-bundle.js -t [ babelify --presets [ @babel/preset-env ] ]",
-        "test-qunit": "pnpm run build-qunit && node-qunit-phantomjs build/esm/test/indexedDBmock/index.html",
+        "test-qunit": "pnpm run build-qunit && OPENSSL_CONF=/dev/null node-qunit-phantomjs build/esm/test/indexedDBmock/index.html",
         "test-w3c": "node src/test/web-platform-tests/run-all.js",
         "test": "pnpm run lint && pnpm run build && pnpm run test-jest && node test/test.js && node test/dexie.js && pnpm run test-w3c && pnpm run test-mocha && pnpm run test-qunit",
         "prepare": "husky install"
