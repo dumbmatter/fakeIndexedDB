@@ -31,7 +31,9 @@ const add_completion_callback = (...args) => {
     console.log("add_completion_callback", ...args);
 };
 
-const assert_array_equals = (...args) => assert.deepEqual(...args);
+// Array.from is to help with DOMStringList to Array comparisons
+const assert_array_equals = (a, b, ...args) =>
+    assert.deepEqual(Array.from(a), Array.from(b), ...args);
 
 const assert_object_equals = (...args) => assert.deepEqual(...args);
 

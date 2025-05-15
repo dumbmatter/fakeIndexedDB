@@ -765,14 +765,31 @@ describe("fakeIndexedDB Tests", () => {
             assert.strictEqual(list.item(-1), null);
         });
 
-        it.skip("does not include various Array properties", () => {
+        it("is iterable", () => {
+            const list = new FakeDOMStringList("a", "b", "c");
+            const array = [...list];
+            assert.deepStrictEqual(array, ["a", "b", "c"]);
+        });
+
+        it("is indexable like an array", () => {
+            const list = new FakeDOMStringList("a", "b", "c");
+            assert.deepStrictEqual(list[1], "b");
+        });
+
+        it("is convertable to array with [].call", () => {
+            const list = new FakeDOMStringList("a", "b", "c");
+            const array = [].slice.call(list);
+            assert.deepStrictEqual(array, ["a", "b", "c"]);
+        });
+
+        it("does not include various Array properties", () => {
             const list = new FakeDOMStringList("a", "b", "c");
             const array = ["a", "b", "c"];
 
-            assert.strictEqual(FakeDOMStringList.from, undefined);
+            assert.strictEqual((FakeDOMStringList as any).from, undefined);
             assert.deepStrictEqual(Array.from(array), array);
 
-            assert.strictEqual(list.includes, undefined);
+            assert.strictEqual((list as any).includes, undefined);
             assert.strictEqual(array.includes("b"), true);
         });
     });

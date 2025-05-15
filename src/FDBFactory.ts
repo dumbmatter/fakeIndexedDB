@@ -134,7 +134,7 @@ const runVersionchangeTransaction = (
 
         // Get rid of this setImmediate?
         const transaction = connection.transaction(
-            connection.objectStoreNames,
+            Array.from(connection.objectStoreNames),
             "versionchange",
         );
         request.result = connection;

@@ -1,3 +1,7 @@
+# DEV
+
+- #66 - Better DOMStringList polyfill that doesn't include various inappropriate array methods.
+
 # 6.0.1 (2025-05-09)
 
 - #110 - Fix handling of "undefined value" vs "missing value" in IDBObjectStore.add/put when that value is at the keyPath and autoIncrement is true - it should throw an error if the keyPath value is undefined, but previously it was not.
