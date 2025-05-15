@@ -1,6 +1,12 @@
-# fake-indexeddb ![Build Status](https://github.com/dumbmatter/fakeIndexedDB/actions/workflows/test.yml/badge.svg)
+# fake-indexeddb
 
-This is a pure JS in-memory implementation of [the IndexedDB API](https://w3c.github.io/IndexedDB/). Its main utility is for testing IndexedDB-dependent code in Node.js.
+![Build Status](https://github.com/dumbmatter/fakeIndexedDB/actions/workflows/test.yml/badge.svg)
+![GitHub Repo stars](https://img.shields.io/github/stars/dumbmatter/fakeIndexedDB?style=social)
+![GitHub](https://img.shields.io/github/license/dumbmatter/fakeIndexedDB?style=plastic)
+![npm](https://img.shields.io/npm/v/fake-indexeddb?style=plastic)
+![npm](https://img.shields.io/npm/dm/fake-indexeddb?style=plastic)
+
+A pure JS in-memory implementation of [the IndexedDB API](https://w3c.github.io/IndexedDB/). Its main use is testing IndexedDB-dependent code in Node.js.
 
 ## Installation
 
