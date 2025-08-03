@@ -48,7 +48,7 @@ export type TransactionMode = "readonly" | "readwrite" | "versionchange";
 
 // https://www.w3.org/TR/IndexedDB/#dictdef-idbgetalloptions
 export interface FDBGetAllOptions {
-    query?: FDBKeyRange | Key | null;
+    query?: FDBKeyRange | Key;
     count?: number;
     direction?: FDBCursorDirection;
 }
