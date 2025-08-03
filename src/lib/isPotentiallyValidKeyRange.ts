@@ -1,13 +1,7 @@
 import FDBKeyRange from "../FDBKeyRange.js";
-import { FDBGetAllOptions, Key } from "./types.js";
 
 // https://www.w3.org/TR/IndexedDB/#is-a-potentially-valid-key-range
-const isPotentiallyValidKeyRange = (
-    value: any,
-): value is Exclude<
-    FDBKeyRange | Key | FDBGetAllOptions,
-    FDBKeyRange | Key
-> => {
+const isPotentiallyValidKeyRange = (value: any): boolean => {
     // Many of these conditions recapitulate the same conditions in `valueToKeyRange.ts`
     return (
         // FDBKeyRange
