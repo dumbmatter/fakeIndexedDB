@@ -5,7 +5,13 @@ import extractKey from "./extractKey.js";
 import Index from "./Index.js";
 import KeyGenerator from "./KeyGenerator.js";
 import RecordStore from "./RecordStore.js";
-import { Key, KeyPath, Record, RollbackLog } from "./types.js";
+import {
+    FDBCursorDirection,
+    Key,
+    KeyPath,
+    Record,
+    RollbackLog,
+} from "./types.js";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-object-store
 class ObjectStore {
@@ -41,13 +47,28 @@ class ObjectStore {
     }
 
     // http://w3c.github.io/IndexedDB/#retrieve-multiple-keys-from-an-object-store
-    public getAllKeys(range: FDBKeyRange, count?: number) {
+    public getAllKeys(
+        range: FDBKeyRange,
+        count?: number,
+        direction?: FDBCursorDirection,
+    ) {
         if (count === undefined || count === 0) {
             count = Infinity;
         }
 
         const records = [];
-        for (const record of this.records.values(range)) {
+        // TODO: this should support nextunique/prevunique
+        const directionToUse =
+            direction === undefined
+                ? undefined
+                : direction === "next" || direction === "nextunique"
+                  ? "next"
+                  : "prev";
+        const values =
+            directionToUse === undefined
+                ? this.records.values(range)
+                : this.records.values(range, directionToUse);
+        for (const record of values) {
             records.push(structuredClone(record.key));
             if (records.length >= count) {
                 break;
@@ -65,14 +86,64 @@ class ObjectStore {
     }
 
     // http://w3c.github.io/IndexedDB/#retrieve-multiple-values-from-an-object-store
-    public getAllValues(range: FDBKeyRange, count?: number) {
+    public getAllValues(
+        range: FDBKeyRange,
+        count?: number,
+        direction?: FDBCursorDirection,
+    ) {
         if (count === undefined || count === 0) {
             count = Infinity;
         }
 
         const records = [];
-        for (const record of this.records.values(range)) {
+        // TODO: this should support nextunique/prevunique
+        const directionToUse =
+            direction === undefined
+                ? undefined
+                : direction === "next" || direction === "nextunique"
+                  ? "next"
+                  : "prev";
+        const values =
+            directionToUse === undefined
+                ? this.records.values(range)
+                : this.records.values(range, directionToUse);
+        for (const record of values) {
             records.push(structuredClone(record.value));
+            if (records.length >= count) {
+                break;
+            }
+        }
+
+        return records;
+    }
+
+    // https://www.w3.org/TR/IndexedDB/#dom-idbobjectstore-getallrecords
+    public getAllRecords(
+        range: FDBKeyRange,
+        count?: number,
+        direction?: FDBCursorDirection,
+    ) {
+        if (count === undefined || count === 0) {
+            count = Infinity;
+        }
+
+        const records = [];
+        // TODO: this should support nextunique/prevunique
+        const directionToUse =
+            direction === undefined
+                ? undefined
+                : direction === "next" || direction === "nextunique"
+                  ? "next"
+                  : "prev";
+        const values =
+            directionToUse === undefined
+                ? this.records.values(range)
+                : this.records.values(range, directionToUse);
+        for (const record of values) {
+            records.push({
+                key: structuredClone(record.key),
+                value: structuredClone(record.value),
+            });
             if (records.length >= count) {
                 break;
             }

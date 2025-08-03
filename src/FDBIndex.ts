@@ -3,7 +3,6 @@ import FDBCursorWithValue from "./FDBCursorWithValue.js";
 import FDBKeyRange from "./FDBKeyRange.js";
 import FDBObjectStore from "./FDBObjectStore.js";
 import FDBRequest from "./FDBRequest.js";
-import enforceRange from "./lib/enforceRange.js";
 import {
     ConstraintError,
     InvalidStateError,
@@ -11,9 +10,16 @@ import {
 } from "./lib/errors.js";
 import FakeDOMStringList from "./lib/FakeDOMStringList.js";
 import Index from "./lib/Index.js";
-import { FDBCursorDirection, Key, KeyPath } from "./lib/types.js";
+import {
+    FDBCursorDirection,
+    FDBGetAllOptions,
+    Key,
+    KeyPath,
+} from "./lib/types.js";
 import valueToKey from "./lib/valueToKey.js";
 import valueToKeyRange from "./lib/valueToKeyRange.js";
+import extractGetAllOptions from "./lib/extractGetAllOptions.js";
+import enforceRange from "./lib/enforceRange.js";
 
 const confirmActiveTransaction = (index: FDBIndex) => {
     if (index._rawIndex.deleted || index.objectStore._rawObjectStore.deleted) {
@@ -183,19 +189,26 @@ class FDBIndex {
     }
 
     // http://w3c.github.io/IndexedDB/#dom-idbindex-getall
-    public getAll(query?: FDBKeyRange | Key, count?: number) {
-        if (arguments.length > 1 && count !== undefined) {
-            count = enforceRange(count, "unsigned long");
-        }
+    public getAll(
+        queryOrOptions?: FDBKeyRange | Key | FDBGetAllOptions,
+        count?: number,
+    ) {
+        const options = extractGetAllOptions(
+            queryOrOptions,
+            count,
+            arguments.length,
+        );
+
         confirmActiveTransaction(this);
 
-        const range = valueToKeyRange(query);
+        const range = valueToKeyRange(options.query);
 
         return this.objectStore.transaction._execRequestAsync({
             operation: this._rawIndex.getAllValues.bind(
                 this._rawIndex,
                 range,
-                count,
+                options.count,
+                options.direction,
             ),
             source: this,
         });
@@ -216,19 +229,59 @@ class FDBIndex {
     }
 
     // http://w3c.github.io/IndexedDB/#dom-idbindex-getallkeys
-    public getAllKeys(query?: FDBKeyRange | Key, count?: number) {
-        if (arguments.length > 1 && count !== undefined) {
-            count = enforceRange(count, "unsigned long");
-        }
+    public getAllKeys(
+        queryOrOptions?: FDBKeyRange | Key | FDBGetAllOptions,
+        count?: number,
+    ) {
+        const options = extractGetAllOptions(
+            queryOrOptions,
+            count,
+            arguments.length,
+        );
+
         confirmActiveTransaction(this);
 
-        const range = valueToKeyRange(query);
+        const range = valueToKeyRange(options.query);
 
         return this.objectStore.transaction._execRequestAsync({
             operation: this._rawIndex.getAllKeys.bind(
                 this._rawIndex,
                 range,
+                options.count,
+                options.direction,
+            ),
+            source: this,
+        });
+    }
+
+    // https://www.w3.org/TR/IndexedDB/#dom-idbobjectstore-getallrecords
+    public getAllRecords(options?: FDBGetAllOptions) {
+        let query: FDBKeyRange | Key;
+        let count: number | undefined;
+        let direction: FDBCursorDirection | undefined;
+
+        if (options !== undefined) {
+            if (options.query !== undefined) {
+                query = options.query;
+            }
+            if (options.count !== undefined) {
+                count = enforceRange(options.count, "unsigned long");
+            }
+            if (options.direction !== undefined) {
+                direction = options.direction;
+            }
+        }
+
+        confirmActiveTransaction(this);
+
+        const range = valueToKeyRange(query);
+
+        return this.objectStore.transaction._execRequestAsync({
+            operation: this._rawIndex.getAllRecords.bind(
+                this._rawIndex,
+                range,
                 count,
+                direction,
             ),
             source: this,
         });

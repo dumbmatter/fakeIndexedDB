@@ -45,3 +45,10 @@ export interface RequestObj {
 export type RollbackLog = (() => void)[];
 
 export type TransactionMode = "readonly" | "readwrite" | "versionchange";
+
+// https://www.w3.org/TR/IndexedDB/#dictdef-idbgetalloptions
+export interface FDBGetAllOptions {
+    query?: FDBKeyRange | Key | null;
+    count?: number;
+    direction?: FDBCursorDirection;
+}

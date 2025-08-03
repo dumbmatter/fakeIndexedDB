@@ -242,7 +242,12 @@ function check_method(receiver, method, args) {
         assert_throws(
             "DataError",
             () => {
-                receiver[method](invalid_key);
+                // Passing in the invalid_key now fails to throw due to new IDBGetAllOptions type. WPT tests need an update
+                receiver[method](
+                    method === "getAll" || method === "getAllKeys"
+                        ? { query: invalid_key }
+                        : invalid_key,
+                );
             },
             "key conversion with invalid key should throw DataError",
         );
@@ -261,7 +266,13 @@ function check_method(receiver, method, args) {
         assert_throws(
             "DataError",
             () => {
-                receiver[method](invalid_key, throwing_key("getter 2"));
+                // Passing in the invalid_key now fails to throw due to new IDBGetAllOptions type. WPT tests need an update
+                receiver[method](
+                    method === "getAll" || method === "getAllKeys"
+                        ? { query: invalid_key }
+                        : invalid_key,
+                    throwing_key("getter 2"),
+                );
             },
             "first key conversion with invalid key should throw DataError",
         );
@@ -277,7 +288,13 @@ function check_method(receiver, method, args) {
         assert_throws(
             "DataError",
             () => {
-                receiver[method](valid_key, invalid_key);
+                // Passing in the invalid_key now fails to throw due to new IDBGetAllOptions type. WPT tests need an update
+                receiver[method](
+                    valid_key,
+                    method === "getAll" || method === "getAllKeys"
+                        ? { query: invalid_key }
+                        : invalid_key,
+                );
             },
             "second key conversion with invalid key should throw DataError",
         );
@@ -362,9 +379,12 @@ indexeddb_upgrade_only_test((t, db) => {
 
 // Static constructors on IDBKeyRange
 ["only", "lowerBound", "upperBound"].forEach((method) => {
-    test((t) => {
-        check_method(IDBKeyRange, method);
-    }, "IDBKeyRange " + method + "() static with throwing/invalid keys");
+    test(
+        (t) => {
+            check_method(IDBKeyRange, method);
+        },
+        "IDBKeyRange " + method + "() static with throwing/invalid keys",
+    );
 });
 
 test((t) => {
