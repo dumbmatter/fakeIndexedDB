@@ -86,6 +86,10 @@ const skip = [
     "nested-cloning-large.js",
     "nested-cloning-large-multiple.js",
     "nested-cloning-small.js",
+    "blob-valid-before-commit.any.js",
+    "blob-valid-after-deletion.any.js",
+    "blob-delete-objectstore-db.any.js",
+    "blob-contenttype.any.js",
 
     // All kinds of fucked up.
     "open-request-queue.js",
@@ -107,6 +111,26 @@ const skip = [
     // triggered synchronously. Not sure how to reconcile this with the spec. Same issue affected some other test too, I
     // think.
     "transaction-abort-request-error.js",
+
+    // Relies on an <input type=file> which is hard for us to simulate
+    'file_support.sub.js',
+
+    // Doesn't seem relevant to a node.js test
+    'resources/idbfactory-origin-isolation-iframe.js',
+    'idbfactory-origin-isolation.js',
+
+    // fakeIndexedDB does not currently support relaxed durability or durability options
+    'transaction-relaxed-durability.tentative.any.js',
+
+    // these test our ability to do a structured clone on various DOM types like DOMRect which we don't support
+    'structured-clone.any.js',
+    'structured-clone-transaction-state.any.js',
+
+    // these tests rely on the precise ordering of exceptions, which we currently fail
+    'idbcursor-advance-exception-order.js',
+    'idbdatabase-createObjectStore-exception-order.js',
+    'idbdatabase-deleteObjectStore-exception-order.js',
+    'idbdatabase-transaction-exception-order.js',
 ];
 
 const filenames = glob.sync("/**/*.js", { root: testFolder });
@@ -122,6 +146,7 @@ for (const absFilename of filenames) {
     try {
         const output = execSync(`node ${filename}`, {
             cwd: testFolder,
+            // stdio: 'inherit'
         });
         if (output.toString().length > 0) {
             console.log(output.toString());

@@ -1,3 +1,4 @@
+/* global console */
 import fs from "node:fs";
 import { glob } from "glob";
 import path from "node:path";
@@ -7,25 +8,13 @@ const skip = [
     "idlharness.any.js",
 ];
 
-// It's 2019 and JavaScript is only just implementing a `matchAll`
-// function.
-function* matchAll(string, inputRe) {
-    const re = new RegExp(inputRe, inputRe.flags + "g");
-    while (true) {
-        const match = re.exec(string);
-        if (match === null) {
-            break;
-        }
-        yield match;
-    }
-}
-
 function makeParentDir(file) {
     const dir = path.posix.dirname(file);
-    if (!fs.existsSync(dir)) {
-        makeParentDir(dir);
-        fs.mkdirSync(dir);
-    }
+    fs.mkdirSync(dir, { recursive: true })
+}
+
+function addConst(string) {
+    return string.replace(/^(\s+)(.*)/, (whole, match1, match2) => match1 + 'const ' + match2)
 }
 
 const __dirname = "src/test/web-platform-tests";
@@ -58,7 +47,7 @@ const outFolder = path.posix.join(__dirname, "converted");
 
         const testScript = matches[1];
 
-        const codeChunks = [];
+        let codeChunks = [];
 
         {
             const relativeWptEnvLocation = path.posix.join(
@@ -74,16 +63,18 @@ const outFolder = path.posix.join(__dirname, "converted");
         // browser behaviour here is to glom it all into a single
         // file.
 
-        const importMatches = matchAll(
-            contents,
-            /<script src=["']?(.+?)['"]?>/,
+        const importMatches = contents.matchAll(
+            /<script src=["']?(.+?)['"]?>/g,
         );
 
         for (const match of importMatches) {
-            if (match[1] === "/resources/testharness.js") {
-                continue;
-            }
-            if (match[1] === "/resources/testharnessreport.js") {
+            if ([
+                "/resources/testharness.js",
+                "/resources/testharnessreport.js",
+                "/resources/testdriver.js",
+                "/resources/testdriver-vendor.js",
+                "/common/get-host-info.sub.js"
+            ].includes(match[1])) {
                 continue;
             }
             const location = path.posix.join(
@@ -96,6 +87,20 @@ const outFolder = path.posix.join(__dirname, "converted");
         codeChunks.push(testScript);
 
         makeParentDir(dest);
+
+        codeChunks = codeChunks.map(chunk => {
+            return chunk
+                // HACK: some of the tests use sloppy mode, probably due to author error
+                // This causes problems for us because we convert to ESM (strict) mode
+                // So manually fix some of the sloppy global assigments in tests
+                .replaceAll(/ {4}loop_array = \[];/g, addConst)
+                .replaceAll(/ {12}store = db.createObjectStore\("store"\);/g, addConst)
+                .replaceAll(/ {12}store2 = db.createObjectStore\("store2", \{ keyPath: \["x", "keypath"] }\);/g, addConst)
+                .replaceAll(/ {8}attrs = \[];/g, addConst)
+
+                 // this test has to be disabled because we can't detect Proxies vs non-Proxies in JS
+                .replaceAll(/invalid_key\('proxy of an array', new Proxy\(\[1,2,3], \{}\)\);/g, '');
+        })
 
         fs.writeFileSync(dest, codeChunks.join("\n"));
     }
@@ -119,7 +124,7 @@ const outFolder = path.posix.join(__dirname, "converted");
         // TODO: what does, e.g., 'META: global=window,worker' do? Do
         // we have to care about it?
 
-        const codeChunks = [];
+        let codeChunks = [];
 
         {
             const relativeWptEnvLocation = path.posix.join(
@@ -129,10 +134,9 @@ const outFolder = path.posix.join(__dirname, "converted");
             codeChunks.push(`import "${relativeWptEnvLocation}";\n`);
         }
 
-        const importMatches = matchAll(
-            testScript,
-            /^\/\/\s*META:\s*script=(.+)$/m,
-        );
+        const importMatches = testScript.matchAll(
+            /^\/\/\s*META:\s*script=(.+)$/mg,
+        ).filter(match => match[1] !== "/common/subset-tests.js");
 
         for (const match of importMatches) {
             const location = path.posix.join(
@@ -143,6 +147,14 @@ const outFolder = path.posix.join(__dirname, "converted");
         }
 
         codeChunks.push(testScript);
+
+        codeChunks = codeChunks.map(chunk => {
+            return chunk
+                // HACK: same as above, some of the tests use sloppy mode
+                .replaceAll(/ {2}cursor = txn.objectStore\('objectStore'\)\.index\('index'\)\.openCursor\(/g, addConst)
+                .replaceAll(/ {2}cursor = txn4.objectStore\('objectStore'\)\.index\('index'\)\.openCursor\(IDBKeyRange\.bound\(0, 10\), "prev"\);/g, addConst)
+                .replaceAll(/ {2}cursor = txn2.objectStore\('objectStore'\)\.index\('index'\)\.openCursor\(IDBKeyRange\.bound\(0, 10\), "prev"\);/g, addConst)
+        })
 
         makeParentDir(dest);
 

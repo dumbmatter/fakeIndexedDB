@@ -14,6 +14,7 @@ import Index from "./lib/Index.js";
 import { FDBCursorDirection, Key, KeyPath } from "./lib/types.js";
 import valueToKey from "./lib/valueToKey.js";
 import valueToKeyRange from "./lib/valueToKeyRange.js";
+import { getKeyPath } from "./lib/getKeyPath.js";
 
 const confirmActiveTransaction = (index: FDBIndex) => {
     if (index._rawIndex.deleted || index.objectStore._rawObjectStore.deleted) {
@@ -40,7 +41,7 @@ class FDBIndex {
 
         this._name = rawIndex.name;
         this.objectStore = objectStore;
-        this.keyPath = rawIndex.keyPath;
+        this.keyPath = getKeyPath(rawIndex.keyPath);
         this.multiEntry = rawIndex.multiEntry;
         this.unique = rawIndex.unique;
     }
@@ -54,7 +55,7 @@ class FDBIndex {
         const transaction = this.objectStore.transaction;
 
         if (!transaction.db._runningVersionchangeTransaction) {
-            throw new InvalidStateError();
+            throw transaction._state === 'active' ? new InvalidStateError() : new TransactionInactiveError();
         }
 
         if (transaction._state !== "active") {
