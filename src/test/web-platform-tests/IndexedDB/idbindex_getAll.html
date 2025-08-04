@@ -35,7 +35,7 @@ function getall_test(func, name) {
       store = connection.createObjectStore('out-of-line-multi', null);
       index = store.createIndex('test_idx', 'attribs', {multiEntry: true});
       alphabet.forEach(function(letter) {
-        var attrs = [];
+        attrs = [];
         if (['a', 'e', 'i', 'o', 'u'].indexOf(letter) != -1)
           attrs.push('vowel');
         else

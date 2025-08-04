@@ -16,9 +16,22 @@ const messages = {
         'The mutating operation was attempted in a "readonly" transaction.',
     TransactionInactiveError:
         "A request was placed against a transaction which is currently not active, or which is finished.",
+    SyntaxError:
+        "The keypath argument contains an invalid key path",
     VersionError:
         "An attempt was made to open a database using a lower version than the existing version.",
 };
+
+// Cannot set an error code on an error using the normal setter;
+// this leads to "Cannot set property code of  which has only a getter"
+const setErrorCode = (error: any, value: number) => {
+    Object.defineProperty(error, 'code', {
+        value,
+        writable: false,
+        enumerable: true,
+        configurable: false
+    });
+}
 
 export class AbortError extends DOMException {
     constructor(message = messages.AbortError) {
@@ -41,6 +54,7 @@ export class DataCloneError extends DOMException {
 export class DataError extends DOMException {
     constructor(message = messages.DataError) {
         super(message, "DataError");
+        setErrorCode(this, 0);
     }
 }
 
@@ -53,6 +67,7 @@ export class InvalidAccessError extends DOMException {
 export class InvalidStateError extends DOMException {
     constructor(message = messages.InvalidStateError) {
         super(message, "InvalidStateError");
+        setErrorCode(this, 11);
     }
 }
 
@@ -68,9 +83,17 @@ export class ReadOnlyError extends DOMException {
     }
 }
 
+export class SyntaxError extends DOMException {
+    constructor(message = messages.VersionError) {
+        super(message, "SyntaxError");
+        setErrorCode(this, 12);
+    }
+}
+
 export class TransactionInactiveError extends DOMException {
     constructor(message = messages.TransactionInactiveError) {
         super(message, "TransactionInactiveError");
+        setErrorCode(this, 0);
     }
 }
 
