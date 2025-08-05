@@ -99,7 +99,10 @@ const outFolder = path.posix.join(__dirname, "converted");
                 .replaceAll(/ {8}attrs = \[];/g, addConst)
 
                  // this test has to be disabled because we can't detect Proxies vs non-Proxies in JS
-                .replaceAll(/invalid_key\('proxy of an array', new Proxy\(\[1,2,3], \{}\)\);/g, '');
+                .replaceAll(/invalid_key\('proxy of an array', new Proxy\(\[1,2,3], \{}\)\);/g, '')
+
+                // this test is currently wrong due to IDBGetAllOptions, should be fixed with a WPT update to 2025
+                .replaceAll(/receiver\[method]\(([^)]*?)invalid_key/g, (_, g1) => `receiver[method](${g1}method === "getAll" || method === "getAllKeys" ? { query: invalid_key } : invalid_key`);
         })
 
         fs.writeFileSync(dest, codeChunks.join("\n"));

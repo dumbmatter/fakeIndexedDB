@@ -63,12 +63,12 @@ function createdb_for_multiple_tests(dbname, version) {
 
                 if (e.target.result + '' == '[object IDBDatabase]' &&
                     !this.db) {
-                    this.db = e.target.result;
+                  this.db = e.target.result;
 
-                    this.db.onerror = fail(test, 'unexpected db.error');
-                    this.db.onabort = fail(test, 'unexpected db.abort');
-                    this.db.onversionchange =
-                        fail(test, 'unexpected db.versionchange');
+                  this.db.onerror = fail(test, 'unexpected db.error');
+                  this.db.onabort = fail(test, 'unexpected db.abort');
+                  this.db.onversionchange =
+                      fail(test, 'unexpected db.versionchange');
                 }
             });
         });
@@ -100,40 +100,40 @@ function createdb_for_multiple_tests(dbname, version) {
 }
 
 function assert_key_equals(actual, expected, description) {
-    assert_equals(indexedDB.cmp(actual, expected), 0, description);
+  assert_equals(indexedDB.cmp(actual, expected), 0, description);
 }
 
 function indexeddb_test(upgrade_func, open_func, description, options) {
-    async_test(function(t) {
-        options = Object.assign({upgrade_will_abort: false}, options);
-        var dbname = location + '-' + t.name;
-        var del = indexedDB.deleteDatabase(dbname);
-        del.onerror = t.unreached_func('deleteDatabase should succeed');
-        var open = indexedDB.open(dbname, 1);
-        open.onupgradeneeded = t.step_func(function() {
-            var db = open.result;
-            t.add_cleanup(function() {
-                // If open didn't succeed already, ignore the error.
-                open.onerror = function(e) {
-                    e.preventDefault();
-                };
-                db.close();
-                indexedDB.deleteDatabase(db.name);
-            });
-            var tx = open.transaction;
-            upgrade_func(t, db, tx, open);
-        });
-        if (options.upgrade_will_abort) {
-            open.onsuccess = t.unreached_func('open should not succeed');
-        } else {
-            open.onerror = t.unreached_func('open should succeed');
-            open.onsuccess = t.step_func(function() {
-                var db = open.result;
-                if (open_func)
-                    open_func(t, db, open);
-            });
-        }
-    }, description);
+  async_test(function(t) {
+    options = Object.assign({upgrade_will_abort: false}, options);
+    var dbname = location + '-' + t.name;
+    var del = indexedDB.deleteDatabase(dbname);
+    del.onerror = t.unreached_func('deleteDatabase should succeed');
+    var open = indexedDB.open(dbname, 1);
+    open.onupgradeneeded = t.step_func(function() {
+      var db = open.result;
+      t.add_cleanup(function() {
+        // If open didn't succeed already, ignore the error.
+        open.onerror = function(e) {
+          e.preventDefault();
+        };
+        db.close();
+        indexedDB.deleteDatabase(db.name);
+      });
+      var tx = open.transaction;
+      upgrade_func(t, db, tx, open);
+    });
+    if (options.upgrade_will_abort) {
+      open.onsuccess = t.unreached_func('open should not succeed');
+    } else {
+      open.onerror = t.unreached_func('open should succeed');
+      open.onsuccess = t.step_func(function() {
+        var db = open.result;
+        if (open_func)
+          open_func(t, db, open);
+      });
+    }
+  }, description);
 }
 
 // Call with a Test and an array of expected results in order. Returns
@@ -141,32 +141,32 @@ function indexeddb_test(upgrade_func, open_func, description, options) {
 // expected number appear the order will be asserted and test
 // completed.
 function expect(t, expected) {
-    var results = [];
-    return result => {
-        results.push(result);
-        if (results.length === expected.length) {
-            assert_array_equals(results, expected);
-            t.done();
-        }
-    };
+  var results = [];
+  return result => {
+    results.push(result);
+    if (results.length === expected.length) {
+      assert_array_equals(results, expected);
+      t.done();
+    }
+  };
 }
 
 // Checks to see if the passed transaction is active (by making
 // requests against the named store).
 function is_transaction_active(tx, store_name) {
-    try {
-        const request = tx.objectStore(store_name).get(0);
-        request.onerror = e => {
-            e.preventDefault();
-            e.stopPropagation();
-        };
-        return true;
-    } catch (ex) {
-        assert_equals(ex.name, 'TransactionInactiveError',
-            'Active check should either not throw anything, or throw ' +
-            'TransactionInactiveError');
-        return false;
-    }
+  try {
+    const request = tx.objectStore(store_name).get(0);
+    request.onerror = e => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+    return true;
+  } catch (ex) {
+    assert_equals(ex.name, 'TransactionInactiveError',
+                  'Active check should either not throw anything, or throw ' +
+                  'TransactionInactiveError');
+    return false;
+  }
 }
 
 // Keeps the passed transaction alive indefinitely (by making requests
@@ -174,22 +174,22 @@ function is_transaction_active(tx, store_name) {
 // transaction has not already completed and then ends the request loop so that
 // the transaction may autocommit and complete.
 function keep_alive(tx, store_name) {
-    let completed = false;
-    tx.addEventListener('complete', () => { completed = true; });
+  let completed = false;
+  tx.addEventListener('complete', () => { completed = true; });
 
-    let keepSpinning = true;
+  let keepSpinning = true;
 
-    function spin() {
-        if (!keepSpinning)
-            return;
-        tx.objectStore(store_name).get(0).onsuccess = spin;
-    }
-    spin();
+  function spin() {
+    if (!keepSpinning)
+      return;
+    tx.objectStore(store_name).get(0).onsuccess = spin;
+  }
+  spin();
 
-    return () => {
-        assert_false(completed, 'Transaction completed while kept alive');
-        keepSpinning = false;
-    };
+  return () => {
+    assert_false(completed, 'Transaction completed while kept alive');
+    keepSpinning = false;
+  };
 }
 
 
@@ -197,7 +197,7 @@ function keep_alive(tx, store_name) {
 
 // Convenience function for tests that only need to run code in onupgradeneeded.
 function indexeddb_upgrade_only_test(upgrade_callback, description) {
-    indexeddb_test(upgrade_callback, t => { t.done(); }, description);
+  indexeddb_test(upgrade_callback, t => { t.done(); }, description);
 }
 
 // Key that throws during conversion.
@@ -207,8 +207,8 @@ function throwing_key(name) {
     const err = new Error('throwing from getter');
     err.name = name;
     Object.defineProperty(throws, '0', {get: function() {
-            throw err;
-        }, enumerable: true});
+        throw err;
+    }, enumerable: true});
     return [throws, err];
 }
 
@@ -229,7 +229,7 @@ function check_method(receiver, method, args) {
         }, 'key conversion with throwing getter should rethrow');
 
         assert_throws_dom('DataError', () => {
-            receiver[method](invalid_key);
+            receiver[method](method === "getAll" || method === "getAllKeys" ? { query: invalid_key } : invalid_key);
         }, 'key conversion with invalid key should throw DataError');
     } else {
         const [key1, err1] = throwing_key('getter 1');
@@ -239,7 +239,7 @@ function check_method(receiver, method, args) {
         }, 'first key conversion with throwing getter should rethrow');
 
         assert_throws_dom('DataError', () => {
-            receiver[method](invalid_key, key2);
+            receiver[method](method === "getAll" || method === "getAllKeys" ? { query: invalid_key } : invalid_key, key2);
         }, 'first key conversion with invalid key should throw DataError');
 
         assert_throws_exactly(err2, () => {
@@ -247,7 +247,7 @@ function check_method(receiver, method, args) {
         }, 'second key conversion with throwing getter should rethrow');
 
         assert_throws_dom('DataError', () => {
-            receiver[method](valid_key, invalid_key);
+            receiver[method](valid_key, method === "getAll" || method === "getAllKeys" ? { query: invalid_key } : invalid_key);
         }, 'second key conversion with invalid key should throw DataError');
     }
 }
