@@ -28,6 +28,7 @@ import {
 import validateKeyPath from "./lib/validateKeyPath.js";
 import valueToKey from "./lib/valueToKey.js";
 import valueToKeyRange from "./lib/valueToKeyRange.js";
+import { getKeyPath } from "./lib/getKeyPath.js";
 import extractGetAllOptions from "./lib/extractGetAllOptions.js";
 import enforceRange from "./lib/enforceRange.js";
 
@@ -108,7 +109,7 @@ class FDBObjectStore {
         this._rawObjectStore = rawObjectStore;
 
         this._name = rawObjectStore.name;
-        this.keyPath = rawObjectStore.keyPath;
+        this.keyPath = getKeyPath(rawObjectStore.keyPath);
         this.autoIncrement = rawObjectStore.autoIncrement;
         this.transaction = transaction;
         this.indexNames = new FakeDOMStringList(
@@ -125,7 +126,7 @@ class FDBObjectStore {
         const transaction = this.transaction;
 
         if (!transaction.db._runningVersionchangeTransaction) {
-            throw new InvalidStateError();
+            throw transaction._state === 'active' ? new InvalidStateError() : new TransactionInactiveError();
         }
 
         confirmActiveTransaction(this);

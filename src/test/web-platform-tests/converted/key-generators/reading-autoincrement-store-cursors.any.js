@@ -1,29 +1,25 @@
 import "../../wpt-env.js";
 
-("use strict");
+'use strict';
 
 // Returns an IndexedDB database name that is unique to the test case.
 function databaseName(testCase) {
-    return "db" + self.location.pathname + "-" + testCase.name;
+  return 'db' + self.location.pathname + '-' + testCase.name;
 }
 
 // EventWatcher covering all the events defined on IndexedDB requests.
 //
 // The events cover IDBRequest and IDBOpenDBRequest.
 function requestWatcher(testCase, request) {
-    return new EventWatcher(testCase, request, [
-        "blocked",
-        "error",
-        "success",
-        "upgradeneeded",
-    ]);
+  return new EventWatcher(testCase, request,
+                          ['blocked', 'error', 'success', 'upgradeneeded']);
 }
 
 // EventWatcher covering all the events defined on IndexedDB transactions.
 //
 // The events cover IDBTransaction.
 function transactionWatcher(testCase, request) {
-    return new EventWatcher(testCase, request, ["abort", "complete", "error"]);
+  return new EventWatcher(testCase, request, ['abort', 'complete', 'error']);
 }
 
 // Promise that resolves with an IDBRequest's result.
@@ -33,10 +29,8 @@ function transactionWatcher(testCase, request) {
 // most cases, but insufficient for indexedDB.open(), which issues
 // "upgradeneded" events under normal operation.
 function promiseForRequest(testCase, request) {
-    const eventWatcher = requestWatcher(testCase, request);
-    return eventWatcher
-        .wait_for("success")
-        .then((event) => event.target.result);
+  const eventWatcher = requestWatcher(testCase, request);
+  return eventWatcher.wait_for('success').then(event => event.target.result);
 }
 
 // Promise that resolves when an IDBTransaction completes.
@@ -44,8 +38,8 @@ function promiseForRequest(testCase, request) {
 // The promise resolves with undefined if IDBTransaction receives the "complete"
 // event, and rejects with an error for any other event.
 function promiseForTransaction(testCase, request) {
-    const eventWatcher = transactionWatcher(testCase, request);
-    return eventWatcher.wait_for("complete").then(() => {});
+  const eventWatcher = transactionWatcher(testCase, request);
+  return eventWatcher.wait_for('complete').then(() => {});
 }
 
 // Migrates an IndexedDB database whose name is unique for the test case.
@@ -60,12 +54,8 @@ function promiseForTransaction(testCase, request) {
 // resolves to an IndexedDB database that should be closed by the caller. If the
 // versionchange transaction is aborted, the promise resolves to an error.
 function migrateDatabase(testCase, newVersion, migrationCallback) {
-    return migrateNamedDatabase(
-        testCase,
-        databaseName(testCase),
-        newVersion,
-        migrationCallback,
-    );
+  return migrateNamedDatabase(
+      testCase, databaseName(testCase), newVersion, migrationCallback);
 }
 
 // Migrates an IndexedDB database.
@@ -80,86 +70,65 @@ function migrateDatabase(testCase, newVersion, migrationCallback) {
 // resolves to an IndexedDB database that should be closed by the caller. If the
 // versionchange transaction is aborted, the promise resolves to an error.
 function migrateNamedDatabase(
-    testCase,
-    databaseName,
-    newVersion,
-    migrationCallback,
-) {
-    // We cannot use eventWatcher.wait_for('upgradeneeded') here, because
-    // the versionchange transaction auto-commits before the Promise's then
-    // callback gets called.
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open(databaseName, newVersion);
-        request.onupgradeneeded = testCase.step_func((event) => {
-            const database = event.target.result;
-            const transaction = event.target.transaction;
-            let shouldBeAborted = false;
-            let requestEventPromise = null;
+    testCase, databaseName, newVersion, migrationCallback) {
+  // We cannot use eventWatcher.wait_for('upgradeneeded') here, because
+  // the versionchange transaction auto-commits before the Promise's then
+  // callback gets called.
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(databaseName, newVersion);
+    request.onupgradeneeded = testCase.step_func(event => {
+      const database = event.target.result;
+      const transaction = event.target.transaction;
+      let shouldBeAborted = false;
+      let requestEventPromise = null;
 
-            // We wrap IDBTransaction.abort so we can set up the correct event
-            // listeners and expectations if the test chooses to abort the
-            // versionchange transaction.
-            const transactionAbort = transaction.abort.bind(transaction);
-            transaction.abort = () => {
-                transaction._willBeAborted();
-                transactionAbort();
-            };
-            transaction._willBeAborted = () => {
-                requestEventPromise = new Promise((resolve, reject) => {
-                    request.onerror = (event) => {
-                        event.preventDefault();
-                        resolve(event.target.error);
-                    };
-                    request.onsuccess = () =>
-                        reject(
-                            new Error(
-                                "indexedDB.open should not succeed for an aborted " +
-                                    "versionchange transaction",
-                            ),
-                        );
-                });
-                shouldBeAborted = true;
-            };
-
-            // If migration callback returns a promise, we'll wait for it to resolve.
-            // This simplifies some tests.
-            const callbackResult = migrationCallback(
-                database,
-                transaction,
-                request,
-            );
-            if (!shouldBeAborted) {
-                request.onerror = null;
-                request.onsuccess = null;
-                requestEventPromise = promiseForRequest(testCase, request);
-            }
-
-            // requestEventPromise needs to be the last promise in the chain, because
-            // we want the event that it resolves to.
-            resolve(
-                Promise.resolve(callbackResult).then(() => requestEventPromise),
-            );
+      // We wrap IDBTransaction.abort so we can set up the correct event
+      // listeners and expectations if the test chooses to abort the
+      // versionchange transaction.
+      const transactionAbort = transaction.abort.bind(transaction);
+      transaction.abort = () => {
+        transaction._willBeAborted();
+        transactionAbort();
+      }
+      transaction._willBeAborted = () => {
+        requestEventPromise = new Promise((resolve, reject) => {
+          request.onerror = event => {
+            event.preventDefault();
+            resolve(event.target.error);
+          };
+          request.onsuccess = () => reject(new Error(
+              'indexedDB.open should not succeed for an aborted ' +
+              'versionchange transaction'));
         });
-        request.onerror = (event) => reject(event.target.error);
-        request.onsuccess = () => {
-            const database = request.result;
-            testCase.add_cleanup(() => {
-                database.close();
-            });
-            reject(
-                new Error(
-                    "indexedDB.open should not succeed without creating a " +
-                        "versionchange transaction",
-                ),
-            );
-        };
-    }).then((databaseOrError) => {
-        if (databaseOrError instanceof IDBDatabase)
-            testCase.add_cleanup(() => {
-                databaseOrError.close();
-            });
-        return databaseOrError;
+        shouldBeAborted = true;
+      }
+
+      // If migration callback returns a promise, we'll wait for it to resolve.
+      // This simplifies some tests.
+      const callbackResult = migrationCallback(database, transaction, request);
+      if (!shouldBeAborted) {
+        request.onerror = null;
+        request.onsuccess = null;
+        requestEventPromise = promiseForRequest(testCase, request);
+      }
+
+      // requestEventPromise needs to be the last promise in the chain, because
+      // we want the event that it resolves to.
+      resolve(Promise.resolve(callbackResult).then(() => requestEventPromise));
     });
+    request.onerror = event => reject(event.target.error);
+    request.onsuccess = () => {
+      const database = request.result;
+      testCase.add_cleanup(() => { database.close(); });
+      reject(new Error(
+          'indexedDB.open should not succeed without creating a ' +
+          'versionchange transaction'));
+    };
+  }).then(databaseOrError => {
+    if (databaseOrError instanceof IDBDatabase)
+      testCase.add_cleanup(() => { databaseOrError.close(); });
+    return databaseOrError;
+  });
 }
 
 // Creates an IndexedDB database whose name is unique for the test case.
@@ -171,7 +140,7 @@ function migrateNamedDatabase(
 // Returns a promise that resolves to an IndexedDB database. The caller should
 // close the database.
 function createDatabase(testCase, setupCallback) {
-    return createNamedDatabase(testCase, databaseName(testCase), setupCallback);
+  return createNamedDatabase(testCase, databaseName(testCase), setupCallback);
 }
 
 // Creates an IndexedDB database.
@@ -183,13 +152,11 @@ function createDatabase(testCase, setupCallback) {
 // Returns a promise that resolves to an IndexedDB database. The caller should
 // close the database.
 function createNamedDatabase(testCase, databaseName, setupCallback) {
-    const request = indexedDB.deleteDatabase(databaseName);
-    return promiseForRequest(testCase, request).then(() => {
-        testCase.add_cleanup(() => {
-            indexedDB.deleteDatabase(databaseName);
-        });
-        return migrateNamedDatabase(testCase, databaseName, 1, setupCallback);
-    });
+  const request = indexedDB.deleteDatabase(databaseName);
+  return promiseForRequest(testCase, request).then(() => {
+    testCase.add_cleanup(() => { indexedDB.deleteDatabase(databaseName); });
+    return migrateNamedDatabase(testCase, databaseName, 1, setupCallback)
+  });
 }
 
 // Opens an IndexedDB database without performing schema changes.
@@ -199,7 +166,7 @@ function createNamedDatabase(testCase, databaseName, setupCallback) {
 // Returns a promise that resolves to an IndexedDB database. The caller should
 // close the database.
 function openDatabase(testCase, version) {
-    return openNamedDatabase(testCase, databaseName(testCase), version);
+  return openNamedDatabase(testCase, databaseName(testCase), version);
 }
 
 // Opens an IndexedDB database without performing schema changes.
@@ -209,43 +176,40 @@ function openDatabase(testCase, version) {
 // Returns a promise that resolves to an IndexedDB database. The caller should
 // close the database.
 function openNamedDatabase(testCase, databaseName, version) {
-    const request = indexedDB.open(databaseName, version);
-    return promiseForRequest(testCase, request).then((database) => {
-        testCase.add_cleanup(() => {
-            database.close();
-        });
-        return database;
-    });
+  const request = indexedDB.open(databaseName, version);
+  return promiseForRequest(testCase, request).then(database => {
+    testCase.add_cleanup(() => { database.close(); });
+    return database;
+  });
 }
 
 // The data in the 'books' object store records in the first example of the
 // IndexedDB specification.
 const BOOKS_RECORD_DATA = [
-    { title: "Quarry Memories", author: "Fred", isbn: 123456 },
-    { title: "Water Buffaloes", author: "Fred", isbn: 234567 },
-    { title: "Bedrock Nights", author: "Barney", isbn: 345678 },
+  { title: 'Quarry Memories', author: 'Fred', isbn: 123456 },
+  { title: 'Water Buffaloes', author: 'Fred', isbn: 234567 },
+  { title: 'Bedrock Nights', author: 'Barney', isbn: 345678 },
 ];
 
 // Creates a 'books' object store whose contents closely resembles the first
 // example in the IndexedDB specification.
 const createBooksStore = (testCase, database) => {
-    const store = database.createObjectStore("books", {
-        keyPath: "isbn",
-        autoIncrement: true,
-    });
-    store.createIndex("by_author", "author");
-    store.createIndex("by_title", "title", { unique: true });
-    for (let record of BOOKS_RECORD_DATA) store.put(record);
-    return store;
-};
+  const store = database.createObjectStore('books',
+      { keyPath: 'isbn', autoIncrement: true });
+  store.createIndex('by_author', 'author');
+  store.createIndex('by_title', 'title', { unique: true });
+  for (let record of BOOKS_RECORD_DATA)
+      store.put(record);
+  return store;
+}
 
 // Creates a 'not_books' object store used to test renaming into existing or
 // deleted store names.
 function createNotBooksStore(testCase, database) {
-    const store = database.createObjectStore("not_books");
-    store.createIndex("not_by_author", "author");
-    store.createIndex("not_by_title", "title", { unique: true });
-    return store;
+  const store = database.createObjectStore('not_books');
+  store.createIndex('not_by_author', 'author');
+  store.createIndex('not_by_title', 'title', { unique: true });
+  return store;
 }
 
 // Verifies that an object store's indexes match the indexes used to create the
@@ -254,18 +218,15 @@ function createNotBooksStore(testCase, database) {
 // The errorMessage is used if the assertions fail. It can state that the
 // IndexedDB implementation being tested is incorrect, or that the testing code
 // is using it incorrectly.
-function checkStoreIndexes(testCase, store, errorMessage) {
-    assert_array_equals(
-        store.indexNames,
-        ["by_author", "by_title"],
-        errorMessage,
-    );
-    const authorIndex = store.index("by_author");
-    const titleIndex = store.index("by_title");
-    return Promise.all([
-        checkAuthorIndexContents(testCase, authorIndex, errorMessage),
-        checkTitleIndexContents(testCase, titleIndex, errorMessage),
-    ]);
+function checkStoreIndexes (testCase, store, errorMessage) {
+  assert_array_equals(
+      store.indexNames, ['by_author', 'by_title'], errorMessage);
+  const authorIndex = store.index('by_author');
+  const titleIndex = store.index('by_title');
+  return Promise.all([
+      checkAuthorIndexContents(testCase, authorIndex, errorMessage),
+      checkTitleIndexContents(testCase, titleIndex, errorMessage),
+  ]);
 }
 
 // Verifies that an object store's key generator is in the same state as the
@@ -275,13 +236,11 @@ function checkStoreIndexes(testCase, store, errorMessage) {
 // IndexedDB implementation being tested is incorrect, or that the testing code
 // is using it incorrectly.
 function checkStoreGenerator(testCase, store, expectedKey, errorMessage) {
-    const request = store.put({
-        title: "Bedrock Nights " + expectedKey,
-        author: "Barney",
-    });
-    return promiseForRequest(testCase, request).then((result) => {
-        assert_equals(result, expectedKey, errorMessage);
-    });
+  const request = store.put(
+      { title: 'Bedrock Nights ' + expectedKey, author: 'Barney' });
+  return promiseForRequest(testCase, request).then(result => {
+    assert_equals(result, expectedKey, errorMessage);
+  });
 }
 
 // Verifies that an object store's contents matches the contents used to create
@@ -291,12 +250,12 @@ function checkStoreGenerator(testCase, store, expectedKey, errorMessage) {
 // IndexedDB implementation being tested is incorrect, or that the testing code
 // is using it incorrectly.
 function checkStoreContents(testCase, store, errorMessage) {
-    const request = store.get(123456);
-    return promiseForRequest(testCase, request).then((result) => {
-        assert_equals(result.isbn, BOOKS_RECORD_DATA[0].isbn, errorMessage);
-        assert_equals(result.author, BOOKS_RECORD_DATA[0].author, errorMessage);
-        assert_equals(result.title, BOOKS_RECORD_DATA[0].title, errorMessage);
-    });
+  const request = store.get(123456);
+  return promiseForRequest(testCase, request).then(result => {
+    assert_equals(result.isbn, BOOKS_RECORD_DATA[0].isbn, errorMessage);
+    assert_equals(result.author, BOOKS_RECORD_DATA[0].author, errorMessage);
+    assert_equals(result.title, BOOKS_RECORD_DATA[0].title, errorMessage);
+  });
 }
 
 // Verifies that index matches the 'by_author' index used to create the
@@ -306,11 +265,11 @@ function checkStoreContents(testCase, store, errorMessage) {
 // IndexedDB implementation being tested is incorrect, or that the testing code
 // is using it incorrectly.
 function checkAuthorIndexContents(testCase, index, errorMessage) {
-    const request = index.get(BOOKS_RECORD_DATA[2].author);
-    return promiseForRequest(testCase, request).then((result) => {
-        assert_equals(result.isbn, BOOKS_RECORD_DATA[2].isbn, errorMessage);
-        assert_equals(result.title, BOOKS_RECORD_DATA[2].title, errorMessage);
-    });
+  const request = index.get(BOOKS_RECORD_DATA[2].author);
+  return promiseForRequest(testCase, request).then(result => {
+    assert_equals(result.isbn, BOOKS_RECORD_DATA[2].isbn, errorMessage);
+    assert_equals(result.title, BOOKS_RECORD_DATA[2].title, errorMessage);
+  });
 }
 
 // Verifies that an index matches the 'by_title' index used to create the books
@@ -320,11 +279,11 @@ function checkAuthorIndexContents(testCase, index, errorMessage) {
 // IndexedDB implementation being tested is incorrect, or that the testing code
 // is using it incorrectly.
 function checkTitleIndexContents(testCase, index, errorMessage) {
-    const request = index.get(BOOKS_RECORD_DATA[2].title);
-    return promiseForRequest(testCase, request).then((result) => {
-        assert_equals(result.isbn, BOOKS_RECORD_DATA[2].isbn, errorMessage);
-        assert_equals(result.author, BOOKS_RECORD_DATA[2].author, errorMessage);
-    });
+  const request = index.get(BOOKS_RECORD_DATA[2].title);
+  return promiseForRequest(testCase, request).then(result => {
+    assert_equals(result.isbn, BOOKS_RECORD_DATA[2].isbn, errorMessage);
+    assert_equals(result.author, BOOKS_RECORD_DATA[2].author, errorMessage);
+  });
 }
 
 // Returns an Uint8Array with pseudorandom data.
@@ -332,28 +291,28 @@ function checkTitleIndexContents(testCase, index, errorMessage) {
 // The PRNG should be sufficient to defeat compression schemes, but it is not
 // cryptographically strong.
 function largeValue(size, seed) {
-    const buffer = new Uint8Array(size);
+  const buffer = new Uint8Array(size);
 
-    // 32-bit xorshift - the seed can't be zero
-    let state = 1000 + seed;
+  // 32-bit xorshift - the seed can't be zero
+  let state = 1000 + seed;
 
-    for (let i = 0; i < size; ++i) {
-        state ^= state << 13;
-        state ^= state >> 17;
-        state ^= state << 5;
-        buffer[i] = state & 0xff;
-    }
+  for (let i = 0; i < size; ++i) {
+    state ^= state << 13;
+    state ^= state >> 17;
+    state ^= state << 5;
+    buffer[i] = state & 0xff;
+  }
 
-    return buffer;
+  return buffer;
 }
 
 async function deleteAllDatabases(testCase) {
-    const dbs_to_delete = await indexedDB.databases();
-    for (const db_info of dbs_to_delete) {
-        let request = indexedDB.deleteDatabase(db_info.name);
-        let eventWatcher = requestWatcher(testCase, request);
-        await eventWatcher.wait_for("success");
-    }
+  const dbs_to_delete = await indexedDB.databases();
+  for( const db_info of dbs_to_delete) {
+    let request = indexedDB.deleteDatabase(db_info.name);
+    let eventWatcher = requestWatcher(testCase, request);
+    await eventWatcher.wait_for('success');
+  }
 }
 
 // Keeps the passed transaction alive indefinitely (by making requests
@@ -361,71 +320,67 @@ async function deleteAllDatabases(testCase) {
 // transaction has not already completed and then ends the request loop so that
 // the transaction may autocommit and complete.
 function keepAlive(testCase, transaction, storeName) {
-    let completed = false;
-    transaction.addEventListener("complete", () => {
-        completed = true;
-    });
+  let completed = false;
+  transaction.addEventListener('complete', () => { completed = true; });
 
-    let keepSpinning = true;
+  let keepSpinning = true;
 
-    function spin() {
-        if (!keepSpinning) return;
-        transaction.objectStore(storeName).get(0).onsuccess = spin;
-    }
-    spin();
+  function spin() {
+    if (!keepSpinning)
+      return;
+    transaction.objectStore(storeName).get(0).onsuccess = spin;
+  }
+  spin();
 
-    return testCase.step_func(() => {
-        assert_false(completed, "Transaction completed while kept alive");
-        keepSpinning = false;
-    });
+  return testCase.step_func(() => {
+    assert_false(completed, 'Transaction completed while kept alive');
+    keepSpinning = false;
+  });
 }
 
 // Return a promise that resolves after a setTimeout finishes to break up the
 // scope of a function's execution.
 function timeoutPromise(ms) {
-    return new Promise((resolve) => {
-        setTimeout(resolve, ms);
-    });
+  return new Promise(resolve => { setTimeout(resolve, ms); });
 }
+
 
 // Returns the "name" property written to the object with the given ID.
 function nameForId(id) {
-    return `Object ${id}`;
+  return `Object ${id}`;
 }
 
 // Initial database setup used by all the reading-autoincrement tests.
 async function setupAutoincrementDatabase(testCase) {
-    const database = await createDatabase(testCase, (database) => {
-        const store = database.createObjectStore("store", {
-            autoIncrement: true,
-            keyPath: "id",
-        });
-        store.createIndex("by_name", "name", { unique: true });
-        store.createIndex("by_id", "id", { unique: true });
+  const database = await createDatabase(testCase, database => {
+    const store = database.createObjectStore(
+        'store', { autoIncrement: true, keyPath: 'id' });
+    store.createIndex('by_name', 'name', { unique: true });
+    store.createIndex('by_id', 'id', { unique: true });
 
-        // Cover writing from the initial upgrade transaction.
-        for (let i = 1; i <= 16; ++i) {
-            if (i % 2 == 0) {
-                store.put({ name: nameForId(i), id: i });
-            } else {
-                store.put({ name: nameForId(i) });
-            }
-        }
-    });
-
-    // Cover writing from a subsequent transaction.
-    const transaction = database.transaction(["store"], "readwrite");
-    const store = transaction.objectStore("store");
-    for (let i = 17; i <= 32; ++i) {
-        if (i % 2 == 0) {
-            store.put({ name: nameForId(i), id: i });
-        } else {
-            store.put({ name: nameForId(i) });
-        }
+    // Cover writing from the initial upgrade transaction.
+    for (let i = 1; i <= 16; ++i) {
+      if (i % 2 == 0) {
+        store.put({name: nameForId(i), id: i});
+      } else {
+        store.put({name: nameForId(i)});
+      }
     }
-    await promiseForTransaction(testCase, transaction);
+  });
 
-    return database;
+  // Cover writing from a subsequent transaction.
+  const transaction = database.transaction(['store'], 'readwrite');
+  const store = transaction.objectStore('store');
+  for (let i = 17; i <= 32; ++i) {
+    if (i % 2 == 0) {
+      store.put({name: nameForId(i), id: i});
+    } else {
+      store.put({name: nameForId(i)});
+    }
+  }
+  await promiseForTransaction(testCase, transaction);
+
+  return database;
 }
 
 // Returns the IDs used by the object store, sorted as strings.
@@ -433,25 +388,27 @@ async function setupAutoincrementDatabase(testCase) {
 // This is used to determine the correct order of records when retrieved from an
 // index that uses stringified IDs.
 function idsSortedByStringCompare() {
-    const stringIds = [];
-    for (let i = 1; i <= 32; ++i) stringIds.push(i);
-    stringIds.sort((a, b) => indexedDB.cmp(`${a}`, `${b}`));
-    return stringIds;
+  const stringIds = [];
+  for (let i = 1; i <= 32; ++i)
+    stringIds.push(i);
+  stringIds.sort((a, b) => indexedDB.cmp(`${a}`, `${b}`));
+  return stringIds;
 }
 
 async function iterateCursor(testCase, cursorRequest, callback) {
-    // This uses requestWatcher() directly instead of using promiseForRequest()
-    // inside the loop to avoid creating multiple EventWatcher instances. In turn,
-    // this avoids ending up with O(N) listeners for the request and O(N^2)
-    // dispatched events.
-    const eventWatcher = requestWatcher(testCase, cursorRequest);
-    while (true) {
-        const event = await eventWatcher.wait_for("success");
-        const cursor = event.target.result;
-        if (cursor === null) return;
-        callback(cursor);
-        cursor.continue();
-    }
+  // This uses requestWatcher() directly instead of using promiseForRequest()
+  // inside the loop to avoid creating multiple EventWatcher instances. In turn,
+  // this avoids ending up with O(N) listeners for the request and O(N^2)
+  // dispatched events.
+  const eventWatcher = requestWatcher(testCase, cursorRequest);
+  while (true) {
+    const event = await eventWatcher.wait_for('success');
+    const cursor = event.target.result;
+    if (cursor === null)
+      return;
+    callback(cursor);
+    cursor.continue();
+  }
 }
 
 // Returns equivalent information to getAllKeys() by iterating a cursor.
@@ -459,11 +416,11 @@ async function iterateCursor(testCase, cursorRequest, callback) {
 // Returns an array with one dictionary per entry in the source. The dictionary
 // has the properties "key" and "primaryKey".
 async function getAllKeysViaCursor(testCase, cursorSource) {
-    const results = [];
-    await iterateCursor(testCase, cursorSource.openKeyCursor(), (cursor) => {
-        results.push({ key: cursor.key, primaryKey: cursor.primaryKey });
-    });
-    return results;
+  const results = [];
+  await iterateCursor(testCase, cursorSource.openKeyCursor(), cursor => {
+    results.push({ key: cursor.key, primaryKey: cursor.primaryKey });
+  });
+  return results;
 }
 
 // Returns equivalent information to getAll() by iterating a cursor.
@@ -471,55 +428,52 @@ async function getAllKeysViaCursor(testCase, cursorSource) {
 // Returns an array with one dictionary per entry in the source. The dictionary
 // has the properties "key", "primaryKey" and "value".
 async function getAllViaCursor(testCase, cursorSource) {
-    const results = [];
-    await iterateCursor(testCase, cursorSource.openCursor(), (cursor) => {
-        results.push({
-            key: cursor.key,
-            primaryKey: cursor.primaryKey,
-            value: cursor.value,
-        });
+  const results = [];
+  await iterateCursor(testCase, cursorSource.openCursor(), cursor => {
+    results.push({
+      key: cursor.key,
+      primaryKey: cursor.primaryKey,
+      value: cursor.value,
     });
-    return results;
+  });
+  return results;
 }
 
 // META: global=window,dedicatedworker,sharedworker,serviceworker
 // META: script=../support-promises.js
 // META: script=./reading-autoincrement-common.js
 
-promise_test(async (testCase) => {
-    const database = await setupAutoincrementDatabase(testCase);
+promise_test(async testCase => {
+  const database = await setupAutoincrementDatabase(testCase);
 
-    const transaction = database.transaction(["store"], "readonly");
-    const store = transaction.objectStore("store");
+  const transaction = database.transaction(['store'], 'readonly');
+  const store = transaction.objectStore('store');
 
-    const result = await getAllViaCursor(testCase, store);
-    assert_equals(result.length, 32);
-    for (let i = 1; i <= 32; ++i) {
-        assert_equals(result[i - 1].key, i, "Autoincrement key");
-        assert_equals(result[i - 1].primaryKey, i, "Autoincrement primary key");
-        assert_equals(result[i - 1].value.id, i, "Autoincrement key in value");
-        assert_equals(
-            result[i - 1].value.name,
-            nameForId(i),
-            "string property in value",
-        );
-    }
+  const result = await getAllViaCursor(testCase, store);
+  assert_equals(result.length, 32);
+  for (let i = 1; i <= 32; ++i) {
+    assert_equals(result[i - 1].key, i, 'Autoincrement key');
+    assert_equals(result[i - 1].primaryKey, i, 'Autoincrement primary key');
+    assert_equals(result[i - 1].value.id, i, 'Autoincrement key in value');
+    assert_equals(result[i - 1].value.name, nameForId(i),
+                  'string property in value');
+  }
 
-    database.close();
-}, "IDBObjectStore.openCursor() iterates over an autoincrement store");
+  database.close();
+}, 'IDBObjectStore.openCursor() iterates over an autoincrement store');
 
-promise_test(async (testCase) => {
-    const database = await setupAutoincrementDatabase(testCase);
+promise_test(async testCase => {
+  const database = await setupAutoincrementDatabase(testCase);
 
-    const transaction = database.transaction(["store"], "readonly");
-    const store = transaction.objectStore("store");
+  const transaction = database.transaction(['store'], 'readonly');
+  const store = transaction.objectStore('store');
 
-    const result = await getAllKeysViaCursor(testCase, store);
-    assert_equals(result.length, 32);
-    for (let i = 1; i <= 32; ++i) {
-        assert_equals(result[i - 1].key, i, "Incorrect autoincrement key");
-        assert_equals(result[i - 1].primaryKey, i, "Incorrect primary key");
-    }
+  const result = await getAllKeysViaCursor(testCase, store);
+  assert_equals(result.length, 32);
+  for (let i = 1; i <= 32; ++i) {
+    assert_equals(result[i - 1].key, i, 'Incorrect autoincrement key');
+    assert_equals(result[i - 1].primaryKey, i, 'Incorrect primary key');
+  }
 
-    database.close();
-}, "IDBObjectStore.openKeyCursor() iterates over an autoincrement store");
+  database.close();
+}, 'IDBObjectStore.openKeyCursor() iterates over an autoincrement store');

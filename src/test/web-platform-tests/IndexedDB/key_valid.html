@@ -19,10 +19,10 @@
         open_rq.onupgradeneeded = function(e) {
             db = e.target.result;
 
-            var store = db.createObjectStore("store");
+            store = db.createObjectStore("store");
             assert_true(store.add('value', key) instanceof IDBRequest);
 
-            var store2 = db.createObjectStore("store2", { keyPath: ["x", "keypath"] });
+            store2 = db.createObjectStore("store2", { keyPath: ["x", "keypath"] });
             assert_true(store2.add({ x: 'v', keypath: key }) instanceof IDBRequest);
         };
         open_rq.onsuccess = function(e) {
