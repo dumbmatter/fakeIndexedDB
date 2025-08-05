@@ -126,7 +126,9 @@ class FDBObjectStore {
         const transaction = this.transaction;
 
         if (!transaction.db._runningVersionchangeTransaction) {
-            throw transaction._state === 'active' ? new InvalidStateError() : new TransactionInactiveError();
+            throw transaction._state === "active"
+                ? new InvalidStateError()
+                : new TransactionInactiveError();
         }
 
         confirmActiveTransaction(this);
@@ -284,7 +286,7 @@ class FDBObjectStore {
             queryOrOptions,
             count,
             arguments.length,
-        );
+        ) as FDBGetAllOptions & { direction?: "prev" | "next" };
 
         confirmActiveTransaction(this);
 
@@ -330,7 +332,7 @@ class FDBObjectStore {
             queryOrOptions,
             count,
             arguments.length,
-        );
+        ) as FDBGetAllOptions & { direction?: "prev" | "next" };
 
         confirmActiveTransaction(this);
 
@@ -348,10 +350,12 @@ class FDBObjectStore {
     }
 
     // https://www.w3.org/TR/IndexedDB/#dom-idbobjectstore-getallrecords
-    public getAllRecords(options?: FDBGetAllOptions) {
+    public getAllRecords(
+        options?: FDBGetAllOptions & { direction?: "prev" | "next" },
+    ) {
         let query: FDBKeyRange | Key;
         let count: number | undefined;
-        let direction: FDBCursorDirection | undefined;
+        let direction: "prev" | "next" | undefined;
 
         if (options !== undefined) {
             if (options.query !== undefined) {

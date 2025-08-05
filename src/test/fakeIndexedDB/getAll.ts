@@ -611,3 +611,129 @@ describe("getAllRecords", () => {
         };
     });
 });
+
+describe("prevunique/nextunique direction", () => {
+    beforeEach((done) => {
+        const request = fakeIndexedDB.open("test" + Math.random());
+        request.onupgradeneeded = (e) => {
+            const db2 = e.target.result;
+            const store = db2.createObjectStore("store", { keyPath: "key" });
+            store.createIndex("content", "content", {
+                unique: false,
+            });
+
+            for (let i = 0; i < 10; i++) {
+                for (let j = 0; j < 2; j++) {
+                    store.add({ key: i + "_" + j, content: "test" + i });
+                }
+            }
+        };
+        request.onsuccess = (e) => {
+            db = e.target.result;
+            done();
+        };
+        request.onerror = (e) => {
+            done(e.target.error);
+        };
+    });
+
+    it("should work with nextunique", (done) => {
+        const request = db
+            .transaction("store")
+            .objectStore("store")
+            .index("content")
+            .getAllRecords({ direction: "nextunique" });
+        request.onsuccess = (e) => {
+            assert.equal(e.target.result.length, 10);
+            assert.deepStrictEqual(e.target.result[0], {
+                key: "0_0",
+                value: { content: "test0", key: "0_0" },
+            });
+            assert.deepStrictEqual(e.target.result[9], {
+                key: "9_0",
+                value: { content: "test9", key: "9_0" },
+            });
+            done();
+        };
+        request.onerror = (e) => {
+            done(e.target.error);
+        };
+    });
+
+    it("should work with nextunique+count", (done) => {
+        const request = db
+            .transaction("store")
+            .objectStore("store")
+            .index("content")
+            .getAllRecords({
+                query: FDBKeyRange.bound("test2", "test5"),
+                count: 5,
+                direction: "nextunique",
+            });
+        request.onsuccess = (e) => {
+            assert.equal(e.target.result.length, 4);
+            assert.deepStrictEqual(e.target.result[0], {
+                key: "2_0",
+                value: { content: "test2", key: "2_0" },
+            });
+            assert.deepStrictEqual(e.target.result[3], {
+                key: "5_0",
+                value: { content: "test5", key: "5_0" },
+            });
+            done();
+        };
+        request.onerror = (e) => {
+            done(e.target.error);
+        };
+    });
+
+    it("should work with prevunique", (done) => {
+        const request = db
+            .transaction("store")
+            .objectStore("store")
+            .index("content")
+            .getAllRecords({ direction: "prevunique" });
+        request.onsuccess = (e) => {
+            assert.equal(e.target.result.length, 10);
+            assert.deepStrictEqual(e.target.result[0], {
+                key: "9_1",
+                value: { content: "test9", key: "9_1" },
+            });
+            assert.deepStrictEqual(e.target.result[9], {
+                key: "0_1",
+                value: { content: "test0", key: "0_1" },
+            });
+            done();
+        };
+        request.onerror = (e) => {
+            done(e.target.error);
+        };
+    });
+
+    it("should work with prevunique+count", (done) => {
+        const request = db
+            .transaction("store")
+            .objectStore("store")
+            .index("content")
+            .getAllRecords({
+                query: FDBKeyRange.bound("test2", "test5", true, true),
+                count: 5,
+                direction: "prevunique",
+            });
+        request.onsuccess = (e) => {
+            assert.equal(e.target.result.length, 2);
+            assert.deepStrictEqual(e.target.result[0], {
+                key: "4_1",
+                value: { content: "test4", key: "4_1" },
+            });
+            assert.deepStrictEqual(e.target.result[1], {
+                key: "3_1",
+                value: { content: "test3", key: "3_1" },
+            });
+            done();
+        };
+        request.onerror = (e) => {
+            done(e.target.error);
+        };
+    });
+});

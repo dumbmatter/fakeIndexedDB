@@ -53,17 +53,10 @@ class Index {
         }
 
         const records = [];
-        // TODO: this should support nextunique/prevunique
-        const directionToUse =
-            direction === undefined
-                ? undefined
-                : direction === "next" || direction === "nextunique"
-                  ? "next"
-                  : "prev";
         const values =
-            directionToUse === undefined
+            direction === undefined
                 ? this.records.values(range)
-                : this.records.values(range, directionToUse);
+                : this.records.values(range, direction);
         for (const record of values) {
             records.push(structuredClone(record.value));
             if (records.length >= count) {
@@ -94,18 +87,7 @@ class Index {
         }
 
         const records = [];
-        // TODO: this should support nextunique/prevunique
-        const directionToUse =
-            direction === undefined
-                ? undefined
-                : direction === "next" || direction === "nextunique"
-                  ? "next"
-                  : "prev";
-        const values =
-            directionToUse === undefined
-                ? this.records.values(range)
-                : this.records.values(range, directionToUse);
-        for (const record of values) {
+        for (const record of this.records.values(range, direction ?? "next")) {
             records.push(this.rawObjectStore.getValue(record.value));
             if (records.length >= count) {
                 break;
@@ -126,18 +108,7 @@ class Index {
         }
 
         const records = [];
-        // TODO: this should support nextunique/prevunique
-        const directionToUse =
-            direction === undefined
-                ? undefined
-                : direction === "next" || direction === "nextunique"
-                  ? "next"
-                  : "prev";
-        const values =
-            directionToUse === undefined
-                ? this.records.values(range)
-                : this.records.values(range, directionToUse);
-        for (const record of values) {
+        for (const record of this.records.values(range, direction ?? "next")) {
             records.push({
                 key: structuredClone(record.value),
                 value: this.rawObjectStore.getValue(record.value),

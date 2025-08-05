@@ -7,7 +7,7 @@ import {
     getIndexByKeyRange,
 } from "./binarySearch.js";
 import cmp from "./cmp.js";
-import { Key, Record } from "./types.js";
+import { FDBCursorDirection, Key, Record } from "./types.js";
 
 class RecordStore {
     private records: Record[] = [];
@@ -91,11 +91,11 @@ class RecordStore {
         return deletedRecords;
     }
 
-    public values(range?: FDBKeyRange, direction: "next" | "prev" = "next") {
+    public values(range?: FDBKeyRange, direction: FDBCursorDirection = "next") {
         return {
             [Symbol.iterator]: () => {
                 let i: number;
-                if (direction === "next") {
+                if (direction === "next" || direction === "nextunique") {
                     i = 0;
                     if (range !== undefined && range.lower !== undefined) {
                         while (this.records[i] !== undefined) {
@@ -131,54 +131,89 @@ class RecordStore {
                     }
                 }
 
-                return {
-                    next: () => {
-                        let done;
-                        let value;
-                        if (direction === "next") {
-                            value = this.records[i];
-                            done = i >= this.records.length;
-                            i += 1;
+                const next = () => {
+                    let done;
+                    let value;
+                    if (direction === "next" || direction === "nextunique") {
+                        value = this.records[i];
+                        done = i >= this.records.length;
+                        i += 1;
 
-                            if (
-                                !done &&
-                                range !== undefined &&
-                                range.upper !== undefined
-                            ) {
-                                const cmpResult = cmp(value.key, range.upper);
-                                done =
-                                    cmpResult === 1 ||
-                                    (cmpResult === 0 && range.upperOpen);
-                                if (done) {
-                                    value = undefined;
-                                }
-                            }
-                        } else {
-                            value = this.records[i];
-                            done = i < 0;
-                            i -= 1;
-
-                            if (
-                                !done &&
-                                range !== undefined &&
-                                range.lower !== undefined
-                            ) {
-                                const cmpResult = cmp(value.key, range.lower);
-                                done =
-                                    cmpResult === -1 ||
-                                    (cmpResult === 0 && range.lowerOpen);
-                                if (done) {
-                                    value = undefined;
-                                }
+                        if (
+                            !done &&
+                            range !== undefined &&
+                            range.upper !== undefined
+                        ) {
+                            const cmpResult = cmp(value.key, range.upper);
+                            done =
+                                cmpResult === 1 ||
+                                (cmpResult === 0 && range.upperOpen);
+                            if (done) {
+                                value = undefined;
                             }
                         }
+                    } else {
+                        value = this.records[i];
+                        done = i < 0;
+                        i -= 1;
 
-                        // The weird "as IteratorResult<Record>" is needed because of
-                        // https://github.com/Microsoft/TypeScript/issues/11375 and
-                        // https://github.com/Microsoft/TypeScript/issues/2983
+                        if (
+                            !done &&
+                            range !== undefined &&
+                            range.lower !== undefined
+                        ) {
+                            const cmpResult = cmp(value.key, range.lower);
+                            done =
+                                cmpResult === -1 ||
+                                (cmpResult === 0 && range.lowerOpen);
+                            if (done) {
+                                value = undefined;
+                            }
+                        }
+                    }
+
+                    // The weird "as IteratorResult<Record>" is needed because of
+                    // https://github.com/Microsoft/TypeScript/issues/11375 and
+                    // https://github.com/Microsoft/TypeScript/issues/2983
+                    return {
+                        done,
+                        value,
+                    } as IteratorResult<Record>;
+                };
+
+                if (direction === "next" || direction === "prev") {
+                    return { next };
+                }
+
+                // For nextunique/prevunique, return an iterator that skips seen values
+                let prevValue: Record | undefined = undefined;
+                return {
+                    next: () => {
+                        let done: boolean | undefined = false;
+                        while (!done) {
+                            const current = next();
+                            const { value } = current;
+                            done = current.done;
+
+                            if (
+                                prevValue !== undefined &&
+                                value !== undefined &&
+                                cmp(prevValue.key, value.key) === 0
+                            ) {
+                                if (done) {
+                                    break;
+                                }
+                            } else {
+                                prevValue = value;
+                                return {
+                                    value,
+                                    done,
+                                } as IteratorResult<Record>;
+                            }
+                        }
                         return {
+                            value: undefined,
                             done,
-                            value,
                         } as IteratorResult<Record>;
                     },
                 };

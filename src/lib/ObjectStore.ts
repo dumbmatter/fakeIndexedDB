@@ -5,13 +5,7 @@ import extractKey from "./extractKey.js";
 import Index from "./Index.js";
 import KeyGenerator from "./KeyGenerator.js";
 import RecordStore from "./RecordStore.js";
-import {
-    FDBCursorDirection,
-    Key,
-    KeyPath,
-    Record,
-    RollbackLog,
-} from "./types.js";
+import { Key, KeyPath, Record, RollbackLog } from "./types.js";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-object-store
 class ObjectStore {
@@ -50,25 +44,14 @@ class ObjectStore {
     public getAllKeys(
         range: FDBKeyRange,
         count?: number,
-        direction?: FDBCursorDirection,
+        direction?: "next" | "prev",
     ) {
         if (count === undefined || count === 0) {
             count = Infinity;
         }
 
         const records = [];
-        // TODO: this should support nextunique/prevunique
-        const directionToUse =
-            direction === undefined
-                ? undefined
-                : direction === "next" || direction === "nextunique"
-                  ? "next"
-                  : "prev";
-        const values =
-            directionToUse === undefined
-                ? this.records.values(range)
-                : this.records.values(range, directionToUse);
-        for (const record of values) {
+        for (const record of this.records.values(range, direction ?? "next")) {
             records.push(structuredClone(record.key));
             if (records.length >= count) {
                 break;
@@ -89,25 +72,14 @@ class ObjectStore {
     public getAllValues(
         range: FDBKeyRange,
         count?: number,
-        direction?: FDBCursorDirection,
+        direction?: "next" | "prev",
     ) {
         if (count === undefined || count === 0) {
             count = Infinity;
         }
 
         const records = [];
-        // TODO: this should support nextunique/prevunique
-        const directionToUse =
-            direction === undefined
-                ? undefined
-                : direction === "next" || direction === "nextunique"
-                  ? "next"
-                  : "prev";
-        const values =
-            directionToUse === undefined
-                ? this.records.values(range)
-                : this.records.values(range, directionToUse);
-        for (const record of values) {
+        for (const record of this.records.values(range, direction ?? "next")) {
             records.push(structuredClone(record.value));
             if (records.length >= count) {
                 break;
@@ -121,25 +93,14 @@ class ObjectStore {
     public getAllRecords(
         range: FDBKeyRange,
         count?: number,
-        direction?: FDBCursorDirection,
+        direction?: "next" | "prev",
     ) {
         if (count === undefined || count === 0) {
             count = Infinity;
         }
 
         const records = [];
-        // TODO: this should support nextunique/prevunique
-        const directionToUse =
-            direction === undefined
-                ? undefined
-                : direction === "next" || direction === "nextunique"
-                  ? "next"
-                  : "prev";
-        const values =
-            directionToUse === undefined
-                ? this.records.values(range)
-                : this.records.values(range, directionToUse);
-        for (const record of values) {
+        for (const record of this.records.values(range, direction ?? "next")) {
             records.push({
                 key: structuredClone(record.key),
                 value: structuredClone(record.value),
