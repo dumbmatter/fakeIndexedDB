@@ -113,24 +113,32 @@ const skip = [
     "transaction-abort-request-error.js",
 
     // Relies on an <input type=file> which is hard for us to simulate
-    'file_support.sub.js',
+    "file_support.sub.js",
 
-    // Doesn't seem relevant to a node.js test
-    'resources/idbfactory-origin-isolation-iframe.js',
-    'idbfactory-origin-isolation.js',
+    // Doesn't seem relevant to a node.js test (cross-origin isolation)
+    "resources/idbfactory-origin-isolation-iframe.js",
+    "idbfactory-origin-isolation.js",
+    "serialize-sharedarraybuffer-throws.https.js",
 
     // fakeIndexedDB does not currently support relaxed durability or durability options
-    'transaction-relaxed-durability.tentative.any.js',
+    "transaction-relaxed-durability.tentative.any.js",
 
     // these test our ability to do a structured clone on various DOM types like DOMRect which we don't support
-    'structured-clone.any.js',
-    'structured-clone-transaction-state.any.js',
+    "structured-clone.any.js",
+    "structured-clone-transaction-state.any.js",
 
     // these tests rely on the precise ordering of exceptions, which we currently fail
-    'idbcursor-advance-exception-order.js',
-    'idbdatabase-createObjectStore-exception-order.js',
-    'idbdatabase-deleteObjectStore-exception-order.js',
-    'idbdatabase-transaction-exception-order.js',
+    "idbcursor-advance-exception-order.js",
+    "idbdatabase-createObjectStore-exception-order.js",
+    "idbdatabase-deleteObjectStore-exception-order.js",
+    "idbdatabase-transaction-exception-order.js",
+
+    // async timing test which we currently fail:
+    // "Check that read-only transactions within a database can run in parallel"
+    "transaction-scheduling-within-database.any.js",
+
+    // proposal was never implemented https://github.com/w3c/IndexedDB/issues/69#issuecomment-898619783
+    "idbobjectstore_putall.tentative.any.js",
 ];
 
 const filenames = glob.sync("/**/*.js", { root: testFolder });

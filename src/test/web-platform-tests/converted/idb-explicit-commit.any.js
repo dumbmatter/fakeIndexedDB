@@ -198,7 +198,19 @@ const createBooksStore = (testCase, database) => {
       { keyPath: 'isbn', autoIncrement: true });
   store.createIndex('by_author', 'author');
   store.createIndex('by_title', 'title', { unique: true });
-  for (let record of BOOKS_RECORD_DATA)
+  for (const record of BOOKS_RECORD_DATA)
+      store.put(record);
+  return store;
+}
+
+// Creates a 'books' object store whose contents closely resembles the first
+// example in the IndexedDB specification, just without autoincrementing.
+const createBooksStoreWithoutAutoIncrement = (testCase, database) => {
+  const store = database.createObjectStore('books',
+      { keyPath: 'isbn' });
+  store.createIndex('by_author', 'author');
+  store.createIndex('by_title', 'title', { unique: true });
+  for (const record of BOOKS_RECORD_DATA)
       store.put(record);
   return store;
 }
@@ -346,13 +358,6 @@ function timeoutPromise(ms) {
 
 
 // META: script=support-promises.js
-
-/**
- * This file contains the webplatform tests for the explicit commit() method
- * of the IndexedDB transaction API.
- *
- * @author andreasbutler@google.com
- */
 
 promise_test(async testCase => {
   const db = await createDatabase(testCase, db => {

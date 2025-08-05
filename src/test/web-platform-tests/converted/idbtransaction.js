@@ -103,6 +103,16 @@ function assert_key_equals(actual, expected, description) {
   assert_equals(indexedDB.cmp(actual, expected), 0, description);
 }
 
+// Usage:
+//   indexeddb_test(
+//     (test_object, db_connection, upgrade_tx, open_request) => {
+//        // Database creation logic.
+//     },
+//     (test_object, db_connection, open_request) => {
+//        // Test logic.
+//        test_object.done();
+//     },
+//     'Test case description');
 function indexeddb_test(upgrade_func, open_func, description, options) {
   async_test(function(t) {
     options = Object.assign({upgrade_will_abort: false}, options);
@@ -192,10 +202,22 @@ function keep_alive(tx, store_name) {
   };
 }
 
+// Returns a new function. After it is called |count| times, |func|
+// will be called.
+function barrier_func(count, func) {
+  let n = 0;
+  return () => {
+    if (++n === count)
+      func();
+  };
+}
+
 
 
 async_test(function(t) {
-  var open_rq = indexedDB.open("idbtransaction-" + document.location + t.name);
+  var dbname = "idbtransaction-" + document.location + t.name;
+  indexedDB.deleteDatabase(dbname);
+  var open_rq = indexedDB.open(dbname);
 
   open_rq.onblocked = t.unreached_func('open_rq.onblocked');
   open_rq.onerror = t.unreached_func('open_rq.onerror');
@@ -219,7 +241,9 @@ async_test(function(t) {
 }, document.title + " - request gotten by the handler");
 
 async_test(function(t) {
-  var open_rq = indexedDB.open("idbtransaction-" + document.location + t.name);
+  var dbname = "idbtransaction-" + document.location + t.name;
+  indexedDB.deleteDatabase(dbname);
+  var open_rq = indexedDB.open(dbname);
 
   assert_equals(open_rq.transaction, null, "IDBOpenDBRequest.transaction");
   assert_equals(open_rq.source, null, "IDBOpenDBRequest.source");

@@ -103,6 +103,16 @@ function assert_key_equals(actual, expected, description) {
   assert_equals(indexedDB.cmp(actual, expected), 0, description);
 }
 
+// Usage:
+//   indexeddb_test(
+//     (test_object, db_connection, upgrade_tx, open_request) => {
+//        // Database creation logic.
+//     },
+//     (test_object, db_connection, open_request) => {
+//        // Test logic.
+//        test_object.done();
+//     },
+//     'Test case description');
 function indexeddb_test(upgrade_func, open_func, description, options) {
   async_test(function(t) {
     options = Object.assign({upgrade_will_abort: false}, options);
@@ -192,15 +202,28 @@ function keep_alive(tx, store_name) {
   };
 }
 
+// Returns a new function. After it is called |count| times, |func|
+// will be called.
+function barrier_func(count, func) {
+  let n = 0;
+  return () => {
+    if (++n === count)
+      func();
+  };
+}
+
 
 
 
     var db, db_got_versionchange, db2,
         events = [],
-        t = async_test();
+        t = async_test(),
+        dbname = location + '-' + t.name;
 
     t.step(function() {
-        var openrq = indexedDB.open('db', 3);
+        indexedDB.deleteDatabase(dbname);
+
+        var openrq = indexedDB.open(dbname, 3);
 
         // 1
         openrq.onupgradeneeded = t.step_func(function(e) {
@@ -241,7 +264,7 @@ function keep_alive(tx, store_name) {
         assert_equals(db + "", "[object IDBDatabase]");
         assert_array_equals(db.objectStoreNames, [ "store" ]);
 
-        var openrq2 = indexedDB.open('db', 4);
+        var openrq2 = indexedDB.open(dbname, 4);
 
         // 4
         openrq2.onupgradeneeded = t.step_func(function(e) {
@@ -281,6 +304,6 @@ function keep_alive(tx, store_name) {
     // Cleanup
     add_completion_callback(function(tests) {
         if (db2) db2.close();
-        indexedDB.deleteDatabase('db');
+        indexedDB.deleteDatabase(dbname);
     })
 
