@@ -188,33 +188,26 @@ class RecordStore {
                 // For nextunique/prevunique, return an iterator that skips seen values
                 let prevValue: Record | undefined = undefined;
                 return {
-                    next: () => {
-                        let done: boolean | undefined = false;
-                        while (!done) {
-                            const current = next();
-                            const { value } = current;
-                            done = current.done;
-
+                    next: (): IteratorResult<Record> => {
+                        let current: IteratorResult<Record>;
+                        while (!(current = next()).done) {
+                            const { done, value } = current;
                             if (
                                 prevValue !== undefined &&
-                                value !== undefined &&
                                 cmp(prevValue.key, value.key) === 0
                             ) {
-                                if (done) {
-                                    break;
-                                }
-                            } else {
-                                prevValue = value;
-                                return {
-                                    value,
-                                    done,
-                                } as IteratorResult<Record>;
+                                continue;
                             }
+                            prevValue = value;
+                            return {
+                                value,
+                                done,
+                            };
                         }
                         return {
                             value: undefined,
-                            done,
-                        } as IteratorResult<Record>;
+                            done: true,
+                        };
                     },
                 };
             },
