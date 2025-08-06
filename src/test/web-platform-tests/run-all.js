@@ -137,8 +137,21 @@ const skip = [
     // "Check that read-only transactions within a database can run in parallel"
     "transaction-scheduling-within-database.any.js",
 
-    // proposal was never implemented https://github.com/w3c/IndexedDB/issues/69#issuecomment-898619783
-    "idbobjectstore_putall.tentative.any.js",
+    // proposal is still incubating as of 2025 https://github.com/w3c/IndexedDB/issues/376
+    "idbobjectstore_batchGetAll.tentative.any.js",
+    "idbobjectstore_batchGetAll_largeValue.tentative.any.js",
+    "idbindex_batchGetAll.tentative.any.js",
+
+    // relies on cross-iframe/cross-window communication which isn't relevant to us
+    "ready-state-destroyed-execution-context.js",
+    "idb-partitioned-persistence.tentative.sub.js",
+    "idb-partitioned-basic.tentative.sub.js",
+    "database-names-by-origin.js",
+    "resources/idb-partitioned-persistence-iframe.tentative.js",
+    "resources/idb-partitioned-basic-iframe.tentative.js",
+    "resources/cross-origin-helper-frame.js",
+    "idbobjectstore-cross-realm-methods.js",
+    "idbindex-cross-realm-methods.js",
 ];
 
 const filenames = glob.sync("/**/*.js", { root: testFolder });

@@ -1,5 +1,218 @@
 import "../wpt-env.js";
 
+/* Delete created databases
+ *
+ * Go through each finished test, see if it has an associated database. Close
+ * that and delete the database. */
+add_completion_callback(function(tests)
+{
+    for (var i in tests)
+    {
+        if(tests[i].db)
+        {
+            tests[i].db.close();
+            self.indexedDB.deleteDatabase(tests[i].db.name);
+        }
+    }
+});
+
+function fail(test, desc) {
+    return test.step_func(function(e) {
+        if (e && e.message && e.target.error)
+            assert_unreached(desc + " (" + e.target.error.name + ": " + e.message + ")");
+        else if (e && e.message)
+            assert_unreached(desc + " (" + e.message + ")");
+        else if (e && e.target.readyState === 'done' && e.target.error)
+            assert_unreached(desc + " (" + e.target.error.name + ")");
+        else
+            assert_unreached(desc);
+    });
+}
+
+function createdb(test, dbname, version)
+{
+    var rq_open = createdb_for_multiple_tests(dbname, version);
+    return rq_open.setTest(test);
+}
+
+function createdb_for_multiple_tests(dbname, version) {
+    var rq_open,
+        fake_open = {},
+        test = null,
+        dbname = (dbname ? dbname : "testdb-" + new Date().getTime() + Math.random() );
+
+    if (version)
+        rq_open = self.indexedDB.open(dbname, version);
+    else
+        rq_open = self.indexedDB.open(dbname);
+
+    function auto_fail(evt, current_test) {
+        /* Fail handlers, if we haven't set on/whatever/, don't
+         * expect to get event whatever. */
+        rq_open.manually_handled = {};
+
+        rq_open.addEventListener(evt, function(e) {
+            if (current_test !== test) {
+                return;
+            }
+
+            test.step(function() {
+                if (!rq_open.manually_handled[evt]) {
+                    assert_unreached("unexpected open." + evt + " event");
+                }
+
+                if (e.target.result + '' == '[object IDBDatabase]' &&
+                    !this.db) {
+                  this.db = e.target.result;
+
+                  this.db.onerror = fail(test, 'unexpected db.error');
+                  this.db.onabort = fail(test, 'unexpected db.abort');
+                  this.db.onversionchange =
+                      fail(test, 'unexpected db.versionchange');
+                }
+            });
+        });
+        rq_open.__defineSetter__("on" + evt, function(h) {
+            rq_open.manually_handled[evt] = true;
+            if (!h)
+                rq_open.addEventListener(evt, function() {});
+            else
+                rq_open.addEventListener(evt, test.step_func(h));
+        });
+    }
+
+    // add a .setTest method to the IDBOpenDBRequest object
+    Object.defineProperty(rq_open, 'setTest', {
+        enumerable: false,
+        value: function(t) {
+            test = t;
+
+            auto_fail("upgradeneeded", test);
+            auto_fail("success", test);
+            auto_fail("blocked", test);
+            auto_fail("error", test);
+
+            return this;
+        }
+    });
+
+    return rq_open;
+}
+
+function assert_key_equals(actual, expected, description) {
+  assert_equals(indexedDB.cmp(actual, expected), 0, description);
+}
+
+// Usage:
+//   indexeddb_test(
+//     (test_object, db_connection, upgrade_tx, open_request) => {
+//        // Database creation logic.
+//     },
+//     (test_object, db_connection, open_request) => {
+//        // Test logic.
+//        test_object.done();
+//     },
+//     'Test case description');
+function indexeddb_test(upgrade_func, open_func, description, options) {
+  async_test(function(t) {
+    options = Object.assign({upgrade_will_abort: false}, options);
+    var dbname = location + '-' + t.name;
+    var del = indexedDB.deleteDatabase(dbname);
+    del.onerror = t.unreached_func('deleteDatabase should succeed');
+    var open = indexedDB.open(dbname, 1);
+    open.onupgradeneeded = t.step_func(function() {
+      var db = open.result;
+      t.add_cleanup(function() {
+        // If open didn't succeed already, ignore the error.
+        open.onerror = function(e) {
+          e.preventDefault();
+        };
+        db.close();
+        indexedDB.deleteDatabase(db.name);
+      });
+      var tx = open.transaction;
+      upgrade_func(t, db, tx, open);
+    });
+    if (options.upgrade_will_abort) {
+      open.onsuccess = t.unreached_func('open should not succeed');
+    } else {
+      open.onerror = t.unreached_func('open should succeed');
+      open.onsuccess = t.step_func(function() {
+        var db = open.result;
+        if (open_func)
+          open_func(t, db, open);
+      });
+    }
+  }, description);
+}
+
+// Call with a Test and an array of expected results in order. Returns
+// a function; call the function when a result arrives and when the
+// expected number appear the order will be asserted and test
+// completed.
+function expect(t, expected) {
+  var results = [];
+  return result => {
+    results.push(result);
+    if (results.length === expected.length) {
+      assert_array_equals(results, expected);
+      t.done();
+    }
+  };
+}
+
+// Checks to see if the passed transaction is active (by making
+// requests against the named store).
+function is_transaction_active(tx, store_name) {
+  try {
+    const request = tx.objectStore(store_name).get(0);
+    request.onerror = e => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+    return true;
+  } catch (ex) {
+    assert_equals(ex.name, 'TransactionInactiveError',
+                  'Active check should either not throw anything, or throw ' +
+                  'TransactionInactiveError');
+    return false;
+  }
+}
+
+// Keeps the passed transaction alive indefinitely (by making requests
+// against the named store). Returns a function that asserts that the
+// transaction has not already completed and then ends the request loop so that
+// the transaction may autocommit and complete.
+function keep_alive(tx, store_name) {
+  let completed = false;
+  tx.addEventListener('complete', () => { completed = true; });
+
+  let keepSpinning = true;
+
+  function spin() {
+    if (!keepSpinning)
+      return;
+    tx.objectStore(store_name).get(0).onsuccess = spin;
+  }
+  spin();
+
+  return () => {
+    assert_false(completed, 'Transaction completed while kept alive');
+    keepSpinning = false;
+  };
+}
+
+// Returns a new function. After it is called |count| times, |func|
+// will be called.
+function barrier_func(count, func) {
+  let n = 0;
+  return () => {
+    if (++n === count)
+      func();
+  };
+}
+
+
 'use strict';
 
 // Returns an IndexedDB database name that is unique to the test case.
@@ -357,327 +570,121 @@ function timeoutPromise(ms) {
 }
 
 
-// META: title=Indexed DB and Structured Serializing/Deserializing
-// META: timeout=long
+// META: title=Batch Get All (big value)
+// META: script=support.js
 // META: script=support-promises.js
-// META: script=/common/subset-tests.js
-// META: variant=?1-20
-// META: variant=?21-40
-// META: variant=?41-60
-// META: variant=?61-80
-// META: variant=?81-100
-// META: variant=?101-last
 
-// Tests Indexed DB coverage of HTML's Safe "passing of structured data"
-// https://html.spec.whatwg.org/multipage/structured-data.html
+'use strict';
 
-function describe(value) {
-  let type, str;
-  if (typeof value === 'object' && value) {
-    type = Object.getPrototypeOf(value).constructor.name;
-    // Handle Number(-0), etc.
-    str = Object.is(value.valueOf(), -0) ? '-0' : String(value);
-  } else {
-    type = typeof value;
-    // Handle primitive -0.
-    str = Object.is(value, -0) ? '-0' : String(value);
-  }
-  return `${type}: ${str}`;
+// engines that have special code paths for large values.
+const wrapThreshold = 128 * 1024;
+const keys = Array.from({length: 10}, (item, index) => index);
+const values =
+    Array.from(keys, (item, index) => largeValue(wrapThreshold, index));
+
+function batchgetall_test(storeName, func, name) {
+  indexeddb_test((t, connection, tx) => {
+    let store = connection.createObjectStore(storeName, null);
+    for (let i = 0; i < keys.length; i++) {
+      store.put(values[i], keys[i])
+    }
+  }, func, name);
 }
 
-function cloneTest(value, verifyFunc) {
-  subsetTest(promise_test, async t => {
-    const db = await createDatabase(t, db => {
-      const store = db.createObjectStore('store');
-      // This index is not used, but evaluating key path on each put()
-      // call will exercise (de)serialization.
-      store.createIndex('index', 'dummyKeyPath');
-    });
-    t.add_cleanup(() => {
-      if (db) {
-        db.close();
-        indexedDB.deleteDatabase(db.name);
-      }
-    });
-    const tx = db.transaction('store', 'readwrite');
-    const store = tx.objectStore('store');
-    await promiseForRequest(t, store.put(value, 'key'));
-    const result = await promiseForRequest(t, store.get('key'));
-    await verifyFunc(value, result);
-    await promiseForTransaction(t, tx);
-  }, describe(value));
+function createBatchGetAllRequest(t, storeName, connection, ranges, maxCount) {
+  const transaction = connection.transaction(storeName, 'readonly');
+  const store = transaction.objectStore(storeName);
+  const req = store.batchGetAll(ranges, maxCount);
+  req.onerror = t.unreached_func('batchGetAll request should succeed');
+  return req;
 }
 
-// Specialization of cloneTest() for objects, with common asserts.
-function cloneObjectTest(value, verifyFunc) {
-  cloneTest(value, async (orig, clone) => {
-    assert_not_equals(orig, clone);
-    assert_equals(typeof clone, 'object');
-    assert_equals(Object.getPrototypeOf(orig), Object.getPrototypeOf(clone));
-    await verifyFunc(orig, clone);
-  });
+function assertTwoDArrayEquals(result, expected) {
+  assert_equals(JSON.stringify(result), JSON.stringify(expected));
 }
 
-function cloneFailureTest(value) {
-  subsetTest(promise_test, async t => {
-    const db = await createDatabase(t, db => {
-      db.createObjectStore('store');
-    });
-    t.add_cleanup(() => {
-      if (db) {
-        db.close();
-        indexedDB.deleteDatabase(db.name);
-      }
-    });
-    const tx = db.transaction('store', 'readwrite');
-    const store = tx.objectStore('store');
-    assert_throws_dom('DataCloneError', () => store.put(value, 'key'));
-  }, 'Not serializable: ' + describe(value));
-}
-
-//
-// ECMAScript types
-//
-
-// Primitive values: Undefined, Null, Boolean, Number, BigInt, String
-const booleans = [false, true];
-const numbers = [
-  NaN,
-  -Infinity,
-  -Number.MAX_VALUE,
-  -0xffffffff,
-  -0x80000000,
-  -0x7fffffff,
-  -1,
-  -Number.MIN_VALUE,
-  -0,
-  0,
-  1,
-  Number.MIN_VALUE,
-  0x7fffffff,
-  0x80000000,
-  0xffffffff,
-  Number.MAX_VALUE,
-  Infinity,
-];
-const bigints = [
-  -12345678901234567890n,
-  -1n,
-  0n,
-  1n,
-  12345678901234567890n,
-];
-const strings = [
-  '',
-  'this is a sample string',
-  'null(\0)',
-];
-
-[undefined, null].concat(booleans, numbers, bigints, strings)
-  .forEach(value => cloneTest(value, (orig, clone) => {
-    assert_equals(orig, clone);
-  }));
-
-// "Primitive" Objects (Boolean, Number, BigInt, String)
-[].concat(booleans, numbers, bigints, strings)
-  .forEach(value => cloneObjectTest(Object(value), (orig, clone) => {
-    assert_equals(orig.valueOf(), clone.valueOf());
-  }));
-
-// Dates
-[
-  new Date(-1e13),
-  new Date(-1e12),
-  new Date(-1e9),
-  new Date(-1e6),
-  new Date(-1e3),
-  new Date(0),
-  new Date(1e3),
-  new Date(1e6),
-  new Date(1e9),
-  new Date(1e12),
-  new Date(1e13)
-].forEach(value => cloneTest(value, (orig, clone) => {
-    assert_not_equals(orig, clone);
-    assert_equals(typeof clone, 'object');
-    assert_equals(Object.getPrototypeOf(orig), Object.getPrototypeOf(clone));
-    assert_equals(orig.valueOf(), clone.valueOf());
-  }));
-
-// Regular Expressions
-[
-  new RegExp(),
-  /abc/,
-  /abc/g,
-  /abc/i,
-  /abc/gi,
-  /abc/m,
-  /abc/mg,
-  /abc/mi,
-  /abc/mgi,
-  /abc/gimsuy,
-].forEach(value => cloneObjectTest(value, (orig, clone) => {
-  assert_equals(orig.toString(), clone.toString());
-}));
-
-// ArrayBuffer
-cloneObjectTest(new Uint8Array([0, 1, 254, 255]).buffer, (orig, clone) => {
-  assert_array_equals(new Uint8Array(orig), new Uint8Array(clone));
-});
-
-// TODO SharedArrayBuffer
-
-// Array Buffer Views
-[
-  new Uint8Array([]),
-  new Uint8Array([0, 1, 254, 255]),
-  new Uint16Array([0x0000, 0x0001, 0xFFFE, 0xFFFF]),
-  new Uint32Array([0x00000000, 0x00000001, 0xFFFFFFFE, 0xFFFFFFFF]),
-  new Int8Array([0, 1, 254, 255]),
-  new Int16Array([0x0000, 0x0001, 0xFFFE, 0xFFFF]),
-  new Int32Array([0x00000000, 0x00000001, 0xFFFFFFFE, 0xFFFFFFFF]),
-  new Uint8ClampedArray([0, 1, 254, 255]),
-  new Float32Array([-Infinity, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, Infinity, NaN]),
-  new Float64Array([-Infinity, -Number.MAX_VALUE, -Number.MIN_VALUE, 0,
-                    Number.MIN_VALUE, Number.MAX_VALUE, Infinity, NaN])
-].forEach(value => cloneObjectTest(value, (orig, clone) => {
-  assert_array_equals(orig, clone);
-}));
-
-// Map
-cloneObjectTest(new Map([[1,2],[3,4]]), (orig, clone) => {
-  assert_array_equals([...orig.keys()], [...clone.keys()]);
-  assert_array_equals([...orig.values()], [...clone.values()]);
-});
-
-// Set
-cloneObjectTest(new Set([1,2,3,4]), (orig, clone) => {
-  assert_array_equals([...orig.values()], [...clone.values()]);
-});
-
-// Error
-[
-  new Error(),
-  new Error('abc', 'def'),
-  new EvalError(),
-  new EvalError('ghi', 'jkl'),
-  new RangeError(),
-  new RangeError('ghi', 'jkl'),
-  new ReferenceError(),
-  new ReferenceError('ghi', 'jkl'),
-  new SyntaxError(),
-  new SyntaxError('ghi', 'jkl'),
-  new TypeError(),
-  new TypeError('ghi', 'jkl'),
-  new URIError(),
-  new URIError('ghi', 'jkl'),
-].forEach(value => cloneObjectTest(value, (orig, clone) => {
-  assert_equals(orig.name, clone.name);
-  assert_equals(orig.message, clone.message);
-}));
-
-// Arrays
-[
-  [],
-  [1,2,3],
-  Object.assign(
-    ['foo', 'bar'],
-    {10: true, 11: false, 20: 123, 21: 456, 30: null}),
-  Object.assign(
-    ['foo', 'bar'],
-    {a: true, b: false, foo: 123, bar: 456, '': null}),
-].forEach(value => cloneObjectTest(value, (orig, clone) => {
-  assert_array_equals(orig, clone);
-  assert_array_equals(Object.keys(orig), Object.keys(clone));
-  Object.keys(orig).forEach(key => {
-    assert_equals(orig[key], clone[key], `Property ${key}`);
+batchgetall_test('out-of-line', (t, connection) => {
+  const req = createBatchGetAllRequest(t, 'out-of-line', connection, [2]);
+  req.onsuccess = t.step_func(evt => {
+    let result = evt.target.result;
+    let expected = [[values[2]]];
+    assertTwoDArrayEquals(result, expected);
+    t.done();
   });
-}));
+}, 'Single item get');
 
-// Objects
-cloneObjectTest({foo: true, bar: false}, (orig, clone) => {
-  assert_array_equals(Object.keys(orig), Object.keys(clone));
-  Object.keys(orig).forEach(key => {
-    assert_equals(orig[key], clone[key], `Property ${key}`);
+
+batchgetall_test('empty', (t, connection) => {
+  const req = createBatchGetAllRequest(t, 'empty', connection);
+  req.onsuccess = t.step_func(evt => {
+    assert_array_equals(
+        evt.target.result, [],
+        'getAll() on empty object store should return an empty array');
+    t.done();
   });
-});
+}, 'batchGetAll on empty object store');
 
-//
-// [Serializable] Platform objects
-//
 
-// TODO: Test these additional interfaces:
-// * DOMQuad
-// * DOMException
-// * RTCCertificate
-
-// Geometry types
-[
-  new DOMMatrix(),
-  new DOMMatrixReadOnly(),
-  new DOMPoint(),
-  new DOMPointReadOnly(),
-  new DOMRect,
-  new DOMRectReadOnly(),
-].forEach(value => cloneObjectTest(value, (orig, clone) => {
-  Object.keys(Object.getPrototypeOf(orig)).forEach(key => {
-    assert_equals(orig[key], clone[key], `Property ${key}`);
+batchgetall_test('out-of-line', (t, connection) => {
+  const req =
+      createBatchGetAllRequest(t, 'out-of-line', connection, [1, 'a', 4, 'z']);
+  req.onsuccess = t.step_func(evt => {
+    let result = evt.target.result;
+    let expected = [[values[1]], [], [values[4]], []];
+    assertTwoDArrayEquals(result, expected);
+    t.done();
   });
-}));
+}, 'batchGetAll with non-existing values');
 
-// ImageData
-const image_data = new ImageData(8, 8);
-for (let i = 0; i < 256; ++i) {
-  image_data.data[i] = i;
-}
-cloneObjectTest(image_data, (orig, clone) => {
-  assert_equals(orig.width, clone.width);
-  assert_equals(orig.height, clone.height);
-  assert_array_equals(orig.data, clone.data);
-});
 
-// Blob
-cloneObjectTest(
-  new Blob(['This is a test.'], {type: 'a/b'}),
-  async (orig, clone) => {
-    assert_equals(orig.size, clone.size);
-    assert_equals(orig.type, clone.type);
-    assert_equals(await orig.text(), await clone.text());
+batchgetall_test('out-of-line', (t, connection) => {
+  const req = createBatchGetAllRequest(
+      t, 'out-of-line', connection, [IDBKeyRange.bound(0, 10)], 5);
+  req.onsuccess = t.step_func(evt => {
+    let result = evt.target.result;
+    let expected = [[values[0], values[1], values[2], values[3], values[4]]];
+    assertTwoDArrayEquals(result, expected);
+    t.done();
   });
+}, 'Get bound range with maxCount');
 
-// File
-cloneObjectTest(
-  new File(['This is a test.'], 'foo.txt', {type: 'c/d'}),
-  async (orig, clone) => {
-    assert_equals(orig.size, clone.size);
-    assert_equals(orig.type, clone.type);
-    assert_equals(orig.name, clone.name);
-    assert_equals(orig.lastModified, clone.lastModified);
-    assert_equals(await orig.text(), await clone.text());
+
+
+batchgetall_test('out-of-line', (t, connection) => {
+  const req = createBatchGetAllRequest(
+      t, 'out-of-line', connection, [IDBKeyRange.bound(0, 4)]);
+  req.onsuccess = t.step_func(evt => {
+    let result = evt.target.result;
+    let expected = [[values[0], values[1], values[2], values[3], values[4]]];
+    assertTwoDArrayEquals(result, expected);
+    t.done();
   });
+}, 'Get bound range');
 
 
-// FileList - exposed in Workers, but not constructable.
-if ('document' in self) {
-  // TODO: Test with populated list.
-  cloneObjectTest(
-    Object.assign(document.createElement('input'),
-                  {type: 'file', multiple: true}).files,
-    async (orig, clone) => {
-      assert_equals(orig.length, clone.length);
-    });
-}
+batchgetall_test('out-of-line', (t, connection) => {
+  const req = createBatchGetAllRequest(t, 'out-of-line', connection, [
+    IDBKeyRange.bound(0, 4, false, true), IDBKeyRange.bound(0, 4, true, false)
+  ]);
+  req.onsuccess = t.step_func(evt => {
+    let result = evt.target.result;
+    let expected = [
+      [values[0], values[1], values[2], values[3]],
+      [values[1], values[2], values[3], values[4]]
+    ];
+    assertTwoDArrayEquals(result, expected);
+    t.done();
+  });
+}, 'Get upper/lower excluded');
 
-//
-// Non-serializable types
-//
-[
-  // ECMAScript types
-  function() {},
-  Symbol('desc'),
 
-  // Non-[Serializable] platform objects
-  self,
-  new Event(''),
-  new MessageChannel()
-].forEach(cloneFailureTest);
+batchgetall_test('out-of-line', (t, connection) => {
+  const req = createBatchGetAllRequest(
+      t, 'out-of-line', connection, [IDBKeyRange.bound(1, 4)], 0);
+  req.onsuccess = t.step_func(evt => {
+    let result = evt.target.result;
+    let expected = [[values[1], values[2], values[3], values[4]]];
+    assertTwoDArrayEquals(result, expected);
+    t.done();
+  });
+}, 'zero maxCount');

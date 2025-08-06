@@ -10,11 +10,14 @@ const skip = [
 
 function makeParentDir(file) {
     const dir = path.posix.dirname(file);
-    fs.mkdirSync(dir, { recursive: true })
+    fs.mkdirSync(dir, { recursive: true });
 }
 
 function addConst(string) {
-    return string.replace(/^(\s+)(.*)/, (whole, match1, match2) => match1 + 'const ' + match2)
+    return string.replace(
+        /^(\s+)(.*)/,
+        (whole, match1, match2) => match1 + "const " + match2,
+    );
 }
 
 const __dirname = "src/test/web-platform-tests";
@@ -68,13 +71,16 @@ const outFolder = path.posix.join(__dirname, "converted");
         );
 
         for (const match of importMatches) {
-            if ([
-                "/resources/testharness.js",
-                "/resources/testharnessreport.js",
-                "/resources/testdriver.js",
-                "/resources/testdriver-vendor.js",
-                "/common/get-host-info.sub.js"
-            ].includes(match[1])) {
+            if (
+                [
+                    "/resources/testharness.js",
+                    "/resources/testharnessreport.js",
+                    "/resources/testdriver.js",
+                    "/resources/testdriver-vendor.js",
+                    "/common/get-host-info.sub.js",
+                    "../common/get-host-info.sub.js",
+                ].includes(match[1])
+            ) {
                 continue;
             }
             const location = path.posix.join(
@@ -88,19 +94,30 @@ const outFolder = path.posix.join(__dirname, "converted");
 
         makeParentDir(dest);
 
-        codeChunks = codeChunks.map(chunk => {
-            return chunk
-                // HACK: some of the tests use sloppy mode, probably due to author error
-                // This causes problems for us because we convert to ESM (strict) mode
-                // So manually fix some of the sloppy global assigments in tests
-                .replaceAll(/ {4}loop_array = \[];/g, addConst)
-                .replaceAll(/ {12}store = db.createObjectStore\("store"\);/g, addConst)
-                .replaceAll(/ {12}store2 = db.createObjectStore\("store2", \{ keyPath: \["x", "keypath"] }\);/g, addConst)
-                .replaceAll(/ {8}attrs = \[];/g, addConst)
+        codeChunks = codeChunks.map((chunk) => {
+            return (
+                chunk
+                    // HACK: some of the tests use sloppy mode, probably due to author error
+                    // This causes problems for us because we convert to ESM (strict) mode
+                    // So manually fix some of the sloppy global assigments in tests
+                    .replaceAll(/ {4}loop_array = \[];/g, addConst)
+                    .replaceAll(
+                        / {12}store = db.createObjectStore\("store"\);/g,
+                        addConst,
+                    )
+                    .replaceAll(
+                        / {12}store2 = db.createObjectStore\("store2", \{ keyPath: \["x", "keypath"] }\);/g,
+                        addConst,
+                    )
+                    .replaceAll(/ {8}attrs = \[];/g, addConst)
 
-                 // this test has to be disabled because we can't detect Proxies vs non-Proxies in JS
-                .replaceAll(/invalid_key\('proxy of an array', new Proxy\(\[1,2,3], \{}\)\);/g, '');
-        })
+                    // this test has to be disabled because we can't detect Proxies vs non-Proxies in JS
+                    .replaceAll(
+                        /invalid_key\('proxy of an array', new Proxy\(\[1,2,3], \{}\)\);/g,
+                        "",
+                    )
+            );
+        });
 
         fs.writeFileSync(dest, codeChunks.join("\n"));
     }
@@ -134,9 +151,9 @@ const outFolder = path.posix.join(__dirname, "converted");
             codeChunks.push(`import "${relativeWptEnvLocation}";\n`);
         }
 
-        const importMatches = testScript.matchAll(
-            /^\/\/\s*META:\s*script=(.+)$/mg,
-        ).filter(match => match[1] !== "/common/subset-tests.js");
+        const importMatches = testScript
+            .matchAll(/^\/\/\s*META:\s*script=(.+)$/gm)
+            .filter((match) => match[1] !== "/common/subset-tests.js");
 
         for (const match of importMatches) {
             const location = path.posix.join(
@@ -148,13 +165,24 @@ const outFolder = path.posix.join(__dirname, "converted");
 
         codeChunks.push(testScript);
 
-        codeChunks = codeChunks.map(chunk => {
-            return chunk
-                // HACK: same as above, some of the tests use sloppy mode
-                .replaceAll(/ {2}cursor = txn.objectStore\('objectStore'\)\.index\('index'\)\.openCursor\(/g, addConst)
-                .replaceAll(/ {2}cursor = txn4.objectStore\('objectStore'\)\.index\('index'\)\.openCursor\(IDBKeyRange\.bound\(0, 10\), "prev"\);/g, addConst)
-                .replaceAll(/ {2}cursor = txn2.objectStore\('objectStore'\)\.index\('index'\)\.openCursor\(IDBKeyRange\.bound\(0, 10\), "prev"\);/g, addConst)
-        })
+        codeChunks = codeChunks.map((chunk) => {
+            return (
+                chunk
+                    // HACK: same as above, some of the tests use sloppy mode
+                    .replaceAll(
+                        / {2}cursor = txn.objectStore\('objectStore'\)\.index\('index'\)\.openCursor\(/g,
+                        addConst,
+                    )
+                    .replaceAll(
+                        / {2}cursor = txn4.objectStore\('objectStore'\)\.index\('index'\)\.openCursor\(IDBKeyRange\.bound\(0, 10\), "prev"\);/g,
+                        addConst,
+                    )
+                    .replaceAll(
+                        / {2}cursor = txn2.objectStore\('objectStore'\)\.index\('index'\)\.openCursor\(IDBKeyRange\.bound\(0, 10\), "prev"\);/g,
+                        addConst,
+                    )
+            );
+        });
 
         makeParentDir(dest);
 
