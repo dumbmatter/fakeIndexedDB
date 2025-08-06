@@ -212,8 +212,25 @@ function barrier_func(count, func) {
   };
 }
 
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|.
+async function createIndexedDBForTesting(rc, dbName, version) {
+  await rc.executeScript((dbName, version) => {
+    let request = indexedDB.open(dbName, version);
+    request.onupgradeneeded = () => {
+      if (version == 1) {
+        // Only create the object store once.
+        request.result.createObjectStore('store');
+      }
+    }
+    request.onversionchange = () => {
+      fail(t, 'unexpectedly received versionchange event.');
+    }
+  }, [dbName, version]);
+}
 
-// META: script=support.js
+
+// META: script=resources/support.js
 
 indexeddb_test(
   (t, db) => {
@@ -232,11 +249,11 @@ indexeddb_test(
                   'transaction1 should have executed at least one request');
     }));
 
-    const transaction1 = db.transaction('store', 'readonly');
+    const transaction1 = db.transaction('store', 'readonly', {durability: 'relaxed'});
     transaction1.onabort = t.unreached_func('transaction1 should not abort');
     transaction1.oncomplete = t.step_func(onTransactionComplete);
 
-    const transaction2 = db.transaction('store', 'readonly');
+    const transaction2 = db.transaction('store', 'readonly', {durability: 'relaxed'});
     transaction2.onabort = t.unreached_func('transaction2 should not abort');
     transaction2.oncomplete = t.step_func(onTransactionComplete);
 

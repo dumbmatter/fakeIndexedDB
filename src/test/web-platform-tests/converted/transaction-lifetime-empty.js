@@ -212,6 +212,23 @@ function barrier_func(count, func) {
   };
 }
 
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|.
+async function createIndexedDBForTesting(rc, dbName, version) {
+  await rc.executeScript((dbName, version) => {
+    let request = indexedDB.open(dbName, version);
+    request.onupgradeneeded = () => {
+      if (version == 1) {
+        // Only create the object store once.
+        request.result.createObjectStore('store');
+      }
+    }
+    request.onversionchange = () => {
+      fail(t, 'unexpectedly received versionchange event.');
+    }
+  }, [dbName, version]);
+}
+
 
 
 
@@ -240,7 +257,7 @@ indexeddb_test(
                            'tx1.oncomplete',
                            'tx2.oncomplete']);
 
-        var tx1 = db.transaction('store', 'readwrite');
+        var tx1 = db.transaction('store', 'readwrite', {durability: 'relaxed'});
         tx1.onabort = t.unreached_func('transaction should commit');
         tx1.oncomplete = t.step_func(() => saw('tx1.oncomplete'));
 
@@ -250,7 +267,7 @@ indexeddb_test(
         rq1.onsuccess = t.step_func(() => {
             saw('rq1.onsuccess');
 
-            var tx2 = db.transaction('store', 'readonly');
+            var tx2 = db.transaction('store', 'readonly', {durability: 'relaxed'});
             tx2.onabort = t.unreached_func('transaction should commit');
             tx2.oncomplete = t.step_func(() => saw('tx2.oncomplete'));
 
@@ -272,7 +289,7 @@ indexeddb_test(
                            'tx1.oncomplete',
                            'tx2.oncomplete',
                            'tx3.oncomplete']);
-        var tx1 = db.transaction('store', 'readwrite');
+        var tx1 = db.transaction('store', 'readwrite', {durability: 'relaxed'});
         tx1.onabort = t.unreached_func('transaction should commit');
         tx1.oncomplete = t.step_func(() => saw('tx1.oncomplete'));
 
@@ -282,11 +299,11 @@ indexeddb_test(
         rq1.onsuccess = t.step_func(() => {
             saw('rq1.onsuccess');
 
-            var tx2 = db.transaction('store', 'readonly');
+            var tx2 = db.transaction('store', 'readonly', {durability: 'relaxed'});
             tx2.onabort = t.unreached_func('transaction should commit');
             tx2.oncomplete = t.step_func(() => saw('tx2.oncomplete'));
 
-            var tx3 = db.transaction('store', 'readonly');
+            var tx3 = db.transaction('store', 'readonly', {durability: 'relaxed'});
             tx3.onabort = t.unreached_func('transaction should commit');
             tx3.oncomplete = t.step_func(() => saw('tx3.oncomplete'));
 

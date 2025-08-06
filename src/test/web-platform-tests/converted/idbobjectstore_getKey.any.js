@@ -212,9 +212,26 @@ function barrier_func(count, func) {
   };
 }
 
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|.
+async function createIndexedDBForTesting(rc, dbName, version) {
+  await rc.executeScript((dbName, version) => {
+    let request = indexedDB.open(dbName, version);
+    request.onupgradeneeded = () => {
+      if (version == 1) {
+        // Only create the object store once.
+        request.result.createObjectStore('store');
+      }
+    }
+    request.onversionchange = () => {
+      fail(t, 'unexpectedly received versionchange event.');
+    }
+  }, [dbName, version]);
+}
+
 
 // META: title=IndexedDB: Test IDBObjectStore.getKey()
-// META: script=support.js
+// META: script=resources/support.js
 
 'use strict';
 
@@ -243,7 +260,7 @@ function getkey_test(func, name) {
 }
 
 getkey_test((t, db) => {
-  const tx = db.transaction('basic');
+  const tx = db.transaction('basic', 'readonly', {durability: 'relaxed'});
   const store = tx.objectStore('basic');
   assert_throws_js(TypeError, () => store.getKey());
   assert_throws_dom('DataError', () => store.getKey(null));

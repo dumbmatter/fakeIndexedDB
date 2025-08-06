@@ -212,6 +212,23 @@ function barrier_func(count, func) {
   };
 }
 
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|.
+async function createIndexedDBForTesting(rc, dbName, version) {
+  await rc.executeScript((dbName, version) => {
+    let request = indexedDB.open(dbName, version);
+    request.onupgradeneeded = () => {
+      if (version == 1) {
+        // Only create the object store once.
+        request.result.createObjectStore('store');
+      }
+    }
+    request.onversionchange = () => {
+      fail(t, 'unexpectedly received versionchange event.');
+    }
+  }, [dbName, version]);
+}
+
 
 
 
@@ -249,7 +266,7 @@ indexeddb_test(
     db.createObjectStore('store', {keyPath: 'id', autoIncrement: true});
   },
   (t, db) => {
-    const tx = db.transaction('store', 'readwrite');
+    const tx = db.transaction('store', 'readwrite', {durability: 'relaxed'});
     const store = tx.objectStore('store');
     const obj = new ProbeObject();
     store.put(obj);
@@ -267,7 +284,7 @@ indexeddb_test(
     db.createObjectStore('store', {keyPath: 'invalid_id', autoIncrement: true});
   },
   (t, db) => {
-    const tx = db.transaction('store', 'readwrite');
+    const tx = db.transaction('store', 'readwrite', {durability: 'relaxed'});
     const store = tx.objectStore('store');
     const obj = new ProbeObject();
     assert_throws_dom('DataError', () => { store.put(obj); },
@@ -287,7 +304,7 @@ indexeddb_test(
     store.createIndex('index', 'prop');
   },
   (t, db) => {
-    const tx = db.transaction('store', 'readwrite');
+    const tx = db.transaction('store', 'readwrite', {durability: 'relaxed'});
     const store = tx.objectStore('store');
     const obj = new ProbeObject();
     store.put(obj, 'key');
@@ -305,7 +322,7 @@ indexeddb_test(
     store.createIndex('index', 'prop');
   },
   (t, db) => {
-    const tx = db.transaction('store', 'readwrite');
+    const tx = db.transaction('store', 'readwrite', {durability: 'relaxed'});
     const store = tx.objectStore('store');
     const obj = new ProbeObject();
     store.put(obj);
@@ -322,7 +339,7 @@ indexeddb_test(
     store.createIndex('index', 'prop');
   },
   (t, db) => {
-    const tx = db.transaction('store', 'readwrite');
+    const tx = db.transaction('store', 'readwrite', {durability: 'relaxed'});
     const store = tx.objectStore('store');
     store.put(new ProbeObject());
 

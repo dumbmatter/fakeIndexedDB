@@ -212,6 +212,23 @@ function barrier_func(count, func) {
   };
 }
 
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|.
+async function createIndexedDBForTesting(rc, dbName, version) {
+  await rc.executeScript((dbName, version) => {
+    let request = indexedDB.open(dbName, version);
+    request.onupgradeneeded = () => {
+      if (version == 1) {
+        // Only create the object store once.
+        request.result.createObjectStore('store');
+      }
+    }
+    request.onversionchange = () => {
+      fail(t, 'unexpectedly received versionchange event.');
+    }
+  }, [dbName, version]);
+}
+
 
 
 
@@ -220,7 +237,7 @@ indexeddb_test(
     db.createObjectStore('store');
   },
   (t, db) => {
-    const tx = db.transaction('store');
+    const tx = db.transaction('store', 'readonly', {durability: 'relaxed'});
     const release_tx = keep_alive(tx, 'store');
     assert_true(is_transaction_active(tx, 'store'),
                 'Transaction should be active after creation');
@@ -239,7 +256,7 @@ indexeddb_test(
     db.createObjectStore('store');
   },
   (t, db) => {
-    const tx = db.transaction('store');
+    const tx = db.transaction('store', 'readonly', {durability: 'relaxed'});
     const release_tx = keep_alive(tx, 'store');
     assert_true(is_transaction_active(tx, 'store'),
                 'Transaction should be active after creation');
@@ -261,7 +278,7 @@ indexeddb_test(
     let tx, release_tx;
 
     Promise.resolve().then(t.step_func(() => {
-      tx = db.transaction('store');
+      tx = db.transaction('store', 'readonly', {durability: 'relaxed'});
       release_tx = keep_alive(tx, 'store');
       assert_true(is_transaction_active(tx, 'store'),
                   'Transaction should be active after creation');
@@ -284,7 +301,7 @@ indexeddb_test(
     let tx, release_tx;
 
     Promise.resolve().then(t.step_func(() => {
-      tx = db.transaction('store');
+      tx = db.transaction('store', 'readonly', {durability: 'relaxed'});
       release_tx = keep_alive(tx, 'store');
       assert_true(is_transaction_active(tx, 'store'),
                   'Transaction should be active after creation');
@@ -310,7 +327,7 @@ indexeddb_test(
     // listeners. A DOM event with multiple listeners could be used instead,
     // but not via dispatchEvent() because (drumroll...) that happens
     // synchronously so microtasks don't run between steps.
-    const tx = db.transaction('store');
+    const tx = db.transaction('store', 'readonly', {durability: 'relaxed'});
     assert_true(is_transaction_active(tx, 'store'),
                 'Transaction should be active after creation');
 
@@ -325,7 +342,7 @@ indexeddb_test(
 
       // We check to see if this transaction is active across unrelated event
       // dispatch steps.
-      new_tx = db.transaction('store');
+      new_tx = db.transaction('store', 'readonly', {durability: 'relaxed'});
       assert_true(is_transaction_active(new_tx, 'store'),
                   'New transaction should be active after creation');
 

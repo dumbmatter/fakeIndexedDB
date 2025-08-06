@@ -376,7 +376,7 @@ async function assert_file_contents_equals(file1, file2) {
 
 promise_test(async (testCase) => {
   const input = document.getElementById("file_input");
-  await test_driver.send_keys(input, String.raw`{{fs_path(file_to_save.txt)}}`);
+  await test_driver.send_keys(input, String.raw`{{fs_path(resources/file_to_save.txt)}}`);
   assert_equals(input.files.length, 1);
 
   const file = input.files[0];

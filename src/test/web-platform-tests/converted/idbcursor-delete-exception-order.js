@@ -212,6 +212,23 @@ function barrier_func(count, func) {
   };
 }
 
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|.
+async function createIndexedDBForTesting(rc, dbName, version) {
+  await rc.executeScript((dbName, version) => {
+    let request = indexedDB.open(dbName, version);
+    request.onupgradeneeded = () => {
+      if (version == 1) {
+        // Only create the object store once.
+        request.result.createObjectStore('store');
+      }
+    }
+    request.onversionchange = () => {
+      fail(t, 'unexpectedly received versionchange event.');
+    }
+  }, [dbName, version]);
+}
+
 
 
 
@@ -221,7 +238,7 @@ indexeddb_test(
     s.put('value', 'key');
   },
   (t, db) => {
-    const s = db.transaction('s', 'readonly').objectStore('s');
+    const s = db.transaction('s', 'readonly', {durability: 'relaxed'}).objectStore('s');
     const r = s.openCursor();
     r.onsuccess = t.step_func(() => {
       r.onsuccess = null;
@@ -244,7 +261,7 @@ indexeddb_test(
     s.put('value', 'key');
   },
   (t, db) => {
-    const s = db.transaction('s', 'readonly').objectStore('s');
+    const s = db.transaction('s', 'readonly', {durability: 'relaxed'}).objectStore('s');
     const r = s.openCursor();
     r.onsuccess = t.step_func(() => {
       r.onsuccess = null;
@@ -266,7 +283,7 @@ indexeddb_test(
     s.put('value', 'key');
   },
   (t, db) => {
-    const s = db.transaction('s', 'readonly').objectStore('s');
+    const s = db.transaction('s', 'readonly', {durability: 'relaxed'}).objectStore('s');
     const r = s.openKeyCursor();
     r.onsuccess = t.step_func(() => {
       r.onsuccess = null;

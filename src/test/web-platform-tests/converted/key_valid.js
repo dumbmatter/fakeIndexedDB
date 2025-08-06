@@ -212,6 +212,23 @@ function barrier_func(count, func) {
   };
 }
 
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|.
+async function createIndexedDBForTesting(rc, dbName, version) {
+  await rc.executeScript((dbName, version) => {
+    let request = indexedDB.open(dbName, version);
+    request.onupgradeneeded = () => {
+      if (version == 1) {
+        // Only create the object store once.
+        request.result.createObjectStore('store');
+      }
+    }
+    request.onversionchange = () => {
+      fail(t, 'unexpectedly received versionchange event.');
+    }
+  }, [dbName, version]);
+}
+
 
 
     function valid_key(desc, key) {
@@ -229,12 +246,12 @@ function barrier_func(count, func) {
             assert_true(store2.add({ x: 'v', keypath: key }) instanceof IDBRequest);
         };
         open_rq.onsuccess = function(e) {
-            var rq = db.transaction("store")
+            var rq = db.transaction("store", "readonly", {durability: 'relaxed'})
                        .objectStore("store")
                        .get(key)
             rq.onsuccess = t.step_func(function(e) {
                 assert_equals(e.target.result, 'value')
-                var rq = db.transaction("store2")
+                var rq = db.transaction("store2", "readonly", {durability: 'relaxed'})
                            .objectStore("store2")
                            .get(['v', key])
                 rq.onsuccess = t.step_func(function(e) {

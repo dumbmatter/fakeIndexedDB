@@ -212,6 +212,23 @@ function barrier_func(count, func) {
   };
 }
 
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|.
+async function createIndexedDBForTesting(rc, dbName, version) {
+  await rc.executeScript((dbName, version) => {
+    let request = indexedDB.open(dbName, version);
+    request.onupgradeneeded = () => {
+      if (version == 1) {
+        // Only create the object store once.
+        request.result.createObjectStore('store');
+      }
+    }
+    request.onversionchange = () => {
+      fail(t, 'unexpectedly received versionchange event.');
+    }
+  }, [dbName, version]);
+}
+
 
 
 // BigInt and BigInt objects are supported in serialization, per
@@ -232,7 +249,7 @@ function value_test(value, predicate, name) {
 
             e.target.onsuccess = t.step_func(e => {
                 e.target.result
-                        .transaction("store")
+                        .transaction("store", "readonly", {durability: "relaxed"})
                         .objectStore("store")
                         .get(1)
                         .onsuccess = t.step_func(e =>

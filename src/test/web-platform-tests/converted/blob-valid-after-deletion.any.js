@@ -212,9 +212,26 @@ function barrier_func(count, func) {
   };
 }
 
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|.
+async function createIndexedDBForTesting(rc, dbName, version) {
+  await rc.executeScript((dbName, version) => {
+    let request = indexedDB.open(dbName, version);
+    request.onupgradeneeded = () => {
+      if (version == 1) {
+        // Only create the object store once.
+        request.result.createObjectStore('store');
+      }
+    }
+    request.onversionchange = () => {
+      fail(t, 'unexpectedly received versionchange event.');
+    }
+  }, [dbName, version]);
+}
+
 
 // META: title=Blob Valid After Deletion
-// META: script=support.js
+// META: script=resources/support.js
 
 let key = "key";
 
@@ -229,13 +246,13 @@ indexeddb_test(
     const blobB = new Blob([blobBContent], {"type" : "text/plain"});
     value = { a0: blobA, a1: blobA, b0: blobB };
 
-    const tx = db.transaction('store', 'readwrite');
+    const tx = db.transaction('store', 'readwrite', {durability: 'relaxed'});
     var store = tx.objectStore('store');
 
     store.put(value, key);
     value = null;
 
-    const trans = db.transaction('store');
+    const trans = db.transaction('store', 'readonly', {durability: 'relaxed'});
     store = trans.objectStore('store');
     const request = store.get(key);
 
@@ -243,7 +260,7 @@ indexeddb_test(
       const record = request.result;
 
       trans.oncomplete = t.step_func(function() {
-        const trans = db.transaction('store', 'readwrite');
+        const trans = db.transaction('store', 'readwrite', {durability: 'relaxed'});
         store = trans.objectStore('store');
         const request = store.delete(key);
 

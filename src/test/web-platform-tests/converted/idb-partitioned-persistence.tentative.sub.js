@@ -48,4 +48,7 @@ async_test(t => {
       t.done();
     }
   }));
+
+  iframe1.src = "http://{{hosts[alt][]}}:{{ports[http][0]}}/IndexedDB/resources/idb-partitioned-persistence-iframe.tentative.html";
+  iframe2.src = "http://{{hosts[alt][]}}:{{ports[http][0]}}/IndexedDB/resources/idb-partitioned-persistence-iframe.tentative.html";
 }, "Persistence test for partitioned IndexedDB");

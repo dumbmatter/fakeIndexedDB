@@ -212,9 +212,26 @@ function barrier_func(count, func) {
   };
 }
 
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|.
+async function createIndexedDBForTesting(rc, dbName, version) {
+  await rc.executeScript((dbName, version) => {
+    let request = indexedDB.open(dbName, version);
+    request.onupgradeneeded = () => {
+      if (version == 1) {
+        // Only create the object store once.
+        request.result.createObjectStore('store');
+      }
+    }
+    request.onversionchange = () => {
+      fail(t, 'unexpectedly received versionchange event.');
+    }
+  }, [dbName, version]);
+}
+
 
 // META: title=Blob Delete Object Store
-// META: script=support.js
+// META: script=resources/support.js
 
 let key = "blob key";
 
@@ -238,7 +255,7 @@ indexeddb_test(
 
         request.onsuccess = t.step_func(function() {
           const blobBContent = "Second blob content";
-          const trans = db.transaction('store1', 'readwrite');
+          const trans = db.transaction('store1', 'readwrite', {durability: 'relaxed'});
           const store1 = trans.objectStore('store1');
           const blobB = new Blob([blobBContent], {"type" : "text/plain"});
           store1.put(blobB, key);

@@ -212,6 +212,23 @@ function barrier_func(count, func) {
   };
 }
 
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|.
+async function createIndexedDBForTesting(rc, dbName, version) {
+  await rc.executeScript((dbName, version) => {
+    let request = indexedDB.open(dbName, version);
+    request.onupgradeneeded = () => {
+      if (version == 1) {
+        // Only create the object store once.
+        request.result.createObjectStore('store');
+      }
+    }
+    request.onversionchange = () => {
+      fail(t, 'unexpectedly received versionchange event.');
+    }
+  }, [dbName, version]);
+}
+
 
 
 
@@ -220,7 +237,7 @@ indexeddb_test(
     db.createObjectStore('store', {autoIncrement: true, keyPath: 'a.b.c'});
   },
   (t, db) => {
-    const tx = db.transaction('store', 'readwrite');
+    const tx = db.transaction('store', 'readwrite', {durability: 'relaxed'});
     assert_throws_dom('DataError', () => {
       tx.objectStore('store').put({a: {b: "foo"}});
     }, 'Put should throw if key can not be inserted at key path location.');
@@ -450,7 +467,7 @@ indexeddb_test(
     store.createIndex('index', 'index0');
   },
   (t, db) => {
-    const tx = db.transaction('store', 'readwrite');
+    const tx = db.transaction('store', 'readwrite', {durability: 'relaxed'});
 
     const array = [];
     array[99] = 1;

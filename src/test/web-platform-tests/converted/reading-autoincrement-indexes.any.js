@@ -1,4 +1,4 @@
-import "../../wpt-env.js";
+import "../wpt-env.js";
 
 'use strict';
 
@@ -452,8 +452,8 @@ async function getAllViaCursor(testCase, cursorSource) {
 }
 
 // META: global=window,dedicatedworker,sharedworker,serviceworker
-// META: script=../support-promises.js
-// META: script=./reading-autoincrement-common.js
+// META: script=resources/support-promises.js
+// META: script=resources/reading-autoincrement-common.js
 
 promise_test(async testCase => {
   const database = await setupAutoincrementDatabase(testCase);

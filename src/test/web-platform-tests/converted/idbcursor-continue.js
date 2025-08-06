@@ -212,6 +212,23 @@ function barrier_func(count, func) {
   };
 }
 
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|.
+async function createIndexedDBForTesting(rc, dbName, version) {
+  await rc.executeScript((dbName, version) => {
+    let request = indexedDB.open(dbName, version);
+    request.onupgradeneeded = () => {
+      if (version == 1) {
+        // Only create the object store once.
+        request.result.createObjectStore('store');
+      }
+    }
+    request.onversionchange = () => {
+      fail(t, 'unexpectedly received versionchange event.');
+    }
+  }, [dbName, version]);
+}
+
 
 
 
@@ -236,7 +253,7 @@ indexeddb_test(
   upgrade_func,
   function(t, db) {
     var count = 0;
-    var rq = db.transaction("test").objectStore("test").index("index").openCursor();
+    var rq = db.transaction("test", "readonly", {durability: 'relaxed'}).objectStore("test").index("index").openCursor();
 
     rq.onsuccess = t.step_func(function(e) {
       if (!e.target.result) {
@@ -263,7 +280,7 @@ indexeddb_test(
   upgrade_func,
   function(t, db) {
     var count = 0;
-    var rq = db.transaction("test").objectStore("test").index("index").openCursor();
+    var rq = db.transaction("test", "readonly", {durability: 'relaxed'}).objectStore("test").index("index").openCursor();
 
     rq.onsuccess = t.step_func(function(e) {
       if (!e.target.result) {
@@ -308,7 +325,7 @@ indexeddb_test(
   upgrade_func,
   function(t, db) {
     var count = 0;
-    var rq = db.transaction("test").objectStore("test").index("index")
+    var rq = db.transaction("test", "readonly", {durability: 'relaxed'}).objectStore("test").index("index")
                .openCursor();
 
     rq.onsuccess = t.step_func(function(e) {
@@ -343,7 +360,7 @@ indexeddb_test(
   upgrade_func,
   function(t, db) {
     var count = 0;
-    var rq = db.transaction("test").objectStore("test").index("index")
+    var rq = db.transaction("test", "readonly", {durability: 'relaxed'}).objectStore("test").index("index")
                .openCursor(IDBKeyRange.lowerBound("cupcake", true));
 
     rq.onsuccess = t.step_func(function(e) {
@@ -383,7 +400,7 @@ indexeddb_test(
   upgrade_func,
   function(t, db) {
     var count = 0;
-    var rq = db.transaction("test").objectStore("test").index("index")
+    var rq = db.transaction("test", "readonly", {durability: 'relaxed'}).objectStore("test").index("index")
                .openCursor("pancake");
 
     rq.onsuccess = t.step_func(function(e) {
@@ -416,7 +433,7 @@ indexeddb_test(
   upgrade_func,
   function(t, db) {
     var count = 0;
-    var rq = db.transaction("test").objectStore("test").index("index")
+    var rq = db.transaction("test", "readonly", {durability: 'relaxed'}).objectStore("test").index("index")
                .openCursor("pie");
 
     rq.onsuccess = t.step_func(function(e) {

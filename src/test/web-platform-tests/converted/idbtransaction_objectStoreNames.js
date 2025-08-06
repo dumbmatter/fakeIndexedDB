@@ -212,6 +212,23 @@ function barrier_func(count, func) {
   };
 }
 
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|.
+async function createIndexedDBForTesting(rc, dbName, version) {
+  await rc.executeScript((dbName, version) => {
+    let request = indexedDB.open(dbName, version);
+    request.onupgradeneeded = () => {
+      if (version == 1) {
+        // Only create the object store once.
+        request.result.createObjectStore('store');
+      }
+    }
+    request.onversionchange = () => {
+      fail(t, 'unexpectedly received versionchange event.');
+    }
+  }, [dbName, version]);
+}
+
 
 
 
@@ -291,7 +308,7 @@ indexeddb_test(function(t, db, tx) {
 }());
 
 with_stores_test(['s1', 's2'], function(t, db) {
-    assert_array_equals(db.transaction('s1').objectStoreNames, ['s1'],
+    assert_array_equals(db.transaction('s1', 'readonly', {durability: 'relaxed'}).objectStoreNames, ['s1'],
         'transaction should have one store in scope');
     assert_array_equals(db.transaction(['s1', 's2']).objectStoreNames,
         ['s1', 's2'],

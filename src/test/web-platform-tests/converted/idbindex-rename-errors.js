@@ -378,7 +378,7 @@ promise_test(testCase => {
     return createDatabase(testCase, (database, transaction) => {
         createBooksStore(testCase, database);
     }).then(database => {
-        const transaction = database.transaction('books', 'readonly');
+        const transaction = database.transaction('books', 'readonly', {durability: 'relaxed'});
         const store = transaction.objectStore('books');
         const index = store.index('by_author');
 
@@ -392,7 +392,7 @@ promise_test(testCase => {
     return createDatabase(testCase, (database, transaction) => {
         createBooksStore(testCase, database);
     }).then(database => {
-        const transaction = database.transaction('books', 'readwrite');
+        const transaction = database.transaction('books', 'readwrite', {durability: 'relaxed'});
         const store = transaction.objectStore('books');
         const index = store.index('by_author');
 
@@ -430,7 +430,7 @@ promise_test(testCase => {
             'An index rename that throws an exception should not change the ' +
             "index's IDBObjectStore.indexNames");
     })).then(database => {
-        const transaction = database.transaction('books', 'readonly');
+        const transaction = database.transaction('books', 'readonly', {durability: 'relaxed'});
         const store = transaction.objectStore('books');
         assert_array_equals(
             store.indexNames, ['by_author', 'by_title'],
@@ -465,7 +465,7 @@ promise_test(testCase => {
             'An index rename that throws an exception should not change the ' +
             "index's IDBObjectStore.indexNames");
     })).then(database => {
-        const transaction = database.transaction('books', 'readonly');
+        const transaction = database.transaction('books', 'readonly', {durability: 'relaxed'});
         const store = transaction.objectStore('books');
         assert_array_equals(
             store.indexNames, ['by_author', 'by_title'],

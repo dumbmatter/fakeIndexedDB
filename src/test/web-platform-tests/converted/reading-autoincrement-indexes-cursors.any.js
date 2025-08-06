@@ -1,4 +1,4 @@
-import "../../wpt-env.js";
+import "../wpt-env.js";
 
 'use strict';
 
@@ -452,40 +452,90 @@ async function getAllViaCursor(testCase, cursorSource) {
 }
 
 // META: global=window,dedicatedworker,sharedworker,serviceworker
-// META: script=../support-promises.js
-// META: script=./reading-autoincrement-common.js
+// META: script=resources/support-promises.js
+// META: script=resources/reading-autoincrement-common.js
 
 promise_test(async testCase => {
   const database = await setupAutoincrementDatabase(testCase);
 
   const transaction = database.transaction(['store'], 'readonly');
   const store = transaction.objectStore('store');
+  const index = store.index('by_id');
 
-  const result = await getAllViaCursor(testCase, store);
+  const result = await getAllViaCursor(testCase, index);
   assert_equals(result.length, 32);
   for (let i = 1; i <= 32; ++i) {
-    assert_equals(result[i - 1].key, i, 'Autoincrement key');
+    assert_equals(result[i - 1].key, i, 'Autoincrement index key');
     assert_equals(result[i - 1].primaryKey, i, 'Autoincrement primary key');
     assert_equals(result[i - 1].value.id, i, 'Autoincrement key in value');
     assert_equals(result[i - 1].value.name, nameForId(i),
-                  'string property in value');
+                  'String property in value');
   }
 
   database.close();
-}, 'IDBObjectStore.openCursor() iterates over an autoincrement store');
+}, 'IDBIndex.openCursor() iterates over an index on the autoincrement key');
 
 promise_test(async testCase => {
   const database = await setupAutoincrementDatabase(testCase);
 
   const transaction = database.transaction(['store'], 'readonly');
   const store = transaction.objectStore('store');
+  const index = store.index('by_id');
 
-  const result = await getAllKeysViaCursor(testCase, store);
+  const result = await getAllKeysViaCursor(testCase, index);
   assert_equals(result.length, 32);
   for (let i = 1; i <= 32; ++i) {
-    assert_equals(result[i - 1].key, i, 'Incorrect autoincrement key');
-    assert_equals(result[i - 1].primaryKey, i, 'Incorrect primary key');
+    assert_equals(result[i - 1].key, i, 'Autoincrement index key');
+    assert_equals(result[i - 1].primaryKey, i, 'Autoincrement primary key');
   }
 
   database.close();
-}, 'IDBObjectStore.openKeyCursor() iterates over an autoincrement store');
+}, 'IDBIndex.openKeyCursor() iterates over an index on the autoincrement key');
+
+promise_test(async testCase => {
+  const database = await setupAutoincrementDatabase(testCase);
+
+  const transaction = database.transaction(['store'], 'readonly');
+  const store = transaction.objectStore('store');
+  const index = store.index('by_name');
+
+  const stringSortedIds = idsSortedByStringCompare();
+
+  const result = await getAllViaCursor(testCase, index);
+  assert_equals(result.length, 32);
+  for (let i = 1; i <= 32; ++i) {
+    assert_equals(result[i - 1].key, nameForId(stringSortedIds[i - 1]),
+                  'Index key');
+    assert_equals(result[i - 1].primaryKey, stringSortedIds[i - 1],
+                  'Autoincrement primary key');
+    assert_equals(result[i - 1].value.id, stringSortedIds[i - 1],
+                  'Autoincrement key in value');
+    assert_equals(result[i - 1].value.name, nameForId(stringSortedIds[i - 1]),
+                  'String property in value');
+  }
+
+  database.close();
+}, 'IDBIndex.openCursor() iterates over an index not covering the ' +
+   'autoincrement key');
+
+promise_test(async testCase => {
+  const database = await setupAutoincrementDatabase(testCase);
+
+  const transaction = database.transaction(['store'], 'readonly');
+  const store = transaction.objectStore('store');
+  const index = store.index('by_name');
+
+  const stringSortedIds = idsSortedByStringCompare();
+
+  const result = await getAllKeysViaCursor(testCase, index);
+  assert_equals(result.length, 32);
+  for (let i = 1; i <= 32; ++i) {
+    assert_equals(result[i - 1].key, nameForId(stringSortedIds[i - 1]),
+                  'Index key');
+    assert_equals(result[i - 1].primaryKey, stringSortedIds[i - 1],
+                  'Autoincrement primary key');
+  }
+
+  database.close();
+}, 'IDBIndex.openKeyCursor() iterates over an index not covering the ' +
+   'autoincrement key');

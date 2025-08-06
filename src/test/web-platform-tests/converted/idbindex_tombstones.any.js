@@ -358,7 +358,7 @@ function timeoutPromise(ms) {
 
 
 // META: title=Index Tombstones
-// META: script=support-promises.js
+// META: script=resources/support-promises.js
 
 // This test is used to trigger a special case in Chrome with how it deals with
 // index creation & modification. This had caused issues before.

@@ -212,6 +212,23 @@ function barrier_func(count, func) {
   };
 }
 
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|.
+async function createIndexedDBForTesting(rc, dbName, version) {
+  await rc.executeScript((dbName, version) => {
+    let request = indexedDB.open(dbName, version);
+    request.onupgradeneeded = () => {
+      if (version == 1) {
+        // Only create the object store once.
+        request.result.createObjectStore('store');
+      }
+    }
+    request.onversionchange = () => {
+      fail(t, 'unexpectedly received versionchange event.');
+    }
+  }, [dbName, version]);
+}
+
 
 
 function cursor_source_test(test_name, name, stringified_object, cursor_rq_func) {
@@ -257,7 +274,7 @@ cursor_source_test(
   document.title + ' - IDBObjectStore',
   "my_objectstore",
   "[object IDBObjectStore]",
-  function(db) { return db.transaction("my_objectstore")
+  function(db) { return db.transaction("my_objectstore", "readonly", {durability: 'relaxed'})
                           .objectStore("my_objectstore")
                           .openCursor(); }
 );
@@ -266,7 +283,7 @@ cursor_source_test(
   document.title + ' - IDBIndex',
   "my_index",
   "[object IDBIndex]",
-  function(db) { return db.transaction("my_objectstore")
+  function(db) { return db.transaction("my_objectstore", "readonly", {durability: 'relaxed'})
                           .objectStore("my_objectstore")
                           .index("my_index")
                           .openCursor(); }

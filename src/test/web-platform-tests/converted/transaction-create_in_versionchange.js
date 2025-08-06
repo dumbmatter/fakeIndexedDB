@@ -212,6 +212,23 @@ function barrier_func(count, func) {
   };
 }
 
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|.
+async function createIndexedDBForTesting(rc, dbName, version) {
+  await rc.executeScript((dbName, version) => {
+    let request = indexedDB.open(dbName, version);
+    request.onupgradeneeded = () => {
+      if (version == 1) {
+        // Only create the object store once.
+        request.result.createObjectStore('store');
+      }
+    }
+    request.onversionchange = () => {
+      fail(t, 'unexpectedly received versionchange event.');
+    }
+  }, [dbName, version]);
+}
+
 
 
     var db, events = [],
@@ -224,14 +241,14 @@ function barrier_func(count, func) {
             .add("versionchange1", 1)
             .addEventListener("success", log("versionchange_add.success"))
 
-        assert_throws_dom('InvalidStateError', function() { db.transaction("store") })
+        assert_throws_dom('InvalidStateError', function() { db.transaction("store", "readonly", {durability: 'relaxed'}) })
 
         e.target.transaction
             .objectStore("store")
             .count(2)
             .addEventListener("success", log("versionchange_count.success"))
 
-        assert_throws_dom('InvalidStateError', function() { db.transaction("store", "readwrite") })
+        assert_throws_dom('InvalidStateError', function() { db.transaction("store", "readwrite", {durability: 'relaxed'}) })
 
         open_rq.transaction
             .objectStore("store")
@@ -241,7 +258,7 @@ function barrier_func(count, func) {
         open_rq.transaction.oncomplete = function(e) {
             log("versionchange_txn.complete")(e)
 
-            db.transaction("store")
+            db.transaction("store", "readonly", {durability: 'relaxed'})
                 .objectStore("store")
                 .count()
                 .addEventListener("success", log("complete_count.success"))
@@ -251,7 +268,7 @@ function barrier_func(count, func) {
     open_rq.onsuccess = function(e) {
         log("open_rq.success")(e)
 
-        var txn = db.transaction("store", "readwrite")
+        var txn = db.transaction("store", "readwrite", {durability: 'relaxed'})
         txn.objectStore("store")
             .put("woo", 1)
             .addEventListener("success", log("complete2_get.success"))

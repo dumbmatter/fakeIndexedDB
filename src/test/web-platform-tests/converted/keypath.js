@@ -212,6 +212,23 @@ function barrier_func(count, func) {
   };
 }
 
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|.
+async function createIndexedDBForTesting(rc, dbName, version) {
+  await rc.executeScript((dbName, version) => {
+    let request = indexedDB.open(dbName, version);
+    request.onupgradeneeded = () => {
+      if (version == 1) {
+        // Only create the object store once.
+        request.result.createObjectStore('store');
+      }
+    }
+    request.onversionchange = () => {
+      fail(t, 'unexpectedly received versionchange event.');
+    }
+  }, [dbName, version]);
+}
+
 
 
 
@@ -339,6 +356,10 @@ function barrier_func(count, func) {
     keypath(['name', 'type.name'],
         [ { name: "orange", type: { name: "fruit" }}, { name: "orange", type: { name: "telecom" }} ],
         [ ["orange", "fruit"], ["orange", "telecom" ] ]);
+
+    keypath(['type'],
+        [ { name: "orange", type: "fruit" }, { name: "cucumber", type: "vegetable" } ],
+        [ ["fruit"], ["vegetable"] ], "list with 1 field");
 
     const loop_array = [];
     loop_array.push(loop_array);

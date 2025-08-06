@@ -212,8 +212,25 @@ function barrier_func(count, func) {
   };
 }
 
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|.
+async function createIndexedDBForTesting(rc, dbName, version) {
+  await rc.executeScript((dbName, version) => {
+    let request = indexedDB.open(dbName, version);
+    request.onupgradeneeded = () => {
+      if (version == 1) {
+        // Only create the object store once.
+        request.result.createObjectStore('store');
+      }
+    }
+    request.onversionchange = () => {
+      fail(t, 'unexpectedly received versionchange event.');
+    }
+  }, [dbName, version]);
+}
 
-// META: script=support.js
+
+// META: script=resources/support.js
 
 function cursorRequestTest({ useIndex, useKeyCursor }) {
   indexeddb_test(
@@ -223,7 +240,7 @@ function cursorRequestTest({ useIndex, useKeyCursor }) {
       objStore.createIndex("my_index", "");
     },
     (t, db) => {
-      const tx = db.transaction("my_objectstore");
+      const tx = db.transaction("my_objectstore", "readonly", {durability: 'relaxed'});
       let source = tx.objectStore("my_objectstore");
       if (useIndex) source = source.index('my_index');
       const req = useKeyCursor ? source.openKeyCursor() : source.openCursor();

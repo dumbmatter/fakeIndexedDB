@@ -212,6 +212,23 @@ function barrier_func(count, func) {
   };
 }
 
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|.
+async function createIndexedDBForTesting(rc, dbName, version) {
+  await rc.executeScript((dbName, version) => {
+    let request = indexedDB.open(dbName, version);
+    request.onupgradeneeded = () => {
+      if (version == 1) {
+        // Only create the object store once.
+        request.result.createObjectStore('store');
+      }
+    }
+    request.onversionchange = () => {
+      fail(t, 'unexpectedly received versionchange event.');
+    }
+  }, [dbName, version]);
+}
+
 
 
     /* The goal here is to test that any prefetching of cursor values performs
@@ -265,7 +282,7 @@ function barrier_func(count, func) {
 
 
     function CursorDeleteRecord(e) {
-        var txn = db.transaction("test", "readwrite"),
+        var txn = db.transaction("test", "readwrite", {durability: 'relaxed'}),
           object_store = txn.objectStore("test"),
           cursor_rq = object_store.openCursor();
 
@@ -299,7 +316,7 @@ function barrier_func(count, func) {
 
 
     function VerifyRecordWasDeleted(e) {
-        var cursor_rq = db.transaction("test")
+        var cursor_rq = db.transaction("test", "readonly", {durability: 'relaxed'})
                           .objectStore("test")
                           .openCursor();
 

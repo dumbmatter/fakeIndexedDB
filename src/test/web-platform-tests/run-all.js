@@ -90,6 +90,7 @@ const skip = [
     "blob-valid-after-deletion.any.js",
     "blob-delete-objectstore-db.any.js",
     "blob-contenttype.any.js",
+    "blob-composite-blob-reads.any.js",
 
     // All kinds of fucked up.
     "open-request-queue.js",
@@ -152,6 +153,10 @@ const skip = [
     "resources/cross-origin-helper-frame.js",
     "idbobjectstore-cross-realm-methods.js",
     "idbindex-cross-realm-methods.js",
+    "idb-partitioned-coverage.tentative.sub.js",
+
+    // we do not currently support `navigator.storageBuckets`
+    "storage-buckets.https.any.js",
 ];
 
 const filenames = glob.sync("/**/*.js", { root: testFolder });

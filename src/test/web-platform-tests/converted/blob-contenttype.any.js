@@ -212,9 +212,26 @@ function barrier_func(count, func) {
   };
 }
 
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|.
+async function createIndexedDBForTesting(rc, dbName, version) {
+  await rc.executeScript((dbName, version) => {
+    let request = indexedDB.open(dbName, version);
+    request.onupgradeneeded = () => {
+      if (version == 1) {
+        // Only create the object store once.
+        request.result.createObjectStore('store');
+      }
+    }
+    request.onversionchange = () => {
+      fail(t, 'unexpectedly received versionchange event.');
+    }
+  }, [dbName, version]);
+}
+
 
 // META: title=Blob Content Type
-// META: script=support.js
+// META: script=resources/support.js
 // META: timeout=long
 
 indexeddb_test(
@@ -227,11 +244,11 @@ indexeddb_test(
         var blob = new Blob(['mulder', 'scully'], {type: type});
         assert_equals(blob.type, type, 'Blob type should match constructor option');
 
-        var tx = db.transaction('store', 'readwrite');
+        var tx = db.transaction('store', 'readwrite', {durability: 'relaxed'});
         tx.objectStore('store').put(blob, 'key');
 
         tx.oncomplete = t.step_func(function() {
-            var tx = db.transaction('store');
+            var tx = db.transaction('store', 'readonly', {durability: 'relaxed'});
             tx.objectStore('store').get('key').onsuccess = t.step_func(function(e) {
                 var result = e.target.result;
                 assert_equals(result.type, type, 'Blob type should survive round-trip');

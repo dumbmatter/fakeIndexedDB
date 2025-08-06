@@ -367,7 +367,7 @@ promise_test(testCase => {
         const store = createBooksStore(testCase, database);
         authorIndex = store.index('by_author');
     }).then(database => {
-        const transaction = database.transaction('books', 'readonly');
+        const transaction = database.transaction('books', 'readonly', {durability: 'relaxed'});
         const store = transaction.objectStore('books');
         assert_array_equals(
             store.indexNames, ['by_author', 'by_title'],
@@ -397,7 +397,7 @@ promise_test(testCase => {
             'IDBObjectStore.index should throw when queried using the ' +
             "renamed index's old name immediately after the rename");
     })).then(database => {
-        const transaction = database.transaction('books', 'readonly');
+        const transaction = database.transaction('books', 'readonly', {durability: 'relaxed'});
         const store = transaction.objectStore('books');
         assert_array_equals(
             store.indexNames, ['by_title', 'renamed_by_author'],
@@ -450,7 +450,7 @@ promise_test(testCase => {
             'IDBObjectStore.index should throw when queried using the ' +
             "renamed index's old name immediately after the rename");
     }).then(database => {
-        const transaction = database.transaction('books', 'readonly');
+        const transaction = database.transaction('books', 'readonly', {durability: 'relaxed'});
         const store = transaction.objectStore('books');
         assert_array_equals(
             store.indexNames, ['by_title', 'renamed_by_author'],
@@ -487,7 +487,7 @@ promise_test(testCase => {
             'Renaming an index to the same name should not change the ' +
             "index's IDBObjectStore.indexNames");
     })).then(database => {
-        const transaction = database.transaction('books', 'readonly');
+        const transaction = database.transaction('books', 'readonly', {durability: 'relaxed'});
         const store = transaction.objectStore('books');
         assert_array_equals(
             store.indexNames, ['by_author', 'by_title'],
@@ -516,7 +516,7 @@ promise_test(testCase => {
             store.indexNames, ['by_title'],
             'IDBObjectStore.indexNames should immediately reflect the rename');
     })).then(database => {
-        const transaction = database.transaction('books', 'readonly');
+        const transaction = database.transaction('books', 'readonly', {durability: 'relaxed'});
         const store = transaction.objectStore('books');
         assert_array_equals(
             store.indexNames, ['by_title'],
@@ -548,7 +548,7 @@ promise_test(testCase => {
             testCase, store.index('by_author'),
             'Renaming an index should not change its contents');
     })).then(database => {
-        const transaction = database.transaction('books', 'readonly');
+        const transaction = database.transaction('books', 'readonly', {durability: 'relaxed'});
         const store = transaction.objectStore('books');
         assert_array_equals(
             store.indexNames, ['by_author', 'by_title'],
@@ -600,7 +600,7 @@ promise_test(testCase => {
             'IDBIndex name should change immediately after a rename to ' +
             'undefined');
     })).then(database => {
-        const transaction = database.transaction('books', 'readonly');
+        const transaction = database.transaction('books', 'readonly', {durability: 'relaxed'});
         const store = transaction.objectStore('books');
         assert_array_equals(
             store.indexNames, ['by_title', 'undefined'],
@@ -632,7 +632,7 @@ for (let escapedName of ['', '\\u0000', '\\uDC00\\uD800']) ((escapedName) => {
             store.indexNames, [name, 'by_title'].sort(),
             'IDBObjectStore.indexNames should immediately reflect the rename');
     })).then(database => {
-        const transaction = database.transaction('books', 'readonly');
+        const transaction = database.transaction('books', 'readonly', {durability: 'relaxed'});
         const store = transaction.objectStore('books');
         assert_array_equals(
             store.indexNames, [name, 'by_title'].sort(),

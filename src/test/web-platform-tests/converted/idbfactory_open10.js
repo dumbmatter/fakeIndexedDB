@@ -212,6 +212,23 @@ function barrier_func(count, func) {
   };
 }
 
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|.
+async function createIndexedDBForTesting(rc, dbName, version) {
+  await rc.executeScript((dbName, version) => {
+    let request = indexedDB.open(dbName, version);
+    request.onupgradeneeded = () => {
+      if (version == 1) {
+        // Only create the object store once.
+        request.result.createObjectStore('store');
+      }
+    }
+    request.onversionchange = () => {
+      fail(t, 'unexpectedly received versionchange event.');
+    }
+  }, [dbName, version]);
+}
+
 
 
     var db, db2;
@@ -265,7 +282,7 @@ function barrier_func(count, func) {
                 assert_true(db3.objectStoreNames.contains("store"), "third objectStoreNames contains store");
                 assert_false(db3.objectStoreNames.contains("store2"), "third objectStoreNames contains store2");
 
-                var st = db3.transaction("store").objectStore("store");
+                var st = db3.transaction("store", "readonly", {durability: 'relaxed'}).objectStore("store");
 
                 assert_equals(db3.version, 9, "db3.version");
 

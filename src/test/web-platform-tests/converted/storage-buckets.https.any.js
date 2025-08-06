@@ -1,4 +1,4 @@
-import "../../wpt-env.js";
+import "../wpt-env.js";
 
 'use strict';
 
@@ -357,185 +357,92 @@ function timeoutPromise(ms) {
 }
 
 
-// Returns the "name" property written to the object with the given ID.
-function nameForId(id) {
-  return `Object ${id}`;
-}
+// META: title=Buckets API: Tests for indexedDB API.
+// META: global=window,worker
+// META: script=resources/support-promises.js
 
-// Initial database setup used by all the reading-autoincrement tests.
-async function setupAutoincrementDatabase(testCase) {
-  const database = await createDatabase(testCase, database => {
-    const store = database.createObjectStore(
-        'store', { autoIncrement: true, keyPath: 'id' });
-    store.createIndex('by_name', 'name', { unique: true });
-    store.createIndex('by_id', 'id', { unique: true });
-
-    // Cover writing from the initial upgrade transaction.
-    for (let i = 1; i <= 16; ++i) {
-      if (i % 2 == 0) {
-        store.put({name: nameForId(i), id: i});
-      } else {
-        store.put({name: nameForId(i)});
-      }
-    }
+promise_test(async testCase => {
+  const inboxBucket = await navigator.storageBuckets.open('inbox_bucket');
+  const outboxBucket = await navigator.storageBuckets.open('outbox_bucket');
+  testCase.add_cleanup(async () => {
+    await navigator.storageBuckets.delete('inbox_bucket');
+    await navigator.storageBuckets.delete('outbox_bucket');
   });
 
-  // Cover writing from a subsequent transaction.
-  const transaction = database.transaction(['store'], 'readwrite');
-  const store = transaction.objectStore('store');
-  for (let i = 17; i <= 32; ++i) {
-    if (i % 2 == 0) {
-      store.put({name: nameForId(i), id: i});
-    } else {
-      store.put({name: nameForId(i)});
-    }
-  }
-  await promiseForTransaction(testCase, transaction);
-
-  return database;
-}
-
-// Returns the IDs used by the object store, sorted as strings.
-//
-// This is used to determine the correct order of records when retrieved from an
-// index that uses stringified IDs.
-function idsSortedByStringCompare() {
-  const stringIds = [];
-  for (let i = 1; i <= 32; ++i)
-    stringIds.push(i);
-  stringIds.sort((a, b) => indexedDB.cmp(`${a}`, `${b}`));
-  return stringIds;
-}
-
-async function iterateCursor(testCase, cursorRequest, callback) {
-  // This uses requestWatcher() directly instead of using promiseForRequest()
-  // inside the loop to avoid creating multiple EventWatcher instances. In turn,
-  // this avoids ending up with O(N) listeners for the request and O(N^2)
-  // dispatched events.
-  const eventWatcher = requestWatcher(testCase, cursorRequest);
-  while (true) {
-    const event = await eventWatcher.wait_for('success');
-    const cursor = event.target.result;
-    if (cursor === null)
-      return;
-    callback(cursor);
-    cursor.continue();
-  }
-}
-
-// Returns equivalent information to getAllKeys() by iterating a cursor.
-//
-// Returns an array with one dictionary per entry in the source. The dictionary
-// has the properties "key" and "primaryKey".
-async function getAllKeysViaCursor(testCase, cursorSource) {
-  const results = [];
-  await iterateCursor(testCase, cursorSource.openKeyCursor(), cursor => {
-    results.push({ key: cursor.key, primaryKey: cursor.primaryKey });
+  // Set up similar databases in two buckets.
+  const inboxDb = await new Promise((resolve, reject) => {
+    const request = inboxBucket.indexedDB.open('messages');
+    request.onupgradeneeded = (event) => {
+      const inboxStore =
+          event.target.result.createObjectStore('primary', {keyPath: 'id'});
+      event.target.transaction.commit();
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
   });
-  return results;
-}
 
-// Returns equivalent information to getAll() by iterating a cursor.
-//
-// Returns an array with one dictionary per entry in the source. The dictionary
-// has the properties "key", "primaryKey" and "value".
-async function getAllViaCursor(testCase, cursorSource) {
-  const results = [];
-  await iterateCursor(testCase, cursorSource.openCursor(), cursor => {
-    results.push({
-      key: cursor.key,
-      primaryKey: cursor.primaryKey,
-      value: cursor.value,
-    });
+  const txn = inboxDb.transaction(['primary'], 'readwrite');
+  const inboxStore = txn.objectStore('primary');
+  inboxStore.put({ subject: 'Bonjour', id: '42'});
+  txn.commit();
+  await promiseForTransaction(testCase, txn);
+
+  const outboxDb = await new Promise((resolve, reject) => {
+    const request = outboxBucket.indexedDB.open('messages');
+    request.onupgradeneeded = (event) => {
+      const outboxStore =
+          event.target.result.createObjectStore('primary', {keyPath: 'id'});
+      event.target.transaction.commit();
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
   });
-  return results;
-}
 
-// META: global=window,dedicatedworker,sharedworker,serviceworker
-// META: script=../support-promises.js
-// META: script=./reading-autoincrement-common.js
+  const txn2 = outboxDb.transaction(['primary'], 'readwrite');
+  const outboxStore = txn2.objectStore('primary');
+  outboxStore.put({ subject: 're: Bonjour', id: '47'});
+  txn2.commit();
+  await promiseForTransaction(testCase, txn2);
 
-promise_test(async testCase => {
-  const database = await setupAutoincrementDatabase(testCase);
+  // Make sure it's possible to read from the bucket database.
+  const inboxMessage = await new Promise((resolve, reject) => {
+    const txn3 = inboxDb.transaction(['primary'], 'readonly');
+    const inboxLookup = txn3.objectStore('primary').get('42');
+    inboxLookup.onsuccess = (e) => resolve(inboxLookup.result);
+    inboxLookup.onerror = (e) => reject(inboxLookup.error);
+  });
+  assert_equals(inboxMessage.subject, 'Bonjour');
 
-  const transaction = database.transaction(['store'], 'readonly');
-  const store = transaction.objectStore('store');
-  const index = store.index('by_id');
+  // Make sure it's possible to read from the other bucket database.
+  const outboxMessage = await new Promise((resolve, reject) => {
+    const txn4 = outboxDb.transaction(['primary'], 'readonly');
+    const outboxLookup = txn4.objectStore('primary').get('47');
+    outboxLookup.onsuccess = (e) => resolve(outboxLookup.result);
+    outboxLookup.onerror = (e) => reject(outboxLookup.error);
+  });
+  assert_equals(outboxMessage.subject, 're: Bonjour');
 
-  const result = await getAllViaCursor(testCase, index);
-  assert_equals(result.length, 32);
-  for (let i = 1; i <= 32; ++i) {
-    assert_equals(result[i - 1].key, i, 'Autoincrement index key');
-    assert_equals(result[i - 1].primaryKey, i, 'Autoincrement primary key');
-    assert_equals(result[i - 1].value.id, i, 'Autoincrement key in value');
-    assert_equals(result[i - 1].value.name, nameForId(i),
-                  'String property in value');
-  }
-
-  database.close();
-}, 'IDBIndex.openCursor() iterates over an index on the autoincrement key');
-
-promise_test(async testCase => {
-  const database = await setupAutoincrementDatabase(testCase);
-
-  const transaction = database.transaction(['store'], 'readonly');
-  const store = transaction.objectStore('store');
-  const index = store.index('by_id');
-
-  const result = await getAllKeysViaCursor(testCase, index);
-  assert_equals(result.length, 32);
-  for (let i = 1; i <= 32; ++i) {
-    assert_equals(result[i - 1].key, i, 'Autoincrement index key');
-    assert_equals(result[i - 1].primaryKey, i, 'Autoincrement primary key');
-  }
-
-  database.close();
-}, 'IDBIndex.openKeyCursor() iterates over an index on the autoincrement key');
+  // Make sure they are different databases (looking up the data keyed on `47`
+  // fails in the first database).
+  const nonexistentInboxMessage = await new Promise((resolve, reject) => {
+    const txn5 = inboxDb.transaction(['primary'], 'readonly');
+    const nonexistentInboxLookup = txn5.objectStore('primary').get('47');
+    nonexistentInboxLookup.onsuccess = (e) =>
+        resolve(nonexistentInboxLookup.result);
+    nonexistentInboxLookup.onerror = (e) =>
+        reject(nonexistentInboxLookup.error);
+  });
+  assert_equals(nonexistentInboxMessage, undefined);
+}, 'Basic test that buckets create independent databases.');
 
 promise_test(async testCase => {
-  const database = await setupAutoincrementDatabase(testCase);
+  const inboxBucket = await navigator.storageBuckets.open('inbox');
+  await navigator.storageBuckets.delete('inbox');
 
-  const transaction = database.transaction(['store'], 'readonly');
-  const store = transaction.objectStore('store');
-  const index = store.index('by_name');
-
-  const stringSortedIds = idsSortedByStringCompare();
-
-  const result = await getAllViaCursor(testCase, index);
-  assert_equals(result.length, 32);
-  for (let i = 1; i <= 32; ++i) {
-    assert_equals(result[i - 1].key, nameForId(stringSortedIds[i - 1]),
-                  'Index key');
-    assert_equals(result[i - 1].primaryKey, stringSortedIds[i - 1],
-                  'Autoincrement primary key');
-    assert_equals(result[i - 1].value.id, stringSortedIds[i - 1],
-                  'Autoincrement key in value');
-    assert_equals(result[i - 1].value.name, nameForId(stringSortedIds[i - 1]),
-                  'String property in value');
-  }
-
-  database.close();
-}, 'IDBIndex.openCursor() iterates over an index not covering the ' +
-   'autoincrement key');
-
-promise_test(async testCase => {
-  const database = await setupAutoincrementDatabase(testCase);
-
-  const transaction = database.transaction(['store'], 'readonly');
-  const store = transaction.objectStore('store');
-  const index = store.index('by_name');
-
-  const stringSortedIds = idsSortedByStringCompare();
-
-  const result = await getAllKeysViaCursor(testCase, index);
-  assert_equals(result.length, 32);
-  for (let i = 1; i <= 32; ++i) {
-    assert_equals(result[i - 1].key, nameForId(stringSortedIds[i - 1]),
-                  'Index key');
-    assert_equals(result[i - 1].primaryKey, stringSortedIds[i - 1],
-                  'Autoincrement primary key');
-  }
-
-  database.close();
-}, 'IDBIndex.openKeyCursor() iterates over an index not covering the ' +
-   'autoincrement key');
+  return promise_rejects_dom(
+      testCase, 'UnknownError', new Promise((resolve, reject) => {
+        const request = inboxBucket.indexedDB.open('messages');
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      }));
+}, 'Tests trying to use indexedDB in a deleted bucket.');

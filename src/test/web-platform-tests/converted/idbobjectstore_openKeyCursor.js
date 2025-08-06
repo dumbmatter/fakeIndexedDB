@@ -212,6 +212,23 @@ function barrier_func(count, func) {
   };
 }
 
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|.
+async function createIndexedDBForTesting(rc, dbName, version) {
+  await rc.executeScript((dbName, version) => {
+    let request = indexedDB.open(dbName, version);
+    request.onupgradeneeded = () => {
+      if (version == 1) {
+        // Only create the object store once.
+        request.result.createObjectStore('store');
+      }
+    }
+    request.onversionchange = () => {
+      fail(t, 'unexpectedly received versionchange event.');
+    }
+  }, [dbName, version]);
+}
+
 
 
 function store_test(func, name) {
@@ -223,7 +240,7 @@ function store_test(func, name) {
       }
     },
     function(t, db) {
-      var tx = db.transaction("store");
+      var tx = db.transaction("store", "readonly", {durability: 'relaxed'});
       var store = tx.objectStore("store");
       func(t, db, tx, store);
     }, name);

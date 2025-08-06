@@ -212,16 +212,33 @@ function barrier_func(count, func) {
   };
 }
 
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|.
+async function createIndexedDBForTesting(rc, dbName, version) {
+  await rc.executeScript((dbName, version) => {
+    let request = indexedDB.open(dbName, version);
+    request.onupgradeneeded = () => {
+      if (version == 1) {
+        // Only create the object store once.
+        request.result.createObjectStore('store');
+      }
+    }
+    request.onversionchange = () => {
+      fail(t, 'unexpectedly received versionchange event.');
+    }
+  }, [dbName, version]);
+}
+
 
 // META: title=IndexedDB: IDBObjectStore keyPath attribute - same object
-// META: script=support.js
+// META: script=resources/support.js
 
 indexeddb_test(
   (t, db) => {
     db.createObjectStore('store', {keyPath: ['a', 'b']});
   },
   (t, db) => {
-    const tx = db.transaction('store');
+    const tx = db.transaction('store', 'readonly', {durability: 'relaxed'});
     const store = tx.objectStore('store');
     assert_equals(typeof store.keyPath, 'object', 'keyPath is an object');
     assert_true(Array.isArray(store.keyPath), 'keyPath is an array');
@@ -230,7 +247,7 @@ indexeddb_test(
       store.keyPath, store.keyPath,
       'Same object instance is returned each time keyPath is inspected');
 
-    const tx2 = db.transaction('store');
+    const tx2 = db.transaction('store', 'readonly', {durability: 'relaxed'});
     const store2 = tx2.objectStore('store');
 
     assert_not_equals(

@@ -380,7 +380,7 @@ promise_test(testCase => {
         assert_array_equals(
             database.objectStoreNames, ['books'],
             'Test setup should have created a "books" object store');
-        const transaction = database.transaction('books', 'readonly');
+        const transaction = database.transaction('books', 'readonly', {durability: 'relaxed'});
         bookStore2 = transaction.objectStore('books');
         return checkStoreContents(
             testCase, bookStore2,
@@ -415,7 +415,7 @@ promise_test(testCase => {
             database.objectStoreNames, ['renamed_books'],
             'IDBDatabase.objectStoreNames should still reflect the rename ' +
             'after the versionchange transaction commits');
-        const transaction = database.transaction('renamed_books', 'readonly');
+        const transaction = database.transaction('renamed_books', 'readonly', {durability: 'relaxed'});
         renamedBookStore2 = transaction.objectStore('renamed_books');
         return checkStoreContents(
             testCase, renamedBookStore2,
@@ -472,7 +472,7 @@ promise_test(testCase => {
             database.objectStoreNames, ['renamed_books'],
             'IDBDatabase.objectStoreNames should still reflect the rename ' +
             'after the versionchange transaction commits');
-        const transaction = database.transaction('renamed_books', 'readonly');
+        const transaction = database.transaction('renamed_books', 'readonly', {durability: 'relaxed'});
         renamedBookStore2 = transaction.objectStore('renamed_books');
         return checkStoreContents(
             testCase, renamedBookStore2,
@@ -494,7 +494,7 @@ promise_test(testCase => {
     return createDatabase(testCase, (database, transaction) => {
         createBooksStore(testCase, database);
     }).then(database => {
-        const transaction = database.transaction('books', 'readonly');
+        const transaction = database.transaction('books', 'readonly', {durability: 'relaxed'});
         const store = transaction.objectStore('books');
         return checkStoreIndexes(
             testCase, store,
@@ -503,7 +503,7 @@ promise_test(testCase => {
             () => database.close());
     }).then(() => renameBooksStore(testCase)
     ).then(database => {
-        const transaction = database.transaction('renamed_books', 'readonly');
+        const transaction = database.transaction('renamed_books', 'readonly', {durability: 'relaxed'});
         const store = transaction.objectStore('renamed_books');
         return checkStoreIndexes(
             testCase, store,
@@ -516,7 +516,7 @@ promise_test(testCase => {
     return createDatabase(testCase, (database, transaction) => {
         createBooksStore(testCase, database);
     }).then(database => {
-        const transaction = database.transaction('books', 'readwrite');
+        const transaction = database.transaction('books', 'readwrite', {durability: 'relaxed'});
         const store = transaction.objectStore('books');
         return checkStoreGenerator(
             testCase, store, 345679,
@@ -524,7 +524,7 @@ promise_test(testCase => {
             'before any renaming').then(() => database.close());
     }).then(() => renameBooksStore(testCase)
     ).then(database => {
-        const transaction = database.transaction('renamed_books', 'readwrite');
+        const transaction = database.transaction('renamed_books', 'readwrite', {durability: 'relaxed'});
         const store = transaction.objectStore('renamed_books');
         return checkStoreGenerator(
             testCase, store, 345680,
@@ -550,7 +550,7 @@ promise_test(testCase => {
             database.objectStoreNames, ['books'],
             'Committing a transaction that renames a store to the same name ' +
             "should not change the store's IDBDatabase.objectStoreNames");
-        const transaction = database.transaction('books', 'readonly');
+        const transaction = database.transaction('books', 'readonly', {durability: 'relaxed'});
         const store = transaction.objectStore('books');
         return checkStoreContents(
             testCase, store,
@@ -579,7 +579,7 @@ promise_test(testCase => {
             database.objectStoreNames, ['not_books'],
             'IDBDatabase.objectStoreNames should still reflect the rename ' +
             'after the versionchange transaction commits');
-        const transaction = database.transaction('not_books', 'readonly');
+        const transaction = database.transaction('not_books', 'readonly', {durability: 'relaxed'});
         const store = transaction.objectStore('not_books');
         return checkStoreContents(
             testCase, store,
@@ -619,7 +619,7 @@ promise_test(testCase => {
             database.objectStoreNames, ['books', 'not_books'],
             'IDBDatabase.objectStoreNames should still reflect the swap ' +
             'after the versionchange transaction commits');
-        const transaction = database.transaction('not_books', 'readonly');
+        const transaction = database.transaction('not_books', 'readonly', {durability: 'relaxed'});
         const store = transaction.objectStore('not_books');
         assert_array_equals(
             store.indexNames, ['by_author', 'by_title'],
@@ -673,7 +673,7 @@ promise_test(testCase => {
             database.objectStoreNames, ['undefined'],
             'IDBDatabase.objectStoreNames should reflect the last rename ' +
             'after the versionchange transaction commits');
-        const transaction = database.transaction('undefined', 'readonly');
+        const transaction = database.transaction('undefined', 'readonly', {durability: 'relaxed'});
         const store = transaction.objectStore('undefined');
         return checkStoreContents(
             testCase, store,

@@ -212,6 +212,23 @@ function barrier_func(count, func) {
   };
 }
 
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|.
+async function createIndexedDBForTesting(rc, dbName, version) {
+  await rc.executeScript((dbName, version) => {
+    let request = indexedDB.open(dbName, version);
+    request.onupgradeneeded = () => {
+      if (version == 1) {
+        // Only create the object store once.
+        request.result.createObjectStore('store');
+      }
+    }
+    request.onversionchange = () => {
+      fail(t, 'unexpectedly received versionchange event.');
+    }
+  }, [dbName, version]);
+}
+
 
 
     var db, count = 0,
@@ -219,7 +236,7 @@ function barrier_func(count, func) {
       t.add_cleanup(function() { indexedDB.deleteDatabase('webworker101'); });
 
     t.step(function() {
-        var worker = new Worker("idbworker.js");
+        var worker = new Worker("resources/idbworker.js");
         worker.onmessage = t.step_func(function (e) {
             switch(count) {
                 case 0:
