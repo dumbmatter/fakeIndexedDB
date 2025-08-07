@@ -17,6 +17,8 @@ const isPotentiallyValidKeyRange = (value: any): boolean => {
         // string
         typeof value === "string" ||
         // buffer source type
+        // note: we are explicitly _not_ checking for detachedness here, to match Chromium's behavior
+        // see: https://github.com/w3c/IndexedDB/issues/465
         value instanceof ArrayBuffer ||
         isSharedArrayBuffer(value) ||
         (typeof ArrayBuffer !== "undefined" &&
