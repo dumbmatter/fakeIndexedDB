@@ -41,13 +41,17 @@ class ObjectStore {
     }
 
     // http://w3c.github.io/IndexedDB/#retrieve-multiple-keys-from-an-object-store
-    public getAllKeys(range: FDBKeyRange, count?: number) {
+    public getAllKeys(
+        range: FDBKeyRange,
+        count?: number,
+        direction?: "next" | "prev",
+    ) {
         if (count === undefined || count === 0) {
             count = Infinity;
         }
 
         const records = [];
-        for (const record of this.records.values(range)) {
+        for (const record of this.records.values(range, direction)) {
             records.push(structuredClone(record.key));
             if (records.length >= count) {
                 break;
@@ -65,14 +69,42 @@ class ObjectStore {
     }
 
     // http://w3c.github.io/IndexedDB/#retrieve-multiple-values-from-an-object-store
-    public getAllValues(range: FDBKeyRange, count?: number) {
+    public getAllValues(
+        range: FDBKeyRange,
+        count?: number,
+        direction?: "next" | "prev",
+    ) {
         if (count === undefined || count === 0) {
             count = Infinity;
         }
 
         const records = [];
-        for (const record of this.records.values(range)) {
+        for (const record of this.records.values(range, direction)) {
             records.push(structuredClone(record.value));
+            if (records.length >= count) {
+                break;
+            }
+        }
+
+        return records;
+    }
+
+    // https://www.w3.org/TR/IndexedDB/#dom-idbobjectstore-getallrecords
+    public getAllRecords(
+        range: FDBKeyRange,
+        count?: number,
+        direction?: "next" | "prev",
+    ) {
+        if (count === undefined || count === 0) {
+            count = Infinity;
+        }
+
+        const records = [];
+        for (const record of this.records.values(range, direction)) {
+            records.push({
+                key: structuredClone(record.key),
+                value: structuredClone(record.value),
+            });
             if (records.length >= count) {
                 break;
             }

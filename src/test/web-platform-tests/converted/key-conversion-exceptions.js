@@ -229,7 +229,7 @@ function check_method(receiver, method, args) {
         }, 'key conversion with throwing getter should rethrow');
 
         assert_throws_dom('DataError', () => {
-            receiver[method](invalid_key);
+            receiver[method](method === "getAll" || method === "getAllKeys" ? { query: invalid_key } : invalid_key);
         }, 'key conversion with invalid key should throw DataError');
     } else {
         const [key1, err1] = throwing_key('getter 1');
@@ -239,7 +239,7 @@ function check_method(receiver, method, args) {
         }, 'first key conversion with throwing getter should rethrow');
 
         assert_throws_dom('DataError', () => {
-            receiver[method](invalid_key, key2);
+            receiver[method](method === "getAll" || method === "getAllKeys" ? { query: invalid_key } : invalid_key, key2);
         }, 'first key conversion with invalid key should throw DataError');
 
         assert_throws_exactly(err2, () => {
@@ -247,7 +247,7 @@ function check_method(receiver, method, args) {
         }, 'second key conversion with throwing getter should rethrow');
 
         assert_throws_dom('DataError', () => {
-            receiver[method](valid_key, invalid_key);
+            receiver[method](valid_key, method === "getAll" || method === "getAllKeys" ? { query: invalid_key } : invalid_key);
         }, 'second key conversion with invalid key should throw DataError');
     }
 }
