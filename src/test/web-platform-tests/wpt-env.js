@@ -577,10 +577,23 @@ class AsyncTest {
         };
     }
 
-    step_func_done(fn) {
-        return (...args) => {
-            fn.apply(this, args);
-            this.done();
+    step_func_done(func, this_obj) {
+        var test_this = this;
+
+        if (arguments.length === 1) {
+            this_obj = test_this;
+        }
+
+        return function () {
+            if (func) {
+                test_this.step.apply(
+                    test_this,
+                    [func, this_obj].concat(
+                        Array.prototype.slice.call(arguments),
+                    ),
+                );
+            }
+            test_this.done();
         };
     }
 
@@ -594,7 +607,11 @@ class AsyncTest {
     }
 
     unreached_func(message) {
-        return () => this.fail(new Error(message));
+        return () => {
+            if (!this.completed) {
+                this.fail(new Error(message));
+            }
+        };
     }
 
     fail(err) {
@@ -902,12 +919,65 @@ function barrier_func(count, func) {
     };
 }
 
+/**
+ * Alias for :js:func:`insert_inherits`.
+ *
+ * @param {Object} object - Object that should have the given property in its prototype chain.
+ * @param {string} property_name - Expected property name.
+ * @param {string} [description] - Description of the condition being tested.
+ */
+function assert_idl_attribute(object, property_name, description) {
+    return _assert_inherits("assert_idl_attribute")(
+        object,
+        property_name,
+        description,
+    );
+}
+
+function _assert_inherits(name) {
+    return function (object, property_name, description) {
+        assert(
+            (typeof object === "object" && object !== null) ||
+                typeof object === "function" ||
+                // Or has [[IsHTMLDDA]] slot
+                String(object) === "[object HTMLAllCollection]",
+            name,
+            description,
+            "provided value is not an object",
+        );
+
+        assert(
+            "hasOwnProperty" in object,
+            name,
+            description,
+            "provided value is an object but has no hasOwnProperty method",
+        );
+
+        assert(
+            !object.hasOwnProperty(property_name),
+            name,
+            description,
+            "property ${p} found on object expected in prototype chain",
+            { p: property_name },
+        );
+
+        assert(
+            property_name in object,
+            name,
+            description,
+            "property ${p} not found in prototype chain",
+            { p: property_name },
+        );
+    };
+}
+
 const addToGlobal = {
     add_completion_callback,
     assert_array_equals,
     assert_class_string,
     assert_equals,
     assert_false,
+    assert_idl_attribute,
     assert_key_equals,
     assert_object_equals,
     assert_not_equals,

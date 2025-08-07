@@ -1,12 +1,6 @@
 import { DataError } from "./errors.js";
 import { Key } from "./types.js";
-
-function isSharedArrayBuffer(input: any): input is SharedArrayBuffer {
-    return (
-        typeof SharedArrayBuffer !== "undefined" &&
-        input instanceof SharedArrayBuffer
-    );
-}
+import isSharedArrayBuffer from "./isSharedArrayBuffer.js";
 
 // https://w3c.github.io/IndexedDB/#convert-value-to-key
 const valueToKey = (input: any, seen?: Set<object>): Key | Key[] => {

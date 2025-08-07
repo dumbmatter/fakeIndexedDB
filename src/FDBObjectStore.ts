@@ -5,7 +5,6 @@ import FDBKeyRange from "./FDBKeyRange.js";
 import FDBRequest from "./FDBRequest.js";
 import FDBTransaction from "./FDBTransaction.js";
 import canInjectKey from "./lib/canInjectKey.js";
-import enforceRange from "./lib/enforceRange.js";
 import {
     ConstraintError,
     DataError,
@@ -19,11 +18,19 @@ import extractKey from "./lib/extractKey.js";
 import FakeDOMStringList from "./lib/FakeDOMStringList.js";
 import Index from "./lib/Index.js";
 import ObjectStore from "./lib/ObjectStore.js";
-import { FDBCursorDirection, Key, KeyPath, Value } from "./lib/types.js";
+import {
+    FDBCursorDirection,
+    FDBGetAllOptions,
+    Key,
+    KeyPath,
+    Value,
+} from "./lib/types.js";
 import validateKeyPath from "./lib/validateKeyPath.js";
 import valueToKey from "./lib/valueToKey.js";
 import valueToKeyRange from "./lib/valueToKeyRange.js";
 import { getKeyPath } from "./lib/getKeyPath.js";
+import extractGetAllOptions from "./lib/extractGetAllOptions.js";
+import enforceRange from "./lib/enforceRange.js";
 
 const confirmActiveTransaction = (objectStore: FDBObjectStore) => {
     if (objectStore._rawObjectStore.deleted) {
@@ -119,7 +126,9 @@ class FDBObjectStore {
         const transaction = this.transaction;
 
         if (!transaction.db._runningVersionchangeTransaction) {
-            throw transaction._state === 'active' ? new InvalidStateError() : new TransactionInactiveError();
+            throw transaction._state === "active"
+                ? new InvalidStateError()
+                : new TransactionInactiveError();
         }
 
         confirmActiveTransaction(this);
@@ -269,19 +278,26 @@ class FDBObjectStore {
     }
 
     // http://w3c.github.io/IndexedDB/#dom-idbobjectstore-getall
-    public getAll(query?: FDBKeyRange | Key, count?: number) {
-        if (arguments.length > 1 && count !== undefined) {
-            count = enforceRange(count, "unsigned long");
-        }
+    public getAll(
+        queryOrOptions?: FDBKeyRange | Key | FDBGetAllOptions,
+        count?: number,
+    ) {
+        const options = extractGetAllOptions(
+            queryOrOptions,
+            count,
+            arguments.length,
+        ) as FDBGetAllOptions & { direction?: "prev" | "next" };
+
         confirmActiveTransaction(this);
 
-        const range = valueToKeyRange(query);
+        const range = valueToKeyRange(options.query);
 
         return this.transaction._execRequestAsync({
             operation: this._rawObjectStore.getAllValues.bind(
                 this._rawObjectStore,
                 range,
-                count,
+                options.count,
+                options.direction,
             ),
             source: this,
         });
@@ -308,19 +324,61 @@ class FDBObjectStore {
     }
 
     // http://w3c.github.io/IndexedDB/#dom-idbobjectstore-getallkeys
-    public getAllKeys(query?: FDBKeyRange | Key, count?: number) {
-        if (arguments.length > 1 && count !== undefined) {
-            count = enforceRange(count, "unsigned long");
-        }
+    public getAllKeys(
+        queryOrOptions?: FDBKeyRange | Key | FDBGetAllOptions,
+        count?: number,
+    ) {
+        const options = extractGetAllOptions(
+            queryOrOptions,
+            count,
+            arguments.length,
+        ) as FDBGetAllOptions & { direction?: "prev" | "next" };
+
         confirmActiveTransaction(this);
 
-        const range = valueToKeyRange(query);
+        const range = valueToKeyRange(options.query);
 
         return this.transaction._execRequestAsync({
             operation: this._rawObjectStore.getAllKeys.bind(
                 this._rawObjectStore,
                 range,
+                options.count,
+                options.direction,
+            ),
+            source: this,
+        });
+    }
+
+    // https://www.w3.org/TR/IndexedDB/#dom-idbobjectstore-getallrecords
+    public getAllRecords(
+        options?: FDBGetAllOptions & { direction?: "prev" | "next" },
+    ) {
+        let query: FDBKeyRange | Key;
+        let count: number | undefined;
+        let direction: "prev" | "next" | undefined;
+
+        if (options !== undefined) {
+            if (options.query !== undefined) {
+                query = options.query;
+            }
+            if (options.count !== undefined) {
+                count = enforceRange(options.count, "unsigned long");
+            }
+            if (options.direction !== undefined) {
+                direction = options.direction;
+            }
+        }
+
+        confirmActiveTransaction(this);
+
+        const range = valueToKeyRange(query);
+
+        return this.transaction._execRequestAsync({
+            operation: this._rawObjectStore.getAllRecords.bind(
+                this._rawObjectStore,
+                range,
                 count,
+                direction,
             ),
             source: this,
         });

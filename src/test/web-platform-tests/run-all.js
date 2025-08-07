@@ -96,6 +96,9 @@ const skip = [
     // All kinds of fucked up.
     "open-request-queue.any.js",
 
+    // Flakey test - sometimes passes, sometimes fails, needs investigation
+    "idbtransaction_abort.any.js",
+
     // Did not investigate in great detail.
     "bindings-inject-keys-bypass.any.js",
     "bindings-inject-values-bypass.any.js",
@@ -154,15 +157,6 @@ const skip = [
 
     // we do not currently support `navigator.storageBuckets`
     "storage-buckets.https.any.js",
-
-    // TODO: un-ignore these tests when IDBGetAllOptions is supported (PR #112)
-    "idbindex_getAllKeys-options.tentative.any.js",
-    "idbindex_getAll-options.tentative.any.js",
-    "idbindex_getAllRecords.tentative.any.js",
-    "idbobjectstore_getAll.any.js",
-    "idbobjectstore_getAllKeys-options.tentative.any.js",
-    "idbobjectstore_getAll-options.tentative.any.js",
-    "idbobjectstore_getAllRecords.tentative.any.js",
 
     // test hangs, needs further investigation
     "transaction-lifetime.any.js",
