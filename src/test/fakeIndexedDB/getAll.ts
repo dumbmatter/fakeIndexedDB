@@ -3,6 +3,13 @@ import fakeIndexedDB from "../../fakeIndexedDB.js";
 import FDBDatabase from "../../FDBDatabase.js";
 import FDBKeyRange from "../../FDBKeyRange.js";
 import FDBObjectStore from "../../FDBObjectStore.js";
+import FDBRecord from "../../FDBRecord.js";
+
+const fdbRecordToObject = (fdbRecord: FDBRecord) => ({
+    key: fdbRecord.key,
+    primaryKey: fdbRecord.primaryKey,
+    value: fdbRecord.value,
+});
 
 // Tests taken from https://github.com/dumbmatter/IndexedDB-getAll-shim
 
@@ -488,12 +495,14 @@ describe("getAllRecords", () => {
             .getAllRecords({ query: FDBKeyRange.bound(2, 5) });
         request.onsuccess = (e) => {
             assert.equal(e.target.result.length, 4);
-            assert.deepStrictEqual(e.target.result[0], {
+            assert.deepStrictEqual(fdbRecordToObject(e.target.result[0]), {
                 key: 2,
+                primaryKey: 2,
                 value: { content: "test2", key: 2 },
             });
-            assert.deepStrictEqual(e.target.result[3], {
+            assert.deepStrictEqual(fdbRecordToObject(e.target.result[3]), {
                 key: 5,
+                primaryKey: 5,
                 value: { content: "test5", key: 5 },
             });
             done();
@@ -510,12 +519,14 @@ describe("getAllRecords", () => {
             .getAllRecords({ query: null, count: 3 });
         request.onsuccess = (e) => {
             assert.equal(e.target.result.length, 3);
-            assert.deepStrictEqual(e.target.result[0], {
+            assert.deepStrictEqual(fdbRecordToObject(e.target.result[0]), {
                 key: 0,
+                primaryKey: 0,
                 value: { content: "test0", key: 0 },
             });
-            assert.deepStrictEqual(e.target.result[2], {
+            assert.deepStrictEqual(fdbRecordToObject(e.target.result[2]), {
                 key: 2,
+                primaryKey: 2,
                 value: { content: "test2", key: 2 },
             });
             done();
@@ -532,12 +543,14 @@ describe("getAllRecords", () => {
             .getAllRecords({ query: FDBKeyRange.lowerBound(6), count: 3 });
         request.onsuccess = (e) => {
             assert.equal(e.target.result.length, 3);
-            assert.deepStrictEqual(e.target.result[0], {
+            assert.deepStrictEqual(fdbRecordToObject(e.target.result[0]), {
                 key: 6,
+                primaryKey: 6,
                 value: { content: "test6", key: 6 },
             });
-            assert.deepStrictEqual(e.target.result[2], {
+            assert.deepStrictEqual(fdbRecordToObject(e.target.result[2]), {
                 key: 8,
+                primaryKey: 8,
                 value: { content: "test8", key: 8 },
             });
             done();
@@ -596,12 +609,14 @@ describe("getAllRecords", () => {
             });
         request.onsuccess = (e) => {
             assert.equal(e.target.result.length, 3);
-            assert.deepStrictEqual(e.target.result[0], {
+            assert.deepStrictEqual(fdbRecordToObject(e.target.result[0]), {
                 key: 9,
+                primaryKey: 9,
                 value: { content: "test9", key: 9 },
             });
-            assert.deepStrictEqual(e.target.result[2], {
+            assert.deepStrictEqual(fdbRecordToObject(e.target.result[2]), {
                 key: 7,
+                primaryKey: 7,
                 value: { content: "test7", key: 7 },
             });
             done();
@@ -645,12 +660,14 @@ describe("prevunique/nextunique direction", () => {
             .getAllRecords({ direction: "nextunique" });
         request.onsuccess = (e) => {
             assert.equal(e.target.result.length, 10);
-            assert.deepStrictEqual(e.target.result[0], {
-                key: "0_0",
+            assert.deepStrictEqual(fdbRecordToObject(e.target.result[0]), {
+                key: "test0",
+                primaryKey: "0_0",
                 value: { content: "test0", key: "0_0" },
             });
-            assert.deepStrictEqual(e.target.result[9], {
-                key: "9_0",
+            assert.deepStrictEqual(fdbRecordToObject(e.target.result[9]), {
+                key: "test9",
+                primaryKey: "9_0",
                 value: { content: "test9", key: "9_0" },
             });
             done();
@@ -672,12 +689,14 @@ describe("prevunique/nextunique direction", () => {
             });
         request.onsuccess = (e) => {
             assert.equal(e.target.result.length, 4);
-            assert.deepStrictEqual(e.target.result[0], {
-                key: "2_0",
+            assert.deepStrictEqual(fdbRecordToObject(e.target.result[0]), {
+                key: "test2",
+                primaryKey: "2_0",
                 value: { content: "test2", key: "2_0" },
             });
-            assert.deepStrictEqual(e.target.result[3], {
-                key: "5_0",
+            assert.deepStrictEqual(fdbRecordToObject(e.target.result[3]), {
+                key: "test5",
+                primaryKey: "5_0",
                 value: { content: "test5", key: "5_0" },
             });
             done();
@@ -695,13 +714,15 @@ describe("prevunique/nextunique direction", () => {
             .getAllRecords({ direction: "prevunique" });
         request.onsuccess = (e) => {
             assert.equal(e.target.result.length, 10);
-            assert.deepStrictEqual(e.target.result[0], {
-                key: "9_1",
-                value: { content: "test9", key: "9_1" },
+            assert.deepStrictEqual(fdbRecordToObject(e.target.result[0]), {
+                key: "test9",
+                primaryKey: "9_0",
+                value: { content: "test9", key: "9_0" },
             });
-            assert.deepStrictEqual(e.target.result[9], {
-                key: "0_1",
-                value: { content: "test0", key: "0_1" },
+            assert.deepStrictEqual(fdbRecordToObject(e.target.result[9]), {
+                key: "test0",
+                primaryKey: "0_0",
+                value: { content: "test0", key: "0_0" },
             });
             done();
         };
@@ -722,13 +743,15 @@ describe("prevunique/nextunique direction", () => {
             });
         request.onsuccess = (e) => {
             assert.equal(e.target.result.length, 2);
-            assert.deepStrictEqual(e.target.result[0], {
-                key: "4_1",
-                value: { content: "test4", key: "4_1" },
+            assert.deepStrictEqual(fdbRecordToObject(e.target.result[0]), {
+                key: "test4",
+                primaryKey: "4_0",
+                value: { content: "test4", key: "4_0" },
             });
-            assert.deepStrictEqual(e.target.result[1], {
-                key: "3_1",
-                value: { content: "test3", key: "3_1" },
+            assert.deepStrictEqual(fdbRecordToObject(e.target.result[1]), {
+                key: "test3",
+                primaryKey: "3_0",
+                value: { content: "test3", key: "3_0" },
             });
             done();
         };
