@@ -51,7 +51,7 @@ class ObjectStore {
         }
 
         const records = [];
-        for (const record of this.records.values(range, direction ?? "next")) {
+        for (const record of this.records.values(range, direction)) {
             records.push(structuredClone(record.key));
             if (records.length >= count) {
                 break;
@@ -79,7 +79,7 @@ class ObjectStore {
         }
 
         const records = [];
-        for (const record of this.records.values(range, direction ?? "next")) {
+        for (const record of this.records.values(range, direction)) {
             records.push(structuredClone(record.value));
             if (records.length >= count) {
                 break;
@@ -100,7 +100,7 @@ class ObjectStore {
         }
 
         const records = [];
-        for (const record of this.records.values(range, direction ?? "next")) {
+        for (const record of this.records.values(range, direction)) {
             records.push({
                 key: structuredClone(record.key),
                 value: structuredClone(record.value),

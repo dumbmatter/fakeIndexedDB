@@ -53,11 +53,7 @@ class Index {
         }
 
         const records = [];
-        const values =
-            direction === undefined
-                ? this.records.values(range)
-                : this.records.values(range, direction);
-        for (const record of values) {
+        for (const record of this.records.values(range, direction)) {
             records.push(structuredClone(record.value));
             if (records.length >= count) {
                 break;
@@ -87,7 +83,7 @@ class Index {
         }
 
         const records = [];
-        for (const record of this.records.values(range, direction ?? "next")) {
+        for (const record of this.records.values(range, direction)) {
             records.push(this.rawObjectStore.getValue(record.value));
             if (records.length >= count) {
                 break;
@@ -108,7 +104,7 @@ class Index {
         }
 
         const records = [];
-        for (const record of this.records.values(range, direction ?? "next")) {
+        for (const record of this.records.values(range, direction)) {
             records.push({
                 key: structuredClone(record.value),
                 value: this.rawObjectStore.getValue(record.value),
