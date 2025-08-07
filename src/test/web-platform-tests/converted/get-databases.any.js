@@ -1,5 +1,7 @@
 import "../wpt-env.js";
 
+let attrs,cursor,db,store,store2;
+
 'use strict';
 
 // Returns an IndexedDB database name that is unique to the test case.
@@ -18,8 +20,8 @@ function requestWatcher(testCase, request) {
 // EventWatcher covering all the events defined on IndexedDB transactions.
 //
 // The events cover IDBTransaction.
-function transactionWatcher(testCase, request) {
-  return new EventWatcher(testCase, request, ['abort', 'complete', 'error']);
+function transactionWatcher(testCase, transaction) {
+  return new EventWatcher(testCase, transaction, ['abort', 'complete', 'error']);
 }
 
 // Promise that resolves with an IDBRequest's result.
@@ -37,9 +39,18 @@ function promiseForRequest(testCase, request) {
 //
 // The promise resolves with undefined if IDBTransaction receives the "complete"
 // event, and rejects with an error for any other event.
-function promiseForTransaction(testCase, request) {
-  const eventWatcher = transactionWatcher(testCase, request);
-  return eventWatcher.wait_for('complete').then(() => {});
+//
+// NB: be careful NOT to invoke this after the transaction may have already
+// completed due to racing transaction auto-commit. A problematic sequence might
+// look like:
+//
+//   const txn = db.transaction('store', 'readwrite');
+//   txn.objectStore('store').put(value, key);
+//   await foo();
+//   await promiseForTransaction(t, txn);
+function promiseForTransaction(testCase, transaction) {
+  const eventWatcher = transactionWatcher(testCase, transaction);
+  return eventWatcher.wait_for('complete');
 }
 
 // Migrates an IndexedDB database whose name is unique for the test case.
@@ -298,12 +309,17 @@ function checkTitleIndexContents(testCase, index, errorMessage) {
   });
 }
 
-// Returns an Uint8Array with pseudorandom data.
-//
+// Returns an Uint8Array.
+// When `seed` is non-zero, the data is pseudo-random, otherwise it is repetitive.
 // The PRNG should be sufficient to defeat compression schemes, but it is not
 // cryptographically strong.
 function largeValue(size, seed) {
   const buffer = new Uint8Array(size);
+  // Fill with a lot of the same byte.
+  if (seed == 0) {
+    buffer.fill(0x11, 0, size - 1);
+    return buffer;
+  }
 
   // 32-bit xorshift - the seed can't be zero
   let state = 1000 + seed;
@@ -444,20 +460,32 @@ promise_test(async testCase => {
 }, "Make sure an empty list is returned for the case of no databases.");
 
 promise_test(async testCase => {
+  function sleep_sync(msec) {
+    const start = new Date().getTime();
+    while (new Date().getTime() - start < msec) {}
+  }
+
   // Delete any databases that may not have been cleaned up after previous test
   // runs as well as the two databases made above.
   await deleteAllDatabases(testCase);
 
   const db1 = await createNamedDatabase(testCase, "DB1", ()=>{});
+  let databases_promise1;
   const db2 = await createNamedDatabase(testCase, "DB2", async () => {
-    const databases_result1 = await indexedDB.databases();
-    assert_equals(
-        databases_result1.length,
-        1,
-        "The result of databases() should be only those databases which have "
-        + "been created at the time of calling, regardless of versionchange "
-        + "transactions currently running.");
+    databases_promise1 = indexedDB.databases();
+
+    // Give databases() operation a chance to fetch all current info about
+    // existing databases. This must be a sync sleep since await would trigger
+    // auto commit of the upgrade transaction.
+    sleep_sync(1000);
   });
+  const databases_result1 = await databases_promise1;
+  assert_equals(
+      databases_result1.length,
+      1,
+      "The result of databases() should be only those databases which have "
+      + "been created at the time of calling, regardless of versionchange "
+      + "transactions currently running.");
   db1.close();
   db2.close();
   const databases_result2 = await indexedDB.databases();
@@ -466,13 +494,20 @@ promise_test(async testCase => {
       2,
       "The result of databases() should include all databases which have "
       + "been created at the time of calling.");
+  let databases_promise3;
   await migrateNamedDatabase(testCase, "DB2", 2, async () => {
-    const databases_result3 = await indexedDB.databases();
-    assert_true(
-        databases_result3[0].version === 1
-        && databases_result3[1].version === 1,
-        "The result of databases() should contain the versions of databases "
-        + "at the time of calling, regardless of versionchange transactions "
-        + "currently running.");
+    databases_promise3 = indexedDB.databases();
+
+    // Give databases() operation a chance to fetch all current info about
+    // existing databases. This must be a sync sleep since await would trigger
+    // auto commit of the upgrade transaction.
+    sleep_sync(1000);
   });
+  const databases_result3 = await databases_promise3;
+  assert_true(
+      databases_result3[0].version === 1
+      && databases_result3[1].version === 1,
+      "The result of databases() should contain the versions of databases "
+      + "at the time of calling, regardless of versionchange transactions "
+      + "currently running.");
 }, "Ensure that databases() doesn't pick up changes that haven't commited.");

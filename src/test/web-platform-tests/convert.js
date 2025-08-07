@@ -3,6 +3,12 @@ import fs from "node:fs";
 import { glob } from "glob";
 import path from "node:path";
 
+// HACK: some of the tests use sloppy mode, probably due to author error
+// This causes problems for us because we convert to ESM (strict) mode
+// So manually fix some of the sloppy global assignments in tests
+const globalVars = ["attrs", "cursor", "db", "store", "store2"];
+const declareGlobalVars = `let ${globalVars.join(",")};\n`;
+
 const skip = [
     // IDL test; out of scope for the time being.
     "idlharness.any.js",
@@ -11,13 +17,6 @@ const skip = [
 function makeParentDir(file) {
     const dir = path.posix.dirname(file);
     fs.mkdirSync(dir, { recursive: true });
-}
-
-function addConst(string) {
-    return string.replace(
-        /^(\s+)(.*)/,
-        (whole, match1, match2) => match1 + "const " + match2,
-    );
 }
 
 const __dirname = "src/test/web-platform-tests";
@@ -60,6 +59,8 @@ const outFolder = path.posix.join(__dirname, "converted");
             codeChunks.push(`import "${relativeWptEnvLocation}";\n`);
         }
 
+        codeChunks.push(declareGlobalVars);
+
         // Because these are 'imported' with <script>, the support
         // scripts share a scope with the test script, and that's how
         // the utilities are accessed. The simplest way to emulate the
@@ -79,6 +80,7 @@ const outFolder = path.posix.join(__dirname, "converted");
                     "/resources/testdriver-vendor.js",
                     "/common/get-host-info.sub.js",
                     "../common/get-host-info.sub.js",
+                    "/IndexedDB/idbindex_getAll.any.js",
                 ].includes(match[1])
             ) {
                 continue;
@@ -93,31 +95,6 @@ const outFolder = path.posix.join(__dirname, "converted");
         codeChunks.push(testScript);
 
         makeParentDir(dest);
-
-        codeChunks = codeChunks.map((chunk) => {
-            return (
-                chunk
-                    // HACK: some of the tests use sloppy mode, probably due to author error
-                    // This causes problems for us because we convert to ESM (strict) mode
-                    // So manually fix some of the sloppy global assigments in tests
-                    .replaceAll(/ {4}loop_array = \[];/g, addConst)
-                    .replaceAll(
-                        / {12}store = db.createObjectStore\("store"\);/g,
-                        addConst,
-                    )
-                    .replaceAll(
-                        / {12}store2 = db.createObjectStore\("store2", \{ keyPath: \["x", "keypath"] }\);/g,
-                        addConst,
-                    )
-                    .replaceAll(/ {8}attrs = \[];/g, addConst)
-
-                    // this test has to be disabled because we can't detect Proxies vs non-Proxies in JS
-                    .replaceAll(
-                        /invalid_key\('proxy of an array', new Proxy\(\[1,2,3], \{}\)\);/g,
-                        "",
-                    )
-            );
-        });
 
         fs.writeFileSync(dest, codeChunks.join("\n"));
     }
@@ -151,9 +128,21 @@ const outFolder = path.posix.join(__dirname, "converted");
             codeChunks.push(`import "${relativeWptEnvLocation}";\n`);
         }
 
+        // HACK: this test doesn't need the sloppy mode fixes, and in fact already declares a const called `store`
+        // so would fail with the fixes
+        if (!filename.endsWith("/idbcursor-continue.any.js")) {
+            codeChunks.push(declareGlobalVars);
+        }
+
         const importMatches = testScript
             .matchAll(/^\/\/\s*META:\s*script=(.+)$/gm)
-            .filter((match) => match[1] !== "/common/subset-tests.js");
+            .filter(
+                (match) =>
+                    ![
+                        "/common/subset-tests.js",
+                        "/storage/buckets/resources/util.js",
+                    ].includes(match[1]),
+            );
 
         for (const match of importMatches) {
             const location = path.posix.join(
@@ -168,19 +157,14 @@ const outFolder = path.posix.join(__dirname, "converted");
         codeChunks = codeChunks.map((chunk) => {
             return (
                 chunk
-                    // HACK: same as above, some of the tests use sloppy mode
+                    // HACK: this test has to be disabled because we can't detect Proxies vs non-Proxies in JS
                     .replaceAll(
-                        / {2}cursor = txn.objectStore\('objectStore'\)\.index\('index'\)\.openCursor\(/g,
-                        addConst,
+                        `invalid_key('proxy of an array', new Proxy([1, 2, 3], {}));`,
+                        "",
                     )
-                    .replaceAll(
-                        / {2}cursor = txn4.objectStore\('objectStore'\)\.index\('index'\)\.openCursor\(IDBKeyRange\.bound\(0, 10\), "prev"\);/g,
-                        addConst,
-                    )
-                    .replaceAll(
-                        / {2}cursor = txn2.objectStore\('objectStore'\)\.index\('index'\)\.openCursor\(IDBKeyRange\.bound\(0, 10\), "prev"\);/g,
-                        addConst,
-                    )
+
+                    // HACK: similar to above, this test runs in sloppy mode and assumes `this` is the global
+                    .replaceAll(`this.saw =`, "saw =")
             );
         });
 

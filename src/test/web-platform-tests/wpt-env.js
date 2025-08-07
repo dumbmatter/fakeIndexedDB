@@ -252,20 +252,13 @@ function assert_throws_js_impl(constructor, func, description, assertion_type) {
     }
 }
 
+// TODO: Figure out how to document the overloads better.
+// sphinx-js doesn't seem to handle @variation correctly,
+// and only expects a single JSDoc entry per function.
 /**
  * Assert a DOMException with the expected type is thrown.
  *
- * @param {number|string} type The expected exception name or code.  See the
- *        table of names and codes at
- *        https://heycam.github.io/webidl/#dfn-error-names-table
- *        If a number is passed it should be one of the numeric code values
- *        in that table (e.g. 3, 4, etc).  If a string is passed it can
- *        either be an exception name (e.g. "HierarchyRequestError",
- *        "WrongDocumentError") or the name of the corresponding error code
- *        (e.g. "HIERARCHY_REQUEST_ERR", "WRONG_DOCUMENT_ERR").
- *
- * For the remaining arguments, there are two ways of calling
- * promise_rejects_dom:
+ * There are two ways of calling assert_throws_dom:
  *
  * 1) If the DOMException is expected to come from the current global, the
  * second argument should be the function expected to throw and a third,
@@ -275,6 +268,22 @@ function assert_throws_js_impl(constructor, func, description, assertion_type) {
  * second argument should be the DOMException constructor from that global,
  * the third argument the function expected to throw, and the fourth, optional,
  * argument the assertion description.
+ *
+ * @param {number|string} type - The expected exception name or
+ * code.  See the `table of names and codes
+ * <https://webidl.spec.whatwg.org/#dfn-error-names-table>`_. If a
+ * number is passed it should be one of the numeric code values in
+ * that table (e.g. 3, 4, etc).  If a string is passed it can
+ * either be an exception name (e.g. "HierarchyRequestError",
+ * "WrongDocumentError") or the name of the corresponding error
+ * code (e.g. "``HIERARCHY_REQUEST_ERR``", "``WRONG_DOCUMENT_ERR``").
+ * @param {Function} descriptionOrFunc - The function expected to
+ * throw (if the exception comes from another global), or the
+ * optional description of the condition being tested (if the
+ * exception comes from the current global).
+ * @param {string} [description] - Description of the condition
+ * being tested (if the exception comes from another global).
+ *
  */
 function assert_throws_dom(
     type,
@@ -293,7 +302,7 @@ function assert_throws_dom(
         description = descriptionOrFunc;
         assert(
             maybeDescription === undefined,
-            "Too many args pased to no-constructor version of assert_throws_dom",
+            "Too many args passed to no-constructor version of assert_throws_dom, or accidentally explicitly passed undefined",
         );
     }
     assert_throws_dom_impl(
@@ -347,7 +356,7 @@ function assert_throws_dom_impl(
 
         // Sanity-check our type
         assert(
-            typeof type == "number" || typeof type == "string",
+            typeof type === "number" || typeof type === "string",
             assertion_type,
             description,
             "${type} is not a number or string",
@@ -373,7 +382,6 @@ function assert_throws_dom_impl(
             NETWORK_ERR: "NetworkError",
             ABORT_ERR: "AbortError",
             URL_MISMATCH_ERR: "URLMismatchError",
-            QUOTA_EXCEEDED_ERR: "QuotaExceededError",
             TIMEOUT_ERR: "TimeoutError",
             INVALID_NODE_TYPE_ERR: "InvalidNodeTypeError",
             DATA_CLONE_ERR: "DataCloneError",
@@ -398,7 +406,6 @@ function assert_throws_dom_impl(
             NetworkError: 19,
             AbortError: 20,
             URLMismatchError: 21,
-            QuotaExceededError: 22,
             TimeoutError: 23,
             InvalidNodeTypeError: 24,
             DataCloneError: 25,
@@ -413,6 +420,7 @@ function assert_throws_dom_impl(
             VersionError: 0,
             OperationError: 0,
             NotAllowedError: 0,
+            OptOutError: 0,
         };
 
         var code_name_map = {};
@@ -430,7 +438,13 @@ function assert_throws_dom_impl(
                 throw new AssertionError(
                     "Test bug: ambiguous DOMException code 0 passed to assert_throws_dom()",
                 );
-            } else if (!(type in code_name_map)) {
+            }
+            if (type === 22) {
+                throw new AssertionError(
+                    "Test bug: QuotaExceededError needs to be tested for using assert_throws_quotaexceedederror()",
+                );
+            }
+            if (!(type in code_name_map)) {
                 throw new AssertionError(
                     'Test bug: unrecognized DOMException code "' +
                         type +
@@ -440,6 +454,11 @@ function assert_throws_dom_impl(
             name = code_name_map[type];
             required_props.code = type;
         } else if (typeof type === "string") {
+            if (name === "QuotaExceededError") {
+                throw new AssertionError(
+                    "Test bug: QuotaExceededError needs to be tested for using assert_throws_quotaexceedederror()",
+                );
+            }
             name = type in codename_name_map ? codename_name_map[type] : type;
             if (!(name in name_code_map)) {
                 throw new AssertionError(

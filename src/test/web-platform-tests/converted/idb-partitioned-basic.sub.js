@@ -1,0 +1,49 @@
+import "../wpt-env.js";
+
+let attrs,cursor,db,store,store2;
+
+
+// Here's the set-up for this test:
+// Step 1. (window) set up listeners for main window.
+// Step 2. (same-site iframe) loads, creates a database, and sends "same-site iframe loaded" message.
+// Step 3. (window) receives "same-site iframe loaded" message and opens cross-site window.
+// Step 4. (cross-site iframe) loads, checks if database exists, and sends "cross-site iframe loaded" message.
+// Step 5. (window) receives "cross-site iframe loaded" message, asserts that database should not exist, sends "delete database" message.
+// Step 6. (same-site iframe) receives "delete database" message, deletes the database, sends "database deleted" message.
+// Step 7. (window) receives the "database deleted" and then exits.
+const altOrigin = "http://{{hosts[alt][]}}:{{ports[http][0]}}";
+
+async_test(t => {
+  const iframe = document.getElementById("shared-iframe");
+
+  // Step 1
+  window.addEventListener("message", t.step_func(e => {
+
+    // Step 3
+    if (e.data.message === "same-site iframe loaded") {
+      if (location.origin !== altOrigin) {
+        const crossSiteWindow = window.open(`${altOrigin}/IndexedDB/idb-partitioned-basic.sub.html`, "", "noopener=false");
+        t.add_cleanup(() => crossSiteWindow.close());
+      }
+    }
+
+    // Step 5
+    if (e.data.message === "cross-site iframe loaded") {
+      t.step(() => {
+        assert_false(
+          e.data.doesDatabaseExist,
+          "The cross-site iframe should not see the same-site database",
+        );
+      });
+      iframe.contentWindow.postMessage(
+        {message: "delete database"},
+        iframe.contentWindow.origin,
+      );
+    };
+
+    // Step 7
+    if (e.data.message === "database deleted") {
+      t.done();
+    };
+  }));
+}, "Simple test for partitioned IndexedDB");

@@ -1,5 +1,7 @@
 import "../wpt-env.js";
 
+let attrs,cursor,db,store,store2;
+
 
 
 function load_iframe(src, sandbox) {

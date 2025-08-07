@@ -1,5 +1,7 @@
 import "../wpt-env.js";
 
+let attrs,cursor,db,store,store2;
+
 /* Delete created databases
  *
  * Go through each finished test, see if it has an associated database. Close
@@ -229,6 +231,30 @@ async function createIndexedDBForTesting(rc, dbName, version) {
   }, [dbName, version]);
 }
 
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|, and wait for the reuslt.
+async function waitUntilIndexedDBOpenForTesting(rc, dbName, version) {
+  await rc.executeScript(async (dbName, version) => {
+    await new Promise((resolve, reject) => {
+        let request = indexedDB.open(dbName, version);
+        request.onsuccess = resolve;
+        request.onerror = reject;
+    });
+  }, [dbName, version]);
+}
+
+// Returns a detached ArrayBuffer by transferring it to a message port.
+function createDetachedArrayBuffer() {
+  const array = new Uint8Array([1, 2, 3, 4]);
+  const buffer = array.buffer;
+  assert_equals(array.byteLength, 4);
+
+  const channel = new MessageChannel();
+  channel.port1.postMessage('', [buffer]);
+  assert_equals(array.byteLength, 0);
+  return array;
+}
+
 
 // META: title=IndexedDB: IDBIndex keyPath attribute
 // META: script=resources/support.js
@@ -239,7 +265,7 @@ indexeddb_test(
     store.createIndex('index', ['a', 'b']);
   },
   (t, db) => {
-    const tx = db.transaction('store', 'readonly', {durability: 'relaxed'});
+    const tx = db.transaction('store', 'readonly');
     const store = tx.objectStore('store');
     const index = store.index('index');
     assert_equals(typeof index.keyPath, 'object', 'keyPath is an object');
@@ -249,7 +275,7 @@ indexeddb_test(
       index.keyPath, index.keyPath,
       'Same object instance is returned each time keyPath is inspected');
 
-    const tx2 = db.transaction('store', 'readonly', {durability: 'relaxed'});
+    const tx2 = db.transaction('store', 'readonly');
     const store2 = tx2.objectStore('store');
     const index2 = store2.index('index');
 
@@ -269,7 +295,7 @@ indexeddb_test(
     store.add({a: 1, b: 2, c: 3})
   },
   (t, db) => {
-    const tx = db.transaction('store', 'readonly', {durability: 'relaxed'});
+    const tx = db.transaction('store', 'readonly');
     const store = tx.objectStore('store');
     const index = store.index('index');
     const cursorReq = index.openCursor();
@@ -291,7 +317,7 @@ indexeddb_test(
     store.add({a: 1, b: 2, c: 3})
   },
   (t, db) => {
-    const tx = db.transaction('store', 'readonly', {durability: 'relaxed'});
+    const tx = db.transaction('store', 'readonly');
     const store = tx.objectStore('store');
     const index = store.index('index');
     const cursorReq = index.openCursor();

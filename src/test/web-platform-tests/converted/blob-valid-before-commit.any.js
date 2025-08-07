@@ -1,5 +1,7 @@
 import "../wpt-env.js";
 
+let attrs,cursor,db,store,store2;
+
 /* Delete created databases
  *
  * Go through each finished test, see if it has an associated database. Close
@@ -229,6 +231,30 @@ async function createIndexedDBForTesting(rc, dbName, version) {
   }, [dbName, version]);
 }
 
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|, and wait for the reuslt.
+async function waitUntilIndexedDBOpenForTesting(rc, dbName, version) {
+  await rc.executeScript(async (dbName, version) => {
+    await new Promise((resolve, reject) => {
+        let request = indexedDB.open(dbName, version);
+        request.onsuccess = resolve;
+        request.onerror = reject;
+    });
+  }, [dbName, version]);
+}
+
+// Returns a detached ArrayBuffer by transferring it to a message port.
+function createDetachedArrayBuffer() {
+  const array = new Uint8Array([1, 2, 3, 4]);
+  const buffer = array.buffer;
+  assert_equals(array.byteLength, 4);
+
+  const channel = new MessageChannel();
+  channel.port1.postMessage('', [buffer]);
+  assert_equals(array.byteLength, 0);
+  return array;
+}
+
 
 // META: title=Blob Valid Before Commit
 // META: script=resources/support.js
@@ -246,7 +272,7 @@ indexeddb_test(
       const blobB = new Blob([blobBContent], {"type" : "text/plain"});
       const value = { a0: blobA, a1: blobA, b0: blobB };
 
-      const tx = db.transaction('store', 'readwrite', {durability: 'relaxed'});
+      const tx = db.transaction('store', 'readwrite');
       const store = tx.objectStore('store');
 
       store.put(value, key);

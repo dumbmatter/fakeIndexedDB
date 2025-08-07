@@ -1,6 +1,13 @@
 import { DataError } from "./errors.js";
 import { Key } from "./types.js";
 
+function isSharedArrayBuffer(input: any): input is SharedArrayBuffer {
+    return (
+        typeof SharedArrayBuffer !== "undefined" &&
+        input instanceof SharedArrayBuffer
+    );
+}
+
 // https://w3c.github.io/IndexedDB/#convert-value-to-key
 const valueToKey = (input: any, seen?: Set<object>): Key | Key[] => {
     if (typeof input === "number") {
@@ -17,31 +24,27 @@ const valueToKey = (input: any, seen?: Set<object>): Key | Key[] => {
     } else if (typeof input === "string") {
         return input;
     } else if (
-        input instanceof ArrayBuffer ||
-        (typeof SharedArrayBuffer !== "undefined" &&
-            input instanceof SharedArrayBuffer) ||
-        (typeof ArrayBuffer !== "undefined" &&
-            ArrayBuffer.isView &&
-            ArrayBuffer.isView(input))
+        // https://w3c.github.io/IndexedDB/#ref-for-dfn-buffer-source-type
+        (input instanceof ArrayBuffer ||
+            isSharedArrayBuffer(input) ||
+            (typeof ArrayBuffer !== "undefined" &&
+                ArrayBuffer.isView &&
+                ArrayBuffer.isView(input))) &&
+        // We can't consistently test detachedness, so instead we check if byteLength === 0
+        // This isn't foolproof, but there's no perfect way to detect if Uint8Arrays or
+        // SharedArrayBuffers are detached
+        !("detached" in input ? input.detached : input.byteLength === 0)
     ) {
         let arrayBuffer;
         let offset = 0;
         let length = 0;
-        if (
-            input instanceof ArrayBuffer ||
-            (typeof SharedArrayBuffer !== "undefined" &&
-                input instanceof SharedArrayBuffer)
-        ) {
+        if (input instanceof ArrayBuffer || isSharedArrayBuffer(input)) {
             arrayBuffer = input;
             length = input.byteLength;
         } else {
             arrayBuffer = input.buffer;
             offset = input.byteOffset;
             length = input.byteLength;
-        }
-
-        if ((arrayBuffer as any).detached) {
-            return new ArrayBuffer(0);
         }
 
         return arrayBuffer.slice(offset, offset + length);

@@ -1,5 +1,7 @@
 import "../wpt-env.js";
 
+let attrs,cursor,db,store,store2;
+
 'use strict';
 
 // Returns an IndexedDB database name that is unique to the test case.
@@ -18,8 +20,8 @@ function requestWatcher(testCase, request) {
 // EventWatcher covering all the events defined on IndexedDB transactions.
 //
 // The events cover IDBTransaction.
-function transactionWatcher(testCase, request) {
-  return new EventWatcher(testCase, request, ['abort', 'complete', 'error']);
+function transactionWatcher(testCase, transaction) {
+  return new EventWatcher(testCase, transaction, ['abort', 'complete', 'error']);
 }
 
 // Promise that resolves with an IDBRequest's result.
@@ -37,9 +39,18 @@ function promiseForRequest(testCase, request) {
 //
 // The promise resolves with undefined if IDBTransaction receives the "complete"
 // event, and rejects with an error for any other event.
-function promiseForTransaction(testCase, request) {
-  const eventWatcher = transactionWatcher(testCase, request);
-  return eventWatcher.wait_for('complete').then(() => {});
+//
+// NB: be careful NOT to invoke this after the transaction may have already
+// completed due to racing transaction auto-commit. A problematic sequence might
+// look like:
+//
+//   const txn = db.transaction('store', 'readwrite');
+//   txn.objectStore('store').put(value, key);
+//   await foo();
+//   await promiseForTransaction(t, txn);
+function promiseForTransaction(testCase, transaction) {
+  const eventWatcher = transactionWatcher(testCase, transaction);
+  return eventWatcher.wait_for('complete');
 }
 
 // Migrates an IndexedDB database whose name is unique for the test case.
@@ -298,12 +309,17 @@ function checkTitleIndexContents(testCase, index, errorMessage) {
   });
 }
 
-// Returns an Uint8Array with pseudorandom data.
-//
+// Returns an Uint8Array.
+// When `seed` is non-zero, the data is pseudo-random, otherwise it is repetitive.
 // The PRNG should be sufficient to defeat compression schemes, but it is not
 // cryptographically strong.
 function largeValue(size, seed) {
   const buffer = new Uint8Array(size);
+  // Fill with a lot of the same byte.
+  if (seed == 0) {
+    buffer.fill(0x11, 0, size - 1);
+    return buffer;
+  }
 
   // 32-bit xorshift - the seed can't be zero
   let state = 1000 + seed;
@@ -389,12 +405,13 @@ promise_test(async testCase => {
   txn3.objectStore('objectStore').add({'key': 'secondItem', 'indexedOn': 2});
 
   const txn4 = db.transaction(['objectStore'], 'readonly');
-  const cursor = txn4.objectStore('objectStore').index('index').openCursor(IDBKeyRange.bound(0, 10), "prev");
+  const txnWaiter = promiseForTransaction(testCase, txn4);
+  cursor = txn4.objectStore('objectStore').index('index').openCursor(IDBKeyRange.bound(0, 10), "prev");
   let results = await iterateAndReturnAllCursorResult(testCase, cursor);
 
   assert_equals(results.length, 1);
 
-  await promiseForTransaction(testCase, txn4);
+  await txnWaiter;
   db.close();
 }, 'Reverse cursor sees update from separate transactions.');
 
@@ -409,11 +426,12 @@ promise_test(async testCase => {
   txn.objectStore('objectStore').add({'key': '2', 'indexedOn': 1});
 
   const txn2 = db.transaction(['objectStore'], 'readonly');
-  const cursor = txn2.objectStore('objectStore').index('index').openCursor(IDBKeyRange.bound(0, 10), "prev");
+  const txnWaiter = promiseForTransaction(testCase, txn2);
+  cursor = txn2.objectStore('objectStore').index('index').openCursor(IDBKeyRange.bound(0, 10), "prev");
   let results = await iterateAndReturnAllCursorResult(testCase, cursor);
 
   assert_equals(1, results.length);
 
-  await promiseForTransaction(testCase, txn2);
+  await txnWaiter;
   db.close();
 }, 'Reverse cursor sees in-transaction update.');

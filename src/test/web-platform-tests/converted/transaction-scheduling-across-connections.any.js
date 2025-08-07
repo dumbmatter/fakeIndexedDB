@@ -1,5 +1,7 @@
 import "../wpt-env.js";
 
+let attrs,cursor,db,store,store2;
+
 /* Delete created databases
  *
  * Go through each finished test, see if it has an associated database. Close
@@ -229,6 +231,30 @@ async function createIndexedDBForTesting(rc, dbName, version) {
   }, [dbName, version]);
 }
 
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|, and wait for the reuslt.
+async function waitUntilIndexedDBOpenForTesting(rc, dbName, version) {
+  await rc.executeScript(async (dbName, version) => {
+    await new Promise((resolve, reject) => {
+        let request = indexedDB.open(dbName, version);
+        request.onsuccess = resolve;
+        request.onerror = reject;
+    });
+  }, [dbName, version]);
+}
+
+// Returns a detached ArrayBuffer by transferring it to a message port.
+function createDetachedArrayBuffer() {
+  const array = new Uint8Array([1, 2, 3, 4]);
+  const buffer = array.buffer;
+  assert_equals(array.byteLength, 4);
+
+  const channel = new MessageChannel();
+  channel.port1.postMessage('', [buffer]);
+  assert_equals(array.byteLength, 0);
+  return array;
+}
+
 
 // META: script=resources/support.js
 
@@ -247,10 +273,10 @@ indexeddb_test(
       const db2 = open_request.result;
       t.add_cleanup(() => { db2.close(); });
 
-      const transaction1 = db1.transaction('store', 'readwrite', {durability: 'relaxed'});
+      const transaction1 = db1.transaction('store', 'readwrite');
       transaction1.onabort = t.unreached_func('transaction1 should complete');
 
-      const transaction2 = db2.transaction('store', 'readwrite', {durability: 'relaxed'});
+      const transaction2 = db2.transaction('store', 'readwrite');
       transaction2.onabort = t.unreached_func('transaction2 should complete');
 
       let transaction1PutSuccess = false;

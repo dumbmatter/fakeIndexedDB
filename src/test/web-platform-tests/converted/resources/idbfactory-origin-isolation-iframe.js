@@ -1,5 +1,7 @@
 import "../../wpt-env.js";
 
+let attrs,cursor,db,store,store2;
+
 
 
 // Keeps the passed transaction alive indefinitely (by making requests
@@ -40,7 +42,7 @@ async function run() {
     openRequest.result.createObjectStore('s');
   };
   openRequest.onsuccess = () => {
-    var tx = openRequest.result.transaction('s', 'readonly', {durability: 'relaxed'});
+    var tx = openRequest.result.transaction('s', 'readonly');
     keep_alive(tx, 's');
     window.parent.postMessage("keep_alive_started", "*");
   };
