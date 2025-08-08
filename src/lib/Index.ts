@@ -6,6 +6,7 @@ import ObjectStore from "./ObjectStore.js";
 import RecordStore from "./RecordStore.js";
 import { FDBCursorDirection, Key, KeyPath, Record } from "./types.js";
 import valueToKey from "./valueToKey.js";
+import FDBRecord from "../FDBRecord.js";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-index
 class Index {
@@ -105,10 +106,13 @@ class Index {
 
         const records = [];
         for (const record of this.records.values(range, direction)) {
-            records.push({
-                key: structuredClone(record.value),
-                value: this.rawObjectStore.getValue(record.value),
-            });
+            records.push(
+                new FDBRecord(
+                    structuredClone(record.key),
+                    structuredClone(this.rawObjectStore.getKey(record.value)),
+                    this.rawObjectStore.getValue(record.value),
+                ),
+            );
             if (records.length >= count) {
                 break;
             }

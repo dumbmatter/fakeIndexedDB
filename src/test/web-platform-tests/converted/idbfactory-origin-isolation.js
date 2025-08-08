@@ -1,5 +1,7 @@
 import "../wpt-env.js";
 
+let attrs,cursor,db,store,store2;
+
 /* Delete created databases
  *
  * Go through each finished test, see if it has an associated database. Close
@@ -103,6 +105,16 @@ function assert_key_equals(actual, expected, description) {
   assert_equals(indexedDB.cmp(actual, expected), 0, description);
 }
 
+// Usage:
+//   indexeddb_test(
+//     (test_object, db_connection, upgrade_tx, open_request) => {
+//        // Database creation logic.
+//     },
+//     (test_object, db_connection, open_request) => {
+//        // Test logic.
+//        test_object.done();
+//     },
+//     'Test case description');
 function indexeddb_test(upgrade_func, open_func, description, options) {
   async_test(function(t) {
     options = Object.assign({upgrade_will_abort: false}, options);
@@ -192,6 +204,57 @@ function keep_alive(tx, store_name) {
   };
 }
 
+// Returns a new function. After it is called |count| times, |func|
+// will be called.
+function barrier_func(count, func) {
+  let n = 0;
+  return () => {
+    if (++n === count)
+      func();
+  };
+}
+
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|.
+async function createIndexedDBForTesting(rc, dbName, version) {
+  await rc.executeScript((dbName, version) => {
+    let request = indexedDB.open(dbName, version);
+    request.onupgradeneeded = () => {
+      if (version == 1) {
+        // Only create the object store once.
+        request.result.createObjectStore('store');
+      }
+    }
+    request.onversionchange = () => {
+      fail(t, 'unexpectedly received versionchange event.');
+    }
+  }, [dbName, version]);
+}
+
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|, and wait for the reuslt.
+async function waitUntilIndexedDBOpenForTesting(rc, dbName, version) {
+  await rc.executeScript(async (dbName, version) => {
+    await new Promise((resolve, reject) => {
+        let request = indexedDB.open(dbName, version);
+        request.onsuccess = resolve;
+        request.onerror = reject;
+    });
+  }, [dbName, version]);
+}
+
+// Returns a detached ArrayBuffer by transferring it to a message port.
+function createDetachedArrayBuffer() {
+  const array = new Uint8Array([1, 2, 3, 4]);
+  const buffer = array.buffer;
+  assert_equals(array.byteLength, 4);
+
+  const channel = new MessageChannel();
+  channel.port1.postMessage('', [buffer]);
+  assert_equals(array.byteLength, 0);
+  return array;
+}
+
 
 'use strict';
 
@@ -211,8 +274,8 @@ function requestWatcher(testCase, request) {
 // EventWatcher covering all the events defined on IndexedDB transactions.
 //
 // The events cover IDBTransaction.
-function transactionWatcher(testCase, request) {
-  return new EventWatcher(testCase, request, ['abort', 'complete', 'error']);
+function transactionWatcher(testCase, transaction) {
+  return new EventWatcher(testCase, transaction, ['abort', 'complete', 'error']);
 }
 
 // Promise that resolves with an IDBRequest's result.
@@ -230,9 +293,18 @@ function promiseForRequest(testCase, request) {
 //
 // The promise resolves with undefined if IDBTransaction receives the "complete"
 // event, and rejects with an error for any other event.
-function promiseForTransaction(testCase, request) {
-  const eventWatcher = transactionWatcher(testCase, request);
-  return eventWatcher.wait_for('complete').then(() => {});
+//
+// NB: be careful NOT to invoke this after the transaction may have already
+// completed due to racing transaction auto-commit. A problematic sequence might
+// look like:
+//
+//   const txn = db.transaction('store', 'readwrite');
+//   txn.objectStore('store').put(value, key);
+//   await foo();
+//   await promiseForTransaction(t, txn);
+function promiseForTransaction(testCase, transaction) {
+  const eventWatcher = transactionWatcher(testCase, transaction);
+  return eventWatcher.wait_for('complete');
 }
 
 // Migrates an IndexedDB database whose name is unique for the test case.
@@ -391,7 +463,19 @@ const createBooksStore = (testCase, database) => {
       { keyPath: 'isbn', autoIncrement: true });
   store.createIndex('by_author', 'author');
   store.createIndex('by_title', 'title', { unique: true });
-  for (let record of BOOKS_RECORD_DATA)
+  for (const record of BOOKS_RECORD_DATA)
+      store.put(record);
+  return store;
+}
+
+// Creates a 'books' object store whose contents closely resembles the first
+// example in the IndexedDB specification, just without autoincrementing.
+const createBooksStoreWithoutAutoIncrement = (testCase, database) => {
+  const store = database.createObjectStore('books',
+      { keyPath: 'isbn' });
+  store.createIndex('by_author', 'author');
+  store.createIndex('by_title', 'title', { unique: true });
+  for (const record of BOOKS_RECORD_DATA)
       store.put(record);
   return store;
 }
@@ -479,12 +563,17 @@ function checkTitleIndexContents(testCase, index, errorMessage) {
   });
 }
 
-// Returns an Uint8Array with pseudorandom data.
-//
+// Returns an Uint8Array.
+// When `seed` is non-zero, the data is pseudo-random, otherwise it is repetitive.
 // The PRNG should be sufficient to defeat compression schemes, but it is not
 // cryptographically strong.
 function largeValue(size, seed) {
   const buffer = new Uint8Array(size);
+  // Fill with a lot of the same byte.
+  if (seed == 0) {
+    buffer.fill(0x11, 0, size - 1);
+    return buffer;
+  }
 
   // 32-bit xorshift - the seed can't be zero
   let state = 1000 + seed;
@@ -563,7 +652,7 @@ promise_test(async testCase => {
       testCase, 'db-isolation-test', database => {
         database.createObjectStore('s');
       });
-  const tx = db.transaction('s');
+  const tx = db.transaction('s', 'readonly');
   var request = tx.objectStore('s').get(0);
   request.onsuccess = testCase.step_func_done();
   request.onerror = testCase.unreached_func("There should be no errors.");

@@ -1,3 +1,19 @@
-These tests come from [web-platform-tests](https://github.com/w3c/web-platform-tests/tree/master/IndexedDB), last copied in March 2020 from commit [`216d5a68f63728a9c44e7d6f841b63c4c31c144a`](https://github.com/web-platform-tests/wpt/commit/216d5a68f63728a9c44e7d6f841b63c4c31c144a).
+These tests come from [web-platform-tests](https://github.com/w3c/web-platform-tests/tree/master/IndexedDB), last copied in August 2025 from commit [`226fbab4280e1a55cb09cd7a2ba3aa9d88fea53f`](https://github.com/web-platform-tests/wpt/commit/226fbab4280e1a55cb09cd7a2ba3aa9d88fea53f).
 
-To update them, clone that repo, copy over the IndexedDB folder, remove `converted/`, and run the convert.js script. Assuming nothing substantial has changed in the structure of the tests, that should be all you have to do.
+To update the tests, copy over the `IndexedDB` folder and remove `converted`:
+
+```sh
+rm -fr path/to/fakeIndexedDB/src/test/web-platform-tests/IndexedDB
+cp -R path/to/wpt/IndexedDB path/to/fakeIndexedDB/src/test/web-platform-tests/IndexedDB
+rm -fr path/to/fakeIndexedDB/src/test/web-platform-tests/converted
+```
+
+Then run the `convert.js` script:
+
+```sh
+node src/test/web-platform-tests/convert.js
+```
+
+Assuming nothing substantial has changed in the structure of the tests, that should be all you have to do.
+
+Tests can be ignored by modifying the list in `run-all.js`. Files can be skipped during conversion by modifying `convert.js`.

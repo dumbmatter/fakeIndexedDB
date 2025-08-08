@@ -11,19 +11,19 @@ import {
     NotFoundError,
     ReadOnlyError,
     TransactionInactiveError,
-    VersionError
-} from "../../../build/esm/lib/errors.js"
+    VersionError,
+} from "../../../build/esm/lib/errors.js";
 
-global.AbortError = AbortError
-global.ConstraintError = ConstraintError
-global.DataCloneError = DataCloneError
-global.DataError = DataError
-global.InvalidAccessError = InvalidAccessError
-global.InvalidStateError = InvalidStateError
-global.NotFoundError = NotFoundError
-global.ReadOnlyError = ReadOnlyError
-global.TransactionInactiveError = TransactionInactiveError
-global.VersionError = VersionError
+global.AbortError = AbortError;
+global.ConstraintError = ConstraintError;
+global.DataCloneError = DataCloneError;
+global.DataError = DataError;
+global.InvalidAccessError = InvalidAccessError;
+global.InvalidStateError = InvalidStateError;
+global.NotFoundError = NotFoundError;
+global.ReadOnlyError = ReadOnlyError;
+global.TransactionInactiveError = TransactionInactiveError;
+global.VersionError = VersionError;
 
 global.Event = FakeEvent;
 
@@ -52,8 +52,8 @@ global.window = global;
 
 // This is currently used by the tests just to sniff whether the object is clonable or not
 global.postMessage = (obj) => {
-    structuredClone(obj)
-}
+    structuredClone(obj);
+};
 
 const add_completion_callback = (...args) => {
     console.log("add_completion_callback", ...args);
@@ -106,8 +106,7 @@ const assert_readonly = (object, property_name, description) => {
 const assert_throws = (errName, block, message) =>
     assert.throws(block, new RegExp(errName), message);
 
-function AssertionError(message)
-{
+function AssertionError(message) {
     this.message = message;
     this.stack = this.get_stack();
 }
@@ -119,10 +118,13 @@ function AssertionError(message)
  * @param {Function} func Function which should throw.
  * @param {string} description Error description for the case that the error is not thrown.
  */
-function assert_throws_exactly(exception, func, description)
-{
-    assert_throws_exactly_impl(exception, func, description,
-        "assert_throws_exactly");
+function assert_throws_exactly(exception, func, description) {
+    assert_throws_exactly_impl(
+        exception,
+        func,
+        description,
+        "assert_throws_exactly",
+    );
 }
 
 function same_value(x, y) {
@@ -132,7 +134,7 @@ function same_value(x, y) {
     }
     if (x === 0 && y === 0) {
         //Distinguish +0 and -0
-        return 1/x === 1/y;
+        return 1 / x === 1 / y;
     }
     return x === y;
 }
@@ -141,21 +143,29 @@ function same_value(x, y) {
  * Like assert_throws_exactly but allows specifying the assertion type
  * (assert_throws_exactly or promise_rejects_exactly, in practice).
  */
-function assert_throws_exactly_impl(exception, func, description,
-                                    assertion_type)
-{
+function assert_throws_exactly_impl(
+    exception,
+    func,
+    description,
+    assertion_type,
+) {
     try {
         func.call(this);
-        assert(false, assertion_type, description,
-            "${func} did not throw", {func:func});
+        assert(false, assertion_type, description, "${func} did not throw", {
+            func: func,
+        });
     } catch (e) {
         if (e instanceof AssertionError) {
             throw e;
         }
 
-        assert(same_value(e, exception), assertion_type, description,
+        assert(
+            same_value(e, exception),
+            assertion_type,
+            description,
             "${func} threw ${e} but we expected it to throw ${exception}",
-            {func:func, e:e, exception:exception});
+            { func: func, e: e, exception: exception },
+        );
     }
 }
 
@@ -166,82 +176,89 @@ function assert_throws_exactly_impl(exception, func, description,
  * @param {Function} func Function which should throw.
  * @param {string} description Error description for the case that the error is not thrown.
  */
-function assert_throws_js(constructor, func, description)
-{
-    assert_throws_js_impl(constructor, func, description,
-        "assert_throws_js");
+function assert_throws_js(constructor, func, description) {
+    assert_throws_js_impl(constructor, func, description, "assert_throws_js");
 }
 
 /**
  * Like assert_throws_js but allows specifying the assertion type
  * (assert_throws_js or promise_rejects_js, in practice).
  */
-function assert_throws_js_impl(constructor, func, description,
-                               assertion_type)
-{
+function assert_throws_js_impl(constructor, func, description, assertion_type) {
     try {
         func.call(this);
-        assert(false, assertion_type, description,
-            "${func} did not throw", {func:func});
+        assert(false, assertion_type, description, "${func} did not throw", {
+            func: func,
+        });
     } catch (e) {
         if (e instanceof AssertionError) {
             throw e;
         }
 
         // Basic sanity-checks on the thrown exception.
-        assert(typeof e === "object",
-            assertion_type, description,
+        assert(
+            typeof e === "object",
+            assertion_type,
+            description,
             "${func} threw ${e} with type ${type}, not an object",
-            {func:func, e:e, type:typeof e});
+            { func: func, e: e, type: typeof e },
+        );
 
-        assert(e !== null,
-            assertion_type, description,
+        assert(
+            e !== null,
+            assertion_type,
+            description,
             "${func} threw null, not an object",
-            {func:func});
+            { func: func },
+        );
 
         // Basic sanity-check on the passed-in constructor
-        assert(typeof constructor == "function",
-            assertion_type, description,
+        assert(
+            typeof constructor == "function",
+            assertion_type,
+            description,
             "${constructor} is not a constructor",
-            {constructor:constructor});
+            { constructor: constructor },
+        );
         var obj = constructor;
         while (obj) {
-            if (typeof obj === "function" &&
-                obj.name === "Error") {
+            if (typeof obj === "function" && obj.name === "Error") {
                 break;
             }
             obj = Object.getPrototypeOf(obj);
         }
-        assert(obj != null,
-            assertion_type, description,
+        assert(
+            obj != null,
+            assertion_type,
+            description,
             "${constructor} is not an Error subtype",
-            {constructor:constructor});
+            { constructor: constructor },
+        );
 
         // And checking that our exception is reasonable
-        assert(e.constructor === constructor &&
-            e.name === constructor.name,
-            assertion_type, description,
+        assert(
+            e.constructor === constructor && e.name === constructor.name,
+            assertion_type,
+            description,
             "${func} threw ${actual} (${actual_name}) expected instance of ${expected} (${expected_name})",
-            {func:func, actual:e, actual_name:e.name,
-                expected:constructor,
-                expected_name:constructor.name});
+            {
+                func: func,
+                actual: e,
+                actual_name: e.name,
+                expected: constructor,
+                expected_name: constructor.name,
+            },
+        );
     }
 }
 
+// TODO: Figure out how to document the overloads better.
+// sphinx-js doesn't seem to handle @variation correctly,
+// and only expects a single JSDoc entry per function.
 /**
  * Assert a DOMException with the expected type is thrown.
  *
- * @param {number|string} type The expected exception name or code.  See the
- *        table of names and codes at
- *        https://heycam.github.io/webidl/#dfn-error-names-table
- *        If a number is passed it should be one of the numeric code values
- *        in that table (e.g. 3, 4, etc).  If a string is passed it can
- *        either be an exception name (e.g. "HierarchyRequestError",
- *        "WrongDocumentError") or the name of the corresponding error code
- *        (e.g. "HIERARCHY_REQUEST_ERR", "WRONG_DOCUMENT_ERR").
- *
- * For the remaining arguments, there are two ways of calling
- * promise_rejects_dom:
+ * There are two ways of calling assert_throws_dom:
  *
  * 1) If the DOMException is expected to come from the current global, the
  * second argument should be the function expected to throw and a third,
@@ -251,9 +268,29 @@ function assert_throws_js_impl(constructor, func, description,
  * second argument should be the DOMException constructor from that global,
  * the third argument the function expected to throw, and the fourth, optional,
  * argument the assertion description.
+ *
+ * @param {number|string} type - The expected exception name or
+ * code.  See the `table of names and codes
+ * <https://webidl.spec.whatwg.org/#dfn-error-names-table>`_. If a
+ * number is passed it should be one of the numeric code values in
+ * that table (e.g. 3, 4, etc).  If a string is passed it can
+ * either be an exception name (e.g. "HierarchyRequestError",
+ * "WrongDocumentError") or the name of the corresponding error
+ * code (e.g. "``HIERARCHY_REQUEST_ERR``", "``WRONG_DOCUMENT_ERR``").
+ * @param {Function} descriptionOrFunc - The function expected to
+ * throw (if the exception comes from another global), or the
+ * optional description of the condition being tested (if the
+ * exception comes from the current global).
+ * @param {string} [description] - Description of the condition
+ * being tested (if the exception comes from another global).
+ *
  */
-function assert_throws_dom(type, funcOrConstructor, descriptionOrFunc, maybeDescription)
-{
+function assert_throws_dom(
+    type,
+    funcOrConstructor,
+    descriptionOrFunc,
+    maybeDescription,
+) {
     let constructor, func, description;
     if (funcOrConstructor.name === "DOMException") {
         constructor = funcOrConstructor;
@@ -263,10 +300,18 @@ function assert_throws_dom(type, funcOrConstructor, descriptionOrFunc, maybeDesc
         constructor = self.DOMException;
         func = funcOrConstructor;
         description = descriptionOrFunc;
-        assert(maybeDescription === undefined,
-            "Too many args pased to no-constructor version of assert_throws_dom");
+        assert(
+            maybeDescription === undefined,
+            "Too many args passed to no-constructor version of assert_throws_dom, or accidentally explicitly passed undefined",
+        );
     }
-    assert_throws_dom_impl(type, func, description, "assert_throws_dom", constructor)
+    assert_throws_dom_impl(
+        type,
+        func,
+        description,
+        "assert_throws_dom",
+        constructor,
+    );
 }
 
 /**
@@ -275,58 +320,71 @@ function assert_throws_dom(type, funcOrConstructor, descriptionOrFunc, maybeDesc
  * "constructor" argument must be the DOMException constructor from the
  * global we expect the exception to come from.
  */
-function assert_throws_dom_impl(type, func, description, assertion_type, constructor)
-{
+function assert_throws_dom_impl(
+    type,
+    func,
+    description,
+    assertion_type,
+    constructor,
+) {
     try {
         func.call(this);
-        assert(false, assertion_type, description,
-            "${func} did not throw", {func:func});
+        assert(false, assertion_type, description, "${func} did not throw", {
+            func: func,
+        });
     } catch (e) {
         if (e instanceof AssertionError) {
             throw e;
         }
 
         // Basic sanity-checks on the thrown exception.
-        assert(typeof e === "object",
-            assertion_type, description,
+        assert(
+            typeof e === "object",
+            assertion_type,
+            description,
             "${func} threw ${e} with type ${type}, not an object",
-            {func:func, e:e, type:typeof e});
+            { func: func, e: e, type: typeof e },
+        );
 
-        assert(e !== null,
-            assertion_type, description,
+        assert(
+            e !== null,
+            assertion_type,
+            description,
             "${func} threw null, not an object",
-            {func:func});
+            { func: func },
+        );
 
         // Sanity-check our type
-        assert(typeof type == "number" ||
-            typeof type == "string",
-            assertion_type, description,
+        assert(
+            typeof type === "number" || typeof type === "string",
+            assertion_type,
+            description,
             "${type} is not a number or string",
-            {type:type});
+            { type: type },
+        );
 
         var codename_name_map = {
-            INDEX_SIZE_ERR: 'IndexSizeError',
-            HIERARCHY_REQUEST_ERR: 'HierarchyRequestError',
-            WRONG_DOCUMENT_ERR: 'WrongDocumentError',
-            INVALID_CHARACTER_ERR: 'InvalidCharacterError',
-            NO_MODIFICATION_ALLOWED_ERR: 'NoModificationAllowedError',
-            NOT_FOUND_ERR: 'NotFoundError',
-            NOT_SUPPORTED_ERR: 'NotSupportedError',
-            INUSE_ATTRIBUTE_ERR: 'InUseAttributeError',
-            INVALID_STATE_ERR: 'InvalidStateError',
-            SYNTAX_ERR: 'SyntaxError',
-            INVALID_MODIFICATION_ERR: 'InvalidModificationError',
-            NAMESPACE_ERR: 'NamespaceError',
-            INVALID_ACCESS_ERR: 'InvalidAccessError',
-            TYPE_MISMATCH_ERR: 'TypeMismatchError',
-            SECURITY_ERR: 'SecurityError',
-            NETWORK_ERR: 'NetworkError',
-            ABORT_ERR: 'AbortError',
-            URL_MISMATCH_ERR: 'URLMismatchError',
-            QUOTA_EXCEEDED_ERR: 'QuotaExceededError',
-            TIMEOUT_ERR: 'TimeoutError',
-            INVALID_NODE_TYPE_ERR: 'InvalidNodeTypeError',
-            DATA_CLONE_ERR: 'DataCloneError'
+            INDEX_SIZE_ERR: "IndexSizeError",
+            HIERARCHY_REQUEST_ERR: "HierarchyRequestError",
+            WRONG_DOCUMENT_ERR: "WrongDocumentError",
+            INVALID_CHARACTER_ERR: "InvalidCharacterError",
+            NO_MODIFICATION_ALLOWED_ERR: "NoModificationAllowedError",
+            NOT_FOUND_ERR: "NotFoundError",
+            NOT_SUPPORTED_ERR: "NotSupportedError",
+            INUSE_ATTRIBUTE_ERR: "InUseAttributeError",
+            INVALID_STATE_ERR: "InvalidStateError",
+            SYNTAX_ERR: "SyntaxError",
+            INVALID_MODIFICATION_ERR: "InvalidModificationError",
+            NAMESPACE_ERR: "NamespaceError",
+            INVALID_ACCESS_ERR: "InvalidAccessError",
+            TYPE_MISMATCH_ERR: "TypeMismatchError",
+            SECURITY_ERR: "SecurityError",
+            NETWORK_ERR: "NetworkError",
+            ABORT_ERR: "AbortError",
+            URL_MISMATCH_ERR: "URLMismatchError",
+            TIMEOUT_ERR: "TimeoutError",
+            INVALID_NODE_TYPE_ERR: "InvalidNodeTypeError",
+            DATA_CLONE_ERR: "DataCloneError",
         };
 
         var name_code_map = {
@@ -348,7 +406,6 @@ function assert_throws_dom_impl(type, func, description, assertion_type, constru
             NetworkError: 19,
             AbortError: 20,
             URLMismatchError: 21,
-            QuotaExceededError: 22,
             TimeoutError: 23,
             InvalidNodeTypeError: 24,
             DataCloneError: 25,
@@ -362,7 +419,8 @@ function assert_throws_dom_impl(type, func, description, assertion_type, constru
             ReadOnlyError: 0,
             VersionError: 0,
             OperationError: 0,
-            NotAllowedError: 0
+            NotAllowedError: 0,
+            OptOutError: 0,
         };
 
         var code_name_map = {};
@@ -377,51 +435,86 @@ function assert_throws_dom_impl(type, func, description, assertion_type, constru
 
         if (typeof type === "number") {
             if (type === 0) {
-                throw new AssertionError('Test bug: ambiguous DOMException code 0 passed to assert_throws_dom()');
-            } else if (!(type in code_name_map)) {
-                throw new AssertionError('Test bug: unrecognized DOMException code "' + type + '" passed to assert_throws_dom()');
+                throw new AssertionError(
+                    "Test bug: ambiguous DOMException code 0 passed to assert_throws_dom()",
+                );
+            }
+            if (type === 22) {
+                throw new AssertionError(
+                    "Test bug: QuotaExceededError needs to be tested for using assert_throws_quotaexceedederror()",
+                );
+            }
+            if (!(type in code_name_map)) {
+                throw new AssertionError(
+                    'Test bug: unrecognized DOMException code "' +
+                        type +
+                        '" passed to assert_throws_dom()',
+                );
             }
             name = code_name_map[type];
             required_props.code = type;
         } else if (typeof type === "string") {
+            if (name === "QuotaExceededError") {
+                throw new AssertionError(
+                    "Test bug: QuotaExceededError needs to be tested for using assert_throws_quotaexceedederror()",
+                );
+            }
             name = type in codename_name_map ? codename_name_map[type] : type;
             if (!(name in name_code_map)) {
-                throw new AssertionError('Test bug: unrecognized DOMException code name or name "' + type + '" passed to assert_throws_dom()');
+                throw new AssertionError(
+                    'Test bug: unrecognized DOMException code name or name "' +
+                        type +
+                        '" passed to assert_throws_dom()',
+                );
             }
 
             required_props.code = name_code_map[name];
         }
 
-        if (required_props.code === 0 ||
+        if (
+            required_props.code === 0 ||
             ("name" in e &&
                 e.name !== e.name.toUpperCase() &&
-                e.name !== "DOMException")) {
+                e.name !== "DOMException")
+        ) {
             // New style exception: also test the name property.
             required_props.name = name;
         }
 
         for (var prop in required_props) {
-            if (!(prop in e && e[prop] == required_props[prop])) {
-                debugger
-            }
-            assert(prop in e && e[prop] == required_props[prop],
-                assertion_type, description,
-                "${func} threw ${e} that is not a DOMException " + type + ": property ${prop} is equal to ${actual}, expected ${expected}",
-                {func:func, e:e, prop:prop, actual:e[prop], expected:required_props[prop]});
+            assert(
+                prop in e && e[prop] == required_props[prop],
+                assertion_type,
+                description,
+                "${func} threw ${e} that is not a DOMException " +
+                    type +
+                    ": property ${prop} is equal to ${actual}, expected ${expected}",
+                {
+                    func: func,
+                    e: e,
+                    prop: prop,
+                    actual: e[prop],
+                    expected: required_props[prop],
+                },
+            );
         }
 
         // FakeIndexedDB modification from the original test
         // Here we just check if the error has the right superclass since we don't throw straight DOMExceptions
-        const testCondition = e.constructor === constructor || Object.getPrototypeOf(e.constructor) === constructor;
+        const testCondition =
+            e.constructor === constructor ||
+            Object.getPrototypeOf(e.constructor) === constructor;
 
         // Check that the exception is from the right global.  This check is last
         // so more specific, and more informative, checks on the properties can
         // happen in case a totally incorrect exception is thrown.
-        assert(testCondition,
-            assertion_type, description,
+        assert(
+            testCondition,
+            assertion_type,
+            description,
             "${func} threw an exception from the wrong global",
-            {func});
-
+            { func },
+        );
     }
 }
 
@@ -484,10 +577,23 @@ class AsyncTest {
         };
     }
 
-    step_func_done(fn) {
-        return (...args) => {
-            fn.apply(this, args);
-            this.done();
+    step_func_done(func, this_obj) {
+        var test_this = this;
+
+        if (arguments.length === 1) {
+            this_obj = test_this;
+        }
+
+        return function () {
+            if (func) {
+                test_this.step.apply(
+                    test_this,
+                    [func, this_obj].concat(
+                        Array.prototype.slice.call(arguments),
+                    ),
+                );
+            }
+            test_this.done();
         };
     }
 
@@ -501,7 +607,11 @@ class AsyncTest {
     }
 
     unreached_func(message) {
-        return () => this.fail(new Error(message));
+        return () => {
+            if (!this.completed) {
+                this.fail(new Error(message));
+            }
+        };
     }
 
     fail(err) {
@@ -800,12 +910,74 @@ const step_timeout = (fn, timeout, ...args) => {
     }, timeout);
 };
 
+// Returns a new function. After it is called |count| times, |func|
+// will be called.
+function barrier_func(count, func) {
+    let n = 0;
+    return () => {
+        if (++n === count) func();
+    };
+}
+
+/**
+ * Alias for :js:func:`insert_inherits`.
+ *
+ * @param {Object} object - Object that should have the given property in its prototype chain.
+ * @param {string} property_name - Expected property name.
+ * @param {string} [description] - Description of the condition being tested.
+ */
+function assert_idl_attribute(object, property_name, description) {
+    return _assert_inherits("assert_idl_attribute")(
+        object,
+        property_name,
+        description,
+    );
+}
+
+function _assert_inherits(name) {
+    return function (object, property_name, description) {
+        assert(
+            (typeof object === "object" && object !== null) ||
+                typeof object === "function" ||
+                // Or has [[IsHTMLDDA]] slot
+                String(object) === "[object HTMLAllCollection]",
+            name,
+            description,
+            "provided value is not an object",
+        );
+
+        assert(
+            "hasOwnProperty" in object,
+            name,
+            description,
+            "provided value is an object but has no hasOwnProperty method",
+        );
+
+        assert(
+            !object.hasOwnProperty(property_name),
+            name,
+            description,
+            "property ${p} found on object expected in prototype chain",
+            { p: property_name },
+        );
+
+        assert(
+            property_name in object,
+            name,
+            description,
+            "property ${p} not found in prototype chain",
+            { p: property_name },
+        );
+    };
+}
+
 const addToGlobal = {
     add_completion_callback,
     assert_array_equals,
     assert_class_string,
     assert_equals,
     assert_false,
+    assert_idl_attribute,
     assert_key_equals,
     assert_object_equals,
     assert_not_equals,
@@ -817,6 +989,7 @@ const addToGlobal = {
     assert_true,
     assert_unreached,
     async_test,
+    barrier_func,
     EventWatcher,
     format_value,
     promise_test,

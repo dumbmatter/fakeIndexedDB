@@ -1,4 +1,5 @@
 import FDBKeyRange from "../FDBKeyRange.js";
+import isSharedArrayBuffer from "./isSharedArrayBuffer.js";
 
 // https://www.w3.org/TR/IndexedDB/#is-a-potentially-valid-key-range
 const isPotentiallyValidKeyRange = (value: any): boolean => {
@@ -16,9 +17,10 @@ const isPotentiallyValidKeyRange = (value: any): boolean => {
         // string
         typeof value === "string" ||
         // buffer source type
+        // note: we are explicitly _not_ checking for detachedness here, to match Chromium's behavior
+        // see: https://github.com/w3c/IndexedDB/issues/465
         value instanceof ArrayBuffer ||
-        (typeof SharedArrayBuffer !== "undefined" &&
-            value instanceof SharedArrayBuffer) ||
+        isSharedArrayBuffer(value) ||
         (typeof ArrayBuffer !== "undefined" &&
             ArrayBuffer.isView &&
             ArrayBuffer.isView(value)) ||

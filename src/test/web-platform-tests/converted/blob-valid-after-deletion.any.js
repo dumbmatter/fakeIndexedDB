@@ -1,5 +1,7 @@
 import "../wpt-env.js";
 
+let attrs,cursor,db,store,store2;
+
 /* Delete created databases
  *
  * Go through each finished test, see if it has an associated database. Close
@@ -103,6 +105,16 @@ function assert_key_equals(actual, expected, description) {
   assert_equals(indexedDB.cmp(actual, expected), 0, description);
 }
 
+// Usage:
+//   indexeddb_test(
+//     (test_object, db_connection, upgrade_tx, open_request) => {
+//        // Database creation logic.
+//     },
+//     (test_object, db_connection, open_request) => {
+//        // Test logic.
+//        test_object.done();
+//     },
+//     'Test case description');
 function indexeddb_test(upgrade_func, open_func, description, options) {
   async_test(function(t) {
     options = Object.assign({upgrade_will_abort: false}, options);
@@ -192,9 +204,60 @@ function keep_alive(tx, store_name) {
   };
 }
 
+// Returns a new function. After it is called |count| times, |func|
+// will be called.
+function barrier_func(count, func) {
+  let n = 0;
+  return () => {
+    if (++n === count)
+      func();
+  };
+}
+
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|.
+async function createIndexedDBForTesting(rc, dbName, version) {
+  await rc.executeScript((dbName, version) => {
+    let request = indexedDB.open(dbName, version);
+    request.onupgradeneeded = () => {
+      if (version == 1) {
+        // Only create the object store once.
+        request.result.createObjectStore('store');
+      }
+    }
+    request.onversionchange = () => {
+      fail(t, 'unexpectedly received versionchange event.');
+    }
+  }, [dbName, version]);
+}
+
+// Create an IndexedDB by executing script on the given remote context
+// with |dbName| and |version|, and wait for the reuslt.
+async function waitUntilIndexedDBOpenForTesting(rc, dbName, version) {
+  await rc.executeScript(async (dbName, version) => {
+    await new Promise((resolve, reject) => {
+        let request = indexedDB.open(dbName, version);
+        request.onsuccess = resolve;
+        request.onerror = reject;
+    });
+  }, [dbName, version]);
+}
+
+// Returns a detached ArrayBuffer by transferring it to a message port.
+function createDetachedArrayBuffer() {
+  const array = new Uint8Array([1, 2, 3, 4]);
+  const buffer = array.buffer;
+  assert_equals(array.byteLength, 4);
+
+  const channel = new MessageChannel();
+  channel.port1.postMessage('', [buffer]);
+  assert_equals(array.byteLength, 0);
+  return array;
+}
+
 
 // META: title=Blob Valid After Deletion
-// META: script=support.js
+// META: script=resources/support.js
 
 let key = "key";
 
@@ -215,7 +278,7 @@ indexeddb_test(
     store.put(value, key);
     value = null;
 
-    const trans = db.transaction('store');
+    const trans = db.transaction('store', 'readonly');
     store = trans.objectStore('store');
     const request = store.get(key);
 

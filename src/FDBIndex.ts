@@ -61,7 +61,9 @@ class FDBIndex {
         const transaction = this.objectStore.transaction;
 
         if (!transaction.db._runningVersionchangeTransaction) {
-            throw transaction._state === 'active' ? new InvalidStateError() : new TransactionInactiveError();
+            throw transaction._state === "active"
+                ? new InvalidStateError()
+                : new TransactionInactiveError();
         }
 
         if (transaction._state !== "active") {

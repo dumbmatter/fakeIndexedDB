@@ -185,18 +185,44 @@ class RecordStore {
                     return { next };
                 }
 
+                // peek at the next value without incrementing the iterator
+                const peek = () => {
+                    const iOriginal = i;
+                    const result = next();
+                    i = iOriginal;
+                    return result;
+                };
+
                 // For nextunique/prevunique, return an iterator that skips seen values
+                // Note that we must resturn the _lowest_ value regardless of direction:
+                // > Iterating with "prevunique" visits the same records that "nextunique"
+                // > visits, but in reverse order.
+                // https://w3c.github.io/IndexedDB/#dom-idbcursordirection-prevunique
                 let prevValue: Record | undefined = undefined;
                 return {
                     next: (): IteratorResult<Record> => {
                         let current: IteratorResult<Record>;
                         while (!(current = next()).done) {
                             const { done, value } = current;
-                            if (
-                                prevValue !== undefined &&
-                                cmp(prevValue.key, value.key) === 0
-                            ) {
-                                continue;
+                            if (direction === "nextunique") {
+                                // for nextunique, continue if we already emitted the lowest unique value
+                                if (
+                                    prevValue !== undefined &&
+                                    cmp(prevValue.key, value.key) === 0
+                                ) {
+                                    continue;
+                                }
+                            } else {
+                                // for prevunique, we need to peek to see if the next value will be different,
+                                // since we're trying to return the lowest unique value
+                                const { value: nextValue, done: nextDone } =
+                                    peek();
+                                if (
+                                    !nextDone &&
+                                    cmp(nextValue.key, value.key) === 0
+                                ) {
+                                    continue;
+                                }
                             }
                             prevValue = value;
                             return {

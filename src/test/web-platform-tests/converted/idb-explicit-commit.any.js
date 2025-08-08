@@ -1,5 +1,7 @@
 import "../wpt-env.js";
 
+let attrs,cursor,db,store,store2;
+
 'use strict';
 
 // Returns an IndexedDB database name that is unique to the test case.
@@ -18,8 +20,8 @@ function requestWatcher(testCase, request) {
 // EventWatcher covering all the events defined on IndexedDB transactions.
 //
 // The events cover IDBTransaction.
-function transactionWatcher(testCase, request) {
-  return new EventWatcher(testCase, request, ['abort', 'complete', 'error']);
+function transactionWatcher(testCase, transaction) {
+  return new EventWatcher(testCase, transaction, ['abort', 'complete', 'error']);
 }
 
 // Promise that resolves with an IDBRequest's result.
@@ -37,9 +39,18 @@ function promiseForRequest(testCase, request) {
 //
 // The promise resolves with undefined if IDBTransaction receives the "complete"
 // event, and rejects with an error for any other event.
-function promiseForTransaction(testCase, request) {
-  const eventWatcher = transactionWatcher(testCase, request);
-  return eventWatcher.wait_for('complete').then(() => {});
+//
+// NB: be careful NOT to invoke this after the transaction may have already
+// completed due to racing transaction auto-commit. A problematic sequence might
+// look like:
+//
+//   const txn = db.transaction('store', 'readwrite');
+//   txn.objectStore('store').put(value, key);
+//   await foo();
+//   await promiseForTransaction(t, txn);
+function promiseForTransaction(testCase, transaction) {
+  const eventWatcher = transactionWatcher(testCase, transaction);
+  return eventWatcher.wait_for('complete');
 }
 
 // Migrates an IndexedDB database whose name is unique for the test case.
@@ -198,7 +209,19 @@ const createBooksStore = (testCase, database) => {
       { keyPath: 'isbn', autoIncrement: true });
   store.createIndex('by_author', 'author');
   store.createIndex('by_title', 'title', { unique: true });
-  for (let record of BOOKS_RECORD_DATA)
+  for (const record of BOOKS_RECORD_DATA)
+      store.put(record);
+  return store;
+}
+
+// Creates a 'books' object store whose contents closely resembles the first
+// example in the IndexedDB specification, just without autoincrementing.
+const createBooksStoreWithoutAutoIncrement = (testCase, database) => {
+  const store = database.createObjectStore('books',
+      { keyPath: 'isbn' });
+  store.createIndex('by_author', 'author');
+  store.createIndex('by_title', 'title', { unique: true });
+  for (const record of BOOKS_RECORD_DATA)
       store.put(record);
   return store;
 }
@@ -286,12 +309,17 @@ function checkTitleIndexContents(testCase, index, errorMessage) {
   });
 }
 
-// Returns an Uint8Array with pseudorandom data.
-//
+// Returns an Uint8Array.
+// When `seed` is non-zero, the data is pseudo-random, otherwise it is repetitive.
 // The PRNG should be sufficient to defeat compression schemes, but it is not
 // cryptographically strong.
 function largeValue(size, seed) {
   const buffer = new Uint8Array(size);
+  // Fill with a lot of the same byte.
+  if (seed == 0) {
+    buffer.fill(0x11, 0, size - 1);
+    return buffer;
+  }
 
   // 32-bit xorshift - the seed can't be zero
   let state = 1000 + seed;
@@ -345,14 +373,7 @@ function timeoutPromise(ms) {
 }
 
 
-// META: script=support-promises.js
-
-/**
- * This file contains the webplatform tests for the explicit commit() method
- * of the IndexedDB transaction API.
- *
- * @author andreasbutler@google.com
- */
+// META: script=resources/support-promises.js
 
 promise_test(async testCase => {
   const db = await createDatabase(testCase, db => {

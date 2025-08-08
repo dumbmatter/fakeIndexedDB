@@ -6,6 +6,7 @@ import Index from "./Index.js";
 import KeyGenerator from "./KeyGenerator.js";
 import RecordStore from "./RecordStore.js";
 import { Key, KeyPath, Record, RollbackLog } from "./types.js";
+import FDBRecord from "../FDBRecord.js";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-object-store
 class ObjectStore {
@@ -101,10 +102,13 @@ class ObjectStore {
 
         const records = [];
         for (const record of this.records.values(range, direction)) {
-            records.push({
-                key: structuredClone(record.key),
-                value: structuredClone(record.value),
-            });
+            records.push(
+                new FDBRecord(
+                    structuredClone(record.key),
+                    structuredClone(record.key),
+                    structuredClone(record.value),
+                ),
+            );
             if (records.length >= count) {
                 break;
             }

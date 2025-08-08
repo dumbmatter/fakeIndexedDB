@@ -1,11 +1,4 @@
-// META: script=support-promises.js
-
-/**
- * This file contains the webplatform tests for the explicit commit() method
- * of the IndexedDB transaction API.
- *
- * @author andreasbutler@google.com
- */
+// META: script=resources/support-promises.js
 
 promise_test(async testCase => {
   const db = await createDatabase(testCase, db => {
