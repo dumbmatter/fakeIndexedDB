@@ -7,6 +7,7 @@ import FDBIndex from "../build/esm/FDBIndex.js";
 import FDBKeyRange from "../build/esm/FDBKeyRange.js";
 import FDBObjectStore from "../build/esm/FDBObjectStore.js";
 import FDBOpenDBRequest from "../build/esm/FDBOpenDBRequest.js";
+import FDBRecord from "../build/esm/FDBRecord.js";
 import FDBRequest from "../build/esm/FDBRequest.js";
 import FDBTransaction from "../build/esm/FDBTransaction.js";
 import FDBVersionChangeEvent from "../build/esm/FDBVersionChangeEvent.js";
@@ -16,10 +17,10 @@ var globalVar =
     typeof window !== "undefined"
         ? window
         : typeof WorkerGlobalScope !== "undefined"
-        ? self
-        : typeof global !== "undefined"
-        ? global
-        : Function("return this;")();
+          ? self
+          : typeof global !== "undefined"
+            ? global
+            : Function("return this;")();
 
 globalVar.indexedDB = fakeIndexedDB;
 globalVar.IDBCursor = FDBCursor;
@@ -30,6 +31,7 @@ globalVar.IDBIndex = FDBIndex;
 globalVar.IDBKeyRange = FDBKeyRange;
 globalVar.IDBObjectStore = FDBObjectStore;
 globalVar.IDBOpenDBRequest = FDBOpenDBRequest;
+globalVar.IDBRecord = FDBRecord;
 globalVar.IDBRequest = FDBRequest;
 globalVar.IDBTransaction = FDBTransaction;
 globalVar.IDBVersionChangeEvent = FDBVersionChangeEvent;

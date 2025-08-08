@@ -6,6 +6,7 @@ const FDBFactory = require("../build/cjs/FDBFactory.js");
 const FDBIndex = require("../build/cjs/FDBIndex.js");
 const FDBKeyRange = require("../build/cjs/FDBKeyRange.js");
 const FDBObjectStore = require("../build/cjs/FDBObjectStore.js");
+const FDBRecord = require("../build/cjs/FDBRecord.js");
 const FDBOpenDBRequest = require("../build/cjs/FDBOpenDBRequest.js");
 const FDBRequest = require("../build/cjs/FDBRequest.js");
 const FDBTransaction = require("../build/cjs/FDBTransaction.js");
@@ -16,10 +17,10 @@ var globalVar =
     typeof window !== "undefined"
         ? window
         : typeof WorkerGlobalScope !== "undefined"
-        ? self
-        : typeof global !== "undefined"
-        ? global
-        : Function("return this;")();
+          ? self
+          : typeof global !== "undefined"
+            ? global
+            : Function("return this;")();
 
 globalVar.indexedDB = fakeIndexedDB;
 globalVar.IDBCursor = FDBCursor;
@@ -30,6 +31,7 @@ globalVar.IDBIndex = FDBIndex;
 globalVar.IDBKeyRange = FDBKeyRange;
 globalVar.IDBObjectStore = FDBObjectStore;
 globalVar.IDBOpenDBRequest = FDBOpenDBRequest;
+globalVar.IDBRecord = FDBRecord;
 globalVar.IDBRequest = FDBRequest;
 globalVar.IDBTransaction = FDBTransaction;
 globalVar.IDBVersionChangeEvent = FDBVersionChangeEvent;
