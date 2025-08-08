@@ -326,8 +326,8 @@ class FDBFactory {
         });
     }
 
-    public toString() {
-        return "[object IDBFactory]";
+    get [Symbol.toStringTag]() {
+        return "IDBFactory";
     }
 }
 

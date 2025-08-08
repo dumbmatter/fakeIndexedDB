@@ -18,8 +18,8 @@ class FDBCursorWithValue extends FDBCursor {
         super(source, range, direction, request);
     }
 
-    public toString() {
-        return "[object IDBCursorWithValue]";
+    get [Symbol.toStringTag]() {
+        return "IDBCursorWithValue";
     }
 }
 

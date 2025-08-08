@@ -90,8 +90,8 @@ class FDBKeyRange {
         return true;
     }
 
-    public toString() {
-        return "[object IDBKeyRange]";
+    get [Symbol.toStringTag]() {
+        return "IDBKeyRange";
     }
 }
 

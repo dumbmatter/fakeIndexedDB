@@ -614,8 +614,8 @@ class FDBObjectStore {
         });
     }
 
-    public toString() {
-        return "[object IDBObjectStore]";
+    get [Symbol.toStringTag]() {
+        return "IDBObjectStore";
     }
 }
 

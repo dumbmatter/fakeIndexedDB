@@ -309,8 +309,8 @@ class FDBIndex {
         });
     }
 
-    public toString() {
-        return "[object IDBIndex]";
+    get [Symbol.toStringTag]() {
+        return "IDBIndex";
     }
 }
 
