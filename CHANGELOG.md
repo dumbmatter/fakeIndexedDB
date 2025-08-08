@@ -1,6 +1,10 @@
-# DEV
+# 6.1.0 (2025-08-08)
 
-- #66 - Better DOMStringList polyfill that doesn't include various inappropriate array methods.
+- Added support for new IndexedDB features: querying keys and values at the same time with `getAllRecords`, and passing a descending direction into `getAll`/`getAllKeys`. (#112 by @nolanlawson)
+
+- Better DOMStringList polyfill that doesn't include various inappropriate array methods. (#66 by @dumbmatter)
+
+- Updated the Web Platform Tests from 2019 to 2025 which improved test coverage and uncovered a few minor bugs that were fixed. (#117 by @nolanlawson)
 
 # 6.0.1 (2025-05-09)
 
