@@ -11,6 +11,9 @@ const execAsync = promisify(exec);
 const __dirname = "src/test/web-platform-tests";
 const testFolder = path.join(__dirname, "converted");
 
+/* global process */
+const nodeMajorVersion = parseInt(process.version.substring(1).split(".")[0]);
+
 let skipped = new Set();
 
 const skip = [
@@ -164,6 +167,24 @@ const skip = [
 
     // test hangs, needs further investigation
     "transaction-lifetime.any.js",
+
+    // These break in Node <20 because of lack of support for `ArrayBuffer.prototype.detached`
+    ...(nodeMajorVersion < 22
+        ? [
+              "idb_binary_key_conversion.any.js",
+              "idb-binary-key-detached.any.js",
+              "idbindex_getAll.any.js",
+              "idbindex_getAllKeys.any.js",
+              "idbindex_getAllKeys-options.tentative.any.js",
+              "idbindex_getAll-options.tentative.any.js",
+              "idbindex_getAllRecords.tentative.any.js",
+              "idbobjectstore_getAll.any.js",
+              "idbobjectstore_getAllKeys.any.js",
+              "idbobjectstore_getAllKeys-options.tentative.any.js",
+              "idbobjectstore_getAll-options.tentative.any.js",
+              "idbobjectstore_getAllRecords.tentative.any.js",
+          ]
+        : []),
 ];
 
 if (new Set(skip).size !== skip.length) {

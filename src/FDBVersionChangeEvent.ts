@@ -16,8 +16,8 @@ class FDBVersionChangeEvent extends FakeEvent {
             parameters.oldVersion !== undefined ? parameters.oldVersion : 0;
     }
 
-    public toString() {
-        return "[object IDBVersionChangeEvent]";
+    get [Symbol.toStringTag]() {
+        return "IDBVersionChangeEvent";
     }
 }
 
