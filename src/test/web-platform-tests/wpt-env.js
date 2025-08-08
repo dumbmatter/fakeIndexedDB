@@ -598,7 +598,7 @@ class AsyncTest {
             return fn.apply(this, args);
         } catch (err) {
             if (!this._completed) {
-                throw err;
+                this.fail(err);
             }
         }
     }
@@ -609,7 +609,7 @@ class AsyncTest {
                 fn.apply(this, args);
             } catch (err) {
                 if (!this._completed) {
-                    throw err;
+                    this.fail(err);
                 }
             }
         };
