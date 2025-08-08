@@ -923,7 +923,7 @@ function assert_idb_value_equals(actual_value, expected_value) {
 // Verifies each record from the results of `getAllRecords()`.
 function assert_record_equals(actual_record, expected_record) {
   assert_class_string(
-      actual_record, "FDBRecord", 'The record must be an IDBRecord');
+      actual_record, 'IDBRecord', 'The record must be an IDBRecord');
   assert_idl_attribute(
       actual_record, 'key', 'The record must have a key attribute');
   assert_idl_attribute(

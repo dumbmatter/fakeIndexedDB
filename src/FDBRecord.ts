@@ -36,7 +36,7 @@ class FDBRecord {
     }
 
     get [Symbol.toStringTag]() {
-        return "FDBRecord";
+        return "IDBRecord";
     }
 }
 

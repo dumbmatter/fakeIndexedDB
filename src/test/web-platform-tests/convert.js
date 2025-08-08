@@ -165,9 +165,6 @@ const outFolder = path.posix.join(__dirname, "converted");
 
                     // HACK: similar to above, this test runs in sloppy mode and assumes `this` is the global
                     .replaceAll(`this.saw =`, "saw =")
-
-                    // HACK; the test wants IDBRecord classes to be "IDBRecord", but we use "FDBRecord"
-                    .replaceAll(/['"]IDBRecord['"]/g, '"FDBRecord"')
             );
         });
 
