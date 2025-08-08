@@ -1,12 +1,16 @@
-import { execSync } from "node:child_process";
+/* global console */
+
+import { test } from "node:test";
+import { exec } from "node:child_process";
+import { promisify } from "node:util";
 import path from "node:path";
 import { glob } from "glob";
+
+const execAsync = promisify(exec);
 
 const __dirname = "src/test/web-platform-tests";
 const testFolder = path.join(__dirname, "converted");
 
-let passed = 0;
-let failed = 0;
 let skipped = new Set();
 
 const skip = [
@@ -179,42 +183,38 @@ if (new Set(skip).size !== skip.length) {
 const filenames = glob.sync("/**/*.js", { root: testFolder });
 for (const absFilename of filenames) {
     const filename = path.relative(testFolder, absFilename);
-    if (skip.includes(filename)) {
-        console.log(`Skipping ${filename}...\n`);
+    const shouldSkip = skip.includes(filename);
+    if (shouldSkip) {
         skipped.add(filename);
-        continue;
     }
-
-    console.log(`Running ${filename}...`);
-    try {
-        const output = execSync(`node ${filename}`, {
+    await test(filename, { skip: shouldSkip }, async (t) => {
+        const { stdout, stderr } = await execAsync(`node ${filename}`, {
             cwd: testFolder,
-            // stdio: 'inherit'
+            encoding: "utf-8",
         });
-        if (output.toString().length > 0) {
-            console.log(output.toString());
+        if (stderr) {
+            console.error(stderr);
         }
-        console.log("Success!\n");
-        passed += 1;
-    } catch (err) {
-        console.log("");
-        failed += 1;
-    }
+        let results;
+        try {
+            results = JSON.parse(
+                stdout.split("\n").find((_) => _.includes("testResults")),
+            );
+        } catch (err) {
+            throw new Error("Could not parse output from test", { cause: err });
+        }
+        for (const [name, subResult] of Object.entries(results.testResults)) {
+            await t.test(name, () => {
+                if (!subResult.passed) {
+                    throw new Error(subResult.error);
+                }
+            });
+        }
+    });
 }
 
 if (skipped.size !== skip.length) {
     const extraneous = skip.filter((test) => !skipped.has(test));
     const errorMsg = `Skipped ${skipped.size} tests, but skip.length is ${skip.length}. Missing file? Extraneous files are: ${extraneous.join(", ")}`;
     throw new Error(errorMsg);
-}
-
-console.log(`Passed: ${passed}`);
-console.log(`Failed: ${failed}`);
-console.log(`Skipped: ${skipped.size}\n`);
-
-const pct = Math.round((100 * passed) / (passed + failed + skipped.size));
-console.log(`Success Rate: ${pct}%`);
-
-if (failed > 0) {
-    process.exit(1);
 }

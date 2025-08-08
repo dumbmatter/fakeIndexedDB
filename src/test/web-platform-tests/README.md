@@ -1,5 +1,22 @@
 These tests come from [web-platform-tests](https://github.com/w3c/web-platform-tests/tree/master/IndexedDB), last copied in August 2025 from commit [`226fbab4280e1a55cb09cd7a2ba3aa9d88fea53f`](https://github.com/web-platform-tests/wpt/commit/226fbab4280e1a55cb09cd7a2ba3aa9d88fea53f).
 
+## Running the tests
+
+To run all the tests:
+
+```sh
+pnpm run test-w3c
+```
+
+To run a subset of the tests:
+
+```sh
+node --test --test-name-pattern="name of test" \
+    ./src/test/web-platform-tests/run-all.js
+```
+
+## Updating the tests
+
 To update the tests, copy over the `IndexedDB` folder and remove `converted`:
 
 ```sh

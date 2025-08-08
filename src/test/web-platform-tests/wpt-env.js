@@ -55,9 +55,39 @@ global.postMessage = (obj) => {
     structuredClone(obj);
 };
 
-const add_completion_callback = (...args) => {
-    console.log("add_completion_callback", ...args);
-};
+const testResults = Object.create(null);
+const testResultsReadyPromises = [];
+let logged = false;
+function onDone() {
+    if (logged) {
+        return;
+    }
+    logged = true;
+    console.log(JSON.stringify({ testResults }));
+}
+async function checkDone() {
+    if (testResultsReadyPromises.length) {
+        const toAwait = [...testResultsReadyPromises];
+        testResultsReadyPromises.length = 0;
+        await Promise.all(toAwait);
+        await checkDone();
+    } else {
+        onDone();
+    }
+}
+const generatedTestNames = new Map();
+let generatedTestNameCounter = 0;
+function generateTestName(func) {
+    if (!generatedTestNames.has(func)) {
+        generatedTestNames.set(
+            func,
+            `Anonymous test #${++generatedTestNameCounter}`,
+        );
+    }
+    return generatedTestNames.get(func);
+}
+
+const add_completion_callback = () => {};
 
 // Array.from is to help with DOMStringList to Array comparisons
 const assert_array_equals = (a, b, ...args) =>
@@ -527,29 +557,37 @@ const assert_true = (...args) => assert.ok(...args);
 
 class AsyncTest {
     constructor(name) {
-        this.completed = false;
-        this.cleanupCallbacks = [];
         this.name = name;
+        this._completed = false;
+        this._cleanupCallbacks = [];
 
-        this.timeoutID = setTimeout(() => {
-            if (!this.completed) {
-                this.completed = true;
-                throw new Error("Timed out!");
+        this._timeoutID = setTimeout(() => {
+            if (!this._completed) {
+                this.fail(new Error("Timed out!"));
             }
         }, 60 * 1000);
+        this._promise = new Promise((resolve, reject) => {
+            this._resolve = resolve;
+            this._reject = reject;
+        });
     }
 
-    complete() {
-        for (const cb of this.cleanupCallbacks) {
+    _complete(err) {
+        for (const cb of this._cleanupCallbacks) {
             cb();
         }
-        clearTimeout(this.timeoutID);
-        this.completed = true;
+        clearTimeout(this._timeoutID);
+        this._completed = true;
+        if (err) {
+            this._reject(err);
+        } else {
+            this._resolve();
+        }
     }
 
     done() {
-        if (!this.completed) {
-            this.complete();
+        if (!this._completed) {
+            this._complete();
         } else {
             throw new Error("AsyncTest.done() called multiple times");
         }
@@ -559,7 +597,7 @@ class AsyncTest {
         try {
             return fn.apply(this, args);
         } catch (err) {
-            if (!this.completed) {
+            if (!this._completed) {
                 throw err;
             }
         }
@@ -570,7 +608,7 @@ class AsyncTest {
             try {
                 fn.apply(this, args);
             } catch (err) {
-                if (!this.completed) {
+                if (!this._completed) {
                     throw err;
                 }
             }
@@ -608,43 +646,69 @@ class AsyncTest {
 
     unreached_func(message) {
         return () => {
-            if (!this.completed) {
+            if (!this._completed) {
                 this.fail(new Error(message));
             }
         };
     }
 
     fail(err) {
-        console.log("Failed!");
-        this.complete();
-
-        // `throw err` was silent
-        console.error(err);
-        process.exit(1);
+        this._complete(err);
     }
 
     add_cleanup(cb) {
-        this.cleanupCallbacks.push(cb);
+        this._cleanupCallbacks.push(cb);
     }
 }
 
-const async_test = (func, name, properties) => {
+const async_test = (func, name) => {
     if (typeof func !== "function") {
-        properties = name;
         name = func;
         func = null;
     }
-    var test_name = name ? name : Math.random().toString();
-    properties = properties ? properties : {};
-    var test_obj = new AsyncTest(test_name, properties);
+    if (!name) {
+        name = generateTestName(func);
+    }
+    var test_obj = new AsyncTest(name);
+
+    testResultsReadyPromises.push(
+        (async () => {
+            try {
+                await test_obj._promise;
+                testResults[name] = { passed: true };
+            } catch (error) {
+                testResults[name] = { passed: false, error: error.stack };
+            } finally {
+                void checkDone();
+            }
+        })(),
+    );
+
     if (func) {
         test_obj.step(func, test_obj, test_obj);
     }
     return test_obj;
 };
 
-const test = (cb) => {
-    cb();
+const test = (cb, name) => {
+    if (!name) {
+        name = generateTestName(cb);
+    }
+    let doResolve;
+    testResultsReadyPromises.push(
+        new Promise((resolve) => {
+            doResolve = resolve;
+        }),
+    );
+    try {
+        cb();
+        testResults[name] = { passed: true };
+    } catch (error) {
+        testResults[name] = { passed: false, error: error.stack };
+    } finally {
+        doResolve();
+        void checkDone();
+    }
 };
 
 /**
@@ -900,9 +964,7 @@ const promise_test = (func, name, properties) => {
     });
 };
 
-const setup = (...args) => {
-    console.log("Setup", ...args);
-};
+const setup = () => {};
 
 const step_timeout = (fn, timeout, ...args) => {
     return setTimeout(() => {
