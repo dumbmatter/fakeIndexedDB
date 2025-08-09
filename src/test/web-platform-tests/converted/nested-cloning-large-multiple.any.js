@@ -2,6 +2,8 @@ import "../wpt-env.js";
 
 let attrs,cursor,db,store,store2;
 
+globalThis.title = "IndexedDB: large nested objects are cloned correctly";
+
 'use strict';
 
 // Returns an IndexedDB database name that is unique to the test case.

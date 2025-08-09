@@ -55,9 +55,27 @@ global.postMessage = (obj) => {
     structuredClone(obj);
 };
 
-const add_completion_callback = (...args) => {
-    console.log("add_completion_callback", ...args);
-};
+const generatedTestNames = new Map();
+let generatedTestNameCounter = 0;
+function generateTestName(func) {
+    if (!generatedTestNames.has(func)) {
+        generatedTestNames.set(
+            func,
+            `Anonymous test #${++generatedTestNameCounter}`,
+        );
+    }
+    return generatedTestNames.get(func);
+}
+
+function logTestResult(name, result) {
+    if (!name || !("passed" in result)) {
+        // should never happen
+        throw new Error("Invalid format for test result");
+    }
+    console.log(JSON.stringify({ testResult: { [name]: result } }));
+}
+
+const add_completion_callback = () => {};
 
 // Array.from is to help with DOMStringList to Array comparisons
 const assert_array_equals = (a, b, ...args) =>
@@ -527,29 +545,33 @@ const assert_true = (...args) => assert.ok(...args);
 
 class AsyncTest {
     constructor(name) {
-        this.completed = false;
-        this.cleanupCallbacks = [];
         this.name = name;
+        this._completed = false;
+        this._cleanupCallbacks = [];
 
-        this.timeoutID = setTimeout(() => {
-            if (!this.completed) {
-                this.completed = true;
-                throw new Error("Timed out!");
+        this._timeoutID = setTimeout(() => {
+            if (!this._completed) {
+                this.fail(new Error("Timed out!"));
             }
         }, 60 * 1000);
     }
 
-    complete() {
-        for (const cb of this.cleanupCallbacks) {
+    _complete(error) {
+        for (const cb of this._cleanupCallbacks) {
             cb();
         }
-        clearTimeout(this.timeoutID);
-        this.completed = true;
+        clearTimeout(this._timeoutID);
+        this._completed = true;
+        if (error) {
+            logTestResult(this.name, { passed: false, error: error.stack });
+        } else {
+            logTestResult(this.name, { passed: true });
+        }
     }
 
     done() {
-        if (!this.completed) {
-            this.complete();
+        if (!this._completed) {
+            this._complete();
         } else {
             throw new Error("AsyncTest.done() called multiple times");
         }
@@ -559,8 +581,8 @@ class AsyncTest {
         try {
             return fn.apply(this, args);
         } catch (err) {
-            if (!this.completed) {
-                throw err;
+            if (!this._completed) {
+                this.fail(err);
             }
         }
     }
@@ -570,8 +592,8 @@ class AsyncTest {
             try {
                 fn.apply(this, args);
             } catch (err) {
-                if (!this.completed) {
-                    throw err;
+                if (!this._completed) {
+                    this.fail(err);
                 }
             }
         };
@@ -608,43 +630,47 @@ class AsyncTest {
 
     unreached_func(message) {
         return () => {
-            if (!this.completed) {
+            if (!this._completed) {
                 this.fail(new Error(message));
             }
         };
     }
 
     fail(err) {
-        console.log("Failed!");
-        this.complete();
-
-        // `throw err` was silent
-        console.error(err);
-        process.exit(1);
+        this._complete(err);
     }
 
     add_cleanup(cb) {
-        this.cleanupCallbacks.push(cb);
+        this._cleanupCallbacks.push(cb);
     }
 }
 
-const async_test = (func, name, properties) => {
+const async_test = (func, name) => {
     if (typeof func !== "function") {
-        properties = name;
         name = func;
         func = null;
     }
-    var test_name = name ? name : Math.random().toString();
-    properties = properties ? properties : {};
-    var test_obj = new AsyncTest(test_name, properties);
+    if (!name) {
+        name = generateTestName(func);
+    }
+    var test_obj = new AsyncTest(name);
+
     if (func) {
         test_obj.step(func, test_obj, test_obj);
     }
     return test_obj;
 };
 
-const test = (cb) => {
-    cb();
+const test = (cb, name) => {
+    if (!name) {
+        name = generateTestName(cb);
+    }
+    try {
+        cb();
+        logTestResult(name, { passed: true });
+    } catch (error) {
+        logTestResult(name, { passed: false, error: error.stack });
+    }
 };
 
 /**
@@ -900,9 +926,7 @@ const promise_test = (func, name, properties) => {
     });
 };
 
-const setup = (...args) => {
-    console.log("Setup", ...args);
-};
+const setup = () => {};
 
 const step_timeout = (fn, timeout, ...args) => {
     return setTimeout(() => {

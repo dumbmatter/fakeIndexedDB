@@ -2,6 +2,8 @@ import "../wpt-env.js";
 
 let attrs,cursor,db,store,store2;
 
+globalThis.title = "IndexedDB: IDBIObjectStore getAllKeys() uses [EnforceRange]";
+
 /* Delete created databases
  *
  * Go through each finished test, see if it has an associated database. Close

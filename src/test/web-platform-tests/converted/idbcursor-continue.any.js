@@ -1,5 +1,7 @@
 import "../wpt-env.js";
 
+globalThis.title = "IDBCursor.continue()";
+
 /* Delete created databases
  *
  * Go through each finished test, see if it has an associated database. Close

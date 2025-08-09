@@ -2,6 +2,8 @@ import "../wpt-env.js";
 
 let attrs,cursor,db,store,store2;
 
+globalThis.title = "IndexedDB: Test IDBIndex.getAllRecords";
+
 'use strict';
 
 // Should be large enough to trigger large value handling in the IndexedDB

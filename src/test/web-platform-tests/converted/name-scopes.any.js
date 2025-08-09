@@ -2,6 +2,8 @@ import "../wpt-env.js";
 
 let attrs,cursor,db,store,store2;
 
+globalThis.title = "IndexedDB: scoping for database / object store / index names, and index keys";
+
 'use strict';
 
 // Returns an IndexedDB database name that is unique to the test case.

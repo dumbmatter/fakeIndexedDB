@@ -2,6 +2,8 @@ import "../wpt-env.js";
 
 let attrs,cursor,db,store,store2;
 
+globalThis.title = "Verify the conversion of various types of BufferSource";
+
 // META: title=Verify the conversion of various types of BufferSource
 // META: global=window,worker
 
