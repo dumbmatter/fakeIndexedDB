@@ -2,6 +2,8 @@ import "../wpt-env.js";
 
 let attrs,cursor,db,store,store2;
 
+globalThis.title = "IndexedDB: request result events are delivered in order";
+
 'use strict';
 
 // Returns an IndexedDB database name that is unique to the test case.

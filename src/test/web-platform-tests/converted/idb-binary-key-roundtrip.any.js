@@ -2,6 +2,8 @@ import "../wpt-env.js";
 
 let attrs,cursor,db,store,store2;
 
+globalThis.title = "IndexedDB: Binary keys written to a database and read back";
+
 /* Delete created databases
  *
  * Go through each finished test, see if it has an associated database. Close

@@ -134,6 +134,19 @@ const outFolder = path.posix.join(__dirname, "converted");
             codeChunks.push(declareGlobalVars);
         }
 
+        if (testScript.includes("title=")) {
+            console.log("found!");
+        }
+        const titleMatches = [
+            ...testScript.matchAll(/\/\/\s*META:\s*title=(.+)$/gm),
+        ];
+        if (titleMatches.length) {
+            // some tests use `self.title` to create the test name
+            codeChunks.push(
+                `globalThis.title = ${JSON.stringify(titleMatches[0][1])};\n`,
+            );
+        }
+
         const importMatches = testScript
             .matchAll(/^\/\/\s*META:\s*script=(.+)$/gm)
             .filter(
