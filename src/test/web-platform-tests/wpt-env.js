@@ -55,26 +55,6 @@ global.postMessage = (obj) => {
     structuredClone(obj);
 };
 
-const testResults = Object.create(null);
-const testResultsReadyPromises = [];
-let logged = false;
-function onDone() {
-    if (logged) {
-        return;
-    }
-    logged = true;
-    console.log(JSON.stringify({ testResults }));
-}
-async function checkDone() {
-    if (testResultsReadyPromises.length) {
-        const toAwait = [...testResultsReadyPromises];
-        testResultsReadyPromises.length = 0;
-        await Promise.all(toAwait);
-        await checkDone();
-    } else {
-        onDone();
-    }
-}
 const generatedTestNames = new Map();
 let generatedTestNameCounter = 0;
 function generateTestName(func) {
@@ -85,6 +65,14 @@ function generateTestName(func) {
         );
     }
     return generatedTestNames.get(func);
+}
+
+function logTestResult(name, result) {
+    if (!name || !("passed" in result)) {
+        // should never happen
+        throw new Error("Invalid format for test result");
+    }
+    console.log(JSON.stringify({ testResult: { [name]: result } }));
 }
 
 const add_completion_callback = () => {};
@@ -566,22 +554,18 @@ class AsyncTest {
                 this.fail(new Error("Timed out!"));
             }
         }, 60 * 1000);
-        this._promise = new Promise((resolve, reject) => {
-            this._resolve = resolve;
-            this._reject = reject;
-        });
     }
 
-    _complete(err) {
+    _complete(error) {
         for (const cb of this._cleanupCallbacks) {
             cb();
         }
         clearTimeout(this._timeoutID);
         this._completed = true;
-        if (err) {
-            this._reject(err);
+        if (error) {
+            logTestResult(this.name, { passed: false, error: error.stack });
         } else {
-            this._resolve();
+            logTestResult(this.name, { passed: true });
         }
     }
 
@@ -671,19 +655,6 @@ const async_test = (func, name) => {
     }
     var test_obj = new AsyncTest(name);
 
-    testResultsReadyPromises.push(
-        (async () => {
-            try {
-                await test_obj._promise;
-                testResults[name] = { passed: true };
-            } catch (error) {
-                testResults[name] = { passed: false, error: error.stack };
-            } finally {
-                void checkDone();
-            }
-        })(),
-    );
-
     if (func) {
         test_obj.step(func, test_obj, test_obj);
     }
@@ -694,20 +665,11 @@ const test = (cb, name) => {
     if (!name) {
         name = generateTestName(cb);
     }
-    let doResolve;
-    testResultsReadyPromises.push(
-        new Promise((resolve) => {
-            doResolve = resolve;
-        }),
-    );
     try {
         cb();
-        testResults[name] = { passed: true };
+        logTestResult(name, { passed: true });
     } catch (error) {
-        testResults[name] = { passed: false, error: error.stack };
-    } finally {
-        doResolve();
-        void checkDone();
+        logTestResult(name, { passed: false, error: error.stack });
     }
 };
 

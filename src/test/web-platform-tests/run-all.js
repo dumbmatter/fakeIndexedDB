@@ -216,18 +216,25 @@ for (const absFilename of filenames) {
         if (stderr) {
             console.error(stderr);
         }
-        let results;
+        const results = Object.create(null);
         try {
-            results = JSON.parse(
-                stdout.split("\n").find((_) => _.includes("testResults")),
-            );
+            const resultLines = stdout
+                .split("\n")
+                .filter((_) => _.includes("testResult"))
+                .map((_) => JSON.parse(_));
+            for (const resultLine of resultLines) {
+                Object.assign(results, resultLine.testResult);
+            }
         } catch (err) {
             throw new Error("Could not parse output from test", { cause: err });
         }
-        for (const [name, subResult] of Object.entries(results.testResults)) {
+        if (!Object.keys(results).length) {
+            throw new Error("Did not receive any test results from test");
+        }
+        for (const [name, result] of Object.entries(results)) {
             await t.test(name, () => {
-                if (!subResult.passed) {
-                    throw new Error(subResult.error);
+                if (!result.passed) {
+                    throw new Error(result.error);
                 }
             });
         }
