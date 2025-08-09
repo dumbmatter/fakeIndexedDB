@@ -217,16 +217,17 @@ for (const absFilename of filenames) {
             console.error(stderr);
         }
         const results = Object.create(null);
-        try {
-            const resultLines = stdout
-                .split("\n")
-                .filter((_) => _.includes("testResult"))
-                .map((_) => JSON.parse(_));
-            for (const resultLine of resultLines) {
-                Object.assign(results, resultLine.testResult);
+        const resultLines = stdout
+            .split("\n")
+            .filter((_) => _.includes("testResult"))
+            .map((_) => JSON.parse(_));
+        for (const resultLine of resultLines) {
+            for (const name of Object.keys(resultLine.testResult)) {
+                if (name in results) {
+                    throw new Error(`Duplicate test results for ${name}`);
+                }
             }
-        } catch (err) {
-            throw new Error("Could not parse output from test", { cause: err });
+            Object.assign(results, resultLine.testResult);
         }
         if (!Object.keys(results).length) {
             throw new Error("Did not receive any test results from test");
