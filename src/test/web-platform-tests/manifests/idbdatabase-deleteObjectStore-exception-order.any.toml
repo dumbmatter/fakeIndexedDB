@@ -1,0 +1,3 @@
+# these tests rely on the precise ordering of exceptions, which we currently fail
+["IDBDatabase.deleteObjectStore exception order: TransactionInactiveError vs. NotFoundError"]
+expectation = "FAIL"

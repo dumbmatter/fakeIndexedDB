@@ -1,0 +1,2 @@
+# relies on cross-iframe/cross-window communication which isn't relevant to us
+skip = true

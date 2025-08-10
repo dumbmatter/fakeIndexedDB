@@ -134,9 +134,6 @@ const outFolder = path.posix.join(__dirname, "converted");
             codeChunks.push(declareGlobalVars);
         }
 
-        if (testScript.includes("title=")) {
-            console.log("found!");
-        }
         const titleMatches = [
             ...testScript.matchAll(/\/\/\s*META:\s*title=(.+)$/gm),
         ];
@@ -170,12 +167,6 @@ const outFolder = path.posix.join(__dirname, "converted");
         codeChunks = codeChunks.map((chunk) => {
             return (
                 chunk
-                    // HACK: this test has to be disabled because we can't detect Proxies vs non-Proxies in JS
-                    .replaceAll(
-                        `invalid_key('proxy of an array', new Proxy([1, 2, 3], {}));`,
-                        "",
-                    )
-
                     // HACK: similar to above, this test runs in sloppy mode and assumes `this` is the global
                     .replaceAll(`this.saw =`, "saw =")
             );

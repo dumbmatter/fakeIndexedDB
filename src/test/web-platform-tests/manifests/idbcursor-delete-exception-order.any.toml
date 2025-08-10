@@ -1,0 +1,3 @@
+# Usually works, but there is a race condition. Sometimes the setTimeout runs before the transaction commits.
+["IDBCursor.delete exception order: TransactionInactiveError vs. ReadOnlyError"]
+expectation = "UNSTABLE"

@@ -1,0 +1,3 @@
+# relies on cross-iframe/cross-window communication which isn't relevant to us
+["Simple test for partitioned IndexedDB"]
+expectation = "FAIL"

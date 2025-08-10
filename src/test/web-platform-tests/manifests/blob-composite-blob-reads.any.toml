@@ -1,0 +1,6 @@
+# Node.js doesn't have Blob or File, and my simple mocks aren't good enough for these tests.
+["Composite Blob Handling: Many blobs: fetch-blob-url"]
+expectation = "FAIL"
+
+["Composite Blob Handling: Many blobs: direct"]
+expectation = "FAIL"

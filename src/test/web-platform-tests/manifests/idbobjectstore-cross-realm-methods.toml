@@ -1,0 +1,33 @@
+# relies on cross-iframe/cross-window communication which isn't relevant to us
+["Cross-realm IDBObjectStore::put() method from detached <iframe> works as expected"]
+expectation = "FAIL"
+
+["Cross-realm IDBObjectStore::add() method from detached <iframe> works as expected"]
+expectation = "FAIL"
+
+["Cross-realm IDBObjectStore::delete() method from detached <iframe> works as expected"]
+expectation = "FAIL"
+
+["Cross-realm IDBObjectStore::clear() method from detached <iframe> works as expected"]
+expectation = "FAIL"
+
+["Cross-realm IDBObjectStore::get() method from detached <iframe> works as expected"]
+expectation = "FAIL"
+
+["Cross-realm IDBObjectStore::getKey() method from detached <iframe> works as expected"]
+expectation = "FAIL"
+
+["Cross-realm IDBObjectStore::getAll() method from detached <iframe> works as expected"]
+expectation = "FAIL"
+
+["Cross-realm IDBObjectStore::getAllKeys() method from detached <iframe> works as expected"]
+expectation = "FAIL"
+
+["Cross-realm IDBObjectStore::count() method from detached <iframe> works as expected"]
+expectation = "FAIL"
+
+["Cross-realm IDBObjectStore::openCursor() method from detached <iframe> works as expected"]
+expectation = "FAIL"
+
+["Cross-realm IDBObjectStore::openKeyCursor() method from detached <iframe> works as expected"]
+expectation = "FAIL"

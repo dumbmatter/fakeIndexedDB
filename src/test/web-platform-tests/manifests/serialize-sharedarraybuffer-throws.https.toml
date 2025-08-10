@@ -1,0 +1,3 @@
+# Doesn't seem relevant to a node.js test (cross-origin isolation)
+["Anonymous test #1"]
+expectation = "FAIL"

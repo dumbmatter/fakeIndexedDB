@@ -1,0 +1,18 @@
+# fakeIndexedDB does not currently support relaxed durability or durability options
+["Committed data can be read back out: case 0"]
+expectation = "FAIL"
+
+["Committed data can be read back out: case 1"]
+expectation = "FAIL"
+
+["Committed data can be read back out: case 2"]
+expectation = "FAIL"
+
+["Committed data can be read back out: case 3"]
+expectation = "FAIL"
+
+["Committed data can be read back out: case 4"]
+expectation = "FAIL"
+
+["Invalid durability option throws a TypeError"]
+expectation = "FAIL"

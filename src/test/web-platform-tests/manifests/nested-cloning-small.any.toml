@@ -1,0 +1,18 @@
+# Node.js doesn't have Blob or File, and my simple mocks aren't good enough for these tests.
+["blob with small typed array"]
+expectation = "FAIL"
+
+["blob with small typed array with key generator"]
+expectation = "FAIL"
+
+["blob array"]
+expectation = "FAIL"
+
+["blob array with key generator"]
+expectation = "FAIL"
+
+["array of blobs and small typed arrays"]
+expectation = "FAIL"
+
+["array of blobs and small typed arrays with key generator"]
+expectation = "FAIL"

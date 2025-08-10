@@ -1,0 +1,3 @@
+# Node.js doesn't have Blob or File, and my simple mocks aren't good enough for these tests.
+["Blobs stay alive after their records are deleted."]
+expectation = "FAIL"

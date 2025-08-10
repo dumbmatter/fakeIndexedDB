@@ -1,0 +1,2 @@
+# No Web Worker in Node.js.
+skip = true

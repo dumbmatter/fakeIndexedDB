@@ -1,0 +1,9 @@
+# these test our ability to do a structured clone on various DOM types like DOMRect which we don't support
+["Transaction inactive during structured clone in IDBObjectStore.add()"]
+expectation = "FAIL"
+
+["Transaction inactive during structured clone in IDBObjectStore.put()"]
+expectation = "FAIL"
+
+["Transaction inactive during structured clone in IDBCursor.update()"]
+expectation = "FAIL"

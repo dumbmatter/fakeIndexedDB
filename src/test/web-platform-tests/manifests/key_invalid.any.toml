@@ -1,0 +1,3 @@
+# fails because we can't detect Proxies vs non-Proxies in JavaScript
+["Invalid key - proxy of an array"]
+expectation = "FAIL"

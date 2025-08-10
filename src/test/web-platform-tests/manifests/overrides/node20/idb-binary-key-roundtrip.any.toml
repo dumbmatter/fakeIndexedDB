@@ -1,0 +1,3 @@
+# Fails in Node <24 due to lack of Float16Array
+["Binary keys can be supplied using the view type Float16Array"]
+expectation = "FAIL"

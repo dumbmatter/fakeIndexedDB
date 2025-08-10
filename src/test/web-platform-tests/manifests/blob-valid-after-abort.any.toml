@@ -1,0 +1,2 @@
+# Node.js doesn't have Blob or File, and my simple mocks aren't good enough for these tests.
+skip = true

@@ -1,0 +1,3 @@
+# Not sure how to do this weird error silencing in Node.js.
+["Any errors in callbacks that run after an explicit commit will not stop the commit from being processed."]
+expectation = "FAIL"

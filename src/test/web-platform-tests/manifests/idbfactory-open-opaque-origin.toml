@@ -1,0 +1,12 @@
+# No iframe in Node.js.
+["IDBFactory.open() in non-sandboxed iframe should not throw"]
+expectation = "FAIL"
+
+["IDBFactory.open() in sandboxed iframe should throw SecurityError"]
+expectation = "FAIL"
+
+["IDBFactory.open() in data URL dedicated workers should throw SecurityError"]
+expectation = "FAIL"
+
+["IDBFactory.open() in data URL shared workers should throw SecurityError"]
+expectation = "FAIL"

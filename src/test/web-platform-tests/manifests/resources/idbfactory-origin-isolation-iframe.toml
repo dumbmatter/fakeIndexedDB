@@ -1,0 +1,2 @@
+# Doesn't seem relevant to a node.js test (cross-origin isolation)
+skip = true

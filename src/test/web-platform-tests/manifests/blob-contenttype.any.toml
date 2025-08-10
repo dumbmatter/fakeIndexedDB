@@ -1,0 +1,3 @@
+# Node.js doesn't have Blob or File, and my simple mocks aren't good enough for these tests.
+["Ensure that content type round trips when reading blob data"]
+expectation = "FAIL"

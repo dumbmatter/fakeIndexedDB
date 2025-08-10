@@ -391,4 +391,4 @@ invalid_key('array indirectly contains self', recursive2);
 const recursive3 = [recursive];
 invalid_key('array member contains self', recursive3);
 
-
+invalid_key('proxy of an array', new Proxy([1, 2, 3], {}));

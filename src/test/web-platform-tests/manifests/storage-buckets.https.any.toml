@@ -1,0 +1,6 @@
+# we do not currently support `navigator.storageBuckets`
+["Basic test that buckets create independent databases."]
+expectation = "FAIL"
+
+["Tests trying to use indexedDB in a deleted bucket."]
+expectation = "FAIL"

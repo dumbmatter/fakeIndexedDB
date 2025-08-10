@@ -1,0 +1,3 @@
+# Flakey test - sometimes passes, sometimes fails, needs investigation
+["Abort during auto-committing should throw InvalidStateError."]
+expectation = "UNSTABLE"

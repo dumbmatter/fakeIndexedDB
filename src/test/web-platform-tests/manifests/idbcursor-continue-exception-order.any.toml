@@ -1,0 +1,6 @@
+# Usually works, but there is a race condition. Sometimes the setTimeout runs before the transaction commits.
+["IDBCursor.continue exception order: TransactionInactiveError vs. DataError"]
+expectation = "UNSTABLE"
+
+["IDBCursor.continue exception order: TransactionInactiveError vs. InvalidStateError"]
+expectation = "UNSTABLE"

@@ -1,0 +1,4 @@
+# Fails because `onerror` is never called since it is set after the abort call and the events on the request are
+# triggered synchronously. Not sure how to reconcile this with the spec. Same issue affected some other test too, I
+# think.
+skip = true

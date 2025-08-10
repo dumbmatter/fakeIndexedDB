@@ -1,0 +1,6 @@
+# Node.js doesn't have Blob or File, and my simple mocks aren't good enough for these tests.
+["small typed array"]
+expectation = "FAIL"
+
+[blob]
+expectation = "FAIL"

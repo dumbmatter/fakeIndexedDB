@@ -1,0 +1,3 @@
+# these tests rely on the precise ordering of exceptions, which we currently fail
+["IDBDatabase.transaction throws exception on invalid mode"]
+expectation = "FAIL"
