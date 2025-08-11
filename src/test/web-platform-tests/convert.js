@@ -167,7 +167,7 @@ const outFolder = path.posix.join(__dirname, "converted");
         codeChunks = codeChunks.map((chunk) => {
             return (
                 chunk
-                    // HACK: similar to above, this test runs in sloppy mode and assumes `this` is the global
+                    // HACK: this test runs in sloppy mode and assumes `this` is the global
                     .replaceAll(`this.saw =`, "saw =")
             );
         });

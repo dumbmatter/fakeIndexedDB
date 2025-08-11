@@ -45,4 +45,4 @@ node src/test/web-platform-tests/convert.js
 
 Assuming nothing substantial has changed in the structure of the tests, that should be all you have to do.
 
-Tests can be ignored by modifying the list in `run-all.js`. Files can be skipped during conversion by modifying `convert.js`.
+Completely irreelvant test files can be skipped during conversion by modifying `skip` in `convert.js`. Individual tests can be patched there as well if absolutely needed, see the `codeChunks` editing at the bottom of `convert.js`.
