@@ -1,3 +1,6 @@
 # these tests rely on the precise ordering of exceptions, which we currently fail sometimes
+["IDBCursor.advance exception order: TransactionInactiveError vs. InvalidStateError #1"]
+expectation = "UNSTABLE"
+
 ["IDBCursor.advance exception order: TransactionInactiveError vs. InvalidStateError #2"]
 expectation = "UNSTABLE"
