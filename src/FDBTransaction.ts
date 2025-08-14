@@ -13,6 +13,7 @@ import FakeEventTarget from "./lib/FakeEventTarget.js";
 import { queueTask } from "./lib/scheduling.js";
 import {
     EventCallback,
+    FDBTransactionDurability,
     RequestObj,
     RollbackLog,
     TransactionMode,
@@ -27,6 +28,7 @@ class FDBTransaction extends FakeEventTarget {
 
     public objectStoreNames: FakeDOMStringList;
     public mode: TransactionMode;
+    public durability: FDBTransactionDurability;
     public db: FDBDatabase;
     public error: Error | null = null;
     public onabort: EventCallback | null = null;
@@ -39,11 +41,17 @@ class FDBTransaction extends FakeEventTarget {
         request: FDBRequest;
     }[] = [];
 
-    constructor(storeNames: string[], mode: TransactionMode, db: FDBDatabase) {
+    constructor(
+        storeNames: string[],
+        mode: TransactionMode,
+        durability: FDBTransactionDurability,
+        db: FDBDatabase,
+    ) {
         super();
 
         this._scope = new Set(storeNames);
         this.mode = mode;
+        this.durability = durability;
         this.db = db;
         this.objectStoreNames = new FakeDOMStringList(
             ...Array.from(this._scope).sort(),

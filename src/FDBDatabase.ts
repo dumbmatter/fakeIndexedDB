@@ -11,7 +11,11 @@ import FakeDOMStringList from "./lib/FakeDOMStringList.js";
 import FakeEventTarget from "./lib/FakeEventTarget.js";
 import ObjectStore from "./lib/ObjectStore.js";
 import { queueTask } from "./lib/scheduling.js";
-import { KeyPath, TransactionMode } from "./lib/types.js";
+import {
+    FDBTransactionOptions,
+    KeyPath,
+    TransactionMode,
+} from "./lib/types.js";
 import validateKeyPath from "./lib/validateKeyPath.js";
 
 const confirmActiveVersionchangeTransaction = (database: FDBDatabase) => {
@@ -174,7 +178,11 @@ class FDBDatabase extends FakeEventTarget {
         transaction._objectStoresCache.delete(name);
     }
 
-    public transaction(storeNames: string | string[], mode?: TransactionMode) {
+    public transaction(
+        storeNames: string | string[],
+        mode?: TransactionMode,
+        options?: FDBTransactionOptions,
+    ) {
         mode = mode !== undefined ? mode : "readonly";
         if (
             mode !== "readonly" &&
@@ -215,7 +223,22 @@ class FDBDatabase extends FakeEventTarget {
             }
         }
 
-        const tx = new FDBTransaction(storeNames, mode, this);
+        // the actual algo is more complex but this passes the IDB tests: https://webidl.spec.whatwg.org/#es-dictionary
+        const durability = options?.durability ?? "default";
+        // invalid enums throw a TypeError: https://webidl.spec.whatwg.org/#es-enumeration
+        if (
+            durability !== "default" &&
+            durability !== "strict" &&
+            durability !== "relaxed"
+        ) {
+            throw new TypeError(
+                // based on Firefox's error message
+                `'${durability}' (value of 'durability' member of IDBTransactionOptions) ` +
+                    `is not a valid value for enumeration IDBTransactionDurability`,
+            );
+        }
+
+        const tx = new FDBTransaction(storeNames, mode, durability, this);
         this._rawDatabase.transactions.push(tx);
         this._rawDatabase.processTransactions(); // See if can start right away (async)
 
