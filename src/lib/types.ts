@@ -52,3 +52,10 @@ export interface FDBGetAllOptions {
     count?: number;
     direction?: FDBCursorDirection;
 }
+
+// https://w3c.github.io/IndexedDB/#enumdef-idbtransactiondurability
+export type FDBTransactionDurability = "default" | "strict" | "relaxed";
+
+export type FDBTransactionOptions = {
+    durability: FDBTransactionDurability;
+};
