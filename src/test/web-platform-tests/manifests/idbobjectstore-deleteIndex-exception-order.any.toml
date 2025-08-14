@@ -4,3 +4,6 @@ expectation = "UNSTABLE"
 
 ["IDBObjectStore.deleteIndex exception order: InvalidStateError #1 vs. TransactionInactiveError"]
 expectation = "UNSTABLE"
+
+["IDBObjectStore.deleteIndex exception order: TransactionInactiveError vs. NotFoundError"]
+expectation = "UNSTABLE"
