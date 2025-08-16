@@ -178,6 +178,21 @@ import { IDBFactory } from "fake-indexeddb";
 indexedDB = new IDBFactory();
 ```
 
+### Triggering the `"close"` event
+
+An `IDBDatabase` will fire a `"close"` event when closed for [abnormal reasons](https://www.w3.org/TR/IndexedDB/#closing-connection), such as the user manually deleting databases in DevTools. If you want to simulate this event for test coverage, you can use `forceCloseDatabase()`:
+
+```js
+import { forceCloseDatabase } from "fake-indexeddb";
+
+db.addEventListener("close", () => {
+    console.log("Forcibly closed!");
+});
+forceCloseDatabase(db); // invokes the event listener
+```
+
+Note that `forceCloseDatabase()` is not a standard IndexedDB API and is unique to fake-indexeddb.
+
 ### With PhantomJS and other really old environments
 
 PhantomJS (and other really old environments) are missing tons of modern JavaScript features. In fact, that may be why you use fake-indexeddb in such an environment! Prior to v3.0.0, fake-indexeddb imported core-js and automatically applied its polyfills. However, since most fake-indexeddb users are not using really old environments, I got rid of that runtime dependency in v3.0.0. To work around that, you can import core-js yourself before you import fake-indexeddb, like:

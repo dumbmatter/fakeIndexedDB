@@ -13,3 +13,4 @@ export { default as IDBRecord } from "./FDBRecord.js";
 export { default as IDBRequest } from "./FDBRequest.js";
 export { default as IDBTransaction } from "./FDBTransaction.js";
 export { default as IDBVersionChangeEvent } from "./FDBVersionChangeEvent.js";
+export { default as forceCloseDatabase } from "./forceCloseDatabase.js";

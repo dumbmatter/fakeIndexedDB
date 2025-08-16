@@ -5,6 +5,7 @@ import { EventCallback, EventType } from "./types.js";
 type EventTypeProp =
     | "onabort"
     | "onblocked"
+    | "onclose"
     | "oncomplete"
     | "onerror"
     | "onsuccess"
@@ -45,6 +46,7 @@ const invokeEventListeners = (event: FakeEvent, obj: FakeEventTarget) => {
     const typeToProp: { [key in EventType]: EventTypeProp } = {
         abort: "onabort",
         blocked: "onblocked",
+        close: "onclose",
         complete: "oncomplete",
         error: "onerror",
         success: "onsuccess",
@@ -76,6 +78,7 @@ abstract class FakeEventTarget {
     // These will be overridden in individual subclasses and made not readonly
     public readonly onabort: EventCallback | null | undefined;
     public readonly onblocked: EventCallback | null | undefined;
+    public readonly onclose: EventCallback | null | undefined;
     public readonly oncomplete: EventCallback | null | undefined;
     public readonly onerror: EventCallback | null | undefined;
     public readonly onsuccess: EventCallback | null | undefined;

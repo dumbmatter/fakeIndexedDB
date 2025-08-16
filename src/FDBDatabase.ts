@@ -17,6 +17,7 @@ import {
     TransactionMode,
 } from "./lib/types.js";
 import validateKeyPath from "./lib/validateKeyPath.js";
+import FakeEvent from "./lib/FakeEvent.js";
 
 const confirmActiveVersionchangeTransaction = (database: FDBDatabase) => {
     if (!database._runningVersionchangeTransaction) {
@@ -41,7 +42,10 @@ const confirmActiveVersionchangeTransaction = (database: FDBDatabase) => {
 };
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#database-closing-steps
-const closeConnection = (connection: FDBDatabase) => {
+export const closeConnection = (
+    connection: FDBDatabase,
+    forced: boolean = false,
+) => {
     connection._closePending = true;
 
     const transactionsComplete = connection._rawDatabase.transactions.every(
@@ -56,9 +60,17 @@ const closeConnection = (connection: FDBDatabase) => {
             connection._rawDatabase.connections.filter((otherConnection) => {
                 return connection !== otherConnection;
             });
+        if (forced) {
+            const event = new FakeEvent("close", {
+                bubbles: false,
+                cancelable: false,
+            });
+            event.eventPath = [];
+            connection.dispatchEvent(event);
+        }
     } else {
         queueTask(() => {
-            closeConnection(connection);
+            closeConnection(connection, forced);
         });
     }
 };
