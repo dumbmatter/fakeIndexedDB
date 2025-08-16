@@ -1,7 +1,5 @@
 import "../wpt-env.js";
 
-let attrs,cursor,db,store,store2;
-
 globalThis.title = "IndexedDB: keys and values";
 
 /* Delete created databases

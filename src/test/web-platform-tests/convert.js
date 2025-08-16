@@ -6,7 +6,7 @@ import path from "node:path";
 // HACK: some of the tests use sloppy mode, probably due to author error
 // This causes problems for us because we convert to ESM (strict) mode
 // So manually fix some of the sloppy global assignments in tests
-const globalVars = ["attrs", "cursor", "db", "store", "store2"];
+const globalVars = ["cursor", "db", "store", "value"];
 const declareGlobalVars = `let ${globalVars.join(",")};\n`;
 
 const skip = [
@@ -128,9 +128,12 @@ const outFolder = path.posix.join(__dirname, "converted");
             codeChunks.push(`import "${relativeWptEnvLocation}";\n`);
         }
 
-        // HACK: this test doesn't need the sloppy mode fixes, and in fact already declares a const called `store`
+        // HACK: these tests don't need the sloppy mode fixes, and in fact already declare the relevant variables
         // so would fail with the fixes
-        if (!filename.endsWith("/idbcursor-continue.any.js")) {
+        if (
+            !filename.endsWith("/idbcursor-continue.any.js") &&
+            !filename.endsWith("/value.any.js")
+        ) {
             codeChunks.push(declareGlobalVars);
         }
 

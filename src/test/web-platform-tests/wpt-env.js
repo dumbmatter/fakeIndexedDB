@@ -27,16 +27,33 @@ global.VersionError = VersionError;
 
 global.Event = FakeEvent;
 
-global.Blob = function (parts, options = {}) {
-    this.size = 0;
-    Object.assign(this, options);
-    return this;
+global.FileReader = class FileReader {
+    async readAsArrayBuffer(blob) {
+        this.result = await blob.arrayBuffer();
+        this.onloadend();
+    }
 };
 
-global.File = function (bits, name, options = {}) {
-    this.name = name;
-    Object.assign(this, options);
-    return this;
+global.File = class File extends Blob {
+    constructor(bits, name, options = {}) {
+        super(bits);
+        this._bits = bits;
+        this.name = name;
+        this.lastModified = options?.lastModified;
+    }
+};
+
+// currently we cannot define our own structured cloning algorithm for our File polyfill, so we implement our own
+// structured clone to pass some tests. If this proposal is ever implemented we can remove this:
+// https://github.com/littledan/serializable-objects
+const originalStructuredClone = global.structuredClone;
+global.structuredClone = function customStructuredClone(obj) {
+    if (obj instanceof File) {
+        return new File(structuredClone(obj._bits), obj.name, {
+            lastModified: obj.lastModified,
+        });
+    }
+    return originalStructuredClone(obj);
 };
 
 global.document = {
@@ -88,16 +105,14 @@ const assert_unreached = (msg) => assert.fail(msg);
 const assert_equals = (...args) => assert.equal(...args);
 
 const assert_class_string = (object, class_string, description) => {
-    // Would be better to to use `{}.toString.call(object)` instead of `object.toString()`, but I can't make that work
-    // with my custom Objects except in some very modern environments http://stackoverflow.com/a/34098492/786644 so fuck
-    // it, probably nobody will notice.
-    if (class_string === "Array") {
-        return Array.isArray(object);
-    }
-    assert_equals(
-        object.toString(),
-        "[object " + class_string + "]",
+    var actual = {}.toString.call(object);
+    var expected = "[object " + class_string + "]";
+    assert(
+        same_value(actual, expected),
+        "assert_class_string",
         description,
+        "expected ${expected} but got ${actual}",
+        { expected: expected, actual: actual },
     );
 };
 

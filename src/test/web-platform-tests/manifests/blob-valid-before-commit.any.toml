@@ -1,3 +1,0 @@
-# Node.js doesn't have Blob or File, and my simple mocks aren't good enough for these tests.
-["Blobs can be read back before their records are committed."]
-expectation = "FAIL"

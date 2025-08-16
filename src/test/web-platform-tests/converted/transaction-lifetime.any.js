@@ -1,6 +1,6 @@
 import "../wpt-env.js";
 
-let attrs,cursor,db,store,store2;
+let cursor,db,store,value;
 
 globalThis.title = "Event order when opening a second database when one connection is open already";
 

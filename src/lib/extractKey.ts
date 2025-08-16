@@ -54,10 +54,22 @@ const extractKey = (
             remainingKeyPath = null;
         }
 
+        // special cases: https://w3c.github.io/IndexedDB/#evaluate-a-key-path-on-a-value
+        const isSpecialIdentifier =
+            (identifier === "length" &&
+                (typeof object === "string" || Array.isArray(object))) ||
+            ((identifier === "size" || identifier === "type") &&
+                typeof Blob !== "undefined" &&
+                object instanceof Blob) ||
+            ((identifier === "name" || identifier === "lastModified") &&
+                typeof File !== "undefined" &&
+                object instanceof File);
+
         if (
-            object === undefined ||
-            object === null ||
-            !Object.hasOwn(object, identifier)
+            !isSpecialIdentifier &&
+            (typeof object !== "object" ||
+                object === null ||
+                !Object.hasOwn(object, identifier))
         ) {
             return { type: "notFound" };
         }
