@@ -1,9 +1,9 @@
 import FDBKeyRange from "../FDBKeyRange.js";
 import {
+    binarySearchByKeyAndValue,
     getByKey,
     getByKeyRange,
     getIndexByKey,
-    getIndexByKeyGTE,
     getIndexByKeyRange,
 } from "./binarySearch.js";
 import cmp from "./cmp.js";
@@ -26,25 +26,7 @@ class RecordStore {
         if (this.records.length === 0) {
             i = 0;
         } else {
-            i = getIndexByKeyGTE(this.records, newRecord.key);
-
-            if (i === -1) {
-                // If no matching key, add to end
-                i = this.records.length;
-            } else {
-                // If matching key, advance to appropriate position based on value (used in indexes)
-                while (
-                    i < this.records.length &&
-                    cmp(this.records[i].key, newRecord.key) === 0
-                ) {
-                    if (cmp(this.records[i].value, newRecord.value) !== -1) {
-                        // Record value >= newRecord value, so insert here
-                        break;
-                    }
-
-                    i += 1; // Look at next record
-                }
-            }
+            i = binarySearchByKeyAndValue(this.records, newRecord);
         }
 
         this.records.splice(i, 0, newRecord);
