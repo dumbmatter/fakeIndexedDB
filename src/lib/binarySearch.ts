@@ -22,6 +22,32 @@ function binarySearch(records: Record[], key: Key): number {
 }
 
 /**
+ * Same as above, but taking value into account as well, so sorting by
+ * [key, value] pairs.
+ */
+export function binarySearchByKeyAndValue(
+    records: Record[],
+    record: Record,
+): number {
+    let low = 0;
+    let high = records.length;
+    let mid;
+    while (low < high) {
+        mid = (low + high) >>> 1; // like Math.floor((low + high) / 2) but fast
+        const keyComparison = cmp(records[mid].key, record.key);
+        if (
+            keyComparison < 0 ||
+            (keyComparison === 0 && cmp(records[mid].value, record.value) < 0)
+        ) {
+            low = mid + 1;
+        } else {
+            high = mid;
+        }
+    }
+    return low;
+}
+
+/**
  * Equivalent to `records.findIndex(record => cmp(record.key, key) === 0)`
  */
 export function getIndexByKey(records: Record[], key: Key): number {
@@ -75,16 +101,4 @@ export function getByKeyRange(
 ): Record | undefined {
     const idx = getIndexByKeyRange(records, keyRange);
     return records[idx];
-}
-
-/**
- * Equivalent to `records.findIndex(record => cmp(record.key, key) >= 0)`
- */
-export function getIndexByKeyGTE(records: Record[], key: Key): number {
-    const idx = binarySearch(records, key);
-    const record = records[idx];
-    if (record && cmp(record.key, key) >= 0) {
-        return idx;
-    }
-    return -1;
 }
