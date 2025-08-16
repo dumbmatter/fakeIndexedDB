@@ -11,6 +11,7 @@ declare const FDBRecord: any; // should be updated once TypeScript DOM types are
 declare const FDBRequest: typeof IDBRequest;
 declare const FDBTransaction: typeof IDBTransaction;
 declare const FDBVersionChangeEvent: typeof IDBVersionChangeEvent;
+declare const forceCloseDatabase: (db: typeof FDBDatabase) => void;
 
 export default fakeIndexedDB;
 
@@ -28,4 +29,5 @@ export {
     FDBRequest as IDBRequest,
     FDBTransaction as IDBTransaction,
     FDBVersionChangeEvent as IDBVersionChangeEvent,
+    forceCloseDatabase,
 };
