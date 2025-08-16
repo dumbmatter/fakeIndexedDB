@@ -1,3 +1,4 @@
-# Node.js doesn't have Blob or File, and my simple mocks aren't good enough for these tests.
+# This relies on XMLHttpRequest and confirming that a blob's content type is preserved
+# when fetching the blob's object URL or POSTing the blob, which isn't really relevant for Node
 ["Ensure that content type round trips when reading blob data"]
 expectation = "FAIL"

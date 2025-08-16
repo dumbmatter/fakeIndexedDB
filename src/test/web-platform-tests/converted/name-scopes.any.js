@@ -1,6 +1,6 @@
 import "../wpt-env.js";
 
-let attrs,cursor,db,store,store2;
+let cursor,db,store,value;
 
 globalThis.title = "IndexedDB: scoping for database / object store / index names, and index keys";
 
