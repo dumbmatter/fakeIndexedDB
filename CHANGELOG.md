@@ -1,3 +1,13 @@
+# Development
+
+- Fixed `fake-indexeddb/auto` import in browsers (#127 by @nolanlawson)
+
+- Add new `forceCloseDatabase` API to simulate the database being abnormally closed, emitting a `"close"` event (#126 by @nolanlawson)
+
+- Improve insert performance of `multiEntry` indexes (#125 by @nolanlawson)
+
+- Improved handling of `Blob` and `File` objects (#124 by @nolanlawson)
+
 # 6.1.0 (2025-08-08)
 
 - Added support for new IndexedDB features: querying keys and values at the same time with `getAllRecords`, and passing a descending direction into `getAll`/`getAllKeys`. (#112 by @nolanlawson)
