@@ -15,6 +15,7 @@ export type EventCallback = (event: EventInCallback) => void;
 export type EventType =
     | "abort"
     | "blocked"
+    | "close"
     | "complete"
     | "error"
     | "success"

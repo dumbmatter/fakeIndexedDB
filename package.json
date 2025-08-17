@@ -80,6 +80,10 @@
         "./lib/FDBVersionChangeEvent": {
             "import": "./build/esm/FDBVersionChangeEvent.js",
             "require": "./build/cjs/FDBVersionChangeEvent.js"
+        },
+        "./lib/forceCloseDatabase": {
+            "import": "./build/esm/forceCloseDatabase.js",
+            "require": "./build/cjs/forceCloseDatabase.js"
         }
     },
     "types": "./types.d.ts",
