@@ -22,16 +22,37 @@ var globalVar =
             ? global
             : Function("return this;")();
 
-globalVar.indexedDB = fakeIndexedDB;
-globalVar.IDBCursor = FDBCursor;
-globalVar.IDBCursorWithValue = FDBCursorWithValue;
-globalVar.IDBDatabase = FDBDatabase;
-globalVar.IDBFactory = FDBFactory;
-globalVar.IDBIndex = FDBIndex;
-globalVar.IDBKeyRange = FDBKeyRange;
-globalVar.IDBObjectStore = FDBObjectStore;
-globalVar.IDBOpenDBRequest = FDBOpenDBRequest;
-globalVar.IDBRecord = FDBRecord;
-globalVar.IDBRequest = FDBRequest;
-globalVar.IDBTransaction = FDBTransaction;
-globalVar.IDBVersionChangeEvent = FDBVersionChangeEvent;
+// Match the native behavior for `globalThis.indexedDB`, `globlThis.IDBCursor`, etc.
+// Per the IDL, `indexedDB` is readonly but the others are readwrite
+// https://w3c.github.io/IndexedDB/#idl-index
+const createPropertyDescriptor = (value, readOnly = false) => {
+    return {
+        ...(readOnly
+            ? {
+                  set: undefined,
+                  get: () => value,
+              }
+            : {
+                  value,
+                  writable: true,
+              }),
+        enumerable: true,
+        configurable: true,
+    };
+};
+
+Object.defineProperties(globalVar, {
+    indexedDB: createPropertyDescriptor(fakeIndexedDB, true),
+    IDBCursor: createPropertyDescriptor(FDBCursor),
+    IDBCursorWithValue: createPropertyDescriptor(FDBCursorWithValue),
+    IDBDatabase: createPropertyDescriptor(FDBDatabase),
+    IDBFactory: createPropertyDescriptor(FDBFactory),
+    IDBIndex: createPropertyDescriptor(FDBIndex),
+    IDBKeyRange: createPropertyDescriptor(FDBKeyRange),
+    IDBObjectStore: createPropertyDescriptor(FDBObjectStore),
+    IDBOpenDBRequest: createPropertyDescriptor(FDBOpenDBRequest),
+    IDBRecord: createPropertyDescriptor(FDBRecord),
+    IDBRequest: createPropertyDescriptor(FDBRequest),
+    IDBTransaction: createPropertyDescriptor(FDBTransaction),
+    IDBVersionChangeEvent: createPropertyDescriptor(FDBVersionChangeEvent),
+});
