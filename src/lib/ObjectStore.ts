@@ -12,7 +12,7 @@ import FDBRecord from "../FDBRecord.js";
 class ObjectStore {
     public deleted = false;
     public readonly rawDatabase: Database;
-    public readonly records = new RecordStore();
+    public readonly records = new RecordStore(true);
     public readonly rawIndexes: Map<string, Index> = new Map();
     public name: string;
     public readonly keyPath: KeyPath | null;
