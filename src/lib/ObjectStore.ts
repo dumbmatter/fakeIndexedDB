@@ -244,7 +244,15 @@ class ObjectStore {
         }
     }
 
-    public count(range: FDBKeyRange) {
+    public count(range: FDBKeyRange | undefined) {
+        // optimization: if there is no range, or if the range is everything, then we can just count the total size
+        if (
+            range === undefined ||
+            (range.lower === undefined && range.upper === undefined)
+        ) {
+            return this.records.size();
+        }
+
         let count = 0;
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars

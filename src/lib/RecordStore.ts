@@ -117,6 +117,10 @@ class RecordStore {
             },
         };
     }
+
+    public size(): number {
+        return this.records.size();
+    }
 }
 
 export default RecordStore;
