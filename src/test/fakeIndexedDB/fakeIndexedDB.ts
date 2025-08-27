@@ -628,6 +628,42 @@ describe("fakeIndexedDB Tests", () => {
         };
     });
 
+    it("FDBObjectStore.delete works with a key range after clear()", (done) => {
+        const openreq = fakeIndexedDB.open("test54");
+        openreq.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            const store = db.createObjectStore("items", { keyPath: "key" });
+            store.clear();
+            store.put({ key: "foo.a", value: 1 });
+            store.put({ key: "foo.b", value: 2 });
+            store.put({ key: "bar.c", value: 3 });
+        };
+        openreq.onsuccess = (event) => {
+            const db = event.target.result;
+            db.transaction("items").objectStore("items").count().onsuccess = (
+                event2: any,
+            ) => {
+                assert.equal(event2.target.result, 3);
+                const req = db
+                    .transaction("items", "readwrite")
+                    .objectStore("items")
+                    .delete(FDBKeyRange.bound("foo.", "foo.￿", false, false));
+                req.onsuccess = () => {
+                    db
+                        .transaction("items")
+                        .objectStore("items")
+                        .count().onsuccess = (event3: any) => {
+                        assert.equal(event3.target.result, 1);
+                        done();
+                    };
+                };
+                req.onerror = (event3: any) => {
+                    done(event3.target.error);
+                };
+            };
+        };
+    });
+
     it("properly handles processing transactions with no requests (issue #54)", async () => {
         function open(): Promise<FDBDatabase> {
             /* Create database and object store */

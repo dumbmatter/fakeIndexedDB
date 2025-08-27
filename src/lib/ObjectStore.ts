@@ -1,6 +1,6 @@
 import FDBKeyRange from "../FDBKeyRange.js";
 import Database from "./Database.js";
-import { ConstraintError, DataError } from "./errors.js";
+import { DataError } from "./errors.js";
 import extractKey from "./extractKey.js";
 import Index from "./Index.js";
 import KeyGenerator from "./KeyGenerator.js";
@@ -12,7 +12,7 @@ import FDBRecord from "../FDBRecord.js";
 class ObjectStore {
     public deleted = false;
     public readonly rawDatabase: Database;
-    public readonly records = new RecordStore();
+    public readonly records = new RecordStore(true);
     public readonly rawIndexes: Map<string, Index> = new Map();
     public name: string;
     public readonly keyPath: KeyPath | null;
@@ -184,20 +184,25 @@ class ObjectStore {
             this.keyGenerator.setIfLarger(newRecord.key);
         }
 
-        const existingRecord = this.records.get(newRecord.key);
-        if (existingRecord) {
-            if (noOverwrite) {
-                throw new ConstraintError();
-            }
-            this.deleteRecord(newRecord.key, rollbackLog);
-        }
-
-        this.records.add(newRecord);
+        const existingRecord = this.records.put(newRecord, noOverwrite);
 
         if (rollbackLog) {
             rollbackLog.push(() => {
-                this.deleteRecord(newRecord.key);
+                if (existingRecord) {
+                    // overwrite on rollback
+                    this.storeRecord(existingRecord, false);
+                } else {
+                    // delete on rollback
+                    this.deleteRecord(newRecord.key);
+                }
             });
+        }
+
+        // Delete existing indexes
+        if (existingRecord) {
+            for (const rawIndex of this.rawIndexes.values()) {
+                rawIndex.records.deleteByValue(newRecord.key);
+            }
         }
 
         // Update indexes
@@ -244,7 +249,15 @@ class ObjectStore {
         }
     }
 
-    public count(range: FDBKeyRange) {
+    public count(range: FDBKeyRange | undefined) {
+        // optimization: if there is no range, or if the range is everything, then we can just count the total size
+        if (
+            range === undefined ||
+            (range.lower === undefined && range.upper === undefined)
+        ) {
+            return this.records.size();
+        }
+
         let count = 0;
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars

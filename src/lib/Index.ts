@@ -15,7 +15,7 @@ class Index {
     // constraint
     public initialized = false;
     public readonly rawObjectStore: ObjectStore;
-    public readonly records = new RecordStore();
+    public readonly records;
     public name: string;
     public readonly keyPath: KeyPath;
     public multiEntry: boolean;
@@ -34,6 +34,7 @@ class Index {
         this.keyPath = keyPath;
         this.multiEntry = multiEntry;
         this.unique = unique;
+        this.records = new RecordStore(unique);
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-retrieving-a-value-from-an-index
@@ -176,13 +177,13 @@ class Index {
         }
 
         if (!this.multiEntry || !Array.isArray(indexKey)) {
-            this.records.add({
+            this.records.put({
                 key: indexKey,
                 value: newRecord.key,
             });
         } else {
             for (const individualIndexKey of indexKey) {
-                this.records.add({
+                this.records.put({
                     key: individualIndexKey,
                     value: newRecord.key,
                 });

@@ -1,225 +1,133 @@
 import FDBKeyRange from "../FDBKeyRange.js";
-import {
-    binarySearchByKeyAndValue,
-    getByKey,
-    getByKeyRange,
-    getIndexByKey,
-    getIndexByKeyRange,
-} from "./binarySearch.js";
 import cmp from "./cmp.js";
 import { FDBCursorDirection, Key, Record } from "./types.js";
+import BinarySearchTree from "./binarySearchTree.js";
 
 class RecordStore {
-    private records: Record[] = [];
+    private keysAreUnique: boolean;
+    private records: BinarySearchTree;
+
+    constructor(keysAreUnique: boolean) {
+        this.keysAreUnique = keysAreUnique;
+        this.records = new BinarySearchTree(this.keysAreUnique);
+    }
 
     public get(key: Key | FDBKeyRange) {
-        if (key instanceof FDBKeyRange) {
-            return getByKeyRange(this.records, key);
-        }
-
-        return getByKey(this.records, key);
+        const range = key instanceof FDBKeyRange ? key : FDBKeyRange.only(key);
+        return this.records.getRecords(range).next().value;
     }
 
-    public add(newRecord: Record) {
-        // Find where to put it so it's sorted by key
-        let i;
-        if (this.records.length === 0) {
-            i = 0;
-        } else {
-            i = binarySearchByKeyAndValue(this.records, newRecord);
-        }
-
-        this.records.splice(i, 0, newRecord);
+    /**
+     * Put a new record, and return the overwritten record if an overwrite occurred.
+     * @param newRecord
+     * @param noOverwrite - throw a ConstraintError in case of overwrite
+     */
+    public put(
+        newRecord: Record,
+        noOverwrite: boolean = false,
+    ): Record | undefined {
+        return this.records.put(newRecord, noOverwrite);
     }
 
-    public delete(key: Key) {
-        const deletedRecords: Record[] = [];
+    public delete(key: Key | FDBKeyRange) {
+        const range = key instanceof FDBKeyRange ? key : FDBKeyRange.only(key);
 
-        const isRange = key instanceof FDBKeyRange;
-        while (true) {
-            const idx = isRange
-                ? getIndexByKeyRange(this.records, key)
-                : getIndexByKey(this.records, key);
-            if (idx === -1) {
-                break;
-            }
-            deletedRecords.push(this.records[idx]);
-            this.records.splice(idx, 1);
+        const deletedRecords = [...this.records.getRecords(range)];
+
+        for (const record of deletedRecords) {
+            this.records.delete(record);
         }
+
         return deletedRecords;
     }
 
-    public deleteByValue(key: Key) {
+    public deleteByValue(key: Key | FDBKeyRange) {
         const range = key instanceof FDBKeyRange ? key : FDBKeyRange.only(key);
 
         const deletedRecords: Record[] = [];
-
-        this.records = this.records.filter((record) => {
-            const shouldDelete = range.includes(record.value);
-
-            if (shouldDelete) {
+        for (const record of this.records.getAllRecords()) {
+            if (range.includes(record.value)) {
+                this.records.delete(record);
                 deletedRecords.push(record);
             }
-
-            return !shouldDelete;
-        });
+        }
 
         return deletedRecords;
     }
 
     public clear() {
-        const deletedRecords = this.records.slice();
-        this.records = [];
+        const deletedRecords = [...this.records.getAllRecords()];
+        this.records = new BinarySearchTree(this.keysAreUnique);
         return deletedRecords;
     }
 
     public values(range?: FDBKeyRange, direction: FDBCursorDirection = "next") {
+        const descending = direction === "prev" || direction === "prevunique";
+        const records = range
+            ? this.records.getRecords(range, descending)
+            : this.records.getAllRecords(descending);
+
         return {
             [Symbol.iterator]: () => {
-                let i: number;
-                if (direction === "next" || direction === "nextunique") {
-                    i = 0;
-                    if (range !== undefined && range.lower !== undefined) {
-                        while (this.records[i] !== undefined) {
-                            const cmpResult = cmp(
-                                this.records[i].key,
-                                range.lower,
-                            );
-                            if (
-                                cmpResult === 1 ||
-                                (cmpResult === 0 && !range.lowerOpen)
-                            ) {
-                                break;
-                            }
-                            i += 1;
-                        }
-                    }
-                } else {
-                    i = this.records.length - 1;
-                    if (range !== undefined && range.upper !== undefined) {
-                        while (this.records[i] !== undefined) {
-                            const cmpResult = cmp(
-                                this.records[i].key,
-                                range.upper,
-                            );
-                            if (
-                                cmpResult === -1 ||
-                                (cmpResult === 0 && !range.upperOpen)
-                            ) {
-                                break;
-                            }
-                            i -= 1;
-                        }
-                    }
-                }
-
                 const next = () => {
-                    let done;
-                    let value;
-                    if (direction === "next" || direction === "nextunique") {
-                        value = this.records[i];
-                        done = i >= this.records.length;
-                        i += 1;
-
-                        if (
-                            !done &&
-                            range !== undefined &&
-                            range.upper !== undefined
-                        ) {
-                            const cmpResult = cmp(value.key, range.upper);
-                            done =
-                                cmpResult === 1 ||
-                                (cmpResult === 0 && range.upperOpen);
-                            if (done) {
-                                value = undefined;
-                            }
-                        }
-                    } else {
-                        value = this.records[i];
-                        done = i < 0;
-                        i -= 1;
-
-                        if (
-                            !done &&
-                            range !== undefined &&
-                            range.lower !== undefined
-                        ) {
-                            const cmpResult = cmp(value.key, range.lower);
-                            done =
-                                cmpResult === -1 ||
-                                (cmpResult === 0 && range.lowerOpen);
-                            if (done) {
-                                value = undefined;
-                            }
-                        }
-                    }
-
-                    // The weird "as IteratorResult<Record>" is needed because of
-                    // https://github.com/Microsoft/TypeScript/issues/11375 and
-                    // https://github.com/Microsoft/TypeScript/issues/2983
-                    return {
-                        done,
-                        value,
-                    } as IteratorResult<Record>;
+                    return records.next();
                 };
 
                 if (direction === "next" || direction === "prev") {
                     return { next };
                 }
 
-                // peek at the next value without incrementing the iterator
-                const peek = () => {
-                    const iOriginal = i;
-                    const result = next();
-                    i = iOriginal;
-                    return result;
-                };
-
                 // For nextunique/prevunique, return an iterator that skips seen values
-                // Note that we must resturn the _lowest_ value regardless of direction:
+                // Note that we must return the _lowest_ value regardless of direction:
                 // > Iterating with "prevunique" visits the same records that "nextunique"
                 // > visits, but in reverse order.
                 // https://w3c.github.io/IndexedDB/#dom-idbcursordirection-prevunique
-                let prevValue: Record | undefined = undefined;
+                if (direction === "nextunique") {
+                    let previousValue: Record | undefined = undefined;
+                    return {
+                        next: (): IteratorResult<Record> => {
+                            let current = next();
+                            // for nextunique, continue if we already emitted the lowest unique value
+                            while (
+                                !current.done &&
+                                previousValue !== undefined &&
+                                cmp(previousValue.key, current.value.key) === 0
+                            ) {
+                                current = next();
+                            }
+                            previousValue = current.value;
+                            return current;
+                        },
+                    };
+                }
+
+                // prevunique is a bit more complex due to needing to check the next value, which
+                // invokes the iterable, so we need to keep a buffer of one "lookahead" result
+                let current = next();
+                let nextResult = next();
+
                 return {
                     next: (): IteratorResult<Record> => {
-                        let current: IteratorResult<Record>;
-                        while (!(current = next()).done) {
-                            const { done, value } = current;
-                            if (direction === "nextunique") {
-                                // for nextunique, continue if we already emitted the lowest unique value
-                                if (
-                                    prevValue !== undefined &&
-                                    cmp(prevValue.key, value.key) === 0
-                                ) {
-                                    continue;
-                                }
-                            } else {
-                                // for prevunique, we need to peek to see if the next value will be different,
-                                // since we're trying to return the lowest unique value
-                                const { value: nextValue, done: nextDone } =
-                                    peek();
-                                if (
-                                    !nextDone &&
-                                    cmp(nextValue.key, value.key) === 0
-                                ) {
-                                    continue;
-                                }
-                            }
-                            prevValue = value;
-                            return {
-                                value,
-                                done,
-                            };
+                        while (
+                            !nextResult.done &&
+                            cmp(current.value.key, nextResult.value.key) === 0
+                        ) {
+                            // note we return the _lowest_ possible value, hence set the current
+                            current = nextResult;
+                            nextResult = next();
                         }
-                        return {
-                            value: undefined,
-                            done: true,
-                        };
+                        const result = current;
+                        current = nextResult;
+                        nextResult = next();
+                        return result;
                     },
                 };
             },
         };
+    }
+
+    public size(): number {
+        return this.records.size();
     }
 }
 
