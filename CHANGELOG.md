@@ -1,12 +1,24 @@
 # Development
 
-- Fixed `fake-indexeddb/auto` import in browsers (#127 by @nolanlawson)
+## New features
 
 - Add new `forceCloseDatabase` API to simulate the database being abnormally closed, emitting a `"close"` event (#126 by @nolanlawson)
 
-- Improve insert performance of `multiEntry` indexes (#125 by @nolanlawson)
+## Performance
+
+- Significantly improved performance of some operations (like 13x for inserts with many multiEntry indexes) by using a binary search tree to store data, although for most simple use cases you won't notice a difference (#128 by @nolanlawson)
+
+- Improved performance in non-Safari browsers by using `scheduler.postTask` rather than `setTimeout` (#129 by @nolanlawson)
+
+## Bug fixes
 
 - Improved handling of `Blob` and `File` objects (#124 by @nolanlawson)
+
+- Fixed `fake-indexeddb/auto` import in browsers (#127 by @nolanlawson)
+
+## Infrastructure
+
+- Further improvved test coverage and performance of Web Platform Tests since the last release (#119 #120 #121 #122 #123 by @nolanlawson)
 
 # 6.1.0 (2025-08-08)
 
