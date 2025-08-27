@@ -115,6 +115,58 @@ describe("binarySearchTree", () => {
         assertRecordsEqual(tree.getRecords(FDBKeyRange.only("x")), []);
     });
 
+    it("throws an error on overwrite if noOverwrite=true", () => {
+        const tree = new BinarySearchTree();
+        tree.put({ key: "a", value: "a" }, true);
+        tree.put({ key: "b", value: "b" }, true);
+        assert.throws(() => tree.put({ key: "a", value: "a" }, true));
+    });
+
+    it("works for keysAreUnique=true", () => {
+        const tree = new BinarySearchTree(true);
+        tree.put({ key: "a", value: 0 });
+        tree.put({ key: "a", value: 1 });
+        tree.put({ key: "a", value: 2 });
+        assertRecordsEqual(tree.getAllRecords(), [{ key: "a", value: 2 }]);
+        assert.throws(() => tree.put({ key: "a", value: 3 }, true));
+    });
+
+    it("returns existing records for overwrites", () => {
+        const tree = new BinarySearchTree();
+        assert.deepStrictEqual(tree.put({ key: "a", value: "a" }), undefined);
+        assert.deepStrictEqual(tree.put({ key: "a", value: "a" }), {
+            key: "a",
+            value: "a",
+        });
+        assert.deepStrictEqual(tree.put({ key: "b", value: "b" }), undefined);
+        tree.delete({ key: "a", value: "a" });
+        assert.deepStrictEqual(tree.put({ key: "a", value: "a" }), undefined);
+        assert.deepStrictEqual(tree.put({ key: "a", value: "a" }), {
+            key: "a",
+            value: "a",
+        });
+    });
+
+    it("returns existing records for overwrites, keysAreUnique=true", () => {
+        const tree = new BinarySearchTree(true);
+        assert.deepStrictEqual(tree.put({ key: "a", value: 0 }), undefined);
+        assert.deepStrictEqual(tree.put({ key: "a", value: 1 }), {
+            key: "a",
+            value: 0,
+        });
+        assert.deepStrictEqual(tree.put({ key: "a", value: 2 }), {
+            key: "a",
+            value: 1,
+        });
+        assert.deepStrictEqual(tree.put({ key: "b", value: 0 }), undefined);
+        tree.delete({ key: "a", value: undefined });
+        assert.deepStrictEqual(tree.put({ key: "a", value: 3 }), undefined);
+        assert.deepStrictEqual(tree.put({ key: "a", value: 4 }), {
+            key: "a",
+            value: 3,
+        });
+    });
+
     describe("can do range searches", () => {
         [false, true].forEach((descending) => {
             const assertRecordsEqualGivenOrdering = <T>(

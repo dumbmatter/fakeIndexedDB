@@ -17,8 +17,16 @@ class RecordStore {
         return this.records.getRecords(range).next().value;
     }
 
-    public add(newRecord: Record) {
-        this.records.put(newRecord);
+    /**
+     * Put a new record, and return the overwritten record if an overwrite occurred.
+     * @param newRecord
+     * @param noOverwrite - throw a ConstraintError in case of overwrite
+     */
+    public put(
+        newRecord: Record,
+        noOverwrite: boolean = false,
+    ): Record | undefined {
+        return this.records.put(newRecord, noOverwrite);
     }
 
     public delete(key: Key | FDBKeyRange) {

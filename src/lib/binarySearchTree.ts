@@ -1,6 +1,7 @@
 import { Record } from "./types.js";
 import cmp from "./cmp.js";
 import FDBKeyRange from "../FDBKeyRange.js";
+import { ConstraintError } from "./errors.js";
 
 // what fraction of the total number of nodes are allowed to be deleted tombstones?
 const MAX_TOMBSTONE_FACTOR = 2 / 3;
@@ -93,7 +94,12 @@ export default class BinarySearchTree {
         }
     }
 
-    put(record: Record): void {
+    /**
+     * Put a new record, and return the overwritten record if an overwrite occurred.
+     * @param record
+     * @param noOverwrite - throw a ConstraintError in case of overwrite
+     */
+    put(record: Record, noOverwrite: boolean = false): Record | undefined {
         if (!this._root) {
             this._root = {
                 record,
@@ -107,54 +113,56 @@ export default class BinarySearchTree {
             this._numNodes++;
             return;
         }
-        const newNode = this._put(this._root, record);
-        if (newNode) {
-            // if newNode === this._root then we merely undeleted the root, and no rebalancing is needed
-            if (newNode !== this._root) {
-                this._rebalanceTree(newNode);
-            }
-        }
+        return this._put(this._root, record, noOverwrite);
     }
 
-    private _put(node: Node, record: Record): Node | undefined {
+    private _put(
+        node: Node,
+        record: Record,
+        noOverwrite: boolean,
+    ): Record | undefined {
         const comparison = this._compare(record, node.record);
         if (comparison < 0) {
             if (node.left) {
-                return this._put(node.left, record);
+                return this._put(node.left, record, noOverwrite);
             } else {
-                this._numNodes++;
-                return (node.left = {
+                node.left = {
                     record,
                     left: undefined,
                     right: undefined,
                     parent: node,
                     deleted: false,
                     red: true,
-                });
+                };
+                this._onNewNodeInserted(node.left);
             }
         } else if (comparison > 0) {
             if (node.right) {
-                return this._put(node.right, record);
+                return this._put(node.right, record, noOverwrite);
             } else {
-                this._numNodes++;
-                return (node.right = {
+                node.right = {
                     record,
                     left: undefined,
                     right: undefined,
                     parent: node,
                     deleted: false,
                     red: true,
-                });
+                };
+                this._onNewNodeInserted(node.right);
             }
         } else if (node.deleted) {
             // undelete
             node.deleted = false;
             node.record = record;
             this._numTombstones--;
-            return node;
+        } else if (noOverwrite) {
+            // replace not allowed in case of noOverwrite
+            throw new ConstraintError();
         } else {
-            // replace, don't add, so no need to increment. return undefined
+            // replace, don't add, so no need to increment. return the overwritten record
+            const overwrittenRecord = node.record;
             node.record = record;
+            return overwrittenRecord;
         }
     }
 
@@ -258,6 +266,11 @@ export default class BinarySearchTree {
         if (moreEnd && node[end]) {
             yield* this._findRecords(node[end], keyRange, descending);
         }
+    }
+
+    private _onNewNodeInserted(newNode: Node) {
+        this._numNodes++;
+        this._rebalanceTree(newNode);
     }
 
     // based on https://en.wikipedia.org/wiki/Red%E2%80%93black_tree#Insertion

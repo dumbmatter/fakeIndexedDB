@@ -177,13 +177,13 @@ class Index {
         }
 
         if (!this.multiEntry || !Array.isArray(indexKey)) {
-            this.records.add({
+            this.records.put({
                 key: indexKey,
                 value: newRecord.key,
             });
         } else {
             for (const individualIndexKey of indexKey) {
-                this.records.add({
+                this.records.put({
                     key: individualIndexKey,
                     value: newRecord.key,
                 });

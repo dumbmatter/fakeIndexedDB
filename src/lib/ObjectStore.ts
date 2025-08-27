@@ -1,6 +1,6 @@
 import FDBKeyRange from "../FDBKeyRange.js";
 import Database from "./Database.js";
-import { ConstraintError, DataError } from "./errors.js";
+import { DataError } from "./errors.js";
 import extractKey from "./extractKey.js";
 import Index from "./Index.js";
 import KeyGenerator from "./KeyGenerator.js";
@@ -184,20 +184,25 @@ class ObjectStore {
             this.keyGenerator.setIfLarger(newRecord.key);
         }
 
-        const existingRecord = this.records.get(newRecord.key);
-        if (existingRecord) {
-            if (noOverwrite) {
-                throw new ConstraintError();
-            }
-            this.deleteRecord(newRecord.key, rollbackLog);
-        }
-
-        this.records.add(newRecord);
+        const existingRecord = this.records.put(newRecord, noOverwrite);
 
         if (rollbackLog) {
             rollbackLog.push(() => {
-                this.deleteRecord(newRecord.key);
+                if (existingRecord) {
+                    // overwrite on rollback
+                    this.storeRecord(existingRecord, false);
+                } else {
+                    // delete on rollback
+                    this.deleteRecord(newRecord.key);
+                }
             });
+        }
+
+        // Delete exising indexes
+        if (existingRecord) {
+            for (const rawIndex of this.rawIndexes.values()) {
+                rawIndex.records.deleteByValue(newRecord.key);
+            }
         }
 
         // Update indexes
