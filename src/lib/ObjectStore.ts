@@ -198,7 +198,7 @@ class ObjectStore {
             });
         }
 
-        // Delete exising indexes
+        // Delete existing indexes
         if (existingRecord) {
             for (const rawIndex of this.rawIndexes.values()) {
                 rawIndex.records.deleteByValue(newRecord.key);
