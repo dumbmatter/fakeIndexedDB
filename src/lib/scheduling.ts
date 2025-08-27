@@ -17,6 +17,23 @@ function getSetImmediateFromJsdom() {
     }
 }
 
+// waiting on this PR for typescript types: https://github.com/microsoft/TypeScript-DOM-lib-generator/pull/1249
+interface Scheduler {
+    postTask: (
+        fn: () => void,
+        options?: { priority: "user-blocking" | "user-visible" | "background" },
+    ) => void;
+}
+declare const scheduler: Scheduler;
+
+// 'user-blocking' runs right after microtasks, so equivalent to setTimeout but without the 4ms clamping
+const schedulerPostTask =
+    typeof scheduler !== "undefined" &&
+    ((fn: () => void) => scheduler.postTask(fn, { priority: "user-blocking" }));
+
+// fallback for environments that don't support any of the above
+const doSetTimeout = (fn: () => void) => setTimeout(fn, 0);
+
 // Schedules a task to run later.  Use Node.js's setImmediate if available and
 // setTimeout otherwise.  Note that options like process.nextTick or
 // queueMicrotask will likely not work: IndexedDB semantics require that
@@ -27,6 +44,7 @@ export const queueTask = (fn: () => void): void => {
     const setImmediate =
         globalThis.setImmediate ||
         getSetImmediateFromJsdom() ||
-        ((fn: () => void) => setTimeout(fn, 0));
+        schedulerPostTask ||
+        doSetTimeout;
     setImmediate(fn);
 };
