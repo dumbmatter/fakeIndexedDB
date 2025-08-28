@@ -1,4 +1,4 @@
-# Development
+# 6.2.0 (2025-08-28)
 
 ## New features
 
@@ -18,7 +18,7 @@
 
 ## Infrastructure
 
-- Further improvved test coverage and performance of Web Platform Tests since the last release (#119 #120 #121 #122 #123 by @nolanlawson)
+- Further improved test coverage and performance of Web Platform Tests (#119 #120 #121 #122 #123 by @nolanlawson)
 
 # 6.1.0 (2025-08-08)
 
