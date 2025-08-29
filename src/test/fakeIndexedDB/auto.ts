@@ -49,4 +49,15 @@ describe("auto", () => {
             assert.equal(descriptor!.writable, true);
         }
     });
+
+    it("exports as cjs directly, without `default` member - issue #130", async () => {
+        // @ts-expect-error relative to the build/ directory
+        await import("../../../../auto/index.js");
+
+        // ensure we directly set the export as `module.exports` rather than `module.exports.default`
+        assert.ok(!(globalThis as any).indexedDB.default);
+        for (const prop of readWriteProps) {
+            assert.ok(!(globalThis as any)[prop].default);
+        }
+    });
 });

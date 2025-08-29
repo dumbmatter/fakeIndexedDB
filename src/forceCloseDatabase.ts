@@ -1,4 +1,5 @@
-import FDBDatabase, { closeConnection } from "./FDBDatabase.js";
+import FDBDatabase from "./FDBDatabase.js";
+import closeConnection from "./lib/closeConnection.js";
 
 /**
  * Forcibly closes a database. This simulates a database being closed due to abnormal reasons, such as

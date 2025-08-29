@@ -10,14 +10,13 @@ import {
 import FakeDOMStringList from "./lib/FakeDOMStringList.js";
 import FakeEventTarget from "./lib/FakeEventTarget.js";
 import ObjectStore from "./lib/ObjectStore.js";
-import { queueTask } from "./lib/scheduling.js";
 import {
     FDBTransactionOptions,
     KeyPath,
     TransactionMode,
 } from "./lib/types.js";
 import validateKeyPath from "./lib/validateKeyPath.js";
-import FakeEvent from "./lib/FakeEvent.js";
+import closeConnection from "./lib/closeConnection.js";
 
 const confirmActiveVersionchangeTransaction = (database: FDBDatabase) => {
     if (!database._runningVersionchangeTransaction) {
@@ -39,40 +38,6 @@ const confirmActiveVersionchangeTransaction = (database: FDBDatabase) => {
     }
 
     return transaction;
-};
-
-// http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#database-closing-steps
-export const closeConnection = (
-    connection: FDBDatabase,
-    forced: boolean = false,
-) => {
-    connection._closePending = true;
-
-    const transactionsComplete = connection._rawDatabase.transactions.every(
-        (transaction) => {
-            return transaction._state === "finished";
-        },
-    );
-
-    if (transactionsComplete) {
-        connection._closed = true;
-        connection._rawDatabase.connections =
-            connection._rawDatabase.connections.filter((otherConnection) => {
-                return connection !== otherConnection;
-            });
-        if (forced) {
-            const event = new FakeEvent("close", {
-                bubbles: false,
-                cancelable: false,
-            });
-            event.eventPath = [];
-            connection.dispatchEvent(event);
-        }
-    } else {
-        queueTask(() => {
-            closeConnection(connection, forced);
-        });
-    }
 };
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#database-interface
