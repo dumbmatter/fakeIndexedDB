@@ -1,3 +1,7 @@
+# 6.2.1 (2025-08-29)
+
+- Fixed the `IDBDatabase` variable created by an ESM import of `fake-indexeddb/auto`, which was broken in v6.2.0 (#131 by @nolanlawson)
+
 # 6.2.0 (2025-08-28)
 
 ## New features
