@@ -175,7 +175,7 @@ import "fake-indexeddb/auto";
 import { IDBFactory } from "fake-indexeddb";
 
 // Whenever you want a fresh indexedDB
-indexedDB = new IDBFactory();
+Object.defineProperty(globalThis, 'indexedDB', { value: new IDBFactory() });
 ```
 
 ### Triggering the `"close"` event
