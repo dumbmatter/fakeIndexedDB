@@ -1,5 +1,5 @@
-import { Key, KeyPath, Value } from "./types.js";
 import valueToKey from "./valueToKey.js";
+import type { Key, KeyPath, Value } from "./types.js";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-extracting-a-key-from-a-value-using-a-key-path
 const extractKey = (

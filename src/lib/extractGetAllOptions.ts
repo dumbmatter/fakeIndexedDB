@@ -1,7 +1,7 @@
-import FDBKeyRange from "../FDBKeyRange.js";
-import { FDBCursorDirection, FDBGetAllOptions, Key } from "./types.js";
 import isPotentiallyValidKeyRange from "./isPotentiallyValidKeyRange.js";
 import enforceRange from "./enforceRange.js";
+import type FDBKeyRange from "../FDBKeyRange.js";
+import type { FDBCursorDirection, FDBGetAllOptions, Key } from "./types.js";
 
 // https://www.w3.org/TR/IndexedDB/#create-request-to-retrieve-multiple-items
 const extractGetAllOptions = (

@@ -1,9 +1,9 @@
 import * as assert from "assert";
 import fakeIndexedDB from "../../fakeIndexedDB.js";
-import FDBDatabase from "../../FDBDatabase.js";
 import FDBKeyRange from "../../FDBKeyRange.js";
-import FDBObjectStore from "../../FDBObjectStore.js";
-import FDBRecord from "../../FDBRecord.js";
+import type FDBDatabase from "../../FDBDatabase.js";
+import type FDBObjectStore from "../../FDBObjectStore.js";
+import type FDBRecord from "../../FDBRecord.js";
 
 const fdbRecordToObject = (fdbRecord: FDBRecord) => ({
     key: fdbRecord.key,

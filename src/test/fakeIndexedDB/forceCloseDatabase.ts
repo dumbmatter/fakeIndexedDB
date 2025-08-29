@@ -1,7 +1,7 @@
 import * as assert from "assert";
 import fakeIndexedDB from "../../fakeIndexedDB.js";
-import FDBDatabase from "../../FDBDatabase.js";
 import forceCloseDatabase from "../../forceCloseDatabase.js";
+import type FDBDatabase from "../../FDBDatabase.js";
 
 let db: FDBDatabase;
 

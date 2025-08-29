@@ -1,4 +1,4 @@
-import { Key } from "./lib/types";
+import type { Key } from "./lib/types.js";
 
 class FDBRecord {
     private _key: Key;

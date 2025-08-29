@@ -1,5 +1,5 @@
-import { KeyPath } from "./types.js";
 import { SyntaxError } from "./errors.js";
+import type { KeyPath } from "./types.js";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-valid-key-path
 const validateKeyPath = (keyPath: KeyPath, parent?: "array" | "string") => {

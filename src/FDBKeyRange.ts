@@ -1,7 +1,7 @@
 import cmp from "./lib/cmp.js";
 import { DataError } from "./lib/errors.js";
-import { Key } from "./lib/types.js";
 import valueToKey from "./lib/valueToKey.js";
+import type { Key } from "./lib/types.js";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#range-concept
 class FDBKeyRange {

@@ -1,6 +1,6 @@
 import { DataError } from "./errors.js";
-import { Key } from "./types.js";
 import isSharedArrayBuffer from "./isSharedArrayBuffer.js";
+import type { Key } from "./types.js";
 
 // https://w3c.github.io/IndexedDB/#convert-value-to-key
 const valueToKey = (input: any, seen?: Set<object>): Key | Key[] => {

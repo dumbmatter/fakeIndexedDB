@@ -1,6 +1,5 @@
 import FDBKeyRange from "./FDBKeyRange.js";
 import FDBObjectStore from "./FDBObjectStore.js";
-import FDBRequest from "./FDBRequest.js";
 import cmp from "./lib/cmp.js";
 import {
     DataError,
@@ -10,14 +9,15 @@ import {
     TransactionInactiveError,
 } from "./lib/errors.js";
 import extractKey from "./lib/extractKey.js";
-import {
+import valueToKey from "./lib/valueToKey.js";
+import type {
     CursorRange,
     CursorSource,
     FDBCursorDirection,
     Key,
     Value,
 } from "./lib/types.js";
-import valueToKey from "./lib/valueToKey.js";
+import type FDBRequest from "./FDBRequest.js";
 
 const getEffectiveObjectStore = (cursor: FDBCursor) => {
     if (cursor.source instanceof FDBObjectStore) {

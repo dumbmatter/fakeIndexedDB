@@ -1,7 +1,7 @@
-import { Record } from "./types.js";
-import cmp from "./cmp.js";
 import FDBKeyRange from "../FDBKeyRange.js";
+import cmp from "./cmp.js";
 import { ConstraintError } from "./errors.js";
+import type { Record } from "./types.js";
 
 // what fraction of the total number of nodes are allowed to be deleted tombstones?
 const MAX_TOMBSTONE_FACTOR = 2 / 3;

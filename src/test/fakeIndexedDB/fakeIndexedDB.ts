@@ -1,11 +1,11 @@
 import * as assert from "assert";
 import fakeIndexedDB from "../../fakeIndexedDB.js";
-import FDBCursorWithValue from "../../FDBCursorWithValue.js";
-import FDBDatabase from "../../FDBDatabase.js";
 import FDBFactory from "../../FDBFactory.js";
 import FDBKeyRange from "../../FDBKeyRange.js";
 import FakeDOMStringList from "../../lib/FakeDOMStringList.js";
-import { TransactionMode } from "../../lib/types.js";
+import type FDBDatabase from "../../FDBDatabase.js";
+import type FDBCursorWithValue from "../../FDBCursorWithValue.js";
+import type { TransactionMode } from "../../lib/types.js";
 
 describe("fakeIndexedDB Tests", () => {
     describe("Transaction Lifetime", () => {

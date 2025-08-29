@@ -1,10 +1,10 @@
-import FDBCursor from "./FDBCursor.js";
-import FDBIndex from "./FDBIndex.js";
-import FDBObjectStore from "./FDBObjectStore.js";
-import FDBTransaction from "./FDBTransaction.js";
 import { InvalidStateError } from "./lib/errors.js";
 import FakeEventTarget from "./lib/FakeEventTarget.js";
-import { EventCallback } from "./lib/types.js";
+import type FDBCursor from "./FDBCursor.js";
+import type FDBIndex from "./FDBIndex.js";
+import type FDBObjectStore from "./FDBObjectStore.js";
+import type FDBTransaction from "./FDBTransaction.js";
+import type { EventCallback } from "./lib/types.js";
 
 class FDBRequest extends FakeEventTarget {
     public _result: any = null;

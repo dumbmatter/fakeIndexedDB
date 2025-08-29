@@ -1,6 +1,6 @@
 import { InvalidStateError } from "./errors.js";
-import FakeEvent from "./FakeEvent.js";
-import { EventCallback, EventType } from "./types.js";
+import type FakeEvent from "./FakeEvent.js";
+import type { EventCallback, EventType } from "./types.js";
 
 type EventTypeProp =
     | "onabort"
