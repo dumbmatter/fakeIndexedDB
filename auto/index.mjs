@@ -22,27 +22,21 @@ var globalVar =
             ? global
             : Function("return this;")();
 
-// Match the native behavior for `globalThis.indexedDB`, `globlThis.IDBCursor`, etc.
-// Per the IDL, `indexedDB` is readonly but the others are readwrite
+// Partly match the native behavior for `globalThis.indexedDB`, `globalThis.IDBCursor`, etc.
+// Per the IDL, `indexedDB` is readonly but the others are readwrite. For us, though, we want it to still
+// be overwritable with `globalThis.<global> = ...`, so we make them all readwrite.
 // https://w3c.github.io/IndexedDB/#idl-index
-const createPropertyDescriptor = (value, readOnly = false) => {
+const createPropertyDescriptor = (value) => {
     return {
-        ...(readOnly
-            ? {
-                  set: undefined,
-                  get: () => value,
-              }
-            : {
-                  value,
-                  writable: true,
-              }),
+        value,
         enumerable: true,
         configurable: true,
+        writable: true,
     };
 };
 
 Object.defineProperties(globalVar, {
-    indexedDB: createPropertyDescriptor(fakeIndexedDB, true),
+    indexedDB: createPropertyDescriptor(fakeIndexedDB),
     IDBCursor: createPropertyDescriptor(FDBCursor),
     IDBCursorWithValue: createPropertyDescriptor(FDBCursorWithValue),
     IDBDatabase: createPropertyDescriptor(FDBDatabase),

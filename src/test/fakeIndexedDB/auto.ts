@@ -2,8 +2,8 @@ import * as assert from "assert";
 import * as fakeIndexedDB from "../../index.js";
 
 // `indexedDB` is read-only, all others are read-write
-const readWriteProps = Object.keys(fakeIndexedDB).filter((prop) =>
-    prop.startsWith("IDB"),
+const props = Object.keys(fakeIndexedDB).filter(
+    (prop) => prop.startsWith("IDB") || prop === "indexedDB",
 ) as Array<keyof typeof fakeIndexedDB>;
 
 describe("auto", () => {
@@ -15,7 +15,7 @@ describe("auto", () => {
             enumerable: true,
             configurable: true,
         });
-        for (const prop of readWriteProps) {
+        for (const prop of props) {
             Object.defineProperty(globalThis, prop, {
                 value: undefined,
                 enumerable: true,
@@ -27,18 +27,8 @@ describe("auto", () => {
         // @ts-expect-error relative to the build/ directory
         await import("../../../../auto/index.mjs");
 
-        // check read-only indexedDB global
-        const descriptor = Object.getOwnPropertyDescriptor(
-            globalThis,
-            "indexedDB",
-        );
-        assert.equal(descriptor!.set, undefined);
-        assert.equal(descriptor!.get!(), fakeIndexedDB.indexedDB);
-        assert.equal(descriptor!.enumerable, true);
-        assert.equal(descriptor!.configurable, true);
-
-        // check read-write globals
-        for (const prop of readWriteProps) {
+        // check our own globals
+        for (const prop of props) {
             const descriptor = Object.getOwnPropertyDescriptor(
                 globalThis,
                 prop,
@@ -48,6 +38,13 @@ describe("auto", () => {
             assert.equal(descriptor!.configurable, true);
             assert.equal(descriptor!.writable, true);
         }
+
+        // check that we can still overwrite them with `globalThis.<prop> = ...`
+        for (const prop of props) {
+            const fake = {};
+            (globalThis as any)[prop] = fake;
+            assert.equal((globalThis as any)[prop], fake);
+        }
     });
 
     it("exports as cjs directly, without `default` member - issue #130", async () => {
@@ -55,8 +52,7 @@ describe("auto", () => {
         await import("../../../../auto/index.js");
 
         // ensure we directly set the export as `module.exports` rather than `module.exports.default`
-        assert.ok(!(globalThis as any).indexedDB.default);
-        for (const prop of readWriteProps) {
+        for (const prop of props) {
             assert.ok(!(globalThis as any)[prop].default);
         }
     });
