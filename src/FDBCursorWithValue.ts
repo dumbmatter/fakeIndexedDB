@@ -1,5 +1,5 @@
 import FDBCursor from "./FDBCursor.js";
-import {
+import type {
     CursorRange,
     CursorSource,
     FDBCursorDirection,

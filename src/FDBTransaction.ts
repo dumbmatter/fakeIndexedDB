@@ -1,4 +1,3 @@
-import FDBDatabase from "./FDBDatabase.js";
 import FDBObjectStore from "./FDBObjectStore.js";
 import FDBRequest from "./FDBRequest.js";
 import {
@@ -11,7 +10,8 @@ import FakeDOMStringList from "./lib/FakeDOMStringList.js";
 import FakeEvent from "./lib/FakeEvent.js";
 import FakeEventTarget from "./lib/FakeEventTarget.js";
 import { queueTask } from "./lib/scheduling.js";
-import {
+import type FDBDatabase from "./FDBDatabase.js";
+import type {
     EventCallback,
     FDBTransactionDurability,
     RequestObj,

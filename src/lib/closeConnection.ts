@@ -1,6 +1,6 @@
 import FakeEvent from "./FakeEvent.js";
 import { queueTask } from "./scheduling.js";
-import FDBDatabase from "../FDBDatabase";
+import type FDBDatabase from "../FDBDatabase.js";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#database-closing-steps
 const closeConnection = (connection: FDBDatabase, forced: boolean = false) => {

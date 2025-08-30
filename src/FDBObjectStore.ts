@@ -3,7 +3,6 @@ import FDBCursorWithValue from "./FDBCursorWithValue.js";
 import FDBIndex from "./FDBIndex.js";
 import FDBKeyRange from "./FDBKeyRange.js";
 import FDBRequest from "./FDBRequest.js";
-import FDBTransaction from "./FDBTransaction.js";
 import canInjectKey from "./lib/canInjectKey.js";
 import {
     ConstraintError,
@@ -17,20 +16,21 @@ import {
 import extractKey from "./lib/extractKey.js";
 import FakeDOMStringList from "./lib/FakeDOMStringList.js";
 import Index from "./lib/Index.js";
-import ObjectStore from "./lib/ObjectStore.js";
-import {
-    FDBCursorDirection,
-    FDBGetAllOptions,
-    Key,
-    KeyPath,
-    Value,
-} from "./lib/types.js";
 import validateKeyPath from "./lib/validateKeyPath.js";
 import valueToKey from "./lib/valueToKey.js";
 import valueToKeyRange from "./lib/valueToKeyRange.js";
 import { getKeyPath } from "./lib/getKeyPath.js";
 import extractGetAllOptions from "./lib/extractGetAllOptions.js";
 import enforceRange from "./lib/enforceRange.js";
+import type {
+    FDBCursorDirection,
+    FDBGetAllOptions,
+    Key,
+    KeyPath,
+    Value,
+} from "./lib/types.js";
+import type ObjectStore from "./lib/ObjectStore.js";
+import type FDBTransaction from "./FDBTransaction.js";
 
 const confirmActiveTransaction = (objectStore: FDBObjectStore) => {
     if (objectStore._rawObjectStore.deleted) {

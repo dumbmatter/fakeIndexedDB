@@ -131,6 +131,7 @@
         "dexie": "^4.0.11",
         "eslint": "^8.57.1",
         "eslint-config-prettier": "^9.1.0",
+        "eslint-plugin-import": "^2.32.0",
         "glob": "^11.0.2",
         "husky": "^9.1.7",
         "jest": "^30.0.0",

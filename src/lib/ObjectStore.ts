@@ -1,12 +1,12 @@
-import FDBKeyRange from "../FDBKeyRange.js";
-import Database from "./Database.js";
+import FDBRecord from "../FDBRecord.js";
 import { DataError } from "./errors.js";
 import extractKey from "./extractKey.js";
-import Index from "./Index.js";
 import KeyGenerator from "./KeyGenerator.js";
 import RecordStore from "./RecordStore.js";
-import { Key, KeyPath, Record, RollbackLog } from "./types.js";
-import FDBRecord from "../FDBRecord.js";
+import type Index from "./Index.js";
+import type Database from "./Database.js";
+import type FDBKeyRange from "../FDBKeyRange.js";
+import type { Key, KeyPath, Record, RollbackLog } from "./types.js";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-object-store
 class ObjectStore {

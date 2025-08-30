@@ -1,7 +1,7 @@
-import FDBIndex from "../FDBIndex.js";
-import FDBKeyRange from "../FDBKeyRange.js";
-import FDBObjectStore from "../FDBObjectStore.js";
-import FDBRequest from "../FDBRequest.js";
+import type FDBIndex from "../FDBIndex.js";
+import type FDBKeyRange from "../FDBKeyRange.js";
+import type FDBObjectStore from "../FDBObjectStore.js";
+import type FDBRequest from "../FDBRequest.js";
 
 export type CursorSource = FDBIndex | FDBObjectStore;
 

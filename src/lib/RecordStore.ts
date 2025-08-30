@@ -1,7 +1,7 @@
 import FDBKeyRange from "../FDBKeyRange.js";
 import cmp from "./cmp.js";
-import { FDBCursorDirection, Key, Record } from "./types.js";
 import BinarySearchTree from "./binarySearchTree.js";
+import type { FDBCursorDirection, Key, Record } from "./types.js";
 
 class RecordStore {
     private keysAreUnique: boolean;

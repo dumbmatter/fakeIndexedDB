@@ -1,5 +1,4 @@
 import FDBTransaction from "./FDBTransaction.js";
-import Database from "./lib/Database.js";
 import {
     ConstraintError,
     InvalidAccessError,
@@ -10,13 +9,14 @@ import {
 import FakeDOMStringList from "./lib/FakeDOMStringList.js";
 import FakeEventTarget from "./lib/FakeEventTarget.js";
 import ObjectStore from "./lib/ObjectStore.js";
-import {
+import validateKeyPath from "./lib/validateKeyPath.js";
+import closeConnection from "./lib/closeConnection.js";
+import type {
     FDBTransactionOptions,
     KeyPath,
     TransactionMode,
 } from "./lib/types.js";
-import validateKeyPath from "./lib/validateKeyPath.js";
-import closeConnection from "./lib/closeConnection.js";
+import type Database from "./lib/Database.js";
 
 const confirmActiveVersionchangeTransaction = (database: FDBDatabase) => {
     if (!database._runningVersionchangeTransaction) {
