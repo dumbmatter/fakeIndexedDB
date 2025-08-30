@@ -1,3 +1,7 @@
+# 6.2.2 (2025-08-29)
+
+- Fixed regression in v6.2.0 where overwriting the global `indexedDB` variable created by `fake-indexeddb/auto` (such as with `indexedDB = new IDBFactory();`) was no longer working (#135 by @nolanlawson)
+
 # 6.2.1 (2025-08-29)
 
 - Fixed the `IDBDatabase` variable created by a CommonJS require of `fake-indexeddb/auto`, which was broken in v6.2.0 (#131 by @nolanlawson)
