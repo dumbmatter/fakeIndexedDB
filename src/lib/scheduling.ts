@@ -26,10 +26,12 @@ interface Scheduler {
 }
 declare const scheduler: Scheduler;
 
-// 'user-blocking' runs right after microtasks, so equivalent to setTimeout but without the 4ms clamping
+// 'postTask' runs right after microtasks, so equivalent to setTimeout but without the 4ms clamping.
+// Using the default priority of 'user-visible' to avoid blocking input while still running fairly quickly.
+// See: https://developer.mozilla.org/en-US/docs/Web/API/Prioritized_Task_Scheduling_API#task_priorities
 const schedulerPostTask =
     typeof scheduler !== "undefined" &&
-    ((fn: () => void) => scheduler.postTask(fn, { priority: "user-blocking" }));
+    ((fn: () => void) => scheduler.postTask(fn));
 
 // fallback for environments that don't support any of the above
 const doSetTimeout = (fn: () => void) => setTimeout(fn, 0);
