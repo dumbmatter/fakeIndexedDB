@@ -12,8 +12,12 @@ const extractGetAllOptions = (
     let query: FDBKeyRange | Key;
     let direction: FDBCursorDirection | undefined;
 
-    if (isPotentiallyValidKeyRange(queryOrOptions)) {
-        // queryOrOptions is FDBKeyRange | Key
+    if (
+        queryOrOptions === undefined ||
+        queryOrOptions === null ||
+        isPotentiallyValidKeyRange(queryOrOptions)
+    ) {
+        // queryOrOptions is FDBKeyRange | Key | null | undefined
         query = queryOrOptions;
         if (numArguments > 1 && count !== undefined) {
             count = enforceRange(count, "unsigned long");

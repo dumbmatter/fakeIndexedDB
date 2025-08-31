@@ -1,69 +1,20 @@
 import { DataError } from "./errors.js";
-import isSharedArrayBuffer from "./isSharedArrayBuffer.js";
+import valueToKeyWithoutThrowing, {
+    INVALID_TYPE,
+    INVALID_VALUE,
+} from "./valueToKeyWithoutThrowing.js";
 import type { Key } from "./types.js";
 
 // https://w3c.github.io/IndexedDB/#convert-value-to-key
+// Plus throwing a DataError for invalid value/invalid key, which is commonly done
+// in lots of IndexedDB operations
 const valueToKey = (input: any, seen?: Set<object>): Key | Key[] => {
-    if (typeof input === "number") {
-        if (isNaN(input)) {
-            throw new DataError();
-        }
-        return input;
-    } else if (Object.prototype.toString.call(input) === "[object Date]") {
-        const ms = input.valueOf();
-        if (isNaN(ms)) {
-            throw new DataError();
-        }
-        return new Date(ms);
-    } else if (typeof input === "string") {
-        return input;
-    } else if (
-        // https://w3c.github.io/IndexedDB/#ref-for-dfn-buffer-source-type
-        (input instanceof ArrayBuffer ||
-            isSharedArrayBuffer(input) ||
-            (typeof ArrayBuffer !== "undefined" &&
-                ArrayBuffer.isView &&
-                ArrayBuffer.isView(input))) &&
-        // We can't consistently test detachedness, so instead we check if byteLength === 0
-        // This isn't foolproof, but there's no perfect way to detect if Uint8Arrays or
-        // SharedArrayBuffers are detached
-        !("detached" in input ? input.detached : input.byteLength === 0)
-    ) {
-        let arrayBuffer;
-        let offset = 0;
-        let length = 0;
-        if (input instanceof ArrayBuffer || isSharedArrayBuffer(input)) {
-            arrayBuffer = input;
-            length = input.byteLength;
-        } else {
-            arrayBuffer = input.buffer;
-            offset = input.byteOffset;
-            length = input.byteLength;
-        }
-
-        return arrayBuffer.slice(offset, offset + length);
-    } else if (Array.isArray(input)) {
-        if (seen === undefined) {
-            seen = new Set();
-        } else if (seen.has(input)) {
-            throw new DataError();
-        }
-        seen.add(input);
-
-        const keys = [];
-        for (let i = 0; i < input.length; i++) {
-            const hop = Object.hasOwn(input, i);
-            if (!hop) {
-                throw new DataError();
-            }
-            const entry = input[i];
-            const key = valueToKey(entry, seen);
-            keys.push(key);
-        }
-        return keys;
-    } else {
+    const result = valueToKeyWithoutThrowing(input, seen);
+    if (result === INVALID_VALUE || result === INVALID_TYPE) {
+        // If key is "invalid value" or "invalid type", throw a "DataError" DOMException
         throw new DataError();
     }
+    return result;
 };
 
 export default valueToKey;
