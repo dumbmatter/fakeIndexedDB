@@ -936,4 +936,69 @@ describe("fakeIndexedDB Tests", () => {
             done(new Error("undefined is not a valid key and should error"));
         };
     });
+
+    it("Should abort transactions when onupgradeneeded throws - issue #138", async () => {
+        const dbName = "rollback-test";
+
+        // Helper: open with upgrade
+        const openDB = (
+            name: string,
+            version?: number,
+            onUpgrade?: (arg: { db: FDBDatabase }) => void,
+        ): Promise<FDBDatabase> =>
+            new Promise((resolve, reject) => {
+                const req = fakeIndexedDB.open(name, version);
+                if (onUpgrade) {
+                    req.onupgradeneeded = () =>
+                        onUpgrade({ db: req.result as unknown as FDBDatabase });
+                }
+                req.onsuccess = () =>
+                    resolve(req.result as unknown as FDBDatabase);
+                req.onerror = () => reject(req.error);
+            });
+
+        // Step 1: seed v1
+        let db = await openDB(dbName, 1, ({ db }) => {
+            const s = db.createObjectStore("items", { keyPath: "id" });
+            s.put({ id: 1, val: "a" });
+            s.put({ id: 2, val: "b" });
+        });
+        db.close();
+
+        // Step 2: attempt upgrade to v2 and throw
+        const error = await new Promise<Error>((resolve, reject) => {
+            const req = fakeIndexedDB.open(dbName, 2);
+            req.addEventListener("upgradeneeded", () => {
+                req.result.createObjectStore("temp");
+                const objectStore = req.transaction!.objectStore("items");
+                objectStore.delete(2);
+                objectStore.put({ id: 3, val: "c" });
+                throw new Error("boom");
+            });
+            req.onerror = () => resolve(req.error);
+            req.onsuccess = () => reject(new Error("Unexpected success!"));
+        });
+
+        assert.equal(error.name, "AbortError");
+
+        // Step 3: reopen db (should still be v1, no "temp" store, original data intact)
+        db = await openDB(dbName);
+        assert.equal(db.version, 1);
+        assert.deepStrictEqual([...db.objectStoreNames], ["items"]);
+
+        const tx = db.transaction("items", "readonly");
+        const store = tx.objectStore("items");
+        const [v1, v2, v3] = await Promise.all(
+            [store.get(1), store.get(2), store.get(3)].map(
+                (r) =>
+                    new Promise((res) => {
+                        r.onsuccess = () => res(r.result);
+                    }),
+            ),
+        );
+
+        assert.deepStrictEqual(v1, { id: 1, val: "a" });
+        assert.deepStrictEqual(v2, { id: 2, val: "b" });
+        assert.equal(v3, undefined);
+    });
 });
