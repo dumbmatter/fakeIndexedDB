@@ -137,8 +137,13 @@ const runVersionchangeTransaction = (
             Array.from(connection.objectStoreNames),
             "versionchange",
         );
+
+        // https://w3c.github.io/IndexedDB/#upgrade-a-database
+        // Set request’s result to connection.
         request.result = connection;
+        // Set request’s done flag to true.
         request.readyState = "done";
+        // Set request’s transaction to transaction.
         request.transaction = transaction;
 
         transaction._rollbackLog.push(() => {
@@ -146,11 +151,30 @@ const runVersionchangeTransaction = (
             connection.version = oldVersion;
         });
 
+        // Set transaction’s state to active.
+        transaction._state = "active";
+
+        // Let didThrow be the result of firing a version change event named upgradeneeded at request with old version and version.
         const event = new FDBVersionChangeEvent("upgradeneeded", {
             newVersion: version,
             oldVersion,
         });
-        request.dispatchEvent(event);
+        let didThrow = false;
+        try {
+            request.dispatchEvent(event);
+        } catch (_err) {
+            didThrow = true;
+        }
+
+        // If transaction’s state is active, then:
+        if (transaction._state === "active") {
+            // Set transaction’s state to inactive.
+            transaction._state = "inactive";
+            // If didThrow is true, run abort a transaction with transaction and a newly created "AbortError" DOMException.
+            if (didThrow) {
+                transaction._abort("AbortError");
+            }
+        }
 
         transaction.addEventListener("error", () => {
             connection._runningVersionchangeTransaction = false;

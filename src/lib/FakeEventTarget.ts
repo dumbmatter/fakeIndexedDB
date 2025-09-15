@@ -31,6 +31,16 @@ const stopped = (event: FakeEvent, listener: Listener) => {
 const invokeEventListeners = (event: FakeEvent, obj: FakeEventTarget) => {
     event.currentTarget = obj;
 
+    const errors: Error[] = [];
+    const invoke = (callback: EventCallback) => {
+        try {
+            // @ts-expect-error EventCallback's types are not quite right here
+            callback.call(event.currentTarget, event);
+        } catch (err) {
+            errors.push(err);
+        }
+    };
+
     // The callback might cause obj.listeners to mutate as we traverse it.
     // Take a copy of the array so that nothing sneaks in and we don't lose
     // our place.
@@ -39,8 +49,7 @@ const invokeEventListeners = (event: FakeEvent, obj: FakeEventTarget) => {
             continue;
         }
 
-        // @ts-ignore
-        listener.callback.call(event.currentTarget, event);
+        invoke(listener.callback);
     }
 
     const typeToProp: { [key in EventType]: EventTypeProp } = {
@@ -66,9 +75,14 @@ const invokeEventListeners = (event: FakeEvent, obj: FakeEventTarget) => {
             type: event.type,
         };
         if (!stopped(event, listener)) {
-            // @ts-ignore
-            listener.callback.call(event.currentTarget, event);
+            invoke(listener.callback);
         }
+    }
+
+    // we want to execute all listeners before deciding if we want to throw, because there could be an error thrown by
+    // the first listener, but the second should still be invoked
+    if (errors.length) {
+        throw new AggregateError(errors);
     }
 };
 
