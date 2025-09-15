@@ -82,7 +82,13 @@ class FDBTransaction extends FakeEventTarget {
                         cancelable: true,
                     });
                     event.eventPath = [this.db, this];
-                    request.dispatchEvent(event);
+                    try {
+                        request.dispatchEvent(event);
+                    } catch (_err) {
+                        if (this._state === "active") {
+                            this._abort("AbortError");
+                        }
+                    }
                 }
             }
         }
@@ -219,11 +225,11 @@ class FDBTransaction extends FakeEventTarget {
                 try {
                     event.eventPath = [this.db, this];
                     request.dispatchEvent(event);
-                } catch (err) {
-                    if (this._state !== "committing") {
+                } catch (_err) {
+                    if (this._state === "active") {
                         this._abort("AbortError");
+                        defaultAction = undefined; // do not abort again
                     }
-                    throw err;
                 }
 
                 // Default action of event
