@@ -1,12 +1,12 @@
 /* global console */
 import fs from "node:fs";
-import { glob } from "glob";
 import path from "node:path";
+import { glob } from "glob";
 
 // HACK: some of the tests use sloppy mode, probably due to author error
 // This causes problems for us because we convert to ESM (strict) mode
 // So manually fix some of the sloppy global assignments in tests
-const globalVars = ["cursor", "db", "store", "value"];
+const globalVars = ["cursor", "db", "result", "store", "value"];
 const declareGlobalVars = `let ${globalVars.join(",")};\n`;
 
 const skip = [

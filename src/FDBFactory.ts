@@ -7,6 +7,7 @@ import enforceRange from "./lib/enforceRange.js";
 import { AbortError, VersionError } from "./lib/errors.js";
 import FakeEvent from "./lib/FakeEvent.js";
 import { queueTask } from "./lib/scheduling.js";
+import type { FDBDatabaseInfo } from "./lib/types.js";
 
 const waitForOthersClosedDelete = (
     databases: Map<string, Database>,
@@ -87,7 +88,7 @@ const runVersionchangeTransaction = (
 ) => {
     connection._runningVersionchangeTransaction = true;
 
-    const oldVersion = connection.version;
+    const oldVersion = (connection._oldVersion = connection.version);
 
     const openDatabases = connection._rawDatabase.connections.filter(
         (otherDatabase) => {
@@ -178,11 +179,13 @@ const runVersionchangeTransaction = (
 
         transaction.addEventListener("error", () => {
             connection._runningVersionchangeTransaction = false;
+            connection._oldVersion = undefined;
             // throw arguments[0].target.error;
             // console.log("error in versionchange transaction - not sure if anything needs to be done here", e.target.error.name);
         });
         transaction.addEventListener("abort", () => {
             connection._runningVersionchangeTransaction = false;
+            connection._oldVersion = undefined;
             request.transaction = null;
             queueTask(() => {
                 cb(new AbortError());
@@ -190,6 +193,7 @@ const runVersionchangeTransaction = (
         });
         transaction.addEventListener("complete", () => {
             connection._runningVersionchangeTransaction = false;
+            connection._oldVersion = undefined;
             request.transaction = null;
             // Let other complete event handlers run before continuing
             queueTask(() => {
@@ -337,17 +341,29 @@ class FDBFactory {
     }
 
     // https://w3c.github.io/IndexedDB/#dom-idbfactory-databases
-    public databases() {
-        return new Promise((resolve) => {
-            const result = [];
-            for (const [name, database] of this._databases) {
-                result.push({
+    public databases(): Promise<FDBDatabaseInfo[]> {
+        return Promise.resolve(
+            Array.from(this._databases.entries(), ([name, database]) => {
+                const activeVersionChangeConnection = database.connections.find(
+                    (connection) => connection._runningVersionchangeTransaction,
+                );
+                // If a versionchange is in progress, report the old version. See `get-databases.any.js` test:
+                // "The result of databases() should contain the versions of databases at the time of calling,
+                // regardless of versionchange transactions currently running."
+                const version = activeVersionChangeConnection
+                    ? activeVersionChangeConnection._oldVersion!
+                    : database.version;
+                return {
                     name,
-                    version: database.version,
-                });
-            }
-            resolve(result);
-        });
+                    version,
+                };
+            }).filter(({ version }) => {
+                // Ignore newly-created DBs with active versionchange transactions. See `get-databases.any.js` test:
+                // "The result of databases() should be only those databases which have been created at the
+                // time of calling, regardless of versionchange transactions currently running."
+                return version > 0;
+            }),
+        );
     }
 
     get [Symbol.toStringTag]() {

@@ -60,3 +60,9 @@ export type FDBTransactionDurability = "default" | "strict" | "relaxed";
 export type FDBTransactionOptions = {
     durability: FDBTransactionDurability;
 };
+
+// https://w3c.github.io/IndexedDB/#dictdef-idbdatabaseinfo
+export type FDBDatabaseInfo = {
+    name: string;
+    version: number;
+};
