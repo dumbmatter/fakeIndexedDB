@@ -1,6 +1,6 @@
 import "../wpt-env.js";
 
-let cursor,db,store,value;
+let cursor,db,result,store,value;
 
 globalThis.title = "IndexedDB: Parallel iteration of cursors in upgradeneeded";
 

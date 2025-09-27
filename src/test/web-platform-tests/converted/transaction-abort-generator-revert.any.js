@@ -1,6 +1,6 @@
 import "../wpt-env.js";
 
-let cursor,db,store,value;
+let cursor,db,result,store,value;
 
 globalThis.title = "IndexedDB: aborting transactions reverts an object store's key generator state";
 

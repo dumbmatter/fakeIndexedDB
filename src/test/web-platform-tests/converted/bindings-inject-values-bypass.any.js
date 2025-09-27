@@ -1,6 +1,6 @@
 import "../wpt-env.js";
 
-let cursor,db,store,value;
+let cursor,db,result,store,value;
 
 globalThis.title = "IndexedDB: ES bindings - Inject a key into a value - Values bypass chain and setters";
 

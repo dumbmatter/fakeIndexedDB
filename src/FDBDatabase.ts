@@ -45,6 +45,7 @@ class FDBDatabase extends FakeEventTarget {
     public _closePending = false;
     public _closed = false;
     public _runningVersionchangeTransaction = false;
+    public _oldVersion: number | undefined;
     public _rawDatabase: Database;
 
     public name: string;

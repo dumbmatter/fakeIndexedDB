@@ -1,6 +1,6 @@
 import "../wpt-env.js";
 
-let cursor,db,store,value;
+let cursor,db,result,store,value;
 
 globalThis.title = "IDBFactory open(): request properties on error";
 
