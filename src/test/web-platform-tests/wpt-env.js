@@ -689,16 +689,34 @@ const test = (cb, name) => {
 };
 
 /**
- * This constructor helper allows DOM events to be handled using Promises,
- * which can make it a lot easier to test a very specific series of events,
+ * Allow DOM events to be handled using Promises.
+ *
+ * This can make it a lot easier to test a very specific series of events,
  * including ensuring that unexpected events are not fired at any point.
+ *
+ * `EventWatcher` will assert if an event occurs while there is no `wait_for`
+ * created Promise waiting to be fulfilled, or if the event is of a different type
+ * to the type currently expected. This ensures that only the events that are
+ * expected occur, in the correct order, and with the correct timing.
+ *
+ * @constructor
+ * @param {Test} test - The `Test` to use for the assertion.
+ * @param {EventTarget} watchedNode - The target expected to receive the events.
+ * @param {string[]} eventTypes - List of events to watch for.
+ * @param {Promise} timeoutPromise - Promise that will cause the
+ * test to be set to `TIMEOUT` once fulfilled.
+ *
  */
-function EventWatcher(test, watchedNode, eventTypes) {
-    if (typeof eventTypes == "string") {
+function EventWatcher(test, watchedNode, eventTypes, timeoutPromise) {
+    if (typeof eventTypes === "string") {
         eventTypes = [eventTypes];
     }
 
     var waitingFor = null;
+
+    // This is null unless we are recording all events, in which case it
+    // will be an Array object.
+    var recordedEvents = null;
 
     var eventHandler = test.step_func(function (evt) {
         assert_true(
@@ -714,6 +732,11 @@ function EventWatcher(test, watchedNode, eventTypes) {
                 evt.type +
                 " event instead",
         );
+
+        if (Array.isArray(recordedEvents)) {
+            recordedEvents.push(evt);
+        }
+
         if (waitingFor.types.length > 1) {
             // Pop first event from array
             waitingFor.types.shift();
@@ -724,7 +747,10 @@ function EventWatcher(test, watchedNode, eventTypes) {
         // need to set waitingFor.
         var resolveFunc = waitingFor.resolve;
         waitingFor = null;
-        resolveFunc(evt);
+        // Likewise, we should reset the state of recordedEvents.
+        var result = recordedEvents || evt;
+        recordedEvents = null;
+        resolveFunc(result);
     });
 
     for (var i = 0; i < eventTypes.length; i++) {
@@ -733,16 +759,57 @@ function EventWatcher(test, watchedNode, eventTypes) {
 
     /**
      * Returns a Promise that will resolve after the specified event or
-     * series of events has occured.
+     * series of events has occurred.
+     *
+     * @param {Object} options An optional options object. If the 'record' property
+     *                 on this object has the value 'all', when the Promise
+     *                 returned by this function is resolved,  *all* Event
+     *                 objects that were waited for will be returned as an
+     *                 array.
+     *
+     * @example
+     * const watcher = new EventWatcher(t, div, [ 'animationstart',
+     *                                            'animationiteration',
+     *                                            'animationend' ]);
+     * return watcher.wait_for([ 'animationstart', 'animationend' ],
+     *                         { record: 'all' }).then(evts => {
+     *   assert_equals(evts[0].elapsedTime, 0.0);
+     *   assert_equals(evts[1].elapsedTime, 2.0);
+     * });
      */
-    this.wait_for = function (types) {
+    this.wait_for = function (types, options) {
         if (waitingFor) {
             return Promise.reject("Already waiting for an event or events");
         }
-        if (typeof types == "string") {
+        if (typeof types === "string") {
             types = [types];
         }
+        if (options && options.record && options.record === "all") {
+            recordedEvents = [];
+        }
         return new Promise(function (resolve, reject) {
+            var timeout = test.step_func(function () {
+                // If the timeout fires after the events have been received
+                // or during a subsequent call to wait_for, ignore it.
+                if (!waitingFor || waitingFor.resolve !== resolve) return;
+
+                // This should always fail, otherwise we should have
+                // resolved the promise.
+                assert_true(
+                    waitingFor.types.length === 0,
+                    "Timed out waiting for " + waitingFor.types.join(", "),
+                );
+                var result = recordedEvents;
+                recordedEvents = null;
+                var resolveFunc = waitingFor.resolve;
+                waitingFor = null;
+                resolveFunc(result);
+            });
+
+            if (timeoutPromise) {
+                timeoutPromise().then(timeout);
+            }
+
             waitingFor = {
                 types: types,
                 resolve: resolve,
@@ -751,13 +818,16 @@ function EventWatcher(test, watchedNode, eventTypes) {
         });
     };
 
-    function stop_watching() {
+    /**
+     * Stop listening for events
+     */
+    this.stop_watching = function () {
         for (var i = 0; i < eventTypes.length; i++) {
             watchedNode.removeEventListener(eventTypes[i], eventHandler, false);
         }
-    }
+    };
 
-    test.add_cleanup(stop_watching);
+    test.add_cleanup(this.stop_watching);
 
     return this;
 }
