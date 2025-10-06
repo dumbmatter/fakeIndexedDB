@@ -165,7 +165,12 @@ const outFolder = path.posix.join(__dirname, "converted");
             codeChunks.push(fs.readFileSync(location) + "\n");
         }
 
-        codeChunks.push(testScript);
+        // HACK: this test re-declares the `expect` function, so wrap in an IIFE
+        if (filename.includes("transaction-lifetime-empty.any")) {
+            codeChunks.push(`(function () {\n${testScript}\n})();`);
+        } else {
+            codeChunks.push(testScript);
+        }
 
         codeChunks = codeChunks.map((chunk) => {
             return (

@@ -1,4 +1,4 @@
-These tests come from [web-platform-tests](https://github.com/w3c/web-platform-tests/tree/master/IndexedDB), last copied in August 2025 from commit [`226fbab4280e1a55cb09cd7a2ba3aa9d88fea53f`](https://github.com/web-platform-tests/wpt/commit/226fbab4280e1a55cb09cd7a2ba3aa9d88fea53f).
+These tests come from [web-platform-tests](https://github.com/w3c/web-platform-tests/tree/master/IndexedDB), last copied in September 2025 from commit [`2cc8470b689fd1a9131c39bf93c84d7321c65358`](https://github.com/web-platform-tests/wpt/commit/2cc8470b689fd1a9131c39bf93c84d7321c65358).
 
 ## Running the tests
 
