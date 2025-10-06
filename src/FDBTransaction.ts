@@ -18,6 +18,7 @@ import type {
     RollbackLog,
     TransactionMode,
 } from "./lib/types.js";
+import type FDBOpenDBRequest from "./FDBOpenDBRequest.js";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#transaction
 class FDBTransaction extends FakeEventTarget {
@@ -25,6 +26,7 @@ class FDBTransaction extends FakeEventTarget {
     public _started = false;
     public _rollbackLog: RollbackLog = [];
     public _objectStoresCache: Map<string, FDBObjectStore> = new Map();
+    public _openRequest: FDBOpenDBRequest | null = null;
 
     public objectStoreNames: FakeDOMStringList;
     public mode: TransactionMode;
@@ -58,7 +60,7 @@ class FDBTransaction extends FakeEventTarget {
         );
     }
 
-    // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-aborting-a-transaction
+    // https://w3c.github.io/IndexedDB/#abort-transaction
     public _abort(errName: string | null) {
         for (const f of this._rollbackLog.reverse()) {
             f();
@@ -93,13 +95,38 @@ class FDBTransaction extends FakeEventTarget {
             }
         }
 
+        // Queue a database task to run these steps:
         queueTask(() => {
+            // If transaction is an upgrade transaction, then set transaction’s connection’s associated database’s
+            // upgrade transaction to null.
+            // (i.e. remove it from the list of `db.connections`)
+            const isUpgradeTransaction = this.mode === "versionchange";
+            if (isUpgradeTransaction) {
+                this.db._rawDatabase.connections =
+                    this.db._rawDatabase.connections.filter(
+                        (connection) =>
+                            !connection._rawDatabase.transactions.includes(
+                                this,
+                            ),
+                    );
+            }
+            // Fire an event named abort at transaction with its bubbles attribute initialized to true.
             const event = new FakeEvent("abort", {
                 bubbles: true,
                 cancelable: false,
             });
             event.eventPath = [this.db];
             this.dispatchEvent(event);
+
+            // If transaction is an upgrade transaction, then:
+            if (isUpgradeTransaction) {
+                // Let request be the open request associated with transaction.
+                const request = this._openRequest!;
+                // Set request’s transaction to null.
+                request.transaction = null;
+                // Set request’s result to undefined.
+                request.result = undefined;
+            }
         });
 
         this._state = "finished";

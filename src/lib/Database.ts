@@ -5,7 +5,6 @@ import type ObjectStore from "./ObjectStore.js";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-database
 class Database {
-    public deletePending = false;
     public readonly transactions: FDBTransaction[] = [];
     public readonly rawObjectStores: Map<string, ObjectStore> = new Map();
     public connections: FDBDatabase[] = [];
