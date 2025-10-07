@@ -72,6 +72,11 @@ global.postMessage = (obj) => {
     structuredClone(obj);
 };
 
+global.addEventListener = () => {
+    // no-op, the `idb-explicit-commit-throw.any.js` test currently
+    // tries to `addEventListener('error')` and `preventDefault` on it
+};
+
 const generatedTestNames = new Map();
 let generatedTestNameCounter = 0;
 function generateTestName(func) {
