@@ -1,2 +1,4 @@
-# Mostly works, but keepAlive results in an infinite loop
-skip = true
+# Timing issue: `keepAlive` keeps the transaction alive indefinitely whereas `timeoutPromise` assumes it will make the
+# transaction inactive, causing `commit()` to throw
+["Calling txn.commit() when txn is inactive should throw."]
+expectation = "FAIL"
