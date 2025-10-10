@@ -29,7 +29,7 @@ const confirmActiveVersionchangeTransaction = (database: FDBDatabase) => {
     });
     const transaction = transactions[transactions.length - 1];
 
-    if (!transaction || transaction._state === "finished") {
+    if (!transaction) {
         throw new InvalidStateError();
     }
 

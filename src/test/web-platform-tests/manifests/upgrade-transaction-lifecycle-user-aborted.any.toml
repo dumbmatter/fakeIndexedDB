@@ -1,2 +1,2 @@
-# Did not investigate in great detail.
-skip = true
+["in the abort event handler for a transaction aborted due to an abort() call"]
+expectation = "FAIL"
