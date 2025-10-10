@@ -76,21 +76,31 @@ class FDBTransaction extends FakeEventTarget {
             if (request.readyState !== "done") {
                 request.readyState = "done"; // This will cancel execution of this request's operation
                 if (request.source) {
-                    request.result = undefined;
-                    request.error = new AbortError();
+                    // https://w3c.github.io/IndexedDB/#ref-for-list-iterate%E2%91%A2
+                    // For each request of transaction’s request list, abort the steps to asynchronously
+                    // execute a request for request, set request’s processed flag to true, and queue a
+                    // database task to run these steps:
+                    queueTask(() => {
+                        // Set request’s result to undefined.
+                        request.result = undefined;
+                        // Set request’s error to a newly created "AbortError" DOMException.
+                        request.error = new AbortError();
 
-                    const event = new FakeEvent("error", {
-                        bubbles: true,
-                        cancelable: true,
-                    });
-                    event.eventPath = [this.db, this];
-                    try {
-                        request.dispatchEvent(event);
-                    } catch (_err) {
-                        if (this._state === "active") {
-                            this._abort("AbortError");
+                        // Fire an event named error at request with its bubbles and cancelable attributes initialized
+                        // to true.
+                        const event = new FakeEvent("error", {
+                            bubbles: true,
+                            cancelable: true,
+                        });
+                        event.eventPath = [this.db, this];
+                        try {
+                            request.dispatchEvent(event);
+                        } catch (_err) {
+                            if (this._state === "active") {
+                                this._abort("AbortError");
+                            }
                         }
-                    }
+                    });
                 }
             }
         }
