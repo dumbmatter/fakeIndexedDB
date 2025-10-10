@@ -1,3 +1,7 @@
+# 6.2.3 (2025-10-10)
+
+- Several small bug fixes to more correctly handle various edge cases and increase the number of passing tests from the Web Platform Tests (#137, #139, #141, #142, #143, #144, #145, #146 by @nolanlawson)
+
 # 6.2.2 (2025-08-29)
 
 - Fixed regression in v6.2.0 where overwriting the global `indexedDB` variable created by `fake-indexeddb/auto` (such as with `indexedDB = new IDBFactory();`) was no longer working (#135 by @nolanlawson)
