@@ -1,6 +1,6 @@
 {
     "name": "fake-indexeddb",
-    "version": "6.2.2",
+    "version": "6.2.3",
     "description": "Fake IndexedDB: a pure JS in-memory implementation of the IndexedDB API",
     "homepage": "https://github.com/dumbmatter/fakeIndexedDB",
     "repository": {
