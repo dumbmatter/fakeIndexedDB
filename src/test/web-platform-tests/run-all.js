@@ -1,14 +1,11 @@
 /* global console, process */
 
 import { test } from "node:test";
-import { exec } from "node:child_process";
-import { promisify } from "node:util";
 import path from "node:path";
 import * as fs from "node:fs";
 import { parse, stringify } from "smol-toml";
 import { glob } from "glob";
-
-const execAsync = promisify(exec);
+import { runTestFile } from "./runTestFile.js";
 
 const generateManifests = process.env.GENERATE_MANIFESTS;
 
@@ -69,27 +66,26 @@ for (const absFilename of filenames) {
     }
 
     await test(filename, { skip }, async (t) => {
-        let execOutput;
+        let testFileOutput;
         try {
-            execOutput = await execAsync(`node ${filename}`, {
+            testFileOutput = await runTestFile(filename, {
                 cwd: testFolder,
-                encoding: "utf-8",
                 timeout,
             });
         } catch (error) {
-            if (error.killed && error.signal === "SIGTERM") {
+            if (error.timeout) {
                 // Timeout!
                 generatedManifest.expectTimeout = true;
 
                 // error has stdout and stderr properties containing output before the timeout, which may include some test results or error messages
-                execOutput = error;
+                testFileOutput = error;
             } else {
                 throw error;
             }
         }
-        const { stdout, stderr } = execOutput;
+        const { stdout, stderr } = testFileOutput;
         if (stderr) {
-            console.error(stderr);
+            console.error(`stderr: ${stderr}`);
         }
         const results = {};
         const resultLines = stdout
