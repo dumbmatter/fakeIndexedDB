@@ -1,3 +1,10 @@
 # Mostly works, but subtlely wrong behavior when renaming a newly-created index/store and then aborting the upgrade
 # transaction (this has roughly 0 real world impact, but could be indicative of other problems in fake-indexeddb).
-skip = true
+["Created stores get marked as deleted after their transaction aborts"]
+expectation = "FAIL"
+
+["Deleted stores get marked as not-deleted after the transaction aborts"]
+expectation = "FAIL"
+
+["Un-instantiated deleted stores get marked as not-deleted after the transaction aborts"]
+expectation = "FAIL"

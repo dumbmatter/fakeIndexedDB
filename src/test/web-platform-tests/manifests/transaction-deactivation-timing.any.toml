@@ -1,3 +1,10 @@
-# Maximum call stack size exceeded, possibly due to the promise resolution microtask not taking precedence when it
-# should (keep_alive not working).
-skip = true
+expectTimeout = true
+
+["New transactions are deactivated before next task"]
+expectation = "FAIL"
+
+["Deactivation of new transactions happens at end of invocation"]
+expectation = "FAIL"
+
+["New transactions from microtask are deactivated before next task"]
+expectation = "FAIL"
