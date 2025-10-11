@@ -41,6 +41,7 @@ function stringifyManifest(generatedManifest, comments) {
 }
 
 let numExpectedFailures = 0;
+let numExpectedTimeouts = 0;
 let numUnstableTests = 0;
 
 const timeout = 5000;
@@ -78,7 +79,7 @@ for (const absFilename of filenames) {
         } catch (error) {
             if (error.killed && error.signal === "SIGTERM") {
                 // Timeout!
-                generatedManifest.expectHang = true;
+                generatedManifest.expectTimeout = true;
 
                 // error has stdout and stderr properties containing output before the timeout, which may include some test results or error messages
                 execOutput = error;
@@ -103,7 +104,9 @@ for (const absFilename of filenames) {
             }
             Object.assign(results, resultLine.testResult);
         }
-        if (!Object.keys(results).length) {
+
+        // Skip this error if expectTimeout, because expectTimeout tells us something is wrong with this file. So this error only shows for files that run to completion and contain no test output.
+        if (!Object.keys(results).length && !generatedManifest.expectTimeout) {
             throw new Error("Did not receive any test results from test");
         }
 
@@ -161,11 +164,23 @@ for (const absFilename of filenames) {
                 }
             }
         }
+
+        // Do this after writing manifest, so expectTimeout gets saved but still shows up as a failed test
+        if (generatedManifest.expectTimeout) {
+            if (expectedManifest?.contents?.expectTimeout) {
+                numExpectedTimeouts += 1;
+            } else {
+                throw new Error("Test file timed out before completion");
+            }
+        } else if (expectedManifest?.contents?.expectTimeout) {
+            throw new Error("Expected test file to time out, but it didn't");
+        }
     });
 }
 
 process.on("beforeExit", () => {
     // log some additional diagnostics. not attempting to match `node:test`'s output since it varies by reporter
     console.log(`Expected failures: ${numExpectedFailures}`);
+    console.log(`Expected timeouts: ${numExpectedTimeouts}`);
     console.log(`Unstable tests: ${numUnstableTests}`);
 });

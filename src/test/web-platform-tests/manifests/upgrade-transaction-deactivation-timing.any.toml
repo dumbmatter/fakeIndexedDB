@@ -1,6 +1,6 @@
 # Maximum call stack size exceeded, possibly due to the promise resolution microtask not taking precedence when it
 # should (keep_alive not working).
-expectHang = true
+expectTimeout = true
 
 ["Upgrade transactions are deactivated before next task"]
 expectation = "FAIL"
