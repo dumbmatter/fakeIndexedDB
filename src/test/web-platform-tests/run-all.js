@@ -66,24 +66,13 @@ for (const absFilename of filenames) {
     }
 
     await test(filename, { skip }, async (t) => {
-        let testFileOutput;
-        try {
-            testFileOutput = await runTestFile(filename, {
-                cwd: testFolder,
-                timeout,
-            });
-        } catch (error) {
-            if (error.timeout) {
-                // Timeout!
-                generatedManifest.expectTimeout = true;
-
-                // error has stdout and stderr properties containing output before the timeout, which may include some test results or error messages
-                testFileOutput = error;
-            } else {
-                throw error;
-            }
+        const { stdout, stderr, timedOut } = await runTestFile(filename, {
+            cwd: testFolder,
+            timeout,
+        });
+        if (timedOut) {
+            generatedManifest.expectTimeout = true;
         }
-        const { stdout, stderr } = testFileOutput;
         if (stderr) {
             console.error(`stderr: ${stderr}`);
         }

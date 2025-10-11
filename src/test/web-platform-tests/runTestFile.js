@@ -25,31 +25,20 @@ export const runTestFile = async (scriptPath, options = {}) => {
             stderr += chunk;
         });
 
-        // This is similar to what exec does when promisified - even if there is some error or timeout, we still want to return stdout and stderror because there may be something useful there
-        const augmentError = (error, timeout) => {
-            error.stdout = stdout;
-            error.stderr = stderr;
-            if (timeout) {
-                error.timeout = true;
-            }
-            return error;
-        };
-
-        let timeoutErrorHappened = false;
-
         const timer =
             timeout !== undefined
                 ? setTimeout(() => {
-                      timeoutErrorHappened = true;
                       child.kill("SIGKILL");
-                      reject(
-                          augmentError(
-                              new Error(`Process timed out after ${timeout}ms`),
-                              true,
-                          ),
-                      );
+                      resolve({ stdout, stderr, timedOut: true });
                   }, timeout)
                 : undefined;
+
+        // This is similar to what exec does when promisified - even if there is some error, we still want to return stdout and stderr because there may be something useful there
+        const augmentError = (error) => {
+            error.stdout = stdout;
+            error.stderr = stderr;
+            return error;
+        };
 
         child.on("error", (error) => {
             clearTimeout(timer);
@@ -57,19 +46,17 @@ export const runTestFile = async (scriptPath, options = {}) => {
         });
 
         child.on("exit", (code, signal) => {
-            if (!timeoutErrorHappened) {
-                clearTimeout(timer);
-                if (code === 0) {
-                    resolve({ stdout, stderr });
-                } else {
-                    reject(
-                        augmentError(
-                            new Error(
-                                `Process exited with code ${code} and signal ${signal}`,
-                            ),
+            clearTimeout(timer);
+            if (code === 0) {
+                resolve({ stdout, stderr, timedOut: false });
+            } else {
+                reject(
+                    augmentError(
+                        new Error(
+                            `Process exited with code ${code} and signal ${signal}`,
                         ),
-                    );
-                }
+                    ),
+                );
             }
         });
     });
