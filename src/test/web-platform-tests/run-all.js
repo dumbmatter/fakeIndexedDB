@@ -67,12 +67,26 @@ for (const absFilename of filenames) {
         generatedManifest.skip = true;
     }
 
-    await test(filename, { skip, timeout }, async (t) => {
-        const { stdout, stderr } = await execAsync(`node ${filename}`, {
-            cwd: testFolder,
-            encoding: "utf-8",
-            timeout,
-        });
+    await test(filename, { skip }, async (t) => {
+        let execOutput;
+        try {
+            execOutput = await execAsync(`node ${filename}`, {
+                cwd: testFolder,
+                encoding: "utf-8",
+                timeout,
+            });
+        } catch (error) {
+            if (error.killed && error.signal === "SIGTERM") {
+                // Timeout!
+                generatedManifest.expectHang = true;
+
+                // error has stdout and stderr properties containing output before the timeout, which may include some test results or error messages
+                execOutput = error;
+            } else {
+                throw error;
+            }
+        }
+        const { stdout, stderr } = execOutput;
         if (stderr) {
             console.error(stderr);
         }
