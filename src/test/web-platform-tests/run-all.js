@@ -134,10 +134,17 @@ for (const absFilename of filenames) {
                     recursive: true,
                 });
                 if (Object.keys(generatedManifest).length) {
+                    // Sort to avoid issues where some tests complete before
+                    // others in non-deterministic order
+                    const sortedGeneratedManifest = Object.fromEntries(
+                        Object.keys(generatedManifest)
+                            .sort()
+                            .map((key) => [key, generatedManifest[key]]),
+                    );
                     fs.writeFileSync(
                         manifestFilename,
                         stringifyManifest(
-                            generatedManifest,
+                            sortedGeneratedManifest,
                             expectedManifest?.comments,
                         ),
                     );
