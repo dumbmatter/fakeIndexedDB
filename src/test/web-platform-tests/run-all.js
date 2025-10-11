@@ -130,6 +130,18 @@ for (const absFilename of filenames) {
                     }
                 });
             }
+
+            if (generatedManifest.expectTimeout) {
+                if (expectedManifest?.contents?.expectTimeout) {
+                    numExpectedTimeouts += 1;
+                } else {
+                    throw new Error("Test file timed out before completion");
+                }
+            } else if (expectedManifest?.contents?.expectTimeout) {
+                throw new Error(
+                    "Expected test file to time out, but it didn't",
+                );
+            }
         } finally {
             if (generateManifests) {
                 fs.mkdirSync(path.dirname(manifestFilename), {
@@ -148,17 +160,6 @@ for (const absFilename of filenames) {
                     fs.rmSync(manifestFilename, { force: true });
                 }
             }
-        }
-
-        // Do this after writing manifest, so expectTimeout gets saved but still shows up as a failed test
-        if (generatedManifest.expectTimeout) {
-            if (expectedManifest?.contents?.expectTimeout) {
-                numExpectedTimeouts += 1;
-            } else {
-                throw new Error("Test file timed out before completion");
-            }
-        } else if (expectedManifest?.contents?.expectTimeout) {
-            throw new Error("Expected test file to time out, but it didn't");
         }
     });
 }
