@@ -18,21 +18,21 @@ import type {
 } from "./lib/types.js";
 import type Database from "./lib/Database.js";
 
+// Common first 3 steps of https://www.w3.org/TR/IndexedDB/#dom-idbdatabase-createobjectstore and https://www.w3.org/TR/IndexedDB/#dom-idbdatabase-deleteobjectstore
 const confirmActiveVersionchangeTransaction = (database: FDBDatabase) => {
-    if (!database._runningVersionchangeTransaction) {
+    // Let transaction be database’s upgrade transaction if it is not null, or throw an "InvalidStateError" DOMException otherwise.
+    let transaction;
+    if (database._runningVersionchangeTransaction) {
+        // Find the latest versionchange transaction
+        transaction = database._rawDatabase.transactions.findLast((tx) => {
+            return tx.mode === "versionchange";
+        });
+    }
+    if (!transaction) {
         throw new InvalidStateError();
     }
 
-    // Find the latest versionchange transaction
-    const transactions = database._rawDatabase.transactions.filter((tx) => {
-        return tx.mode === "versionchange";
-    });
-    const transaction = transactions[transactions.length - 1];
-
-    if (!transaction || transaction._state === "finished") {
-        throw new InvalidStateError();
-    }
-
+    // If transaction’s state is not active, then throw a "TransactionInactiveError" DOMException.
     if (transaction._state !== "active") {
         throw new TransactionInactiveError();
     }

@@ -43,6 +43,8 @@ function stringifyManifest(generatedManifest, comments) {
 let numExpectedFailures = 0;
 let numUnstableTests = 0;
 
+const timeout = 5000;
+
 for (const absFilename of filenames) {
     const filename = path.relative(testFolder, absFilename);
 
@@ -65,10 +67,11 @@ for (const absFilename of filenames) {
         generatedManifest.skip = true;
     }
 
-    await test(filename, { skip }, async (t) => {
+    await test(filename, { skip, timeout }, async (t) => {
         const { stdout, stderr } = await execAsync(`node ${filename}`, {
             cwd: testFolder,
             encoding: "utf-8",
+            timeout,
         });
         if (stderr) {
             console.error(stderr);

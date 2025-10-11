@@ -1,3 +1,0 @@
-# these tests rely on the precise ordering of exceptions, which we currently fail
-["IDBDatabase.createObjectStore exception order: TransactionInactiveError vs. SyntaxError"]
-expectation = "FAIL"
