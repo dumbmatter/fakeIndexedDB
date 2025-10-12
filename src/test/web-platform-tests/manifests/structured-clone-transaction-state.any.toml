@@ -1,9 +1,11 @@
-# these test our ability to do a structured clone on various DOM types like DOMRect which we don't support
+# Per the spec, the transaction should be marked as inactive during structured clone
+# To support this, we would need to ensure all calls to `structuredClone` do this
+# https://w3c.github.io/IndexedDB/#clone-value
+["Transaction inactive during structured clone in IDBCursor.update()"]
+expectation = "FAIL"
+
 ["Transaction inactive during structured clone in IDBObjectStore.add()"]
 expectation = "FAIL"
 
 ["Transaction inactive during structured clone in IDBObjectStore.put()"]
-expectation = "FAIL"
-
-["Transaction inactive during structured clone in IDBCursor.update()"]
 expectation = "FAIL"

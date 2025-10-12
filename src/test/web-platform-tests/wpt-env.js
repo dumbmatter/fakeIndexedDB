@@ -43,7 +43,42 @@ global.File = class File extends Blob {
     }
 };
 
-// currently we cannot define our own structured cloning algorithm for our File polyfill, so we implement our own
+class GenericCloneable {
+    constructor() {
+        for (const prop of ["a", "b", "c"]) {
+            this[prop] = Math.random();
+        }
+    }
+    __clone() {
+        const clone = Object.create(Object.getPrototypeOf(this));
+        Object.assign(clone, {
+            ...this,
+        });
+        return clone;
+    }
+}
+
+// generic cloneable object polyfills just so the structured clone tests pass
+[
+    "DOMMatrix",
+    "DOMMatrixReadOnly",
+    "DOMPoint",
+    "DOMPointReadOnly",
+    "DOMRect",
+    "DOMRectReadOnly",
+].forEach((Clazz) => {
+    global[Clazz] = class extends GenericCloneable {};
+});
+global.ImageData = class extends GenericCloneable {
+    constructor() {
+        super();
+        this.width = Math.random();
+        this.height = Math.random();
+        this.data = new Array(256).fill(0);
+    }
+};
+
+// currently we cannot define our own structured cloning algorithm for our polyfills, so we implement our own
 // structured clone to pass some tests. If this proposal is ever implemented we can remove this:
 // https://github.com/littledan/serializable-objects
 const originalStructuredClone = global.structuredClone;
@@ -52,6 +87,12 @@ global.structuredClone = function customStructuredClone(obj) {
         return new File(structuredClone(obj._bits), obj.name, {
             lastModified: obj.lastModified,
         });
+    } else if (obj instanceof GenericCloneable) {
+        return obj.__clone();
+    } else if (obj instanceof Event) {
+        // FakeEvent should be non-serializable, same as native Event
+        // TODO [#140]: use native Event/EventTarget
+        throw new DataCloneError("not serializable");
     }
     return originalStructuredClone(obj);
 };
@@ -60,6 +101,8 @@ global.document = {
     // Kind of cheating for key_invalid.js: It wants to test using a DOM node as a key, but that can't work in Node, so
     // this will instead use another object that also can't be used as a key.
     getElementsByTagName: () => Math,
+    // structured-clone.any.js created an `<input type=file multiple>`
+    createElement: () => ({ files: [] }),
 };
 global.location = {
     location: {},
