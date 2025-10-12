@@ -68,6 +68,7 @@ class GenericCloneable {
     "DOMRectReadOnly",
 ].forEach((Clazz) => {
     global[Clazz] = class extends GenericCloneable {};
+    Object.defineProperty(global[Clazz], "name", { value: Clazz });
 });
 global.ImageData = class extends GenericCloneable {
     constructor() {
@@ -101,8 +102,8 @@ global.document = {
     // Kind of cheating for key_invalid.js: It wants to test using a DOM node as a key, but that can't work in Node, so
     // this will instead use another object that also can't be used as a key.
     getElementsByTagName: () => Math,
-    // structured-clone.any.js created an `<input type=file multiple>`
-    createElement: () => ({ files: [] }),
+    // structured-clone.any.js creates an `<input type=file multiple>`
+    createElement: () => ({ files: [{ name: "foo.txt" }] }),
 };
 global.location = {
     location: {},
