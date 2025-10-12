@@ -26,13 +26,13 @@ function parseManifest(manifestFilename) {
     }
     const contents = parse(text);
     // we want to preserve comments, and smol-toml has no way to extract them
-    const comments = [...text.matchAll(/(?:^|\n)#([^#\n]+)/g)].map((_) => _[1]);
+    const comments = text.split("\n").filter((line) => line.startsWith("#"));
     return { contents, comments };
 }
 
 function stringifyManifest(generatedManifest, comments) {
     return (
-        (comments ? comments.map((_) => `#${_}\n`).join("") : "") +
+        (comments?.length > 0 ? comments.join("\n") + "\n" : "") +
         stringify(generatedManifest)
     );
 }
