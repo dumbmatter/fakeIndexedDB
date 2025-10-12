@@ -96,7 +96,7 @@ class FDBDatabase extends FakeEventTarget {
             throw new InvalidAccessError();
         }
 
-        // Save these for rollbackLog
+        // Save for rollbackLog
         const objectStoreNames = [...this.objectStoreNames];
         const transactionObjectStoreNames = [...transaction.objectStoreNames];
 

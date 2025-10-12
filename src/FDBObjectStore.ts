@@ -498,16 +498,8 @@ class FDBObjectStore {
         // create and return an IDBIndex object. Instead the implementation must queue up an operation to abort the
         // "versionchange" transaction which was used for the createIndex call.
 
+        // Save for rollbackLog
         const indexNames = [...this.indexNames];
-        this.transaction._rollbackLog.push(() => {
-            const index2 = this._rawObjectStore.rawIndexes.get(name);
-            if (index2) {
-                index2.deleted = true;
-            }
-
-            this.indexNames = new FakeDOMStringList(...indexNames);
-            this._rawObjectStore.rawIndexes.delete(name);
-        });
 
         const index = new Index(
             this._rawObjectStore,
@@ -522,6 +514,12 @@ class FDBObjectStore {
         this._rawObjectStore.rawIndexes.set(name, index);
 
         index.initialize(this.transaction); // This is async by design
+
+        this.transaction._rollbackLog.push(() => {
+            index.deleted = true;
+            this.indexNames = new FakeDOMStringList(...indexNames);
+            this._rawObjectStore.rawIndexes.delete(index.name);
+        });
 
         return new FDBIndex(this, index);
     }

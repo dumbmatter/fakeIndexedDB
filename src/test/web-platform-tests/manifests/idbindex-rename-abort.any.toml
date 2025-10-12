@@ -1,4 +1,0 @@
-# Mostly works, but subtlely wrong behavior when renaming a newly-created index/store and then aborting the upgrade
-# transaction (this has roughly 0 real world impact, but could be indicative of other problems in fake-indexeddb).
-["IndexedDB index creation and rename in an aborted transaction"]
-expectation = "FAIL"
