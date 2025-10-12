@@ -7,6 +7,3 @@ expectation = "FAIL"
 
 ["Deleted indexes in deleted stores are still marked as not-deleted after the transaction aborts"]
 expectation = "FAIL"
-
-["Deleted indexes in newly created stores are still marked as deleted after the transaction aborts"]
-expectation = "FAIL"
