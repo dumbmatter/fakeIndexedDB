@@ -1,2 +1,0 @@
-# these test our ability to do a structured clone on various DOM types like DOMRect which we don't support
-skip = true
