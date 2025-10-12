@@ -130,17 +130,21 @@ class FDBDatabase extends FakeEventTarget {
         return transaction.objectStore(name);
     }
 
+    // https://www.w3.org/TR/IndexedDB/#dom-idbdatabase-deleteobjectstore
     public deleteObjectStore(name: string) {
         if (name === undefined) {
             throw new TypeError();
         }
         const transaction = confirmActiveVersionchangeTransaction(this);
 
+        // Let store be the object store named name in database, or throw a "NotFoundError" DOMException if none.
         const store = this._rawDatabase.rawObjectStores.get(name);
         if (store === undefined) {
             throw new NotFoundError();
         }
 
+        // Remove store from this’s object store set.
+        // This method synchronously modifies the objectStoreNames property on the IDBDatabase instance on which it was called.
         this.objectStoreNames = new FakeDOMStringList(
             ...Array.from(this.objectStoreNames).filter((objectStoreName) => {
                 return objectStoreName !== name;
@@ -150,14 +154,29 @@ class FDBDatabase extends FakeEventTarget {
             ...this.objectStoreNames,
         );
 
+        // If there is an object store handle associated with store and transaction, remove all entries from its index set.
+        const objectStore = transaction._objectStoresCache.get(name);
+        let prevIndexNames: string[] | undefined;
+        if (objectStore) {
+            prevIndexNames = [...objectStore.indexNames];
+            objectStore.indexNames = new FakeDOMStringList();
+        }
+
         transaction._rollbackLog.push(() => {
             store.deleted = false;
             this._rawDatabase.rawObjectStores.set(store.name, store);
             this.objectStoreNames._push(store.name);
             transaction.objectStoreNames._push(store.name);
             this.objectStoreNames._sort();
+
+            if (objectStore && prevIndexNames) {
+                objectStore.indexNames = new FakeDOMStringList(
+                    ...prevIndexNames,
+                );
+            }
         });
 
+        // Destroy store.
         store.deleted = true;
         this._rawDatabase.rawObjectStores.delete(name);
         transaction._objectStoresCache.delete(name);

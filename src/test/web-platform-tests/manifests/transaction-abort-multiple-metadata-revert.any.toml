@@ -1,9 +1,0 @@
-# Mostly works, but subtlely wrong behavior when renaming a newly-created index/store and then aborting the upgrade
-# transaction (this has roughly 0 real world impact, but could be indicative of other problems in fake-indexeddb).
-expectTimeout = true
-
-["Deleted indexes in created+deleted stores are still marked as deleted after their transaction aborts"]
-expectation = "FAIL"
-
-["Deleted indexes in deleted stores are still marked as not-deleted after the transaction aborts"]
-expectation = "FAIL"
