@@ -179,25 +179,28 @@ class FDBObjectStore {
             ...Array.from(transaction._scope).sort(),
         );
 
-        transaction._rollbackLog.push(() => {
-            this._name = oldName;
-            this._rawObjectStore.name = oldName;
-            this.transaction._objectStoresCache.delete(name);
-            this.transaction._objectStoresCache.set(oldName, this);
-            this._rawObjectStore.rawDatabase.rawObjectStores.delete(name);
-            this._rawObjectStore.rawDatabase.rawObjectStores.set(
-                oldName,
-                this._rawObjectStore,
-            );
-            transaction.db.objectStoreNames = new FakeDOMStringList(
-                ...oldObjectStoreNames,
-            );
+        // https://www.w3.org/TR/IndexedDB/#abort-an-upgrade-transaction - "If handle’s object store was not newly created during transaction, set handle’s name to its object store’s name."
+        if (!this.transaction._createdObjectStores.has(this._rawObjectStore)) {
+            transaction._rollbackLog.push(() => {
+                this._name = oldName;
+                this._rawObjectStore.name = oldName;
+                this.transaction._objectStoresCache.delete(name);
+                this.transaction._objectStoresCache.set(oldName, this);
+                this._rawObjectStore.rawDatabase.rawObjectStores.delete(name);
+                this._rawObjectStore.rawDatabase.rawObjectStores.set(
+                    oldName,
+                    this._rawObjectStore,
+                );
+                transaction.db.objectStoreNames = new FakeDOMStringList(
+                    ...oldObjectStoreNames,
+                );
 
-            transaction._scope = oldScope;
-            transaction.objectStoreNames = new FakeDOMStringList(
-                ...oldTransactionObjectStoreNames,
-            );
-        });
+                transaction._scope = oldScope;
+                transaction.objectStoreNames = new FakeDOMStringList(
+                    ...oldTransactionObjectStoreNames,
+                );
+            });
+        }
     }
 
     public put(value: Value, key?: Key) {
@@ -495,16 +498,8 @@ class FDBObjectStore {
         // create and return an IDBIndex object. Instead the implementation must queue up an operation to abort the
         // "versionchange" transaction which was used for the createIndex call.
 
+        // Save for rollbackLog
         const indexNames = [...this.indexNames];
-        this.transaction._rollbackLog.push(() => {
-            const index2 = this._rawObjectStore.rawIndexes.get(name);
-            if (index2) {
-                index2.deleted = true;
-            }
-
-            this.indexNames = new FakeDOMStringList(...indexNames);
-            this._rawObjectStore.rawIndexes.delete(name);
-        });
 
         const index = new Index(
             this._rawObjectStore,
@@ -515,9 +510,16 @@ class FDBObjectStore {
         );
         this.indexNames._push(name);
         this.indexNames._sort();
+        this.transaction._createdIndexes.add(index);
         this._rawObjectStore.rawIndexes.set(name, index);
 
         index.initialize(this.transaction); // This is async by design
+
+        this.transaction._rollbackLog.push(() => {
+            index.deleted = true;
+            this.indexNames = new FakeDOMStringList(...indexNames);
+            this._rawObjectStore.rawIndexes.delete(index.name);
+        });
 
         return new FDBIndex(this, index);
     }
@@ -569,8 +571,8 @@ class FDBObjectStore {
 
         this.transaction._rollbackLog.push(() => {
             rawIndex.deleted = false;
-            this._rawObjectStore.rawIndexes.set(name, rawIndex);
-            this.indexNames._push(name);
+            this._rawObjectStore.rawIndexes.set(rawIndex.name, rawIndex);
+            this.indexNames._push(rawIndex.name);
             this.indexNames._sort();
         });
 
