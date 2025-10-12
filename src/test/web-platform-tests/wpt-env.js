@@ -90,9 +90,11 @@ global.structuredClone = function customStructuredClone(obj) {
         });
     } else if (obj instanceof GenericCloneable) {
         return obj.__clone();
-    } else if (obj instanceof Event) {
+    } else if (obj instanceof Event || obj instanceof MessageChannel) {
         // FakeEvent should be non-serializable, same as native Event
         // TODO [#140]: use native Event/EventTarget
+        // As for MessageChannel, in Node 22+ the error is a proper DataCloneError
+        // but currently we need this for Node 18/20 support
         throw new DataCloneError("not serializable");
     }
     return originalStructuredClone(obj);
