@@ -152,8 +152,9 @@ class FDBDatabase extends FakeEventTarget {
 
         transaction._rollbackLog.push(() => {
             store.deleted = false;
-            this._rawDatabase.rawObjectStores.set(name, store);
-            this.objectStoreNames._push(name);
+            this._rawDatabase.rawObjectStores.set(store.name, store);
+            this.objectStoreNames._push(store.name);
+            transaction.objectStoreNames._push(store.name);
             this.objectStoreNames._sort();
         });
 

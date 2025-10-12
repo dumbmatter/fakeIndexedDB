@@ -571,8 +571,8 @@ class FDBObjectStore {
 
         this.transaction._rollbackLog.push(() => {
             rawIndex.deleted = false;
-            this._rawObjectStore.rawIndexes.set(name, rawIndex);
-            this.indexNames._push(name);
+            this._rawObjectStore.rawIndexes.set(rawIndex.name, rawIndex);
+            this.indexNames._push(rawIndex.name);
             this.indexNames._sort();
         });
 
