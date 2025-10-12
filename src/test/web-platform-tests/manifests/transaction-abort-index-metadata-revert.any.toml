@@ -2,8 +2,8 @@
 # transaction (this has roughly 0 real world impact, but could be indicative of other problems in fake-indexeddb).
 expectTimeout = true
 
-["Deleted stores get their indexes marked as not-deleted after the transaction that deleted them aborts"]
+["Created+deleted stores still have their indexes marked as deleted after the transaction aborts"]
 expectation = "FAIL"
 
-["Created+deleted stores still have their indexes marked as deleted after the transaction aborts"]
+["Deleted stores get their indexes marked as not-deleted after the transaction that deleted them aborts"]
 expectation = "FAIL"

@@ -2,14 +2,14 @@
 # should (keep_alive not working).
 expectTimeout = true
 
-["Active during success handlers"]
-expectation = "FAIL"
-
-["Active during success listeners"]
-expectation = "FAIL"
-
 ["Active during error handlers"]
 expectation = "FAIL"
 
 ["Active during error listeners"]
+expectation = "FAIL"
+
+["Active during success handlers"]
+expectation = "FAIL"
+
+["Active during success listeners"]
 expectation = "FAIL"
