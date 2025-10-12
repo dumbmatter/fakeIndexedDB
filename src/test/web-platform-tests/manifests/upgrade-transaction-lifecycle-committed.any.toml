@@ -1,2 +1,5 @@
-# The `transaction.addEventListener('complete'` function in the "in the complete event handler for a committed transaction" test is running before the `transaction.addEventListener("complete"` function in FDBFactory.ts. If the opposite were true, then _runningVersionchangeTransaction would be set to false before the test's function runs, and then the test would pass. Skipping the whole file because if this test doesn't pass, the whole file hangs. But the other test in this file does pass.
-skip = true
+# The `transaction.addEventListener('complete'` function in the "in the complete event handler for a committed transaction" test is running before the `transaction.addEventListener("complete"` function in FDBFactory.ts. If the opposite were true, then _runningVersionchangeTransaction would be set to false before the test's function runs, and then the test would pass.
+expectTimeout = true
+
+["in the complete event handler for a committed transaction"]
+expectation = "FAIL"

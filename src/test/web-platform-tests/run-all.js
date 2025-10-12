@@ -1,14 +1,11 @@
 /* global console, process */
 
 import { test } from "node:test";
-import { exec } from "node:child_process";
-import { promisify } from "node:util";
 import path from "node:path";
 import * as fs from "node:fs";
 import { parse, stringify } from "smol-toml";
 import { glob } from "glob";
-
-const execAsync = promisify(exec);
+import { runTestFile } from "./runTestFile.js";
 
 const generateManifests = process.env.GENERATE_MANIFESTS;
 
@@ -41,6 +38,7 @@ function stringifyManifest(generatedManifest, comments) {
 }
 
 let numExpectedFailures = 0;
+let numExpectedTimeouts = 0;
 let numUnstableTests = 0;
 
 const timeout = 5000;
@@ -67,14 +65,16 @@ for (const absFilename of filenames) {
         generatedManifest.skip = true;
     }
 
-    await test(filename, { skip, timeout }, async (t) => {
-        const { stdout, stderr } = await execAsync(`node ${filename}`, {
+    await test(filename, { skip }, async (t) => {
+        const { stdout, stderr, timedOut } = await runTestFile(filename, {
             cwd: testFolder,
-            encoding: "utf-8",
             timeout,
         });
+        if (timedOut) {
+            generatedManifest.expectTimeout = true;
+        }
         if (stderr) {
-            console.error(stderr);
+            console.error(`stderr: ${stderr}`);
         }
         const results = {};
         const resultLines = stdout
@@ -89,7 +89,9 @@ for (const absFilename of filenames) {
             }
             Object.assign(results, resultLine.testResult);
         }
-        if (!Object.keys(results).length) {
+
+        // Skip this error if expectTimeout, because expectTimeout tells us something is wrong with this file. So this error only shows for files that run to completion and contain no test output.
+        if (!Object.keys(results).length && !generatedManifest.expectTimeout) {
             throw new Error("Did not receive any test results from test");
         }
 
@@ -128,6 +130,18 @@ for (const absFilename of filenames) {
                     }
                 });
             }
+
+            if (generatedManifest.expectTimeout) {
+                if (expectedManifest?.contents?.expectTimeout) {
+                    numExpectedTimeouts += 1;
+                } else {
+                    throw new Error("Test file timed out before completion");
+                }
+            } else if (expectedManifest?.contents?.expectTimeout) {
+                throw new Error(
+                    "Expected test file to time out, but it didn't",
+                );
+            }
         } finally {
             if (generateManifests) {
                 fs.mkdirSync(path.dirname(manifestFilename), {
@@ -160,5 +174,6 @@ for (const absFilename of filenames) {
 process.on("beforeExit", () => {
     // log some additional diagnostics. not attempting to match `node:test`'s output since it varies by reporter
     console.log(`Expected failures: ${numExpectedFailures}`);
+    console.log(`Expected timeouts: ${numExpectedTimeouts}`);
     console.log(`Unstable tests: ${numUnstableTests}`);
 });
