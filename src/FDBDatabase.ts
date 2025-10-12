@@ -96,21 +96,9 @@ class FDBDatabase extends FakeEventTarget {
             throw new InvalidAccessError();
         }
 
+        // Save these for rollbackLog
         const objectStoreNames = [...this.objectStoreNames];
         const transactionObjectStoreNames = [...transaction.objectStoreNames];
-        transaction._rollbackLog.push(() => {
-            const objectStore = this._rawDatabase.rawObjectStores.get(name);
-            if (objectStore) {
-                objectStore.deleted = true;
-            }
-
-            this.objectStoreNames = new FakeDOMStringList(...objectStoreNames);
-            transaction.objectStoreNames = new FakeDOMStringList(
-                ...transactionObjectStoreNames,
-            );
-            transaction._scope.delete(name);
-            this._rawDatabase.rawObjectStores.delete(name);
-        });
 
         const rawObjectStore = new ObjectStore(
             this._rawDatabase,
@@ -126,6 +114,19 @@ class FDBDatabase extends FakeEventTarget {
         transaction.objectStoreNames = new FakeDOMStringList(
             ...this.objectStoreNames,
         );
+
+        transaction._rollbackLog.push(() => {
+            rawObjectStore.deleted = true;
+
+            this.objectStoreNames = new FakeDOMStringList(...objectStoreNames);
+            transaction.objectStoreNames = new FakeDOMStringList(
+                ...transactionObjectStoreNames,
+            );
+
+            transaction._scope.delete(rawObjectStore.name);
+            this._rawDatabase.rawObjectStores.delete(rawObjectStore.name);
+        });
+
         return transaction.objectStore(name);
     }
 
