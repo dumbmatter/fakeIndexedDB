@@ -179,25 +179,28 @@ class FDBObjectStore {
             ...Array.from(transaction._scope).sort(),
         );
 
-        transaction._rollbackLog.push(() => {
-            this._name = oldName;
-            this._rawObjectStore.name = oldName;
-            this.transaction._objectStoresCache.delete(name);
-            this.transaction._objectStoresCache.set(oldName, this);
-            this._rawObjectStore.rawDatabase.rawObjectStores.delete(name);
-            this._rawObjectStore.rawDatabase.rawObjectStores.set(
-                oldName,
-                this._rawObjectStore,
-            );
-            transaction.db.objectStoreNames = new FakeDOMStringList(
-                ...oldObjectStoreNames,
-            );
+        // https://www.w3.org/TR/IndexedDB/#abort-an-upgrade-transaction - "If handle’s object store was not newly created during transaction, set handle’s name to its object store’s name."
+        if (!this.transaction._createdObjectStores.has(this._rawObjectStore)) {
+            transaction._rollbackLog.push(() => {
+                this._name = oldName;
+                this._rawObjectStore.name = oldName;
+                this.transaction._objectStoresCache.delete(name);
+                this.transaction._objectStoresCache.set(oldName, this);
+                this._rawObjectStore.rawDatabase.rawObjectStores.delete(name);
+                this._rawObjectStore.rawDatabase.rawObjectStores.set(
+                    oldName,
+                    this._rawObjectStore,
+                );
+                transaction.db.objectStoreNames = new FakeDOMStringList(
+                    ...oldObjectStoreNames,
+                );
 
-            transaction._scope = oldScope;
-            transaction.objectStoreNames = new FakeDOMStringList(
-                ...oldTransactionObjectStoreNames,
-            );
-        });
+                transaction._scope = oldScope;
+                transaction.objectStoreNames = new FakeDOMStringList(
+                    ...oldTransactionObjectStoreNames,
+                );
+            });
+        }
     }
 
     public put(value: Value, key?: Key) {

@@ -117,6 +117,7 @@ class FDBDatabase extends FakeEventTarget {
         this.objectStoreNames._push(name);
         this.objectStoreNames._sort();
         transaction._scope.add(name);
+        transaction._createdObjectStores.add(rawObjectStore);
         this._rawDatabase.rawObjectStores.set(name, rawObjectStore);
         transaction.objectStoreNames = new FakeDOMStringList(
             ...this.objectStoreNames,

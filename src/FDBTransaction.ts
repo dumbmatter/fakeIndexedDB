@@ -19,6 +19,7 @@ import type {
     TransactionMode,
 } from "./lib/types.js";
 import type FDBOpenDBRequest from "./FDBOpenDBRequest.js";
+import type ObjectStore from "./lib/ObjectStore.js";
 
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#transaction
 class FDBTransaction extends FakeEventTarget {
@@ -42,6 +43,7 @@ class FDBTransaction extends FakeEventTarget {
         operation: () => void;
         request: FDBRequest;
     }[] = [];
+    public _createdObjectStores = new Set<ObjectStore>();
 
     constructor(
         storeNames: string[],
