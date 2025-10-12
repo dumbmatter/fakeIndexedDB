@@ -518,6 +518,7 @@ class FDBObjectStore {
         );
         this.indexNames._push(name);
         this.indexNames._sort();
+        this.transaction._createdIndexes.add(index);
         this._rawObjectStore.rawIndexes.set(name, index);
 
         index.initialize(this.transaction); // This is async by design

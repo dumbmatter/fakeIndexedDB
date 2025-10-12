@@ -108,20 +108,23 @@ class FDBIndex {
                 .sort(),
         );
 
-        transaction._rollbackLog.push(() => {
-            this._name = oldName;
-            this._rawIndex.name = oldName;
-            this.objectStore._indexesCache.delete(name);
-            this.objectStore._indexesCache.set(oldName, this);
-            this.objectStore._rawObjectStore.rawIndexes.delete(name);
-            this.objectStore._rawObjectStore.rawIndexes.set(
-                oldName,
-                this._rawIndex,
-            );
-            this.objectStore.indexNames = new FakeDOMStringList(
-                ...oldIndexNames,
-            );
-        });
+        // https://www.w3.org/TR/IndexedDB/#abort-an-upgrade-transaction - "If handle’s index was not newly created during transaction, set handle’s name to its index’s name."
+        if (!this.objectStore.transaction._createdIndexes.has(this._rawIndex)) {
+            transaction._rollbackLog.push(() => {
+                this._name = oldName;
+                this._rawIndex.name = oldName;
+                this.objectStore._indexesCache.delete(name);
+                this.objectStore._indexesCache.set(oldName, this);
+                this.objectStore._rawObjectStore.rawIndexes.delete(name);
+                this.objectStore._rawObjectStore.rawIndexes.set(
+                    oldName,
+                    this._rawIndex,
+                );
+                this.objectStore.indexNames = new FakeDOMStringList(
+                    ...oldIndexNames,
+                );
+            });
+        }
     }
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBIndex-openCursor-IDBRequest-any-range-IDBCursorDirection-direction
