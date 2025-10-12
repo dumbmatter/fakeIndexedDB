@@ -10,6 +10,7 @@ import {
 } from "./lib/errors.js";
 import extractKey from "./lib/extractKey.js";
 import valueToKey from "./lib/valueToKey.js";
+import { cloneValueForInsertion } from "./lib/cloneValueForInsertion.js";
 import type {
     CursorRange,
     CursorSource,
@@ -381,7 +382,7 @@ class FDBCursor {
             throw new InvalidStateError();
         }
 
-        const clone = structuredClone(value);
+        const clone = cloneValueForInsertion(value, transaction);
 
         if (effectiveObjectStore.keyPath !== null) {
             let tempKey;
