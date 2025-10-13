@@ -1038,8 +1038,10 @@ describe("fakeIndexedDB Tests", () => {
                             if (event.target.result === 4) {
                                 done();
                             } else {
-                                throw new Error(
-                                    `Was expecting object to have id of 4, but instead it is ${event.target.result}`,
+                                done(
+                                    new Error(
+                                        `Was expecting object to have id of 4, but instead it is ${event.target.result}`,
+                                    ),
                                 );
                             }
                         };
