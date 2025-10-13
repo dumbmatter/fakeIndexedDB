@@ -1,3 +1,0 @@
-# Did not investigate in great detail.
-["Returning values to script should bypass prototype setters"]
-expectation = "FAIL"

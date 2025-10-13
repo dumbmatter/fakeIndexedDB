@@ -166,7 +166,14 @@ class ObjectStore {
                         remainingKeyPath = remainingKeyPath.slice(i + 1);
 
                         if (!Object.hasOwn(object, identifier)) {
-                            object[identifier] = {};
+                            // Bypass prototype when setting (See `bindings-inject-values-bypass.any.js`)
+                            // Equivalent to `object[identifier] = ...` without using `Object.prototype`
+                            Object.defineProperty(object, identifier, {
+                                configurable: true,
+                                enumerable: true,
+                                writable: true,
+                                value: {},
+                            });
                         }
 
                         object = object[identifier];
@@ -175,7 +182,14 @@ class ObjectStore {
 
                 identifier = remainingKeyPath;
 
-                object[identifier] = newRecord.key;
+                // Bypass prototype when setting (See `bindings-inject-values-bypass.any.js`)
+                // Equivalent to `object[identifier] = ...` without using `Object.prototype`
+                Object.defineProperty(object, identifier, {
+                    configurable: true,
+                    enumerable: true,
+                    writable: true,
+                    value: newRecord.key,
+                });
             }
         } else if (
             this.keyGenerator !== null &&
