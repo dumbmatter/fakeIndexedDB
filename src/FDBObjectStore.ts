@@ -22,6 +22,7 @@ import valueToKeyRange from "./lib/valueToKeyRange.js";
 import { getKeyPath } from "./lib/getKeyPath.js";
 import extractGetAllOptions from "./lib/extractGetAllOptions.js";
 import enforceRange from "./lib/enforceRange.js";
+import { cloneValueForInsertion } from "./lib/cloneValueForInsertion.js";
 import type {
     FDBCursorDirection,
     FDBGetAllOptions,
@@ -59,7 +60,7 @@ const buildRecordAddPut = (
         }
     }
 
-    const clone = structuredClone(value);
+    const clone = cloneValueForInsertion(value, objectStore.transaction);
 
     if (objectStore.keyPath !== null) {
         const tempKey = extractKey(objectStore.keyPath, clone);
