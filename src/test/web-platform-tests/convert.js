@@ -10,7 +10,7 @@ const globalVars = ["cursor", "db", "result", "store", "value"];
 const declareGlobalVars = `let ${globalVars.join(",")};\n`;
 
 const skip = [
-    // IDL test; out of scope for the time being.
+    // Skip here rather than in manifest TOML file because we don't support all the scripts this imports
     "idlharness.any.js",
 ];
 
@@ -172,13 +172,12 @@ const outFolder = path.posix.join(__dirname, "converted");
             codeChunks.push(testScript);
         }
 
-        codeChunks = codeChunks.map((chunk) => {
-            return (
-                chunk
-                    // HACK: this test runs in sloppy mode and assumes `this` is the global
-                    .replaceAll(`this.saw =`, "saw =")
-            );
-        });
+        // HACK: this test runs in sloppy mode and assumes `this` is the global
+        if (filename.includes("delete-request-queue.any")) {
+            codeChunks = codeChunks.map((chunk) => {
+                return chunk.replaceAll(`this.saw =`, "saw =");
+            });
+        }
 
         makeParentDir(dest);
 
