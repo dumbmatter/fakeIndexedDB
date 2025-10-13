@@ -1,3 +1,4 @@
-# Did not investigate in great detail.
+# Bug seems to be in handling the ['error', 3] operation, which shouldn't be adding a record to the object store, but is.
+# A more minimal example of this bug is in the "preventDefault of a ConstraintError transaction (simpler example of why the request-event-ordering-small-values WPT test is failing)" test in src/test/fakeIndexedDB.ts
 ["small values"]
 expectation = "FAIL"

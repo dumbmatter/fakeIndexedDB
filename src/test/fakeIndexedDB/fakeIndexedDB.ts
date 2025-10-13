@@ -1001,4 +1001,51 @@ describe("fakeIndexedDB Tests", () => {
         assert.deepStrictEqual(v2, { id: 2, val: "b" });
         assert.equal(v3, undefined);
     });
+
+    it.skip("preventDefault of a ConstraintError transaction (simpler example of why the request-event-ordering-small-values WPT test is failing)", (done) => {
+        const request = fakeIndexedDB.open("unique-index-test");
+        request.onupgradeneeded = () => {
+            const db = request.result;
+            const store = db.createObjectStore("myStore", {
+                keyPath: "id",
+                autoIncrement: true,
+            });
+            store.createIndex("myIndex", "key", { unique: true });
+            store.put({ id: 1, key: "k1", value: "a" });
+            store.put({ id: 2, key: "k2", value: "b" });
+            store.put({ id: 3, key: "k3", value: "c" });
+        };
+        request.onsuccess = (event) => {
+            const db = event.target.result;
+            const transaction = db.transaction("myStore", "readwrite");
+            const store = transaction.objectStore("myStore");
+
+            // Primary key is fine, but index key is not! This triggers a ConstraintError when updating the index.
+            const request2 = store.put({ id: 4, key: "k3", value: "d" });
+            request2.onerror = (event: any) => {
+                // preventDefault triggers the bug. It allows further requests to happen on this transaction rather than aborting (so no rollbackLog processing), so that the erroneous record is in the object store (since that happens before it updates the index, and it relies on rollbackLog to undo that).
+                // I guess what should happen is that the rollback of adding the record to the object store is processed immediately (or maybe never happens until index constraints are checked), rather than waiting for the whole transaction to abort.
+                event.preventDefault();
+
+                assert.equal(event.target.error.name, "ConstraintError");
+
+                // Hacky check of internal state of the object store
+                // console.log([...store._rawObjectStore.records.values()]);
+
+                const request3 = store.getAll();
+                request3.onsuccess = (event: any) => {
+                    console.log(event.target.result);
+                    if (event.target.result.length === 3) {
+                        done();
+                    } else {
+                        done(
+                            new Error(
+                                `${event.target.result.length} records in object store, should be 3`,
+                            ),
+                        );
+                    }
+                };
+            };
+        };
+    });
 });
