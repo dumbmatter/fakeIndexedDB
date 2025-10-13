@@ -1032,7 +1032,7 @@ describe("fakeIndexedDB Tests", () => {
                 const request3 = store.getAll();
                 request3.onsuccess = (event: any) => {
                     if (event.target.result.length === 3) {
-                        // Confirm key generator rollback happened too - next insert should have id 4, not 5
+                        // Confirm key generator rollback happened too - next insert should have id 4, not 5. WPT tests don't cover this!
                         const request4 = store.put({ key: "k4", value: "d" });
                         request4.onsuccess = (event: any) => {
                             if (event.target.result === 4) {
