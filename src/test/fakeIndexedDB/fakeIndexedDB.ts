@@ -1023,8 +1023,7 @@ describe("fakeIndexedDB Tests", () => {
             // Primary key is fine, but index key is not! This triggers a ConstraintError when updating the index.
             const request2 = store.put({ key: "k3", value: "d" });
             request2.onerror = (event: any) => {
-                // preventDefault triggers the bug. It allows further requests to happen on this transaction rather than aborting (so no rollbackLog processing), so that the erroneous record is in the object store (since that happens before it updates the index, and it relies on rollbackLog to undo that).
-                // I guess what should happen is that the rollback of adding the record to the object store is processed immediately (or maybe never happens until index constraints are checked), rather than waiting for the whole transaction to abort.
+                // This prevents the transaction from aborting, so we can make more transactions, and anything that happened while processing request2 (adding record to object store, incrementing key generator) should be undone by now.
                 event.preventDefault();
 
                 assert.equal(event.target.error.name, "ConstraintError");
