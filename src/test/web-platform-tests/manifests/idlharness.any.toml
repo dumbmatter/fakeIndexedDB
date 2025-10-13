@@ -1,0 +1,399 @@
+# Various failures due to not perfectly matching the WebIDL, e.g.:
+# - Different function names, e.g. `FDBRequest` vs `IDBRequest`
+# - Not using native `Event`/`EventTarget`, e.g. `IDBRequest.prototype` should be `EventTarget.prototype`
+# - Not having a property defined at the right part of the prototype chain, e.g. `FDBVersionChangeEvent.oldVersion`
+["IDBCursor interface object length"]
+expectation = "FAIL"
+
+["IDBCursor interface object name"]
+expectation = "FAIL"
+
+["IDBCursor interface: attribute direction"]
+expectation = "FAIL"
+
+["IDBCursor interface: attribute key"]
+expectation = "FAIL"
+
+["IDBCursor interface: attribute primaryKey"]
+expectation = "FAIL"
+
+["IDBCursor interface: attribute request"]
+expectation = "FAIL"
+
+["IDBCursor interface: attribute source"]
+expectation = "FAIL"
+
+["IDBCursor interface: existence and properties of interface object"]
+expectation = "FAIL"
+
+["IDBCursor interface: operation advance(unsigned long)"]
+expectation = "FAIL"
+
+["IDBCursor interface: operation continue(optional any)"]
+expectation = "FAIL"
+
+["IDBCursor interface: operation continuePrimaryKey(any, any)"]
+expectation = "FAIL"
+
+["IDBCursor interface: operation delete()"]
+expectation = "FAIL"
+
+["IDBCursor interface: operation update(any)"]
+expectation = "FAIL"
+
+["IDBCursorWithValue interface object length"]
+expectation = "FAIL"
+
+["IDBCursorWithValue interface object name"]
+expectation = "FAIL"
+
+["IDBCursorWithValue interface: attribute value"]
+expectation = "FAIL"
+
+["IDBCursorWithValue interface: existence and properties of interface object"]
+expectation = "FAIL"
+
+["IDBDatabase interface object length"]
+expectation = "FAIL"
+
+["IDBDatabase interface object name"]
+expectation = "FAIL"
+
+["IDBDatabase interface: attribute name"]
+expectation = "FAIL"
+
+["IDBDatabase interface: attribute objectStoreNames"]
+expectation = "FAIL"
+
+["IDBDatabase interface: attribute onabort"]
+expectation = "FAIL"
+
+["IDBDatabase interface: attribute onclose"]
+expectation = "FAIL"
+
+["IDBDatabase interface: attribute onerror"]
+expectation = "FAIL"
+
+["IDBDatabase interface: attribute onversionchange"]
+expectation = "FAIL"
+
+["IDBDatabase interface: attribute version"]
+expectation = "FAIL"
+
+["IDBDatabase interface: existence and properties of interface object"]
+expectation = "FAIL"
+
+["IDBDatabase interface: existence and properties of interface prototype object"]
+expectation = "FAIL"
+
+["IDBDatabase interface: operation close()"]
+expectation = "FAIL"
+
+["IDBDatabase interface: operation createObjectStore(DOMString, optional IDBObjectStoreParameters)"]
+expectation = "FAIL"
+
+["IDBDatabase interface: operation deleteObjectStore(DOMString)"]
+expectation = "FAIL"
+
+["IDBDatabase interface: operation transaction((DOMString or sequence<DOMString>), optional IDBTransactionMode, optional IDBTransactionOptions)"]
+expectation = "FAIL"
+
+["IDBFactory interface object name"]
+expectation = "FAIL"
+
+["IDBFactory interface: existence and properties of interface object"]
+expectation = "FAIL"
+
+["IDBFactory interface: operation cmp(any, any)"]
+expectation = "FAIL"
+
+["IDBFactory interface: operation databases()"]
+expectation = "FAIL"
+
+["IDBFactory interface: operation deleteDatabase(DOMString)"]
+expectation = "FAIL"
+
+["IDBFactory interface: operation open(DOMString, optional unsigned long long)"]
+expectation = "FAIL"
+
+["IDBIndex interface object length"]
+expectation = "FAIL"
+
+["IDBIndex interface object name"]
+expectation = "FAIL"
+
+["IDBIndex interface: attribute keyPath"]
+expectation = "FAIL"
+
+["IDBIndex interface: attribute multiEntry"]
+expectation = "FAIL"
+
+["IDBIndex interface: attribute name"]
+expectation = "FAIL"
+
+["IDBIndex interface: attribute objectStore"]
+expectation = "FAIL"
+
+["IDBIndex interface: attribute unique"]
+expectation = "FAIL"
+
+["IDBIndex interface: operation count(optional any)"]
+expectation = "FAIL"
+
+["IDBIndex interface: operation get(any)"]
+expectation = "FAIL"
+
+["IDBIndex interface: operation getAll(optional any, optional unsigned long)"]
+expectation = "FAIL"
+
+["IDBIndex interface: operation getAllKeys(optional any, optional unsigned long)"]
+expectation = "FAIL"
+
+["IDBIndex interface: operation getAllRecords(optional IDBGetAllOptions)"]
+expectation = "FAIL"
+
+["IDBIndex interface: operation getKey(any)"]
+expectation = "FAIL"
+
+["IDBIndex interface: operation openCursor(optional any, optional IDBCursorDirection)"]
+expectation = "FAIL"
+
+["IDBIndex interface: operation openKeyCursor(optional any, optional IDBCursorDirection)"]
+expectation = "FAIL"
+
+["IDBKeyRange interface object length"]
+expectation = "FAIL"
+
+["IDBKeyRange interface object name"]
+expectation = "FAIL"
+
+["IDBKeyRange interface: [object IDBKeyRange] must inherit property \"lower\" with the proper type"]
+expectation = "FAIL"
+
+["IDBKeyRange interface: [object IDBKeyRange] must inherit property \"lowerOpen\" with the proper type"]
+expectation = "FAIL"
+
+["IDBKeyRange interface: [object IDBKeyRange] must inherit property \"upper\" with the proper type"]
+expectation = "FAIL"
+
+["IDBKeyRange interface: [object IDBKeyRange] must inherit property \"upperOpen\" with the proper type"]
+expectation = "FAIL"
+
+["IDBKeyRange interface: attribute lower"]
+expectation = "FAIL"
+
+["IDBKeyRange interface: attribute lowerOpen"]
+expectation = "FAIL"
+
+["IDBKeyRange interface: attribute upper"]
+expectation = "FAIL"
+
+["IDBKeyRange interface: attribute upperOpen"]
+expectation = "FAIL"
+
+["IDBKeyRange interface: existence and properties of interface object"]
+expectation = "FAIL"
+
+["IDBKeyRange interface: operation bound(any, any, optional boolean, optional boolean)"]
+expectation = "FAIL"
+
+["IDBKeyRange interface: operation includes(any)"]
+expectation = "FAIL"
+
+["IDBKeyRange interface: operation lowerBound(any, optional boolean)"]
+expectation = "FAIL"
+
+["IDBKeyRange interface: operation only(any)"]
+expectation = "FAIL"
+
+["IDBKeyRange interface: operation upperBound(any, optional boolean)"]
+expectation = "FAIL"
+
+["IDBObjectStore interface object length"]
+expectation = "FAIL"
+
+["IDBObjectStore interface object name"]
+expectation = "FAIL"
+
+["IDBObjectStore interface: attribute autoIncrement"]
+expectation = "FAIL"
+
+["IDBObjectStore interface: attribute indexNames"]
+expectation = "FAIL"
+
+["IDBObjectStore interface: attribute keyPath"]
+expectation = "FAIL"
+
+["IDBObjectStore interface: attribute name"]
+expectation = "FAIL"
+
+["IDBObjectStore interface: attribute transaction"]
+expectation = "FAIL"
+
+["IDBObjectStore interface: operation add(any, optional any)"]
+expectation = "FAIL"
+
+["IDBObjectStore interface: operation clear()"]
+expectation = "FAIL"
+
+["IDBObjectStore interface: operation count(optional any)"]
+expectation = "FAIL"
+
+["IDBObjectStore interface: operation createIndex(DOMString, (DOMString or sequence<DOMString>), optional IDBIndexParameters)"]
+expectation = "FAIL"
+
+["IDBObjectStore interface: operation delete(any)"]
+expectation = "FAIL"
+
+["IDBObjectStore interface: operation deleteIndex(DOMString)"]
+expectation = "FAIL"
+
+["IDBObjectStore interface: operation get(any)"]
+expectation = "FAIL"
+
+["IDBObjectStore interface: operation getAll(optional any, optional unsigned long)"]
+expectation = "FAIL"
+
+["IDBObjectStore interface: operation getAllKeys(optional any, optional unsigned long)"]
+expectation = "FAIL"
+
+["IDBObjectStore interface: operation getAllRecords(optional IDBGetAllOptions)"]
+expectation = "FAIL"
+
+["IDBObjectStore interface: operation getKey(any)"]
+expectation = "FAIL"
+
+["IDBObjectStore interface: operation index(DOMString)"]
+expectation = "FAIL"
+
+["IDBObjectStore interface: operation openCursor(optional any, optional IDBCursorDirection)"]
+expectation = "FAIL"
+
+["IDBObjectStore interface: operation openKeyCursor(optional any, optional IDBCursorDirection)"]
+expectation = "FAIL"
+
+["IDBObjectStore interface: operation put(any, optional any)"]
+expectation = "FAIL"
+
+["IDBOpenDBRequest interface object name"]
+expectation = "FAIL"
+
+["IDBOpenDBRequest interface: attribute onblocked"]
+expectation = "FAIL"
+
+["IDBOpenDBRequest interface: attribute onupgradeneeded"]
+expectation = "FAIL"
+
+["IDBOpenDBRequest interface: existence and properties of interface object"]
+expectation = "FAIL"
+
+["IDBRecord interface object length"]
+expectation = "FAIL"
+
+["IDBRecord interface object name"]
+expectation = "FAIL"
+
+["IDBRecord interface: attribute key"]
+expectation = "FAIL"
+
+["IDBRecord interface: attribute primaryKey"]
+expectation = "FAIL"
+
+["IDBRecord interface: attribute value"]
+expectation = "FAIL"
+
+["IDBRecord interface: existence and properties of interface object"]
+expectation = "FAIL"
+
+["IDBRequest interface object name"]
+expectation = "FAIL"
+
+["IDBRequest interface: attribute error"]
+expectation = "FAIL"
+
+["IDBRequest interface: attribute onerror"]
+expectation = "FAIL"
+
+["IDBRequest interface: attribute onsuccess"]
+expectation = "FAIL"
+
+["IDBRequest interface: attribute readyState"]
+expectation = "FAIL"
+
+["IDBRequest interface: attribute result"]
+expectation = "FAIL"
+
+["IDBRequest interface: attribute source"]
+expectation = "FAIL"
+
+["IDBRequest interface: attribute transaction"]
+expectation = "FAIL"
+
+["IDBRequest interface: existence and properties of interface object"]
+expectation = "FAIL"
+
+["IDBRequest interface: existence and properties of interface prototype object"]
+expectation = "FAIL"
+
+["IDBTransaction interface object length"]
+expectation = "FAIL"
+
+["IDBTransaction interface object name"]
+expectation = "FAIL"
+
+["IDBTransaction interface: attribute db"]
+expectation = "FAIL"
+
+["IDBTransaction interface: attribute durability"]
+expectation = "FAIL"
+
+["IDBTransaction interface: attribute error"]
+expectation = "FAIL"
+
+["IDBTransaction interface: attribute mode"]
+expectation = "FAIL"
+
+["IDBTransaction interface: attribute objectStoreNames"]
+expectation = "FAIL"
+
+["IDBTransaction interface: attribute onabort"]
+expectation = "FAIL"
+
+["IDBTransaction interface: attribute oncomplete"]
+expectation = "FAIL"
+
+["IDBTransaction interface: attribute onerror"]
+expectation = "FAIL"
+
+["IDBTransaction interface: existence and properties of interface object"]
+expectation = "FAIL"
+
+["IDBTransaction interface: existence and properties of interface prototype object"]
+expectation = "FAIL"
+
+["IDBTransaction interface: operation abort()"]
+expectation = "FAIL"
+
+["IDBTransaction interface: operation commit()"]
+expectation = "FAIL"
+
+["IDBTransaction interface: operation objectStore(DOMString)"]
+expectation = "FAIL"
+
+["IDBVersionChangeEvent interface object name"]
+expectation = "FAIL"
+
+["IDBVersionChangeEvent interface: attribute newVersion"]
+expectation = "FAIL"
+
+["IDBVersionChangeEvent interface: attribute oldVersion"]
+expectation = "FAIL"
+
+["IDBVersionChangeEvent interface: new IDBVersionChangeEvent(\"type\") must inherit property \"newVersion\" with the proper type"]
+expectation = "FAIL"
+
+["IDBVersionChangeEvent interface: new IDBVersionChangeEvent(\"type\") must inherit property \"oldVersion\" with the proper type"]
+expectation = "FAIL"
+
+["Window interface: attribute indexedDB"]
+expectation = "FAIL"

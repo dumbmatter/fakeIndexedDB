@@ -37,6 +37,13 @@ cp -R path/to/wpt/IndexedDB path/to/fakeIndexedDB/src/test/web-platform-tests/In
 rm -fr path/to/fakeIndexedDB/src/test/web-platform-tests/converted
 ```
 
+Then copy over the relevant IDL files:
+
+```sh
+cp path/to/wpt/interfaces/{IndexedDB,html,dom}.idl \
+  path/to/fakeIndexedDB/src/test/web-platform-tests/idlharness
+```
+
 Then run the `convert.js` script:
 
 ```sh

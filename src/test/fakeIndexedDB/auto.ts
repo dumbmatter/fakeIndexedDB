@@ -12,13 +12,13 @@ describe("auto", () => {
         Object.defineProperty(globalThis, "indexedDB", {
             set: undefined,
             get: () => undefined,
-            enumerable: true,
+            enumerable: false,
             configurable: true,
         });
         for (const prop of props) {
             Object.defineProperty(globalThis, prop, {
                 value: undefined,
-                enumerable: true,
+                enumerable: false,
                 configurable: true,
                 writable: true,
             });
@@ -34,7 +34,7 @@ describe("auto", () => {
                 prop,
             );
             assert.equal(descriptor!.value, fakeIndexedDB[prop]);
-            assert.equal(descriptor!.enumerable, true);
+            assert.equal(descriptor!.enumerable, false);
             assert.equal(descriptor!.configurable, true);
             assert.equal(descriptor!.writable, true);
         }

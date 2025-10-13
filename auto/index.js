@@ -29,7 +29,7 @@ var globalVar =
 const createPropertyDescriptor = (value) => {
     return {
         value,
-        enumerable: true,
+        enumerable: false,
         configurable: true,
         writable: true,
     };
