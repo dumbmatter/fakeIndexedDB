@@ -1,5 +1,4 @@
-/* global setTimeout, clearTimeout */
-
+/* eslint-env node */
 import { fork } from "node:child_process";
 
 // Why use this rather than just promisifying the simpler exec function? Because when there is a timeout, exec will not actually kill the child process it creates. This will.

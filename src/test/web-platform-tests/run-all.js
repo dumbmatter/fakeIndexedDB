@@ -1,5 +1,4 @@
-/* global console, process */
-
+/* eslint-env node */
 import { test } from "node:test";
 import path from "node:path";
 import * as fs from "node:fs";
