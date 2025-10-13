@@ -130,11 +130,12 @@ class ObjectStore {
             }
         }
 
-        let rollbackKeyGenerator;
+        const rollbackLogForThisOperation = [];
+
         if (this.keyGenerator !== null && newRecord.key === undefined) {
             let rolledBack = false;
             const keyGeneratorBefore = this.keyGenerator.num;
-            rollbackKeyGenerator = () => {
+            const rollbackKeyGenerator = () => {
                 if (rolledBack) {
                     return;
                 }
@@ -143,6 +144,7 @@ class ObjectStore {
                     this.keyGenerator.num = keyGeneratorBefore;
                 }
             };
+            rollbackLogForThisOperation.push(rollbackKeyGenerator);
             if (rollbackLog) {
                 rollbackLog.push(rollbackKeyGenerator);
             }
@@ -222,6 +224,7 @@ class ObjectStore {
             }
         };
 
+        rollbackLogForThisOperation.push(rollbackStoreRecord);
         if (rollbackLog) {
             rollbackLog.push(rollbackStoreRecord);
         }
@@ -241,11 +244,10 @@ class ObjectStore {
                 }
             }
         } catch (err) {
-            // If this request fails here and preventDefault is used to stop the transaction from aborting, we need to roll back the addition of this record to the store, otherwise it will be present in subsequent requests on this transaction.
+            // If this request fails here and preventDefault is used to stop the transaction from aborting, we need to roll back the addition of this record to the store, otherwise it will be present in subsequent requests on this transaction. Same for key generator.
             if (err.name === "ConstraintError") {
-                rollbackStoreRecord();
-                if (rollbackKeyGenerator) {
-                    rollbackKeyGenerator();
+                for (const rollback of rollbackLogForThisOperation) {
+                    rollback();
                 }
             }
 
