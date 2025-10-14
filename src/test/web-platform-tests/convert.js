@@ -9,11 +9,6 @@ import { glob } from "glob";
 const globalVars = ["cursor", "db", "result", "store", "value"];
 const declareGlobalVars = `let ${globalVars.join(",")};\n`;
 
-const skip = [
-    // Skip here rather than in manifest TOML file because we don't support all the scripts this imports
-    "idlharness.any.js",
-];
-
 function makeParentDir(file) {
     const dir = path.posix.dirname(file);
     fs.mkdirSync(dir, { recursive: true });
@@ -28,10 +23,6 @@ const outFolder = path.posix.join(__dirname, "converted");
     const filenames = glob.sync("/**/*.{htm,html}", { root: inFolder });
     for (const filename of filenames) {
         const relative = path.posix.relative(inFolder, filename);
-        if (skip.includes(relative)) {
-            console.log(`Skipping ${relative}.`);
-            continue;
-        }
         const { dir, name } = path.parse(relative);
         const dest = path.join(outFolder, dir, `${name}.js`);
         console.log(`Converting ${relative}...`);
@@ -104,10 +95,6 @@ const outFolder = path.posix.join(__dirname, "converted");
     const filenames = glob.sync("/**/*.any.js", { root: inFolder });
     for (const filename of filenames) {
         const relative = path.posix.relative(inFolder, filename);
-        if (skip.includes(relative)) {
-            console.log(`Skipping ${relative}.`);
-            continue;
-        }
         const { dir, name } = path.parse(relative);
         const dest = path.join(outFolder, dir, `${name}.js`);
 
@@ -120,12 +107,28 @@ const outFolder = path.posix.join(__dirname, "converted");
 
         let codeChunks = [];
 
+        const wptRoot = path.posix.relative(
+            path.posix.dirname(dest),
+            __dirname,
+        );
         {
             const relativeWptEnvLocation = path.posix.join(
-                path.posix.relative(path.posix.dirname(dest), __dirname),
+                wptRoot,
                 "wpt-env.js",
             );
             codeChunks.push(`import "${relativeWptEnvLocation}";\n`);
+        }
+
+        if (filename.includes("idlharness.any.js")) {
+            codeChunks.push(
+                ...["idlharness.js", "webidl2.js"].map(
+                    (resource) =>
+                        `import "${path.posix.join(
+                            wptRoot,
+                            path.posix.join("idlharness", resource),
+                        )}"`,
+                ),
+            );
         }
 
         // HACK: these tests don't need the sloppy mode fixes, and in fact already declare the relevant variables
@@ -154,6 +157,8 @@ const outFolder = path.posix.join(__dirname, "converted");
                     ![
                         "/common/subset-tests.js",
                         "/storage/buckets/resources/util.js",
+                        "/resources/idlharness.js",
+                        "/resources/WebIDLParser.js",
                     ].includes(match[1]),
             );
 

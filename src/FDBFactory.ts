@@ -7,6 +7,7 @@ import enforceRange from "./lib/enforceRange.js";
 import { AbortError, VersionError } from "./lib/errors.js";
 import FakeEvent from "./lib/FakeEvent.js";
 import { queueTask } from "./lib/scheduling.js";
+import { validateRequiredArguments } from "./lib/validateRequiredArguments.js";
 import type { FDBDatabaseInfo } from "./lib/types.js";
 
 // https://w3c.github.io/IndexedDB/#connection-queue
@@ -364,13 +365,25 @@ const openDatabase = (
 };
 
 class FDBFactory {
-    public cmp = cmp;
     private _databases: Map<string, Database> = new Map();
     // https://w3c.github.io/IndexedDB/#connection-queue
     private _connectionQueues = new Map<string, Promise<void>>(); // promise chain as lightweight FIFO task queue
 
+    // https://w3c.github.io/IndexedDB/#dom-idbfactory-cmp
+    public cmp(first: any, second: any) {
+        validateRequiredArguments(arguments.length, 2, "IDBFactory.cmp");
+
+        return cmp(first, second);
+    }
+
     // https://w3c.github.io/IndexedDB/#dom-idbfactory-deletedatabase
     public deleteDatabase(name: string) {
+        validateRequiredArguments(
+            arguments.length,
+            1,
+            "IDBFactory.deleteDatabase",
+        );
+
         const request = new FDBOpenDBRequest();
         request.source = null;
 
@@ -412,6 +425,8 @@ class FDBFactory {
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#widl-IDBFactory-open-IDBOpenDBRequest-DOMString-name-unsigned-long-long-version
     public open(name: string, version?: number) {
+        validateRequiredArguments(arguments.length, 1, "IDBFactory.open");
+
         if (arguments.length > 1 && version !== undefined) {
             // Based on spec, not sure why "MAX_SAFE_INTEGER" instead of "unsigned long long", but it's needed to pass
             // tests

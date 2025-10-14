@@ -27,6 +27,9 @@ global.VersionError = VersionError;
 
 global.Event = FakeEvent;
 
+// idlharness.js sniffs for this to detect this as a "window" realm
+global.Window = function Window() {};
+
 global.FileReader = class FileReader {
     async readAsArrayBuffer(blob) {
         this.result = await blob.arrayBuffer();
@@ -1131,6 +1134,39 @@ function _assert_inherits(name) {
     };
 }
 
+/**
+ * Assert that ``object`` does not have an own property with name
+ * ``property_name``, but inherits one through the prototype chain.
+ *
+ * @param {Object} object - Object that should have the given property in its prototype chain.
+ * @param {string} property_name - Expected property name.
+ * @param {string} [description] - Description of the condition being tested.
+ */
+function assert_inherits(object, property_name, description) {
+    return _assert_inherits("assert_inherits")(
+        object,
+        property_name,
+        description,
+    );
+}
+
+/**
+ * Assert that ``object`` has an own property with name ``property_name``.
+ *
+ * @param {Object} object - Object that should have the given property.
+ * @param {string} property_name - Expected property name.
+ * @param {string} [description] - Description of the condition being tested.
+ */
+function assert_own_property(object, property_name, description) {
+    assert(
+        object.hasOwnProperty(property_name),
+        "assert_own_property",
+        description,
+        "expected property ${p} missing",
+        { p: property_name },
+    );
+}
+
 const addToGlobal = {
     add_completion_callback,
     assert_array_equals,
@@ -1138,8 +1174,10 @@ const addToGlobal = {
     assert_equals,
     assert_false,
     assert_idl_attribute,
+    assert_inherits,
     assert_key_equals,
     assert_object_equals,
+    assert_own_property,
     assert_not_equals,
     assert_readonly,
     assert_throws,
