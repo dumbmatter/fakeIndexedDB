@@ -1,3 +1,0 @@
-# async timing test which we currently fail:
-# "Check that read-only transactions within a database can run in parallel"
-expectTimeout = true
