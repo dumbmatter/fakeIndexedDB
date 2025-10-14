@@ -63,20 +63,37 @@ const valueToKeyWithoutThrowing = (
         }
         seen.add(input);
 
-        const keys = [];
-        for (let i = 0; i < input.length; i++) {
+        // This algorithm is tricky to account for `bindings-inject-keys-bypass.any.js`. We _should_ return early when
+        // encountering an invalid key/type, but we also need to avoid triggering `Object.prototype['10']` if it's been
+        // overridden. One simple way to do this (and which doesn't rely on sparse arrays or other exotic solutions that
+        // could cause de-opts) is to use `Array.from()` with a mapper function, which does not trigger the prototype
+        // setter [1]. It does prevent an early return, but we can at least short-circuit inside the mapper function
+        // (which isn't strictly necessary to pass the WPTs, but is closer to the spec).
+        // [1]: See https://tc39.es/ecma262/multipage/indexed-collections.html#sec-array.from, specifically
+        //      the chain CreateDataPropertyOrThrow -> CreateDataProperty -> DefineOwnProperty which defines
+        //      the array element as an "own" property.
+        let hasInvalid = false;
+        const keys = Array.from({ length: input.length }, (_, i) => {
+            if (hasInvalid) {
+                return;
+            }
             const hop = Object.hasOwn(input, i);
             if (!hop) {
                 // If hop is false, return "invalid value".
-                return INVALID_VALUE;
+                hasInvalid = true;
+                return;
             }
             const entry = input[i];
             const key = valueToKeyWithoutThrowing(entry, seen);
             // If key is "invalid value" or "invalid type" abort these steps and return "invalid value".
             if (key === INVALID_VALUE || key === INVALID_TYPE) {
-                return INVALID_VALUE;
+                hasInvalid = true;
+                return;
             }
-            keys.push(key);
+            return key;
+        });
+        if (hasInvalid) {
+            return INVALID_VALUE;
         }
         return keys;
     } else {
