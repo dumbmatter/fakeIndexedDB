@@ -204,19 +204,27 @@ import "fake-indexeddb/auto";
 
 ## Quality
 
-Here's a comparison of fake-indexeddb and real browser IndexedDB implementations on [the W3C IndexedDB test suite](https://github.com/w3c/web-platform-tests/tree/master/IndexedDB) as of March 18, 2019:
+Here's a comparison of fake-indexeddb and real browser IndexedDB implementations on [the Web Platform Tests IndexedDB suite](https://wpt.fyi/results/IndexedDB) as of <!-- last_updated_date_start -->October 15, 2025<!-- last_updated_date_end -->:
 
-| Implementation       | Percentage of files that pass completely |
-| -------------------- | ---------------------------------------- |
-| Chrome 73            | 99%                                      |
-| Firefox 65           | 97%                                      |
-| Safari 12            | 92%                                      |
-| fake-indexeddb 3.0.0 | 87%                                      |
-| Edge 18              | 61%                                      |
+<!-- DO NOT MANUALLY OVERWRITE THE TABLE BELOW! -->
+<!-- To update the results, run `pnpm run update-wpt-results` -->
+<!-- wpt_results_start -->
+<!-- wpt_results_total=1668 -->
+| Implementation | Version | Passed | % |
+| --- | --- | --- | ---  |
+| Chrome | 143.0.7473.0 | 1668 | 100% |
+| Firefox | 146.0a1 | 1513 | 90.7% |
+| Safari | 229 preview | 1513 | 90.7% |
+| Ladybird | 1.0-d4df0e1db9 | 786 | 47.1% |
+| fake-indexeddb | 6.2.3 | 1368 | 82% |
+<!-- wpt_results_end -->
 
-For browsers, I ran http://w3c-test.org/tools/runner/index.html and counted the passes. For fake-indexeddb, I ran `npm run test-w3c`.
+Keep in mind that these tests include a lot of edge cases (such as rare error conditions), so even hitting ~40% likely means that the core IndexedDB functionality is covered. Your app will probably work fine.
 
-87% is pretty good, right? Especially considering that fake-indexeddb runs in Node.js where failure is guaranteed for tests involving browser APIs like Web Workers. There are definitley still some weak points of fake-indexeddb, most of which are described in `src/test/web-platform-tests/run-all.js`. Your app will probably run fine, though.
+Also note that, for a fair comparison with browsers, these results omit some tests that aren't relevant to Node.js such as web workers and cross-origin isolation. When testing fake-indexeddb, some polyfills are used to simulate a browser environment, such as `File` and `location`.
+
+> [!NOTE]
+> To see how these test results are generated, see [`update-browser-wpt-results.js`](./bin/update-browser-wpt-results.js) and [`run-all.js`](./src/test/web-platform-tests/run-all.js).
 
 ## Potential applications:
 
