@@ -1,12 +1,2 @@
-# No iframe in Node.js.
-["IDBFactory.deleteDatabase() in data URL dedicated worker should throw SecurityError"]
-expectation = "FAIL"
-
-["IDBFactory.deleteDatabase() in data URL shared worker should throw SecurityError"]
-expectation = "FAIL"
-
-["IDBFactory.deleteDatabase() in non-sandboxed iframe should not throw"]
-expectation = "FAIL"
-
-["IDBFactory.deleteDatabase() in sandboxed iframe should throw SecurityError"]
-expectation = "FAIL"
+# Relies on specific errors being thrown in iframes/workers, which isn't relevant for Node
+skip = true

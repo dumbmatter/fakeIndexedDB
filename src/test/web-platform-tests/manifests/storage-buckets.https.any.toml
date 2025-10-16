@@ -1,6 +1,3 @@
-# we do not currently support `navigator.storageBuckets`
-["Basic test that buckets create independent databases."]
-expectation = "FAIL"
-
-["Tests trying to use indexedDB in a deleted bucket."]
-expectation = "FAIL"
+# We do not intend to support `navigator.storageBuckets`, and it isn't really relevant to us since fake-indexeddb
+# runs in memory, so doesn't need a concept of persistent vs best-effort
+skip = true

@@ -187,7 +187,7 @@ process.on("beforeExit", () => {
             import.meta.dirname,
             "../../../package.json",
         );
-        const version = JSON.parse(readFileSync(pkgJsonPath, "utf-8")).version;
+        const { version } = JSON.parse(readFileSync(pkgJsonPath, "utf-8"));
 
         const readmePath = path.join(import.meta.dirname, "../../../README.md");
         const readme = readFileSync(readmePath, "utf-8");

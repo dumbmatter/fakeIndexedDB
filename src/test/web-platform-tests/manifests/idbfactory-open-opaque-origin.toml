@@ -1,12 +1,2 @@
-# No iframe in Node.js.
-["IDBFactory.open() in data URL dedicated workers should throw SecurityError"]
-expectation = "FAIL"
-
-["IDBFactory.open() in data URL shared workers should throw SecurityError"]
-expectation = "FAIL"
-
-["IDBFactory.open() in non-sandboxed iframe should not throw"]
-expectation = "FAIL"
-
-["IDBFactory.open() in sandboxed iframe should throw SecurityError"]
-expectation = "FAIL"
+# Relies on specific errors being thrown in iframes/workers, which isn't relevant for Node
+skip = true

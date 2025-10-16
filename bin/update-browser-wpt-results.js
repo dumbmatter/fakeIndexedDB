@@ -4,6 +4,8 @@
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import * as path from "node:path";
 
+console.log("Updating browser WPT results...");
+
 // These tests are skipped due to being fairly irrelevant to Node, e.g. cross-origin tests,
 // iframes, workers, etc.
 const manifestsDir = path.join(
