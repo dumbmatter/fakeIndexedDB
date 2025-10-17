@@ -19,6 +19,8 @@ node --test --test-name-pattern="name of test" \
 
 The test expectations (pass, fail, unstable, skip) are in the `manifests` folder. As you fix tests, you can either remove the `FAIL`/`UNSTABLE`/`skip` lines from the manifest files, or delete the file entirely if the whole thing is passing.
 
+Currently `skip = true` means the file is completely irreelvant (like ones using stuff that can't feasibly run in Node.js like iframes). These files will then be skipped during testing and when updating the Web Platform Tests comparison table in README.md. If we ever need to skip a file for some other reason, we will have to revisit this.
+
 To update all the manifest files at once based on the current test results, run:
 
 ```sh
@@ -51,5 +53,3 @@ node src/test/web-platform-tests/convert.js
 ```
 
 Assuming nothing substantial has changed in the structure of the tests, that should be all you have to do.
-
-Completely irreelvant test files can be skipped during conversion by modifying `skip` in `convert.js`. Individual tests can be patched there as well if absolutely needed, see the `codeChunks` editing at the bottom of `convert.js`.
