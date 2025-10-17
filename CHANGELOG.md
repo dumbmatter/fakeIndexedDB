@@ -1,3 +1,11 @@
+# 6.2.4 (2025-10-16)
+
+- Several small bug fixes to more correctly handle various edge cases and increase the number of passing tests from the Web Platform Tests (#147, #155, #157 by @dumbmatter; #156, #158, #159, #160 by @nolanlawson)
+
+- Improvements to testing infrastructure, allowing more Web Platform Tests to run (#148 by @dumbmatter; #150, #151, #152, #153, #154 by @nolanlawson)
+
+- Automated and updated the Web Platform Tests comparison table in the README (#161 by @nolanlawson)
+
 # 6.2.3 (2025-10-10)
 
 - Several small bug fixes to more correctly handle various edge cases and increase the number of passing tests from the Web Platform Tests (#137, #139, #141, #142, #143, #144, #145, #146 by @nolanlawson)
