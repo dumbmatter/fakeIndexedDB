@@ -212,11 +212,11 @@ Here's a comparison of fake-indexeddb and real browser IndexedDB implementations
 <!-- wpt_results_total=1651 -->
 | Implementation | Version | Passed | % |
 | --- | --- | --- | ---  |
-| Chrome | 143.0.7475.0 | 1651 | 100% |
+| Chrome | 143.0.7476.0 | 1651 | 100% |
 | Firefox | 146.0a1 | 1498 | 90.7% |
-| Safari | 229 preview | 1498 | 90.7% |
+| Safari | 230 preview | 1498 | 90.7% |
 | Ladybird | 1.0-62c00712fa | 772 | 46.8% |
-| fake-indexeddb | 6.2.3 | 1368 | 82.9% |
+| fake-indexeddb | 6.2.4 | 1368 | 82.9% |
 <!-- wpt_results_end -->
 
 Keep in mind that these tests include a lot of edge cases (such as rare error conditions), so even hitting ~40% likely means that the core IndexedDB functionality is covered. Your app will probably work fine.
