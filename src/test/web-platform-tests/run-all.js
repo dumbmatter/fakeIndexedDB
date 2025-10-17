@@ -2,11 +2,13 @@
 import { test } from "node:test";
 import path from "node:path";
 import * as fs from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { parse, stringify } from "smol-toml";
 import { glob } from "glob";
 import { runTestFile } from "./runTestFile.js";
 
 const generateManifests = process.env.GENERATE_MANIFESTS;
+const writeToReadme = process.env.WRITE_TO_README;
 
 const __dirname = "src/test/web-platform-tests";
 const testFolder = path.join(__dirname, "converted");
@@ -39,6 +41,7 @@ function stringifyManifest(generatedManifest, comments) {
 let numExpectedFailures = 0;
 let numExpectedTimeouts = 0;
 let numUnstableTests = 0;
+let numPassedTests = 0;
 
 const timeout = 5000;
 
@@ -117,6 +120,7 @@ for (const absFilename of filenames) {
                                 "Expected test to fail, but it passed",
                             );
                         }
+                        numPassedTests += 1;
                     } else {
                         generatedManifest[name] = {
                             expectation: "FAIL",
@@ -175,4 +179,29 @@ process.on("beforeExit", () => {
     console.log(`Expected failures: ${numExpectedFailures}`);
     console.log(`Expected timeouts: ${numExpectedTimeouts}`);
     console.log(`Unstable tests: ${numUnstableTests}`);
+    console.log(`Passed tests: ${numPassedTests}`);
+
+    // if WRITE_TO_README is set, then update the readme with the results
+    if (writeToReadme) {
+        const pkgJsonPath = path.join(
+            import.meta.dirname,
+            "../../../package.json",
+        );
+        const { version } = JSON.parse(readFileSync(pkgJsonPath, "utf-8"));
+
+        const readmePath = path.join(import.meta.dirname, "../../../README.md");
+        const readme = readFileSync(readmePath, "utf-8");
+        const total = parseInt(
+            readme.match(/<!-- wpt_results_total=(\d+) -->/)[1],
+            10,
+        );
+        const markdownRow = `| fake-indexeddb | ${version} | ${numPassedTests} | ${Math.round((1000 * numPassedTests) / total) / 10}% |`;
+        const newReadme = readme.replace(
+            /<!-- fakeindexeddb_wpt_results -->/,
+            markdownRow,
+        );
+        writeFileSync(readmePath, newReadme, "utf-8");
+        console.log("Wrote markdown to README:");
+        console.log(markdownRow);
+    }
 });

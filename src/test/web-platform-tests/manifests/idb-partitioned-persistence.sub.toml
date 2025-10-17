@@ -1,3 +1,2 @@
 # relies on cross-iframe/cross-window communication which isn't relevant to us
-["Persistence test for partitioned IndexedDB"]
-expectation = "FAIL"
+skip = true

@@ -100,7 +100,9 @@
         "test-qunit": "pnpm run build-qunit && OPENSSL_CONF=/dev/null node-qunit-phantomjs build/esm/test/indexedDBmock/index.html",
         "test-w3c": "node --test src/test/web-platform-tests/run-all.js",
         "test": "pnpm run lint && pnpm run build && pnpm run test-jest && node test/test.js && node test/dexie.js && pnpm run test-w3c && pnpm run test-mocha && pnpm run test-qunit",
-        "prepare": "husky"
+        "prepare": "husky",
+        "update-wpt-results": "pnpm run build && node ./bin/update-browser-wpt-results.js && WRITE_TO_README=1 pnpm run test-w3c",
+        "version": "pnpm run update-wpt-results && git add README.md"
     },
     "author": "Jeremy Scheff <jdscheff@gmail.com> (https://dumbmatter.com/)",
     "license": "Apache-2.0",
