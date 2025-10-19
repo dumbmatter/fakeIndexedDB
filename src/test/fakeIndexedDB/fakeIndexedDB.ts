@@ -786,9 +786,10 @@ describe("fakeIndexedDB Tests", () => {
                 { capture: false },
                 0,
                 undefined,
+                null,
             ].forEach((arg3) => {
                 const capture =
-                    typeof arg3 === "object" ? arg3.capture : !!arg3;
+                    typeof arg3 === "object" && arg3 ? arg3.capture : !!arg3;
                 it(`can set capture=${capture} using third argument: ${JSON.stringify(arg3)}`, async () => {
                     const logs: string[] = [];
                     const log = (text: string) => () => {
