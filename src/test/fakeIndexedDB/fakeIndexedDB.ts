@@ -747,6 +747,86 @@ describe("fakeIndexedDB Tests", () => {
                 done();
             });
         });
+
+        it("allows handleEvent object in addEventListener", () => {
+            return new Promise<void>((resolve, reject) => {
+                const request = fakeIndexedDB.open("test" + Math.random());
+                request.addEventListener("upgradeneeded", {
+                    handleEvent(e) {
+                        const db = (e.target as any).result as FDBDatabase;
+                        db.createObjectStore("store");
+                    },
+                });
+                request.addEventListener("success", {
+                    handleEvent(e) {
+                        const db = (e.target as any).result as FDBDatabase;
+
+                        const tx = db.transaction("store", "readwrite");
+                        tx.objectStore("store").put({}, 1);
+                        tx.onerror = (e) => reject(e.target.error);
+
+                        tx.addEventListener("complete", {
+                            handleEvent() {
+                                resolve();
+                            },
+                        });
+                    },
+                });
+            });
+        });
+
+        describe("capture", () => {
+            [
+                // capture=true
+                true,
+                { capture: true },
+                1,
+                // capture=false
+                false,
+                { capture: false },
+                0,
+                undefined,
+            ].forEach((arg3) => {
+                const capture =
+                    typeof arg3 === "object" ? arg3.capture : !!arg3;
+                it(`can set capture=${capture} using third argument: ${JSON.stringify(arg3)}`, async () => {
+                    const logs: string[] = [];
+                    const log = (text: string) => () => {
+                        logs.push(text);
+                    };
+                    await new Promise<void>((resolve) => {
+                        const request = fakeIndexedDB.open(
+                            "test" + Math.random(),
+                        );
+                        request.onupgradeneeded = (e) => {
+                            const db = e.target.result as FDBDatabase;
+                            db.createObjectStore("store");
+                            db.addEventListener(
+                                "abort",
+                                log("db"),
+                                arg3 as any,
+                            );
+                        };
+                        request.onsuccess = (e) => {
+                            const db = e.target.result as FDBDatabase;
+                            const tx = db.transaction("store", "readwrite");
+                            tx.addEventListener(
+                                "abort",
+                                log("tx"),
+                                arg3 as any,
+                            );
+                            tx.addEventListener("abort", () => resolve());
+                            tx.abort();
+                        };
+                    });
+                    const expected = ["tx", "db"]; // bubble order - bottom-up
+                    if (capture) {
+                        expected.reverse(); // capture order - top-down
+                    }
+                    assert.deepStrictEqual(logs, expected);
+                });
+            });
+        });
     });
 
     it("confirm openCursor works (issue #60)", (done) => {

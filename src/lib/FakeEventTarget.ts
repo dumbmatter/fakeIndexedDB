@@ -1,6 +1,10 @@
 import { InvalidStateError } from "./errors.js";
 import type FakeEvent from "./FakeEvent.js";
-import type { EventCallback, EventType } from "./types.js";
+import type {
+    EventCallback,
+    EventCallbackOrEventCallbackObject,
+    EventType,
+} from "./types.js";
 
 type EventTypeProp =
     | "onabort"
@@ -13,7 +17,7 @@ type EventTypeProp =
     | "onversionchange";
 
 interface Listener {
-    callback: EventCallback;
+    callback: EventCallbackOrEventCallbackObject;
     capture: boolean;
     type: EventType;
 }
@@ -32,8 +36,12 @@ const invokeEventListeners = (event: FakeEvent, obj: FakeEventTarget) => {
     event.currentTarget = obj;
 
     const errors: Error[] = [];
-    const invoke = (callback: EventCallback) => {
+    const invoke = (callbackOrObject: EventCallbackOrEventCallbackObject) => {
         try {
+            const callback =
+                typeof callbackOrObject === "function"
+                    ? callbackOrObject
+                    : callbackOrObject.handleEvent;
             // @ts-expect-error EventCallback's types are not quite right here
             callback.call(event.currentTarget, event);
         } catch (err) {
@@ -101,9 +109,12 @@ abstract class FakeEventTarget {
 
     public addEventListener(
         type: EventType,
-        callback: EventCallback,
-        capture = false,
+        callback: EventCallbackOrEventCallbackObject,
+        options?: boolean | AddEventListenerOptions | undefined,
     ) {
+        const capture = !!(typeof options === "object" && options
+            ? options.capture
+            : options);
         this.listeners.push({
             callback,
             capture,
@@ -113,9 +124,12 @@ abstract class FakeEventTarget {
 
     public removeEventListener(
         type: EventType,
-        callback: EventCallback,
-        capture = false,
+        callback: EventCallbackOrEventCallbackObject,
+        options?: boolean | AddEventListenerOptions | undefined,
     ) {
+        const capture = !!(typeof options === "object" && options
+            ? options.capture
+            : options);
         const i = this.listeners.findIndex((listener) => {
             return (
                 listener.type === type &&
