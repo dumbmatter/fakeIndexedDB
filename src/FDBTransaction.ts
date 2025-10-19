@@ -44,7 +44,7 @@ class FDBTransaction extends FakeEventTarget {
 
     private _prioritizedListeners = new Map<
         PrioritizedListenerType,
-        Array<() => void>
+        () => void
     >();
 
     public _scope: Set<string>;
@@ -77,26 +77,16 @@ class FDBTransaction extends FakeEventTarget {
             // This ensures that these listeners run with the same timing regardless of whether
             // the user uses `on*` or `addEventListener` for event listeners.
             this.addEventListener(type, () => {
-                const listeners = this._prioritizedListeners.get(type);
-                if (listeners) {
-                    for (const listener of listeners) {
-                        listener();
-                    }
-                }
+                this._prioritizedListeners.get(type)?.();
             });
         }
     }
 
-    public _addPrioritizedListener(
+    public _setPrioritizedListener(
         type: PrioritizedListenerType,
         listener: () => void,
     ) {
-        let listeners = this._prioritizedListeners.get(type);
-        if (!listeners) {
-            listeners = [];
-            this._prioritizedListeners.set(type, listeners);
-        }
-        listeners.push(listener);
+        this._prioritizedListeners.set(type, listener);
     }
 
     // https://w3c.github.io/IndexedDB/#abort-transaction
