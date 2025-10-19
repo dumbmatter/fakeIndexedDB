@@ -42,11 +42,10 @@ class FDBTransaction extends FakeEventTarget {
     public oncomplete: EventCallback | null = null;
     public onerror: EventCallback | null = null;
 
-    private _prioritizedListeners = new Map<
+    public _prioritizedListeners = new Map<
         PrioritizedListenerType,
         () => void
     >();
-
     public _scope: Set<string>;
     private _requests: {
         operation: () => void;
@@ -80,13 +79,6 @@ class FDBTransaction extends FakeEventTarget {
                 this._prioritizedListeners.get(type)?.();
             });
         }
-    }
-
-    public _setPrioritizedListener(
-        type: PrioritizedListenerType,
-        listener: () => void,
-    ) {
-        this._prioritizedListeners.set(type, listener);
     }
 
     // https://w3c.github.io/IndexedDB/#abort-transaction
