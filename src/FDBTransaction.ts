@@ -22,6 +22,9 @@ import type FDBOpenDBRequest from "./FDBOpenDBRequest.js";
 import type ObjectStore from "./lib/ObjectStore.js";
 import type Index from "./lib/Index.js";
 
+const prioritizedListenerTypes = ["error", "abort", "complete"] as const;
+export type PrioritizedListenerType = (typeof prioritizedListenerTypes)[number];
+
 // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#transaction
 class FDBTransaction extends FakeEventTarget {
     public _state: "active" | "inactive" | "committing" | "finished" = "active";
@@ -38,6 +41,11 @@ class FDBTransaction extends FakeEventTarget {
     public onabort: EventCallback | null = null;
     public oncomplete: EventCallback | null = null;
     public onerror: EventCallback | null = null;
+
+    private _prioritizedListeners = new Map<
+        PrioritizedListenerType,
+        Array<() => void>
+    >();
 
     public _scope: Set<string>;
     private _requests: {
@@ -63,6 +71,32 @@ class FDBTransaction extends FakeEventTarget {
         this.objectStoreNames = new FakeDOMStringList(
             ...Array.from(this._scope).sort(),
         );
+
+        for (const type of prioritizedListenerTypes) {
+            // Attach prioritized (internal) listeners before any external listeners are attached.
+            // This ensures that these listeners run with the same timing regardless of whether
+            // the user uses `on*` or `addEventListener` for event listeners.
+            this.addEventListener(type, () => {
+                const listeners = this._prioritizedListeners.get(type);
+                if (listeners) {
+                    for (const listener of listeners) {
+                        listener();
+                    }
+                }
+            });
+        }
+    }
+
+    public _addPrioritizedListener(
+        type: PrioritizedListenerType,
+        listener: () => void,
+    ) {
+        let listeners = this._prioritizedListeners.get(type);
+        if (!listeners) {
+            listeners = [];
+            this._prioritizedListeners.set(type, listeners);
+        }
+        listeners.push(listener);
     }
 
     // https://w3c.github.io/IndexedDB/#abort-transaction
