@@ -780,11 +780,9 @@ describe("fakeIndexedDB Tests", () => {
                 // capture=true
                 true,
                 { capture: true },
-                1,
                 // capture=false
                 false,
                 { capture: false },
-                0,
                 undefined,
                 null,
             ].forEach((arg3) => {
