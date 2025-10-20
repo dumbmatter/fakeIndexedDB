@@ -711,7 +711,7 @@ describe("fakeIndexedDB Tests", () => {
     });
 
     describe("Events", () => {
-        it.only("blocked deleteDatabase should cause subsequent open requests to hang (issue #163)", async () => {
+        it("blocked deleteDatabase should cause subsequent open requests to hang (issue #163)", async () => {
             const dbName = `idx_test_${Math.random()}`;
             // Create a dangling open connection
             const db = await new Promise<FDBDatabase>((resolve, reject) => {
