@@ -1,3 +1,0 @@
-# Possibly the same issue as upgrade-transaction-lifecycle-committed.any.toml
-["in the abort event handler for a transaction aborted due to an abort() call"]
-expectation = "FAIL"
