@@ -711,6 +711,52 @@ describe("fakeIndexedDB Tests", () => {
     });
 
     describe("Events", () => {
+        it("blocked deleteDatabase should cause subsequent open requests to hang (issue #163)", async () => {
+            const dbName = `idx_test_${Math.random()}`;
+            // Create a dangling open connection
+            const db = await new Promise<FDBDatabase>((resolve, reject) => {
+                const open = fakeIndexedDB.open(dbName, 1);
+                open.onupgradeneeded = (e) => {
+                    (e.target as any).result
+                        .createObjectStore("store")
+                        .put({}, 1);
+                };
+                open.onsuccess = (e) => resolve(e.target.result);
+                open.onerror = (e) => reject((e.target as any).error);
+            });
+            // Try to delete - should be blocked
+            await new Promise<void>((resolve, reject) => {
+                const del = fakeIndexedDB.deleteDatabase(dbName);
+                del.onsuccess = () => reject(new Error("should not succeed"));
+                del.onerror = (e) => reject((e.target as any).error);
+                del.onblocked = () => resolve();
+            });
+            // Try to reopen - this request _should_ hang
+            let reopened = false;
+            const reopenedPromise = new Promise<FDBDatabase>(
+                (resolve, reject) => {
+                    const reopen = fakeIndexedDB.open(dbName);
+                    reopen.onsuccess = (e) => {
+                        reopened = true;
+                        resolve(e.target.result);
+                    };
+                    reopen.onerror = (e) => reject((e.target as any).error);
+                    reopen.onblocked = () =>
+                        reject(new Error("should not block"));
+                },
+            );
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            assert.equal(reopened, false, "Reopen request should hang");
+            db!.close();
+            const db2 = await reopenedPromise;
+            assert.equal(
+                reopened,
+                true,
+                "Reopen request should succeed after first connection closed",
+            );
+            db2.close();
+        });
+
         it("doesn't call listeners added during a callback for the event that triggered the callback", (done) => {
             const name = `test${Math.random()}`;
             let called = false;
