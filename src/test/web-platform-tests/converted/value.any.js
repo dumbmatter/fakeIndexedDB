@@ -2,6 +2,7 @@ import "../wpt-env.js";
 
 globalThis.title = "IndexedDB: keys and values";
 
+'use strict';
 /* Delete created databases
  *
  * Go through each finished test, see if it has an associated database. Close
@@ -260,8 +261,8 @@ function createDetachedArrayBuffer() {
 // META: title=IndexedDB: keys and values
 // META: script=resources/support.js
 // @author Odin Hørthe Omdal <mailto:odinho@opera.com>
+'use strict';
 
-'use_strict';
 
 function setOnUpgradeNeeded(t, predicate, _instanceof, value) {
   createdb(t).onupgradeneeded = t.step_func(e => {

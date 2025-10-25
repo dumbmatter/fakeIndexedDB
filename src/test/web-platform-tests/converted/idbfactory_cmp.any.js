@@ -1,7 +1,5 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 globalThis.title = "IDBFactory.cmp()";
 
 'use strict';

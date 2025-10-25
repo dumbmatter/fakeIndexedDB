@@ -1,9 +1,8 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 globalThis.title = "IndexedDB: IDBIndex getAllKeys() uses [EnforceRange]";
 
+'use strict';
 /* Delete created databases
  *
  * Go through each finished test, see if it has an associated database. Close
@@ -262,6 +261,7 @@ function createDetachedArrayBuffer() {
 // META: global=window,worker
 // META: script=resources/support.js
 // Spec: "https://w3c.github.io/IndexedDB/#index-interface"
+'use strict';
 
 indexeddb_test(
     (t, db) => {

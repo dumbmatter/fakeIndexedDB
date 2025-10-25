@@ -1,9 +1,8 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 globalThis.title = "Blob Content Type";
 
+'use strict';
 /* Delete created databases
  *
  * Go through each finished test, see if it has an associated database. Close
@@ -261,6 +260,7 @@ function createDetachedArrayBuffer() {
 // META: title=Blob Content Type
 // META: script=resources/support.js
 // META: timeout=long
+'use strict';
 
 indexeddb_test(
     function upgrade(t, db) {

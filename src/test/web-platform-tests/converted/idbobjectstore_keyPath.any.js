@@ -1,9 +1,8 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 globalThis.title = "IndexedDB: IDBObjectStore keyPath attribute - same object";
 
+'use strict';
 /* Delete created databases
  *
  * Go through each finished test, see if it has an associated database. Close
@@ -260,6 +259,7 @@ function createDetachedArrayBuffer() {
 
 // META: title=IndexedDB: IDBObjectStore keyPath attribute - same object
 // META: script=resources/support.js
+'use strict';
 
 indexeddb_test(
   (t, db) => {

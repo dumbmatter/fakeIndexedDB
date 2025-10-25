@@ -1,9 +1,8 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 globalThis.title = "Event order when opening a second database when one connection is open already";
 
+'use strict';
 /* Delete created databases
  *
  * Go through each finished test, see if it has an associated database. Close

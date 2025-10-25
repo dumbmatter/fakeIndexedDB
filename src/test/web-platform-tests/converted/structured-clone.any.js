@@ -1,7 +1,5 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 globalThis.title = "Indexed DB and Structured Serializing/Deserializing";
 
 'use strict';
@@ -385,6 +383,7 @@ function timeoutPromise(ms) {
 // META: variant=?61-80
 // META: variant=?81-100
 // META: variant=?101-last
+'use strict';
 
 // Tests Indexed DB coverage of HTML's Safe "passing of structured data"
 // https://html.spec.whatwg.org/multipage/structured-data.html

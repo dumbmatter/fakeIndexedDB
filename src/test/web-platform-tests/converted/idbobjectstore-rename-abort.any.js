@@ -1,7 +1,5 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 globalThis.title = "IndexedDB: object store renaming support in aborted transactions";
 
 'use strict';

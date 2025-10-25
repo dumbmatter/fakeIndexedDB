@@ -1,7 +1,5 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 globalThis.title = "IndexedDB: index renaming error handling";
 
 'use strict';

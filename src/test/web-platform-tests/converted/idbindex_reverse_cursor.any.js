@@ -1,7 +1,5 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 globalThis.title = "Reverse Cursor Validity";
 
 'use strict';
@@ -377,6 +375,7 @@ function timeoutPromise(ms) {
 
 // META: title=Reverse Cursor Validity
 // META: script=resources/support-promises.js
+'use strict';
 
 async function iterateAndReturnAllCursorResult(testCase, cursor) {
   return new Promise((resolve, reject) => {
@@ -408,7 +407,7 @@ promise_test(async testCase => {
 
   const txn4 = db.transaction(['objectStore'], 'readonly');
   const txnWaiter = promiseForTransaction(testCase, txn4);
-  cursor = txn4.objectStore('objectStore').index('index').openCursor(IDBKeyRange.bound(0, 10), "prev");
+  const cursor = txn4.objectStore('objectStore').index('index').openCursor(IDBKeyRange.bound(0, 10), "prev");
   let results = await iterateAndReturnAllCursorResult(testCase, cursor);
 
   assert_equals(results.length, 1);
@@ -429,7 +428,7 @@ promise_test(async testCase => {
 
   const txn2 = db.transaction(['objectStore'], 'readonly');
   const txnWaiter = promiseForTransaction(testCase, txn2);
-  cursor = txn2.objectStore('objectStore').index('index').openCursor(IDBKeyRange.bound(0, 10), "prev");
+  const cursor = txn2.objectStore('objectStore').index('index').openCursor(IDBKeyRange.bound(0, 10), "prev");
   let results = await iterateAndReturnAllCursorResult(testCase, cursor);
 
   assert_equals(1, results.length);

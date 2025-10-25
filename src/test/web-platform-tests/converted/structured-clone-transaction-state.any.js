@@ -1,7 +1,5 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 globalThis.title = "Indexed DB transaction state during Structured Serializing";
 
 'use strict';

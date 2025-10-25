@@ -1709,6 +1709,7 @@ interface ToggleEvent : Event {
 dictionary ToggleEventInit : EventInit {
   DOMString oldState = "";
   DOMString newState = "";
+  Element? source = null;
 };
 
 [Exposed=Window]
@@ -1817,7 +1818,7 @@ interface Window : EventTarget {
   attribute DOMString name;
   [PutForwards=href, LegacyUnforgeable] readonly attribute Location location;
   readonly attribute History history;
-  readonly attribute Navigation navigation;
+  [Replaceable] readonly attribute Navigation navigation;
   readonly attribute CustomElementRegistry customElements;
   [Replaceable] readonly attribute BarProp locationbar;
   [Replaceable] readonly attribute BarProp menubar;

@@ -1,7 +1,5 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 globalThis.title = "IDBRequest onupgradeneeded tests";
 
 // META: title=IDBRequest onupgradeneeded tests

@@ -1,7 +1,5 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 globalThis.title = "IndexedDB: small nested objects are cloned correctly";
 
 'use strict';

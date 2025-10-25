@@ -1,7 +1,6 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
+'use strict';
 /* Delete created databases
  *
  * Go through each finished test, see if it has an associated database. Close
@@ -257,6 +256,7 @@ function createDetachedArrayBuffer() {
 
 
 // META: script=resources/support.js
+'use strict';
 
 function cursorRequestTest({ useIndex, useKeyCursor }) {
   indexeddb_test(

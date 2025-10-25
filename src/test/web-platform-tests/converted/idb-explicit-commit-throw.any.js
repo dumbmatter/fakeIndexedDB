@@ -1,7 +1,5 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 'use strict';
 
 // Returns an IndexedDB database name that is unique to the test case.
@@ -374,6 +372,7 @@ function timeoutPromise(ms) {
 
 
 // META: script=resources/support-promises.js
+'use strict';
 
 setup({allow_uncaught_exception:true});
 

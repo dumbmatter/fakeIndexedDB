@@ -1,7 +1,5 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 globalThis.title = "IndexedDB: request result events are delivered in order";
 
 'use strict';
@@ -375,6 +373,7 @@ function timeoutPromise(ms) {
 }
 
 
+'use strict';
 /* Delete created databases
  *
  * Go through each finished test, see if it has an associated database. Close
@@ -629,6 +628,7 @@ function createDetachedArrayBuffer() {
 }
 
 
+'use strict';
 
 // Should be large enough to trigger large value handling in the IndexedDB
 // engines that have special code paths for large values.

@@ -1,7 +1,5 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 globalThis.title = "IDB-backed composite blobs maintain coherency";
 
 'use strict';
@@ -378,6 +376,7 @@ function timeoutPromise(ms) {
 // META: title=IDB-backed composite blobs maintain coherency
 // META: script=resources/support-promises.js
 // META: timeout=long
+'use strict';
 
 // This test file is intended to help validate browser handling of complex blob
 // scenarios where one or more levels of multipart blobs are used and varying

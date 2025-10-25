@@ -1,9 +1,8 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 globalThis.title = "IDBIndex.count()";
 
+'use strict';
 /* Delete created databases
  *
  * Go through each finished test, see if it has an associated database. Close
@@ -264,8 +263,8 @@ function createDetachedArrayBuffer() {
 // @author Microsoft <https://www.microsoft.com>
 // @author Odin Hørthe Omdal <mailto:odinho@opera.com>
 // @author Intel <http://www.intel.com>
+'use strict';
 
-'use_strict';
 
 async_test(t => {
     let db;
