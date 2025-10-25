@@ -1,27 +1,30 @@
 import "../wpt-env.js";
 
-import "../idlharness/idlharness.js";
-import "../idlharness/webidl2.js";
-let cursor, db, result, store, value;
-
+import "../idlharness/idlharness.js"
+import "../idlharness/webidl2.js"
 // META: global=window,worker
 // META: script=/resources/WebIDLParser.js
 // META: script=/resources/idlharness.js
 // META: timeout=long
+'use strict';
 
-idl_test(["IndexedDB"], ["html", "dom"], (idl_array) => {
+idl_test(
+  ['IndexedDB'],
+  ['html', 'dom'],
+  idl_array => {
     idl_array.add_objects({
-        IDBCursor: [],
-        IDBCursorWithValue: [],
-        IDBDatabase: [],
-        IDBFactory: [self.indexedDB],
-        IDBIndex: [],
-        IDBKeyRange: [IDBKeyRange.only(0)],
-        IDBObjectStore: [],
-        IDBOpenDBRequest: [],
-        IDBRequest: [],
-        IDBTransaction: [],
-        IDBVersionChangeEvent: ['new IDBVersionChangeEvent("type")'],
-        DOMStringList: [],
+      IDBCursor: [],
+      IDBCursorWithValue: [],
+      IDBDatabase: [],
+      IDBFactory: [self.indexedDB],
+      IDBIndex: [],
+      IDBKeyRange: [IDBKeyRange.only(0)],
+      IDBObjectStore: [],
+      IDBOpenDBRequest: [],
+      IDBRequest: [],
+      IDBTransaction: [],
+      IDBVersionChangeEvent: ['new IDBVersionChangeEvent("type")'],
+      DOMStringList: [],
     });
-});
+  }
+);

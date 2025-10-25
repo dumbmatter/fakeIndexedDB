@@ -1,7 +1,5 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 
 // Here's the set-up for this test:
 // Step 1. (window) set up listeners for main window.

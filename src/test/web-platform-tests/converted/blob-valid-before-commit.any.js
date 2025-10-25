@@ -1,9 +1,8 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 globalThis.title = "Blob Valid Before Commit";
 
+'use strict';
 /* Delete created databases
  *
  * Go through each finished test, see if it has an associated database. Close
@@ -260,6 +259,7 @@ function createDetachedArrayBuffer() {
 
 // META: title=Blob Valid Before Commit
 // META: script=resources/support.js
+'use strict';
 
 let key = "key";
 

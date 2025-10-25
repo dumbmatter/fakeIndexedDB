@@ -3,12 +3,6 @@ import fs from "node:fs";
 import path from "node:path";
 import { glob } from "glob";
 
-// HACK: some of the tests use sloppy mode, probably due to author error
-// This causes problems for us because we convert to ESM (strict) mode
-// So manually fix some of the sloppy global assignments in tests
-const globalVars = ["cursor", "db", "result", "store", "value"];
-const declareGlobalVars = `let ${globalVars.join(",")};\n`;
-
 function makeParentDir(file) {
     const dir = path.posix.dirname(file);
     fs.mkdirSync(dir, { recursive: true });
@@ -49,8 +43,6 @@ const outFolder = path.posix.join(__dirname, "converted");
             );
             codeChunks.push(`import "${relativeWptEnvLocation}";\n`);
         }
-
-        codeChunks.push(declareGlobalVars);
 
         // Because these are 'imported' with <script>, the support
         // scripts share a scope with the test script, and that's how
@@ -131,15 +123,6 @@ const outFolder = path.posix.join(__dirname, "converted");
             );
         }
 
-        // HACK: these tests don't need the sloppy mode fixes, and in fact already declare the relevant variables
-        // so would fail with the fixes
-        if (
-            !filename.endsWith("/idbcursor-continue.any.js") &&
-            !filename.endsWith("/value.any.js")
-        ) {
-            codeChunks.push(declareGlobalVars);
-        }
-
         const titleMatches = [
             ...testScript.matchAll(/\/\/\s*META:\s*title=(.+)$/gm),
         ];
@@ -170,12 +153,7 @@ const outFolder = path.posix.join(__dirname, "converted");
             codeChunks.push(fs.readFileSync(location) + "\n");
         }
 
-        // HACK: this test re-declares the `expect` function, so wrap in an IIFE
-        if (filename.includes("transaction-lifetime-empty.any")) {
-            codeChunks.push(`(function () {\n${testScript}\n})();`);
-        } else {
-            codeChunks.push(testScript);
-        }
+        codeChunks.push(testScript);
 
         // HACK: this test runs in sloppy mode and assumes `this` is the global
         if (filename.includes("delete-request-queue.any")) {

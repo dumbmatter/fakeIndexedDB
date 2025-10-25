@@ -1,7 +1,5 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 globalThis.title = "Buckets API: Tests for indexedDB API.";
 
 'use strict';
@@ -379,6 +377,7 @@ function timeoutPromise(ms) {
 // META: global=window,worker
 // META: script=resources/support-promises.js
 // META: script=/storage/buckets/resources/util.js
+'use strict';
 
 promise_test(async testCase => {
   await prepareForBucketTest(testCase);

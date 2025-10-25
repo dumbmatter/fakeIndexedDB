@@ -1,9 +1,8 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 globalThis.title = "Fire upgradeneeded event - Exception thrown";
 
+'use strict';
 /* Delete created databases
  *
  * Go through each finished test, see if it has an associated database. Close
@@ -261,6 +260,7 @@ function createDetachedArrayBuffer() {
 // META: global=window,worker
 // META: title=Fire upgradeneeded event - Exception thrown
 // META: script=resources/support.js
+'use strict';
 
 // Spec: "https://w3c.github.io/IndexedDB/#fire-a-version-change-event"
 
