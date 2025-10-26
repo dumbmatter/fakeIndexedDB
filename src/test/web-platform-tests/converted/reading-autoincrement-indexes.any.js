@@ -1,7 +1,5 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 'use strict';
 
 // Returns an IndexedDB database name that is unique to the test case.
@@ -374,6 +372,7 @@ function timeoutPromise(ms) {
 
 
 // Returns the "name" property written to the object with the given ID.
+'use strict';
 function nameForId(id) {
   return `Object ${id}`;
 }
@@ -470,6 +469,7 @@ async function getAllViaCursor(testCase, cursorSource) {
 // META: global=window,dedicatedworker,sharedworker,serviceworker
 // META: script=resources/support-promises.js
 // META: script=resources/reading-autoincrement-common.js
+'use strict';
 
 promise_test(async testCase => {
   const database = await setupAutoincrementDatabase(testCase);

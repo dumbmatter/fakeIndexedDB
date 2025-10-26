@@ -1,7 +1,5 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 globalThis.title = "IndexedDB: Interleaved iteration of multiple cursors";
 
 'use strict';
@@ -376,6 +374,7 @@ function timeoutPromise(ms) {
 
 
 // Infrastructure shared by interleaved-cursors-{small,large}.html
+'use strict';
 
 // Number of objects that each iterator goes over.
 const itemCount = 10;

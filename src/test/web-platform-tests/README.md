@@ -1,4 +1,4 @@
-These tests come from [web-platform-tests](https://github.com/w3c/web-platform-tests/tree/master/IndexedDB), last copied in September 2025 from commit [`2cc8470b689fd1a9131c39bf93c84d7321c65358`](https://github.com/web-platform-tests/wpt/commit/2cc8470b689fd1a9131c39bf93c84d7321c65358).
+These tests come from [web-platform-tests](https://github.com/w3c/web-platform-tests/tree/master/IndexedDB), last copied in October 2025 from commit [`c05ece9d6f`](https://github.com/web-platform-tests/wpt/commit/c05ece9d6f).
 
 ## Running the tests
 
@@ -19,7 +19,7 @@ node --test --test-name-pattern="name of test" \
 
 The test expectations (pass, fail, unstable, skip) are in the `manifests` folder. As you fix tests, you can either remove the `FAIL`/`UNSTABLE`/`skip` lines from the manifest files, or delete the file entirely if the whole thing is passing.
 
-Currently `skip = true` means the file is completely irreelvant (like ones using stuff that can't feasibly run in Node.js like iframes). These files will then be skipped during testing and when updating the Web Platform Tests comparison table in README.md. If we ever need to skip a file for some other reason, we will have to revisit this.
+Currently `skip = true` means the file is completely irrelevant (like ones using stuff that can't feasibly run in Node.js like iframes). These files will then be skipped during testing and when updating the Web Platform Tests comparison table in README.md. If we ever need to skip a file for some other reason, we will have to revisit this.
 
 To update all the manifest files at once based on the current test results, run:
 

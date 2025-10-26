@@ -1,7 +1,5 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 'use strict';
 
 // Returns an IndexedDB database name that is unique to the test case.

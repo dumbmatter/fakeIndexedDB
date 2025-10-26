@@ -1,7 +1,5 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 globalThis.title = "IndexedDB: Test IDBObjectStore.getAll with options dictionary.";
 
 'use strict';
@@ -218,6 +216,7 @@ function cloningTestWithKeyGenerator(label, valueDescriptors) {
 }
 
 
+'use strict';
 /* Delete created databases
  *
  * Go through each finished test, see if it has an associated database. Close
@@ -1434,172 +1433,114 @@ function timeoutPromise(ms) {
 // META: script=resources/support-promises.js
 // META: timeout=long
 
-"use strict";
+'use strict';
 
 object_store_get_all_values_with_options_test(
-    /*storeName=*/ "out-of-line",
-    /*options=*/ { query: "c" },
-    "Single item get",
-);
+    /*storeName=*/ 'out-of-line', /*options=*/ {query: 'c'}, 'Single item get');
 
 object_store_get_all_values_with_options_test(
-    /*storeName=*/ "generated",
-    /*options=*/ { query: 3 },
-    "Single item get (generated key)",
-);
+    /*storeName=*/ 'generated', /*options=*/ {query: 3},
+    'Single item get (generated key)');
 
 object_store_get_all_values_with_options_test(
-    /*storeName=*/ "empty",
-    /*options=*/ {},
-    "getAll on empty object store",
-);
+    /*storeName=*/ 'empty', /*options=*/ {}, 'getAll on empty object store');
 
 object_store_get_all_values_with_options_test(
-    /*storeName=*/ "out-of-line",
-    /*options=*/ {},
-    "Get all values",
-);
+    /*storeName=*/ 'out-of-line', /*options=*/ {}, 'Get all values');
 
 object_store_get_all_values_with_options_test(
-    /*storeName=*/ "large-values",
-    /*options=*/ {},
-    "Get all with large values",
-);
+    /*storeName=*/ 'large-values', /*options=*/ {},
+    'Get all with large values');
 
 object_store_get_all_values_with_options_test(
-    /*storeName=*/ "out-of-line",
-    /*options=*/ { count: 10 },
-    "Test maxCount",
-);
+    /*storeName=*/ 'out-of-line', /*options=*/ {count: 10}, 'Test maxCount');
 
 object_store_get_all_values_with_options_test(
-    /*storeName=*/ "out-of-line",
-    /*options=*/ { query: IDBKeyRange.bound("g", "m") },
-    "Get bound range",
-);
+    /*storeName=*/ 'out-of-line',
+    /*options=*/ {query: IDBKeyRange.bound('g', 'm')}, 'Get bound range');
 
 object_store_get_all_values_with_options_test(
-    /*storeName=*/ "out-of-line",
-    /*options=*/ { query: IDBKeyRange.bound("g", "m"), count: 3 },
-    "Get bound range with maxCount",
-);
+    /*storeName=*/ 'out-of-line',
+    /*options=*/ {query: IDBKeyRange.bound('g', 'm'), count: 3},
+    'Get bound range with maxCount');
 
 object_store_get_all_values_with_options_test(
-    /*storeName=*/ "out-of-line",
+    /*storeName=*/ 'out-of-line',
     /*options=*/ {
-        query: IDBKeyRange.bound(
-            "g",
-            "k",
-            /*lowerOpen=*/ false,
-            /*upperOpen=*/ true,
-        ),
+      query:
+          IDBKeyRange.bound('g', 'k', /*lowerOpen=*/ false, /*upperOpen=*/ true)
     },
-    "Get upper excluded",
-);
+    'Get upper excluded');
 
 object_store_get_all_values_with_options_test(
-    /*storeName=*/ "out-of-line",
+    /*storeName=*/ 'out-of-line',
     /*options=*/ {
-        query: IDBKeyRange.bound(
-            "g",
-            "k",
-            /*lowerOpen=*/ true,
-            /*upperOpen=*/ false,
-        ),
+      query:
+          IDBKeyRange.bound('g', 'k', /*lowerOpen=*/ true, /*upperOpen=*/ false)
     },
-    "Get lower excluded",
-);
+    'Get lower excluded');
 
 object_store_get_all_values_with_options_test(
-    /*storeName=*/ "generated",
-    /*options=*/ { query: IDBKeyRange.bound(4, 15), count: 3 },
-    "Get bound range (generated) with maxCount",
-);
+    /*storeName=*/ 'generated',
+    /*options=*/ {query: IDBKeyRange.bound(4, 15), count: 3},
+    'Get bound range (generated) with maxCount');
 
 object_store_get_all_values_with_options_test(
-    /*storeName=*/ "out-of-line",
-    /*options=*/ { query: "Doesn't exist" },
-    "Non existent key",
-);
+    /*storeName=*/ 'out-of-line',
+    /*options=*/ {query: 'Doesn\'t exist'}, 'Non existent key');
 
 object_store_get_all_values_with_options_test(
-    /*storeName=*/ "out-of-line",
-    /*options=*/ { count: 0 },
-    "zero maxCount",
-);
+    /*storeName=*/ 'out-of-line', /*options=*/ {count: 0}, 'zero maxCount');
 
 object_store_get_all_values_with_options_test(
-    /*storeName=*/ "out-of-line",
-    /*options=*/ { count: 4294967295 },
-    "Max value count",
-);
+    /*storeName=*/ 'out-of-line', /*options=*/ {count: 4294967295},
+    'Max value count');
 
 object_store_get_all_values_with_options_test(
-    /*storeName=*/ "out-of-line",
-    /*options=*/ { query: IDBKeyRange.upperBound("0") },
-    "Query with empty range where  first key < upperBound",
-);
+    /*storeName=*/ 'out-of-line',
+    /*options=*/ {query: IDBKeyRange.upperBound('0')},
+    'Query with empty range where  first key < upperBound');
 
 object_store_get_all_values_with_options_test(
-    /*storeName=*/ "out-of-line",
-    /*options=*/ { query: IDBKeyRange.lowerBound("zz") },
-    "Query with empty range where lowerBound < last key",
-);
+    /*storeName=*/ 'out-of-line',
+    /*options=*/ {query: IDBKeyRange.lowerBound('zz')},
+    'Query with empty range where lowerBound < last key');
 
 object_store_get_all_values_with_options_test(
-    /*storeName=*/ "out-of-line",
-    /*options=*/ { direction: "next" },
-    "Direction: next",
-);
+    /*storeName=*/ 'out-of-line', /*options=*/ {direction: 'next'},
+    'Direction: next');
 
 object_store_get_all_values_with_options_test(
-    /*storeName=*/ "out-of-line",
-    /*options=*/ { direction: "prev" },
-    "Direction: prev",
-);
+    /*storeName=*/ 'out-of-line', /*options=*/ {direction: 'prev'},
+    'Direction: prev');
 
 object_store_get_all_values_with_options_test(
-    /*storeName=*/ "out-of-line",
-    /*options=*/ { direction: "nextunique" },
-    "Direction: nextunique",
-);
+    /*storeName=*/ 'out-of-line', /*options=*/ {direction: 'nextunique'},
+    'Direction: nextunique');
 
 object_store_get_all_values_with_options_test(
-    /*storeName=*/ "out-of-line",
-    /*options=*/ { direction: "prevunique" },
-    "Direction: prevunique",
-);
+    /*storeName=*/ 'out-of-line', /*options=*/ {direction: 'prevunique'},
+    'Direction: prevunique');
 
 object_store_get_all_values_with_options_test(
-    /*storeName=*/ "out-of-line",
-    /*options=*/ {
-        direction: "prev",
-        query: IDBKeyRange.bound("b", "x"),
+    /*storeName=*/ 'out-of-line', /*options=*/ {
+      direction: 'prev',
+      query: IDBKeyRange.bound('b', 'x'),
     },
-    "Direction and query",
-);
+    'Direction and query');
 
 object_store_get_all_values_with_options_test(
-    /*storeName=*/ "out-of-line",
-    /*options=*/ {
-        direction: "prev",
-        query: IDBKeyRange.bound("b", "x"),
-        count: 4,
+    /*storeName=*/ 'out-of-line', /*options=*/ {
+      direction: 'prev',
+      query: IDBKeyRange.bound('b', 'x'),
+      count: 4
     },
-    "Direction, query and count",
-);
+    'Direction, query and count');
 
 get_all_with_options_and_count_test(
-    "getAll",
-    /*storeName=*/ "out-of-line",
-    /*indexName=*/ undefined,
-    "Get all values with both options and count",
-);
+    'getAll', /*storeName=*/ 'out-of-line', /*indexName=*/ undefined,
+    'Get all values with both options and count');
 
 get_all_with_invalid_keys_test(
-    "getAll",
-    /*storeName=*/ "out-of-line",
-    /*indexName=*/ undefined,
-    /*shouldUseDictionary=*/ true,
-    "Get all values with invalid query keys",
-);
+    'getAll', /*storeName=*/ 'out-of-line', /*indexName=*/ undefined,
+    /*shouldUseDictionary=*/ true, 'Get all values with invalid query keys');

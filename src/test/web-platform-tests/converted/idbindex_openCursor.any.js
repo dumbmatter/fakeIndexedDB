@@ -1,9 +1,8 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 globalThis.title = "IDBIndex.openCursor()";
 
+'use strict';
 /* Delete created databases
  *
  * Go through each finished test, see if it has an associated database. Close
@@ -261,8 +260,8 @@ function createDetachedArrayBuffer() {
 // META: global=window,worker
 // META: title=IDBIndex.openCursor()
 // META: script=resources/support.js
+'use strict';
 
-'use_strict';
 
 async_test(t => {
   const open_rq = createdb(t);

@@ -1,7 +1,5 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 globalThis.title = "IndexedDB: Test IDBIndex.getAllKeys.";
 
 'use strict';
@@ -218,6 +216,7 @@ function cloningTestWithKeyGenerator(label, valueDescriptors) {
 }
 
 
+'use strict';
 /* Delete created databases
  *
  * Go through each finished test, see if it has an associated database. Close
@@ -1433,8 +1432,8 @@ function timeoutPromise(ms) {
 // META: script=resources/support-get-all.js
 // META: script=resources/support-promises.js
 // META: timeout=long
+'use strict';
 
-'use_strict';
 
 index_get_all_keys_test(
     /*storeName=*/ 'out-of-line', /*options=*/ {query: 'C'}, 'Single item get');

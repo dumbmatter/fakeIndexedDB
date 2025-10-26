@@ -1,9 +1,8 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 globalThis.title = "IndexedDB: Commit ordering of empty transactions";
 
+'use strict';
 /* Delete created databases
  *
  * Go through each finished test, see if it has an associated database. Close
@@ -258,27 +257,11 @@ function createDetachedArrayBuffer() {
 }
 
 
-(function () {
 // META: title=IndexedDB: Commit ordering of empty transactions
 // META: global=window,worker
 // META: script=resources/support.js
 
 'use strict';
-
-// Call with a test object and array of expected values. Returns a
-// function to call with each actual value. Once the expected number
-// of values is seen, asserts that the value orders match and completes
-// the test.
-function expect(t, expected) {
-  let results = [];
-  return result => {
-    results.push(result);
-    if (results.length === expected.length) {
-      assert_array_equals(results, expected);
-      t.done();
-    }
-  };
-}
 
 indexeddb_test(
     (t, db) => {
@@ -343,5 +326,3 @@ indexeddb_test(
       });
     },
     'Multiple transactions without requests complete in the expected order');
-
-})();

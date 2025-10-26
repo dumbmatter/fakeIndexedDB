@@ -1,7 +1,5 @@
 import "../wpt-env.js";
 
-let cursor,db,result,store,value;
-
 globalThis.title = "IndexedDB: ES bindings - Inject a key into a value - Keys bypass setters";
 
 'use strict';
@@ -378,8 +376,8 @@ function timeoutPromise(ms) {
 // META: global=window,worker
 // META: title=IndexedDB: ES bindings - Inject a key into a value - Keys bypass setters
 // META: script=resources/support-promises.js
+'use strict';
 
-'use_strict';
 
 promise_test(async t => {
   const db = await createDatabase(t, db => {
