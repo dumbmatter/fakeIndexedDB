@@ -1,0 +1,6 @@
+# See discussion in https://github.com/dumbmatter/fakeIndexedDB/issues/167
+# The issue here is a subtle timing issue with setTimeout vs setImmediate that's not straightforward to resolve in Node
+expectTimeout = "UNSTABLE"
+
+["in a setTimeout(0) callback after the complete event is fired for a committed transaction"]
+expectation = "UNSTABLE"

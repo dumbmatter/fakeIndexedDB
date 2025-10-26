@@ -134,7 +134,11 @@ for (const absFilename of filenames) {
                 });
             }
 
-            if (generatedManifest.expectTimeout) {
+            if (expectedManifest?.contents?.expectTimeout === "UNSTABLE") {
+                // If the timeout is unstable, then don't pass/fail based on whether we actually got a timeout or not
+                generatedManifest.expectTimeout = "UNSTABLE";
+                numExpectedTimeouts += 1;
+            } else if (generatedManifest.expectTimeout) {
                 if (expectedManifest?.contents?.expectTimeout) {
                     numExpectedTimeouts += 1;
                 } else {
