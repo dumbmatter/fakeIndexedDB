@@ -1,3 +1,11 @@
+# 6.2.5 (2025-11-07)
+
+- Add support for `handleEvent` and `capture` to improve `Event` compatibility (#162 by @nolanlawson)
+
+- Improve handling some edge cases related transaction timing (#165, #168 by @nolanlawson)
+
+- More testing infrastructure improvements (#164, #166 by @nolanlawson)
+
 # 6.2.4 (2025-10-16)
 
 - Several small bug fixes to more correctly handle various edge cases and increase the number of passing tests from the Web Platform Tests (#147, #155, #157 by @dumbmatter; #156, #158, #159, #160 by @nolanlawson)
