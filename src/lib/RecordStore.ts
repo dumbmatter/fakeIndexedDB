@@ -1,5 +1,5 @@
 import FDBKeyRange from "../FDBKeyRange.js";
-import cmp from "./cmp.js";
+import { cmpKeys } from "./cmp.js";
 import BinarySearchTree from "./binarySearchTree.js";
 import type { FDBCursorDirection, Key, Record } from "./types.js";
 
@@ -91,7 +91,10 @@ class RecordStore {
                             while (
                                 !current.done &&
                                 previousValue !== undefined &&
-                                cmp(previousValue.key, current.value.key) === 0
+                                cmpKeys(
+                                    previousValue.key,
+                                    current.value.key,
+                                ) === 0
                             ) {
                                 current = next();
                             }
@@ -110,7 +113,8 @@ class RecordStore {
                     next: (): IteratorResult<Record> => {
                         while (
                             !nextResult.done &&
-                            cmp(current.value.key, nextResult.value.key) === 0
+                            cmpKeys(current.value.key, nextResult.value.key) ===
+                                0
                         ) {
                             // note we return the _lowest_ possible value, hence set the current
                             current = nextResult;

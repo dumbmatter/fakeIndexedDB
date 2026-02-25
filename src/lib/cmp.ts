@@ -21,7 +21,7 @@ const getType = (x: any) => {
     throw new DataError();
 };
 
-const cmpKeys = (first: any, second: any): -1 | 0 | 1 => {
+export const cmpKeys = (first: any, second: any): -1 | 0 | 1 => {
     const t1 = getType(first);
     const t2 = getType(second);
 

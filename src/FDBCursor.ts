@@ -1,6 +1,6 @@
 import FDBKeyRange from "./FDBKeyRange.js";
 import FDBObjectStore from "./FDBObjectStore.js";
-import cmp from "./lib/cmp.js";
+import cmp, { cmpKeys } from "./lib/cmp.js";
 import {
     DataError,
     InvalidAccessError,
@@ -46,7 +46,7 @@ const makeKeyRange = (
             continue;
         }
 
-        if (lower === undefined || cmp(lower, lowerTemp) === 1) {
+        if (lower === undefined || cmpKeys(lower, lowerTemp) === 1) {
             lower = lowerTemp;
         }
     }
@@ -55,7 +55,7 @@ const makeKeyRange = (
             continue;
         }
 
-        if (upper === undefined || cmp(upper, upperTemp) === -1) {
+        if (upper === undefined || cmpKeys(upper, upperTemp) === -1) {
             upper = upperTemp;
         }
     }
@@ -151,10 +151,10 @@ class FDBCursor {
             const range = makeKeyRange(this._range, [key, this._position], []);
             for (const record of records.values(range)) {
                 const cmpResultKey =
-                    key !== undefined ? cmp(record.key, key) : undefined;
+                    key !== undefined ? cmpKeys(record.key, key) : undefined;
                 const cmpResultPosition =
                     this._position !== undefined
-                        ? cmp(record.key, this._position)
+                        ? cmpKeys(record.key, this._position)
                         : undefined;
                 if (key !== undefined) {
                     if (cmpResultKey === -1) {
@@ -165,7 +165,10 @@ class FDBCursor {
                     if (cmpResultKey === -1) {
                         continue;
                     }
-                    const cmpResultPrimaryKey = cmp(record.value, primaryKey);
+                    const cmpResultPrimaryKey = cmpKeys(
+                        record.value,
+                        primaryKey,
+                    );
                     if (cmpResultKey === 0 && cmpResultPrimaryKey === -1) {
                         continue;
                     }
@@ -181,7 +184,7 @@ class FDBCursor {
                     }
                     if (
                         cmpResultPosition === 0 &&
-                        cmp(record.value, this._objectStorePosition) !== 1
+                        cmpKeys(record.value, this._objectStorePosition) !== 1
                     ) {
                         continue;
                     }
@@ -201,12 +204,12 @@ class FDBCursor {
             const range = makeKeyRange(this._range, [key, this._position], []);
             for (const record of records.values(range)) {
                 if (key !== undefined) {
-                    if (cmp(record.key, key) === -1) {
+                    if (cmpKeys(record.key, key) === -1) {
                         continue;
                     }
                 }
                 if (this._position !== undefined) {
-                    if (cmp(record.key, this._position) !== 1) {
+                    if (cmpKeys(record.key, this._position) !== 1) {
                         continue;
                     }
                 }
@@ -222,10 +225,10 @@ class FDBCursor {
             const range = makeKeyRange(this._range, [], [key, this._position]);
             for (const record of records.values(range, "prev")) {
                 const cmpResultKey =
-                    key !== undefined ? cmp(record.key, key) : undefined;
+                    key !== undefined ? cmpKeys(record.key, key) : undefined;
                 const cmpResultPosition =
                     this._position !== undefined
-                        ? cmp(record.key, this._position)
+                        ? cmpKeys(record.key, this._position)
                         : undefined;
                 if (key !== undefined) {
                     if (cmpResultKey === 1) {
@@ -236,7 +239,10 @@ class FDBCursor {
                     if (cmpResultKey === 1) {
                         continue;
                     }
-                    const cmpResultPrimaryKey = cmp(record.value, primaryKey);
+                    const cmpResultPrimaryKey = cmpKeys(
+                        record.value,
+                        primaryKey,
+                    );
                     if (cmpResultKey === 0 && cmpResultPrimaryKey === 1) {
                         continue;
                     }
@@ -252,7 +258,7 @@ class FDBCursor {
                     }
                     if (
                         cmpResultPosition === 0 &&
-                        cmp(record.value, this._objectStorePosition) !== -1
+                        cmpKeys(record.value, this._objectStorePosition) !== -1
                     ) {
                         continue;
                     }
@@ -270,12 +276,12 @@ class FDBCursor {
             const range = makeKeyRange(this._range, [], [key, this._position]);
             for (const record of records.values(range, "prev")) {
                 if (key !== undefined) {
-                    if (cmp(record.key, key) === 1) {
+                    if (cmpKeys(record.key, key) === 1) {
                         continue;
                     }
                 }
                 if (this._position !== undefined) {
-                    if (cmp(record.key, this._position) !== -1) {
+                    if (cmpKeys(record.key, this._position) !== -1) {
                         continue;
                     }
                 }
@@ -490,7 +496,7 @@ class FDBCursor {
         if (key !== undefined) {
             key = valueToKey(key);
 
-            const cmpResult = cmp(key, this._position);
+            const cmpResult = cmpKeys(key, this._position);
 
             if (
                 (cmpResult <= 0 &&
@@ -552,14 +558,15 @@ class FDBCursor {
         }
 
         key = valueToKey(key);
-        const cmpResult = cmp(key, this._position);
+        const cmpResult = cmpKeys(key, this._position);
         if (
             (cmpResult === -1 && this.direction === "next") ||
             (cmpResult === 1 && this.direction === "prev")
         ) {
             throw new DataError();
         }
-        const cmpResult2 = cmp(primaryKey, this._objectStorePosition);
+        primaryKey = valueToKey(primaryKey);
+        const cmpResult2 = cmpKeys(primaryKey, this._objectStorePosition);
         if (cmpResult === 0) {
             if (
                 (cmpResult2 <= 0 && this.direction === "next") ||
