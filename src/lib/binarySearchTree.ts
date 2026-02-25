@@ -351,12 +351,14 @@ export default class BinarySearchTree {
         records: Record[],
         parent: Node | undefined,
         red: boolean,
+        startIndex: number = 0,
+        endIndex: number = records.length,
     ): Node | undefined {
-        const { length } = records;
-        if (!length) {
+        const length = endIndex - startIndex;
+        if (length <= 0) {
             return undefined;
         }
-        const mid = length >>> 1; // like Math.floor(records.length / 2) but fast
+        const mid = startIndex + (length >>> 1); // like Math.floor((start + end) / 2) but fast
 
         const node: Node = {
             record: records[mid],
@@ -367,8 +369,8 @@ export default class BinarySearchTree {
             red,
         };
 
-        const left = this._rebuild(records.slice(0, mid), node, !red);
-        const right = this._rebuild(records.slice(mid + 1), node, !red);
+        const left = this._rebuild(records, node, !red, startIndex, mid);
+        const right = this._rebuild(records, node, !red, mid + 1, endIndex);
 
         node.left = left;
         node.right = right;

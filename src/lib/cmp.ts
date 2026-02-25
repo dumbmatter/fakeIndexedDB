@@ -21,15 +21,7 @@ const getType = (x: any) => {
     throw new DataError();
 };
 
-// https://w3c.github.io/IndexedDB/#compare-two-keys
-const cmp = (first: any, second: any): -1 | 0 | 1 => {
-    if (second === undefined) {
-        throw new TypeError();
-    }
-
-    first = valueToKey(first);
-    second = valueToKey(second);
-
+const cmpKeys = (first: any, second: any): -1 | 0 | 1 => {
     const t1 = getType(first);
     const t2 = getType(second);
 
@@ -53,14 +45,31 @@ const cmp = (first: any, second: any): -1 | 0 | 1 => {
     }
 
     if (t1 === "Binary") {
-        first = new Uint8Array(first);
-        second = new Uint8Array(second);
+        const firstBytes = new Uint8Array(first);
+        const secondBytes = new Uint8Array(second);
+        const length = Math.min(firstBytes.length, secondBytes.length);
+        for (let i = 0; i < length; i++) {
+            if (firstBytes[i] > secondBytes[i]) {
+                return 1;
+            }
+            if (firstBytes[i] < secondBytes[i]) {
+                return -1;
+            }
+        }
+
+        if (firstBytes.length > secondBytes.length) {
+            return 1;
+        }
+        if (firstBytes.length < secondBytes.length) {
+            return -1;
+        }
+        return 0;
     }
 
-    if (t1 === "Array" || t1 === "Binary") {
+    if (t1 === "Array") {
         const length = Math.min(first.length, second.length);
         for (let i = 0; i < length; i++) {
-            const result = cmp(first[i], second[i]);
+            const result = cmpKeys(first[i], second[i]);
 
             if (result !== 0) {
                 return result;
@@ -87,6 +96,15 @@ const cmp = (first: any, second: any): -1 | 0 | 1 => {
     }
 
     return first > second ? 1 : -1;
+};
+
+// https://w3c.github.io/IndexedDB/#compare-two-keys
+const cmp = (first: any, second: any): -1 | 0 | 1 => {
+    if (second === undefined) {
+        throw new TypeError();
+    }
+
+    return cmpKeys(valueToKey(first), valueToKey(second));
 };
 
 export default cmp;
