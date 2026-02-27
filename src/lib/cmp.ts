@@ -21,6 +21,14 @@ const getType = (x: any) => {
     throw new DataError();
 };
 
+/**
+ * Compare two already-normalized IndexedDB keys (i.e. keys that have already
+ * been run through `valueToKey`). Use this on internal/hot paths where keys
+ * are known to be valid to avoid redundant `valueToKey` conversions.
+ *
+ * For comparing raw/untrusted input, use the default-exported `cmp` instead —
+ * it validates and normalizes both arguments before comparing.
+ */
 export const cmpKeys = (first: any, second: any): -1 | 0 | 1 => {
     const t1 = getType(first);
     const t2 = getType(second);
