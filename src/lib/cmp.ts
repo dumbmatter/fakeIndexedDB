@@ -52,10 +52,13 @@ export const cmpKeys = (first: any, second: any): -1 | 0 | 1 => {
         return -1;
     }
 
+    // This block is effectively the same as the array comparison, but we avoid expensive `cmpKey` calls
     if (t1 === "Binary") {
         const firstBytes = new Uint8Array(first);
         const secondBytes = new Uint8Array(second);
-        const length = Math.min(firstBytes.length, secondBytes.length);
+        const firstLen = firstBytes.length;
+        const secondLen = secondBytes.length;
+        const length = Math.min(firstLen, secondLen);
         for (let i = 0; i < length; i++) {
             if (firstBytes[i] > secondBytes[i]) {
                 return 1;
@@ -65,10 +68,10 @@ export const cmpKeys = (first: any, second: any): -1 | 0 | 1 => {
             }
         }
 
-        if (firstBytes.length > secondBytes.length) {
+        if (firstLen > secondLen) {
             return 1;
         }
-        if (firstBytes.length < secondBytes.length) {
+        if (firstLen < secondLen) {
             return -1;
         }
         return 0;

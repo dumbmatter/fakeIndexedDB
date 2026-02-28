@@ -358,7 +358,7 @@ export default class BinarySearchTree {
         if (length <= 0) {
             return undefined;
         }
-        const mid = startIndex + (length >>> 1); // like Math.floor((start + end) / 2) but fast
+        const mid = startIndex + (length >>> 1); // the >>> is like Math.floor(length / 2) but fast
 
         const node: Node = {
             record: records[mid],
