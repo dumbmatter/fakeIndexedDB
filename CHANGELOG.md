@@ -1,3 +1,7 @@
+# Dev
+
+- Improve performance (#169 by @jlucaso1)
+
 # 6.2.5 (2025-11-07)
 
 - Add support for `handleEvent` and `capture` to improve `Event` compatibility (#162 by @nolanlawson)
