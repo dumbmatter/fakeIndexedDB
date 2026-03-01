@@ -1,4 +1,4 @@
-import cmp from "./lib/cmp.js";
+import { cmpKeys } from "./lib/cmp.js";
 import { DataError } from "./lib/errors.js";
 import valueToKey from "./lib/valueToKey.js";
 import type { Key } from "./lib/types.js";
@@ -39,13 +39,13 @@ class FDBKeyRange {
             throw new TypeError();
         }
 
-        const cmpResult = cmp(lower, upper);
+        lower = valueToKey(lower);
+        upper = valueToKey(upper);
+        const cmpResult = cmpKeys(lower, upper);
         if (cmpResult === 1 || (cmpResult === 0 && (lowerOpen || upperOpen))) {
             throw new DataError();
         }
 
-        lower = valueToKey(lower);
-        upper = valueToKey(upper);
         return new FDBKeyRange(lower, upper, lowerOpen, upperOpen);
     }
 
@@ -74,14 +74,14 @@ class FDBKeyRange {
         key = valueToKey(key);
 
         if (this.lower !== undefined) {
-            const cmpResult = cmp(this.lower, key);
+            const cmpResult = cmpKeys(this.lower, key);
 
             if (cmpResult === 1 || (cmpResult === 0 && this.lowerOpen)) {
                 return false;
             }
         }
         if (this.upper !== undefined) {
-            const cmpResult = cmp(this.upper, key);
+            const cmpResult = cmpKeys(this.upper, key);
 
             if (cmpResult === -1 || (cmpResult === 0 && this.upperOpen)) {
                 return false;

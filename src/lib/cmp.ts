@@ -21,15 +21,15 @@ const getType = (x: any) => {
     throw new DataError();
 };
 
-// https://w3c.github.io/IndexedDB/#compare-two-keys
-const cmp = (first: any, second: any): -1 | 0 | 1 => {
-    if (second === undefined) {
-        throw new TypeError();
-    }
-
-    first = valueToKey(first);
-    second = valueToKey(second);
-
+/**
+ * Compare two already-normalized IndexedDB keys (i.e. keys that have already
+ * been run through `valueToKey`). Use this on internal/hot paths where keys
+ * are known to be valid to avoid redundant `valueToKey` conversions.
+ *
+ * For comparing raw/untrusted input, use the default-exported `cmp` instead —
+ * it validates and normalizes both arguments before comparing.
+ */
+export const cmpKeys = (first: any, second: any): -1 | 0 | 1 => {
     const t1 = getType(first);
     const t2 = getType(second);
 
@@ -52,15 +52,35 @@ const cmp = (first: any, second: any): -1 | 0 | 1 => {
         return -1;
     }
 
+    // This block is effectively the same as the array comparison, but we avoid expensive `cmpKey` calls
     if (t1 === "Binary") {
-        first = new Uint8Array(first);
-        second = new Uint8Array(second);
+        const firstBytes = new Uint8Array(first);
+        const secondBytes = new Uint8Array(second);
+        const firstLen = firstBytes.length;
+        const secondLen = secondBytes.length;
+        const length = Math.min(firstLen, secondLen);
+        for (let i = 0; i < length; i++) {
+            if (firstBytes[i] > secondBytes[i]) {
+                return 1;
+            }
+            if (firstBytes[i] < secondBytes[i]) {
+                return -1;
+            }
+        }
+
+        if (firstLen > secondLen) {
+            return 1;
+        }
+        if (firstLen < secondLen) {
+            return -1;
+        }
+        return 0;
     }
 
-    if (t1 === "Array" || t1 === "Binary") {
+    if (t1 === "Array") {
         const length = Math.min(first.length, second.length);
         for (let i = 0; i < length; i++) {
-            const result = cmp(first[i], second[i]);
+            const result = cmpKeys(first[i], second[i]);
 
             if (result !== 0) {
                 return result;
@@ -87,6 +107,15 @@ const cmp = (first: any, second: any): -1 | 0 | 1 => {
     }
 
     return first > second ? 1 : -1;
+};
+
+// https://w3c.github.io/IndexedDB/#compare-two-keys
+const cmp = (first: any, second: any): -1 | 0 | 1 => {
+    if (second === undefined) {
+        throw new TypeError();
+    }
+
+    return cmpKeys(valueToKey(first), valueToKey(second));
 };
 
 export default cmp;

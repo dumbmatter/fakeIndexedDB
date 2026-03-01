@@ -1,5 +1,5 @@
 import FDBKeyRange from "../FDBKeyRange.js";
-import cmp from "./cmp.js";
+import { cmpKeys } from "./cmp.js";
 import { ConstraintError } from "./errors.js";
 import type { Record } from "./types.js";
 
@@ -68,13 +68,13 @@ export default class BinarySearchTree {
     }
 
     private _compare(a: Record, b: Record): number {
-        const keyComparison = cmp(a.key, b.key);
+        const keyComparison = cmpKeys(a.key, b.key);
         if (keyComparison !== 0) {
             return keyComparison;
         }
         // if keys are unique, then we can (and must) avoid comparing the values, since they may be non-comparable
         // (e.g. in the case of an ObjectStore, they are record objects)
-        return this._keysAreUnique ? 0 : cmp(a.value, b.value);
+        return this._keysAreUnique ? 0 : cmpKeys(a.value, b.value);
     }
 
     private _getByComparator(
@@ -229,8 +229,8 @@ export default class BinarySearchTree {
             record: { key },
         } = node;
 
-        const lowerComparison = lower === undefined ? -1 : cmp(lower, key);
-        const upperComparison = upper === undefined ? 1 : cmp(upper, key);
+        const lowerComparison = lower === undefined ? -1 : cmpKeys(lower, key);
+        const upperComparison = upper === undefined ? 1 : cmpKeys(upper, key);
 
         // if keys are non-unique then we need to go left/right even for equality
         // else we can just do LT/GT rather than LTE/GTE as a slight optimization
@@ -351,12 +351,14 @@ export default class BinarySearchTree {
         records: Record[],
         parent: Node | undefined,
         red: boolean,
+        startIndex: number = 0,
+        endIndex: number = records.length,
     ): Node | undefined {
-        const { length } = records;
-        if (!length) {
+        const length = endIndex - startIndex;
+        if (length <= 0) {
             return undefined;
         }
-        const mid = length >>> 1; // like Math.floor(records.length / 2) but fast
+        const mid = startIndex + (length >>> 1); // the >>> is like Math.floor(length / 2) but fast
 
         const node: Node = {
             record: records[mid],
@@ -367,8 +369,8 @@ export default class BinarySearchTree {
             red,
         };
 
-        const left = this._rebuild(records.slice(0, mid), node, !red);
-        const right = this._rebuild(records.slice(mid + 1), node, !red);
+        const left = this._rebuild(records, node, !red, startIndex, mid);
+        const right = this._rebuild(records, node, !red, mid + 1, endIndex);
 
         node.left = left;
         node.right = right;
