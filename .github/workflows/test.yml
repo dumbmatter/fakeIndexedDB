@@ -9,17 +9,32 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
-        node: [ '18', '20', '22', '24' ]
+        include:
+          - node: 18
+            pnpm: 10
+          - node: 20
+            pnpm: 10
+          - node: 22
+            pnpm: 11
+          - node: 24
+            pnpm: 11
+          - node: 26
+            pnpm: 11
+
     steps:
-    - uses: actions/checkout@v4
-    - uses: pnpm/action-setup@v3
-      with:
-        version: 10
-    - uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node }}
-        cache: 'pnpm'
-    - run: pnpm install
-    - run: pnpm test
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: ${{ matrix.pnpm }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+
+      - run: pnpm install
+      - run: pnpm test

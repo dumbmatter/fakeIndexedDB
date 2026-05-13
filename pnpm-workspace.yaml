@@ -1,2 +1,6 @@
+allowBuilds:
+  core-js: false
+  phantomjs-prebuilt: true
+  unrs-resolver: false
 onlyBuiltDependencies:
   - phantomjs-prebuilt
