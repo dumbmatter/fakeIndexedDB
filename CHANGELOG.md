@@ -1,6 +1,8 @@
-# Dev
+# 6.2.6 (2026-10-16)
 
 - Improve performance (#169 by @jlucaso1)
+
+- Fixed memory leak of finished transasctions (#171 by @nolanlawson)
 
 # 6.2.5 (2025-11-07)
 
