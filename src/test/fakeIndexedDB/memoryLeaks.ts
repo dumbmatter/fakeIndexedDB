@@ -38,6 +38,8 @@ describe("memory leaks", () => {
         const tx = db!.transaction("s", "readwrite");
         tx.abort();
 
+        // double macrotask to avoid race conditions in the test
+        await new Promise((resolve) => setTimeout(resolve));
         await new Promise((resolve) => setTimeout(resolve));
         assert.equal(
             db?._rawDatabase.transactions.length,
