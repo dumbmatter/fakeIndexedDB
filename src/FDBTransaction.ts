@@ -326,6 +326,8 @@ class FDBTransaction extends FakeEventTarget {
             const idx = transactions.indexOf(this);
             if (idx !== -1) {
                 transactions.splice(idx, 1);
+            } else {
+                throw new Error("should have been able to remove transaction");
             }
         });
     }
