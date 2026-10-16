@@ -204,19 +204,19 @@ import "fake-indexeddb/auto";
 
 ## Quality
 
-Here's a comparison of fake-indexeddb and real browser IndexedDB implementations on [the Web Platform Tests IndexedDB suite](https://wpt.fyi/results/IndexedDB) as of <!-- last_updated_date_start -->November 7, 2025<!-- last_updated_date_end -->:
+Here's a comparison of fake-indexeddb and real browser IndexedDB implementations on [the Web Platform Tests IndexedDB suite](https://wpt.fyi/results/IndexedDB) as of <!-- last_updated_date_start -->October 16, 2026<!-- last_updated_date_end -->:
 
 <!-- DO NOT MANUALLY OVERWRITE THE TABLE BELOW! -->
 <!-- To update the results, run `pnpm run update-wpt-results` -->
 <!-- wpt_results_start -->
-<!-- wpt_results_total=1653 -->
+<!-- wpt_results_total=1679 -->
 | Implementation | Version | Passed | % |
 | --- | --- | --- | ---  |
-| Chrome | 144.0.7514.0 | 1651 | 99.9% |
-| Firefox | 146.0a1 | 1498 | 90.6% |
-| Safari | 231 preview | 1497 | 90.6% |
-| Ladybird | 1.0-cde3941d9f | 1426 | 86.3% |
-| fake-indexeddb | 6.2.5 | 1369 | 82.8% |
+| Chrome | 158.0.8106.0 | 1673 | 99.6% |
+| Firefox | 159.0b2 | 1672 | 99.6% |
+| Safari | 27.0 (22625.1.29.11.27) | 1506 | 89.7% |
+| Ladybird | 1.0-2347e567723 | 1605 | 95.6% |
+| fake-indexeddb | 6.2.6 | 1369 | 81.5% |
 <!-- wpt_results_end -->
 
 Keep in mind that these tests include a lot of edge cases (such as rare error conditions), so even hitting ~40% likely means that the core IndexedDB functionality is covered. Your app will probably work fine.
