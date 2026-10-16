@@ -320,7 +320,7 @@ class FDBTransaction extends FakeEventTarget {
 
         // Remove from the list of transactions attached to the linked database to avoid
         // indefinite memory bloat (issue #170)
-        // Note we do this in a microtask since other consumers immediately check if it's in the array
+        // Note we do this in a macrotask since other consumers immediately check if it's in the array
         queueTask(() => {
             const { transactions } = this.db._rawDatabase;
             const idx = transactions.indexOf(this);
