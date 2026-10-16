@@ -160,7 +160,7 @@ class FDBTransaction extends FakeEventTarget {
             }
         });
 
-        this._state = "finished";
+        this._markFinished();
     }
 
     public abort() {
@@ -306,13 +306,30 @@ class FDBTransaction extends FakeEventTarget {
         // Check if transaction complete event needs to be fired
         if (this._state !== "finished") {
             // Either aborted or committed already
-            this._state = "finished";
+            this._markFinished();
 
             if (!this.error) {
                 const event = new FakeEvent("complete");
                 this.dispatchEvent(event);
             }
         }
+    }
+
+    private _markFinished() {
+        this._state = "finished";
+
+        // Remove from the list of transactions attached to the linked database to avoid
+        // indefinite memory bloat (issue #170)
+        // Note we do this in a macrotask since other consumers immediately check if it's in the array
+        queueTask(() => {
+            const { transactions } = this.db._rawDatabase;
+            const idx = transactions.indexOf(this);
+            if (idx !== -1) {
+                transactions.splice(idx, 1);
+            } else {
+                throw new Error("should have been able to remove transaction");
+            }
+        });
     }
 
     public commit() {
