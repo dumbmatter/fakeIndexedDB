@@ -128,9 +128,11 @@ class Index {
         return records;
     }
 
-    // The index key(s) that an object store record with this value is stored under, or undefined if the value does not
-    // belong in this index. Shared by storeRecord and deleteRecord so that deletion finds exactly what insertion stored.
-    private getIndexKeys(value: Value): Key[] | undefined {
+    // The index key that an object store record with this value is stored under, or undefined if the value does not
+    // belong in this index. For a multiEntry index given an array, this is the array of individual index keys (invalid
+    // and duplicate elements removed). Shared by storeRecord and deleteRecord so that deletion finds exactly what
+    // insertion stored.
+    private getIndexKey(value: Value): Key | undefined {
         let indexKey;
         try {
             indexKey = extractKey(this.keyPath, value).key;
@@ -149,7 +151,7 @@ class Index {
             } catch (e) {
                 return;
             }
-            return [indexKey];
+            return indexKey;
         }
 
         // remove any elements from index key that are not valid keys and remove any duplicate elements from index
@@ -169,38 +171,59 @@ class Index {
 
     // http://www.w3.org/TR/2015/REC-IndexedDB-20150108/#dfn-steps-for-storing-a-record-into-an-object-store (step 7)
     public storeRecord(newRecord: Record) {
-        const indexKeys = this.getIndexKeys(newRecord.value);
-        if (indexKeys === undefined) {
+        const indexKey = this.getIndexKey(newRecord.value);
+        if (indexKey === undefined) {
             return;
         }
 
-        if (this.unique) {
-            for (const indexKey of indexKeys) {
+        if (!this.multiEntry || !Array.isArray(indexKey)) {
+            if (this.unique) {
                 const existingRecord = this.records.get(indexKey);
                 if (existingRecord) {
                     throw new ConstraintError();
                 }
             }
-        }
 
-        for (const indexKey of indexKeys) {
             this.records.put({
                 key: indexKey,
                 value: newRecord.key,
             });
+        } else {
+            if (this.unique) {
+                for (const individualIndexKey of indexKey) {
+                    const existingRecord = this.records.get(individualIndexKey);
+                    if (existingRecord) {
+                        throw new ConstraintError();
+                    }
+                }
+            }
+
+            for (const individualIndexKey of indexKey) {
+                this.records.put({
+                    key: individualIndexKey,
+                    value: newRecord.key,
+                });
+            }
         }
     }
 
     // Remove the index records that storeRecord created for this object store record. Looking them up by index key is
     // O(log n) per index record, where scanning the whole index for records pointing at this primary key is O(n).
     public deleteRecord(record: Record) {
-        const indexKeys = this.getIndexKeys(record.value);
-        if (indexKeys === undefined) {
+        const indexKey = this.getIndexKey(record.value);
+        if (indexKey === undefined) {
             return;
         }
 
-        for (const indexKey of indexKeys) {
+        if (!this.multiEntry || !Array.isArray(indexKey)) {
             this.records.deleteByKeyAndValue(indexKey, record.key);
+        } else {
+            for (const individualIndexKey of indexKey) {
+                this.records.deleteByKeyAndValue(
+                    individualIndexKey,
+                    record.key,
+                );
+            }
         }
     }
 
