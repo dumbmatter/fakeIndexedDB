@@ -1,3 +1,7 @@
+# 6.2.7 (2026-10-29)
+
+- Improve performance of `put` and `delete` for object stores with indexes (#172 by @jameskfry)
+
 # 6.2.6 (2026-10-16)
 
 - Improve performance (#169 by @jlucaso1)
