@@ -41,18 +41,17 @@ class RecordStore {
         return deletedRecords;
     }
 
-    public deleteByValue(key: Key | FDBKeyRange) {
-        const range = key instanceof FDBKeyRange ? key : FDBKeyRange.only(key);
-
-        const deletedRecords: Record[] = [];
-        for (const record of this.records.getAllRecords()) {
-            if (range.includes(record.value)) {
-                this.records.delete(record);
-                deletedRecords.push(record);
-            }
+    /**
+     * Delete the record with this key and this value, if there is one. Used by indexes, where the value is the primary
+     * key of the object store record that the index record points to.
+     */
+    public deleteByKeyAndValue(key: Key, value: Key) {
+        // In a non-unique store the value is part of the sort order, so this finds the exact record. In a unique store
+        // it finds the only record with this key, which may point at a different primary key.
+        const record = this.records.get({ key, value });
+        if (record !== undefined && cmpKeys(record.value, value) === 0) {
+            this.records.delete(record);
         }
-
-        return deletedRecords;
     }
 
     public clear() {
