@@ -147,11 +147,13 @@ class Index {
 
         if (!this.multiEntry || !Array.isArray(indexKey)) {
             try {
-                valueToKey(indexKey);
+                // "Convert a value to a key": a single key path returns the
+                // value as-is (e.g. a typed array), so store the converted
+                // key, not the raw value.
+                return valueToKey(indexKey);
             } catch (e) {
                 return;
             }
-            return indexKey;
         }
 
         // remove any elements from index key that are not valid keys and remove any duplicate elements from index
