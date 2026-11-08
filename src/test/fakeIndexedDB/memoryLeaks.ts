@@ -11,7 +11,10 @@ const req = (r: FDBOpenDBRequest): Promise<FDBDatabase> =>
 
 const openDb = async (name: string) => {
     const open = fakeIndexedDB.open(name, 1);
-    open.onupgradeneeded = () => open.result.createObjectStore("s");
+    open.onupgradeneeded = () => {
+        open.result.createObjectStore("s");
+        open.result.createObjectStore("t", { keyPath: "id" });
+    };
     return await req(open);
 };
 
@@ -49,5 +52,24 @@ describe("memory leaks", () => {
             0,
             "Transactions should not be held onto indefinitely",
         );
+    });
+
+    it("still allows an abort inside an onerror (issue #173)", async () => {
+        const db = await openDb("test-mem-leaks-3");
+
+        const tx = db.transaction("t", "readwrite");
+        const onAbortPromise = new Promise((resolve) => {
+            tx.onabort = resolve;
+        });
+        const store = tx.objectStore("t");
+        store.add({ id: 1 });
+        await new Promise<void>((resolve) => {
+            store.add({ id: 1 }).onerror = () => {
+                tx.abort();
+                resolve();
+            };
+        });
+        // should fire onabort normally
+        await onAbortPromise;
     });
 });

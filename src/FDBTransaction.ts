@@ -326,9 +326,12 @@ class FDBTransaction extends FakeEventTarget {
             const idx = transactions.indexOf(this);
             if (idx !== -1) {
                 transactions.splice(idx, 1);
-            } else {
-                throw new Error("should have been able to remove transaction");
             }
+            // Note: it's possible to hit this twice in the same aborted transaction
+            // due to an abort inside an `onerror` (issue #173). In that case we hit:
+            //   1. once due to the user's `abort()`
+            //   2. once again due to the `if (!event.canceled)` above
+            // So we can just ignore the fact that the transaction was already removed
         });
     }
 
