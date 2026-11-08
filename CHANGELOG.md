@@ -1,6 +1,8 @@
-# dev
+# 6.2.8 (2026-11-08)
 
 - Fixed regression in v6.2.6 when calling `transaction.abort()` in a request error handler (#174 by @nolanlawson)
+
+- Fixed conversion of inline typed array keys to ArrayBuffers when storing records (#176 by @Huyvux12)
 
 # 6.2.7 (2026-10-29)
 
