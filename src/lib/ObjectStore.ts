@@ -2,6 +2,7 @@ import FDBRecord from "../FDBRecord.js";
 import { DataError } from "./errors.js";
 import extractKey from "./extractKey.js";
 import KeyGenerator from "./KeyGenerator.js";
+import valueToKey from "./valueToKey.js";
 import RecordStore from "./RecordStore.js";
 import type Index from "./Index.js";
 import type Database from "./Database.js";
@@ -126,7 +127,11 @@ class ObjectStore {
         if (this.keyPath !== null) {
             const key = extractKey(this.keyPath, newRecord.value).key;
             if (key !== undefined) {
-                newRecord.key = key;
+                // "Convert a value to a key": a single key path returns the
+                // value as-is (e.g. a typed array), so convert it here. For
+                // an array key path, extractKey already converted each part
+                // and valueToKey is idempotent on converted keys.
+                newRecord.key = valueToKey(key);
             }
         }
 
