@@ -1,3 +1,7 @@
+# dev
+
+- Fixed regression in v6.2.6 when calling `transaction.abort()` in a request error handler (#174 by @nolanlawson)
+
 # 6.2.7 (2026-10-29)
 
 - Improve performance of `put` and `delete` for object stores with indexes (#172 by @jameskfry)
